@@ -31,7 +31,7 @@ const ChannelManagerPage = () => {
     <div style={{ display: 'flex', flexDirection: 'column', flex: 1, overflow: 'hidden' }}>
       <div style={{ padding: '16px 32px 0', borderBottom: '1px solid var(--border)', display: 'flex', gap: '0' }}>
         {[['overview', 'Overview'], ['rates', 'Rate Management'], ['availability', 'Availability']].map(([id, label]) => (
-          <button key={id} onClick={() => setActiveTab(id)} style={{ padding: '10px 20px', background: 'none', border: 'none', borderBottom: `2px solid ${activeTab === id ? 'var(--gold)' : 'transparent'}`, color: activeTab === id ? 'var(--gold)' : 'var(--text3)', cursor: 'pointer', fontSize: '13px', fontWeight: '600', fontFamily: 'DM Sans,sans-serif' }}>
+          <button key={id} onClick={() => setActiveTab(id)} style={{ padding: '10px 20px', background: 'none', border: 'none', borderBottom: `2px solid ${activeTab === id ? 'var(--gold)' : 'transparent'}`, color: activeTab === id ? 'var(--gold)' : 'var(--text3)', cursor: 'pointer', fontSize: '13px', fontWeight: '600', fontFamily: 'Inter, sans-serif' }}>
             {label}
           </button>
         ))}
@@ -48,7 +48,7 @@ const ChannelManagerPage = () => {
                 { label: 'Commission Paid', value: `₹${(totalCommission / 1000).toFixed(1)}K`, color: 'var(--rose)', sub: 'OTA fees' },
               ].map(s => (
                 <div key={s.label} style={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: 'var(--radius)', padding: '20px' }}>
-                  <div style={{ fontSize: '28px', fontWeight: '700', fontFamily: 'Playfair Display,serif', color: s.color, marginBottom: '4px' }}>{s.value}</div>
+                  <div style={{ fontSize: '28px', fontWeight: '700', fontFamily: 'Poppins,sans-serif', color: s.color, marginBottom: '4px' }}>{s.value}</div>
                   <div style={{ fontSize: '13px', fontWeight: '600', marginBottom: '2px' }}>{s.label}</div>
                   <div style={{ fontSize: '11px', color: 'var(--text3)' }}>{s.sub}</div>
                 </div>
@@ -112,7 +112,7 @@ const ChannelManagerPage = () => {
                 <div style={{ fontSize: '15px', fontWeight: '700' }}>Rate Parity Management</div>
                 <div style={{ fontSize: '12px', color: 'var(--text3)' }}>Set rates per room type across all channels</div>
               </div>
-              <button style={{ padding: '9px 18px', background: 'linear-gradient(135deg,#C9A84C,#8A6F2E)', border: 'none', borderRadius: '8px', color: '#fff', cursor: 'pointer', fontWeight: '600', fontSize: '13px', fontFamily: 'DM Sans,sans-serif' }}>
+              <button style={{ padding: '9px 18px', background: 'linear-gradient(135deg,#C9A84C,#8A6F2E)', border: 'none', borderRadius: '8px', color: '#fff', cursor: 'pointer', fontWeight: '600', fontSize: '13px', fontFamily: 'Inter, sans-serif' }}>
                 Sync All Channels
               </button>
             </div>

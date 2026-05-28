@@ -66,7 +66,7 @@ const StatCard = ({ icon, iconColor, label, value, sub, trend }) => (
       style={{
         fontSize: '26px',
         fontWeight: '700',
-        fontFamily: 'Playfair Display, serif',
+        fontFamily: 'Poppins, sans-serif',
         lineHeight: 1.1,
         marginBottom: '4px',
       }}

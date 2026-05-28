@@ -29,7 +29,7 @@ const QRTab = () => {
         <div style={{ marginBottom: 16, fontSize: 14, color: 'var(--text2)' }}>Or enter Booking ID manually:</div>
         <div style={{ display: 'flex', gap: 8, marginBottom: 16 }}>
           <input value={bookingId} onChange={e => setBookingId(e.target.value)} placeholder="e.g. BK-1003" style={{ flex: 1, background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 8, padding: '10px 14px', color: 'var(--text)', fontFamily: 'DM Mono, monospace', fontSize: 14 }} />
-          <button onClick={lookup} style={{ background: 'linear-gradient(135deg,#C9A84C,#8A6F2E)', border: 'none', borderRadius: 8, padding: '10px 20px', color: '#fff', cursor: 'pointer', fontFamily: 'DM Sans, sans-serif', fontWeight: 600 }}>Lookup</button>
+          <button onClick={lookup} style={{ background: 'linear-gradient(135deg,#C9A84C,#8A6F2E)', border: 'none', borderRadius: 8, padding: '10px 20px', color: '#fff', cursor: 'pointer', fontFamily: 'Inter, sans-serif', fontWeight: 600 }}>Lookup</button>
         </div>
         {found === 'not_found' && <div style={{ padding: 16, background: 'rgba(251,113,133,0.1)', border: '1px solid rgba(251,113,133,0.3)', borderRadius: 8, color: 'var(--rose)' }}>Booking not found. Please check the ID.</div>}
         {found && found !== 'not_found' && (
@@ -38,7 +38,7 @@ const QRTab = () => {
             <div style={{ fontSize: 13, color: 'var(--text2)', marginBottom: 4 }}>Room: {found.room}</div>
             <div style={{ fontSize: 13, color: 'var(--text2)', marginBottom: 16 }}>Check-in: {found.checkIn} → Check-out: {found.checkOut}</div>
             {!checkedIn ? (
-              <button onClick={() => setCheckedIn(true)} style={{ background: 'linear-gradient(135deg,#34D399,#059669)', border: 'none', borderRadius: 8, padding: '10px 24px', color: '#fff', cursor: 'pointer', fontFamily: 'DM Sans, sans-serif', fontWeight: 600, fontSize: 14 }}>✓ Confirm Check-In</button>
+              <button onClick={() => setCheckedIn(true)} style={{ background: 'linear-gradient(135deg,#34D399,#059669)', border: 'none', borderRadius: 8, padding: '10px 24px', color: '#fff', cursor: 'pointer', fontFamily: 'Inter, sans-serif', fontWeight: 600, fontSize: 14 }}>✓ Confirm Check-In</button>
             ) : (
               <div style={{ display: 'flex', alignItems: 'center', gap: 8, color: 'var(--green)', fontWeight: 600 }}><Icon name="check" size={18} color="var(--green)" /> Checked In Successfully!</div>
             )}
@@ -58,16 +58,16 @@ const IDScanTab = () => {
     <div style={{ maxWidth: 480 }}>
       <div style={{ display: 'flex', gap: 12, marginBottom: 20 }}>
         {['aadhaar', 'passport'].map(t => (
-          <button key={t} onClick={() => setForm(f => ({ ...f, type: t }))} style={{ padding: '8px 20px', borderRadius: 8, border: `1px solid ${form.type === t ? 'var(--gold)' : 'var(--border)'}`, background: form.type === t ? 'rgba(201,168,76,0.12)' : 'transparent', color: form.type === t ? 'var(--gold)' : 'var(--text2)', cursor: 'pointer', fontFamily: 'DM Sans, sans-serif', textTransform: 'capitalize' }}>{t}</button>
+          <button key={t} onClick={() => setForm(f => ({ ...f, type: t }))} style={{ padding: '8px 20px', borderRadius: 8, border: `1px solid ${form.type === t ? 'var(--gold)' : 'var(--border)'}`, background: form.type === t ? 'rgba(201,168,76,0.12)' : 'transparent', color: form.type === t ? 'var(--gold)' : 'var(--text2)', cursor: 'pointer', fontFamily: 'Inter, sans-serif', textTransform: 'capitalize' }}>{t}</button>
         ))}
       </div>
       {['name', 'idNumber', 'dob'].map(field => (
         <div key={field} style={{ marginBottom: 14 }}>
           <label style={{ fontSize: 12, color: 'var(--text3)', display: 'block', marginBottom: 6, textTransform: 'uppercase', letterSpacing: '0.06em' }}>{field === 'idNumber' ? 'ID Number' : field === 'dob' ? 'Date of Birth' : 'Full Name'}</label>
-          <input value={form[field]} onChange={e => setForm(f => ({ ...f, [field]: e.target.value }))} type={field === 'dob' ? 'date' : 'text'} style={{ width: '100%', background: filled ? 'rgba(52,211,153,0.08)' : 'var(--surface)', border: `1px solid ${filled ? 'rgba(52,211,153,0.3)' : 'var(--border)'}`, borderRadius: 8, padding: '10px 14px', color: 'var(--text)', fontFamily: 'DM Sans, sans-serif', fontSize: 14, boxSizing: 'border-box', transition: 'all 0.3s' }} />
+          <input value={form[field]} onChange={e => setForm(f => ({ ...f, [field]: e.target.value }))} type={field === 'dob' ? 'date' : 'text'} style={{ width: '100%', background: filled ? 'rgba(52,211,153,0.08)' : 'var(--surface)', border: `1px solid ${filled ? 'rgba(52,211,153,0.3)' : 'var(--border)'}`, borderRadius: 8, padding: '10px 14px', color: 'var(--text)', fontFamily: 'Inter, sans-serif', fontSize: 14, boxSizing: 'border-box', transition: 'all 0.3s' }} />
         </div>
       ))}
-      <button onClick={simulate} disabled={scanning} style={{ background: scanning ? 'var(--surface)' : 'linear-gradient(135deg,#C9A84C,#8A6F2E)', border: 'none', borderRadius: 8, padding: '12px 24px', color: scanning ? 'var(--text3)' : '#fff', cursor: scanning ? 'not-allowed' : 'pointer', fontFamily: 'DM Sans, sans-serif', fontWeight: 600, display: 'flex', alignItems: 'center', gap: 8 }}>
+      <button onClick={simulate} disabled={scanning} style={{ background: scanning ? 'var(--surface)' : 'linear-gradient(135deg,#C9A84C,#8A6F2E)', border: 'none', borderRadius: 8, padding: '12px 24px', color: scanning ? 'var(--text3)' : '#fff', cursor: scanning ? 'not-allowed' : 'pointer', fontFamily: 'Inter, sans-serif', fontWeight: 600, display: 'flex', alignItems: 'center', gap: 8 }}>
         <Icon name="fingerprint" size={16} color={scanning ? 'var(--text3)' : '#fff'} />
         {scanning ? 'Scanning...' : 'Scan Document'}
       </button>
@@ -88,8 +88,8 @@ const FaceTab = () => {
         {status === 'idle' ? 'Position face within the frame' : status === 'capturing' ? 'Capturing...' : '✓ Face Verified — Match: 98.4%'}
       </div>
       <div style={{ display: 'flex', gap: 12 }}>
-        <button onClick={() => { setStatus('capturing'); setTimeout(() => setStatus('verified'), 2000); }} disabled={status === 'capturing'} style={{ background: 'linear-gradient(135deg,#C9A84C,#8A6F2E)', border: 'none', borderRadius: 8, padding: '10px 24px', color: '#fff', cursor: 'pointer', fontFamily: 'DM Sans, sans-serif', fontWeight: 600 }}>Capture</button>
-        <button onClick={() => setStatus('idle')} style={{ background: 'transparent', border: '1px solid var(--border)', borderRadius: 8, padding: '10px 24px', color: 'var(--text2)', cursor: 'pointer', fontFamily: 'DM Sans, sans-serif' }}>Reset</button>
+        <button onClick={() => { setStatus('capturing'); setTimeout(() => setStatus('verified'), 2000); }} disabled={status === 'capturing'} style={{ background: 'linear-gradient(135deg,#C9A84C,#8A6F2E)', border: 'none', borderRadius: 8, padding: '10px 24px', color: '#fff', cursor: 'pointer', fontFamily: 'Inter, sans-serif', fontWeight: 600 }}>Capture</button>
+        <button onClick={() => setStatus('idle')} style={{ background: 'transparent', border: '1px solid var(--border)', borderRadius: 8, padding: '10px 24px', color: 'var(--text2)', cursor: 'pointer', fontFamily: 'Inter, sans-serif' }}>Reset</button>
       </div>
       {status === 'verified' && <Badge label="Verified" color="green" />}
     </div>
@@ -106,8 +106,8 @@ const SignatureTab = () => {
         {signed ? <svg width="80%" height="80%" viewBox="0 0 300 100"><path d="M20,70 Q60,20 100,60 Q140,100 180,40 Q220,-20 280,50" stroke="var(--gold)" strokeWidth="3" fill="none" strokeLinecap="round"/></svg> : <span style={{ color: 'var(--text3)', fontSize: 14 }}>✍ Sign Here</span>}
       </div>
       <div style={{ display: 'flex', gap: 12 }}>
-        <button onClick={() => { setSigned(false); setSaved(false); }} style={{ background: 'transparent', border: '1px solid var(--border)', borderRadius: 8, padding: '10px 20px', color: 'var(--text2)', cursor: 'pointer', fontFamily: 'DM Sans, sans-serif' }}>Clear</button>
-        <button onClick={() => { if (signed) setSaved(true); }} style={{ background: 'linear-gradient(135deg,#C9A84C,#8A6F2E)', border: 'none', borderRadius: 8, padding: '10px 20px', color: '#fff', cursor: 'pointer', fontFamily: 'DM Sans, sans-serif', fontWeight: 600 }}>Save Signature</button>
+        <button onClick={() => { setSigned(false); setSaved(false); }} style={{ background: 'transparent', border: '1px solid var(--border)', borderRadius: 8, padding: '10px 20px', color: 'var(--text2)', cursor: 'pointer', fontFamily: 'Inter, sans-serif' }}>Clear</button>
+        <button onClick={() => { if (signed) setSaved(true); }} style={{ background: 'linear-gradient(135deg,#C9A84C,#8A6F2E)', border: 'none', borderRadius: 8, padding: '10px 20px', color: '#fff', cursor: 'pointer', fontFamily: 'Inter, sans-serif', fontWeight: 600 }}>Save Signature</button>
       </div>
       {saved && <div style={{ marginTop: 12, color: 'var(--green)', fontSize: 13, display: 'flex', alignItems: 'center', gap: 6 }}><Icon name="check" size={14} color="var(--green)" /> Signature saved successfully</div>}
     </div>
@@ -127,7 +127,7 @@ const SmartCheckInPage = () => {
       <div style={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: 'var(--radius-lg)', padding: 24 }}>
         <div style={{ display: 'flex', gap: 4, marginBottom: 24, background: 'var(--surface)', borderRadius: 10, padding: 4 }}>
           {TABS.map((t, i) => (
-            <button key={i} onClick={() => setTab(i)} style={{ flex: 1, padding: '9px 12px', borderRadius: 8, border: 'none', cursor: 'pointer', fontFamily: 'DM Sans, sans-serif', fontSize: 13, fontWeight: 500, background: tab === i ? 'var(--card)' : 'transparent', color: tab === i ? 'var(--gold)' : 'var(--text2)', transition: 'all 0.15s' }}>{t}</button>
+            <button key={i} onClick={() => setTab(i)} style={{ flex: 1, padding: '9px 12px', borderRadius: 8, border: 'none', cursor: 'pointer', fontFamily: 'Inter, sans-serif', fontSize: 13, fontWeight: 500, background: tab === i ? 'var(--card)' : 'transparent', color: tab === i ? 'var(--gold)' : 'var(--text2)', transition: 'all 0.15s' }}>{t}</button>
           ))}
         </div>
         {tab === 0 && <QRTab />}

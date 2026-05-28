@@ -1,73 +1,158 @@
-@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700;900&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Poppins:wght@500;600;700&display=swap');
 
-*, *::before, *::after {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
+/* ══════════════════════════════════════════════
+   LIGHT THEME  (default)
+══════════════════════════════════════════════ */
 :root {
-  --gold: #C9A84C;
-  --gold-light: #E8C97A;
-  --gold-dim: #8A6F2E;
-  --obsidian: #0A0A0F;
-  --void: #111118;
-  --surface: #16161F;
-  --card: #1E1E2A;
-  --card2: #252533;
-  --border: #2E2E3E;
-  --border2: #3A3A4E;
-  --text: #F0EEE8;
-  --text2: #B8B4AA;
-  --text3: #6E6A62;
-  --teal: #2DD4BF;
-  --teal-dim: #0F766E;
-  --rose: #FB7185;
-  --rose-dim: #9F1239;
-  --violet: #A78BFA;
-  --violet-dim: #5B21B6;
-  --amber: #FCD34D;
-  --green: #34D399;
-  --blue: #60A5FA;
-  --radius: 12px;
-  --radius-lg: 20px;
-  --shadow: 0 4px 24px rgba(0,0,0,0.4);
-  --shadow-gold: 0 0 24px rgba(201,168,76,0.15);
+  --primary:       #4F46E5;
+  --primary-light: #6366F1;
+  --primary-dim:   #3730A3;
+  --primary-bg:    #EEF2FF;
+
+  /* Sidebar — always dark indigo regardless of theme */
+  --sidebar-bg:          #1E1B4B;
+  --sidebar-text:        #C7D2FE;
+  --sidebar-text-muted:  #818CF8;
+  --sidebar-active-bg:   rgba(255,255,255,0.12);
+  --sidebar-active-text: #FFFFFF;
+  --sidebar-border:      rgba(255,255,255,0.08);
+  --sidebar-group-label: #818CF8;
+
+  /* Layout */
+  --bg:      #F8F9FC;
+  --surface: #FFFFFF;
+  --card:    #FFFFFF;
+  --card2:   #F3F4F6;
+  --border:  #E5E7EB;
+  --border2: #D1D5DB;
+
+  /* Text */
+  --text:  #111827;
+  --text2: #374151;
+  --text3: #6B7280;
+  --text4: #9CA3AF;
+
+  /* Status */
+  --green:      #10B981;
+  --green-bg:   #D1FAE5;
+  --green-text: #065F46;
+  --amber:      #F59E0B;
+  --amber-bg:   #FEF3C7;
+  --amber-text: #92400E;
+  --rose:       #EF4444;
+  --rose-bg:    #FEE2E2;
+  --rose-text:  #991B1B;
+  --blue:       #3B82F6;
+  --blue-bg:    #DBEAFE;
+  --blue-text:  #1E40AF;
+  --violet:     #8B5CF6;
+  --violet-bg:  #EDE9FE;
+  --violet-text:#5B21B6;
+  --teal:       #14B8A6;
+  --teal-bg:    #CCFBF1;
+  --teal-text:  #134E4A;
+  --orange:     #F97316;
+  --orange-bg:  #FFEDD5;
+  --orange-text:#9A3412;
+  --gold:       #D97706;
+  --gold-bg:    #FEF3C7;
+
+  /* Misc */
+  --radius:    10px;
+  --radius-lg: 14px;
+  --radius-xl: 20px;
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.08);
+  --shadow:    0 4px 16px rgba(0,0,0,0.08);
+  --shadow-lg: 0 10px 40px rgba(0,0,0,0.12);
 }
 
-html {
-  scroll-behavior: smooth;
+/* ══════════════════════════════════════════════
+   DARK THEME  — applied via  html.dark
+══════════════════════════════════════════════ */
+html.dark {
+  --primary:       #6366F1;
+  --primary-light: #818CF8;
+  --primary-dim:   #4F46E5;
+  --primary-bg:    rgba(99,102,241,0.15);
+
+  /* Sidebar stays the same dark indigo */
+  --sidebar-bg:          #13112E;
+  --sidebar-text:        #C7D2FE;
+  --sidebar-text-muted:  #818CF8;
+  --sidebar-active-bg:   rgba(255,255,255,0.10);
+  --sidebar-active-text: #FFFFFF;
+  --sidebar-border:      rgba(255,255,255,0.06);
+  --sidebar-group-label: #6366F1;
+
+  /* Layout */
+  --bg:      #0F0F1A;
+  --surface: #1A1A2E;
+  --card:    #1E1E30;
+  --card2:   #252538;
+  --border:  #2E2E45;
+  --border2: #3A3A55;
+
+  /* Text */
+  --text:  #F1F0F8;
+  --text2: #B8B4D0;
+  --text3: #7B78A0;
+  --text4: #5A5780;
+
+  /* Status — slightly adjusted for dark bg */
+  --green:      #34D399;
+  --green-bg:   rgba(52,211,153,0.12);
+  --green-text: #6EE7B7;
+  --amber:      #FCD34D;
+  --amber-bg:   rgba(252,211,77,0.12);
+  --amber-text: #FDE68A;
+  --rose:       #FB7185;
+  --rose-bg:    rgba(251,113,133,0.12);
+  --rose-text:  #FCA5A5;
+  --blue:       #60A5FA;
+  --blue-bg:    rgba(96,165,250,0.12);
+  --blue-text:  #93C5FD;
+  --violet:     #A78BFA;
+  --violet-bg:  rgba(167,139,250,0.12);
+  --violet-text:#C4B5FD;
+  --teal:       #2DD4BF;
+  --teal-bg:    rgba(45,212,191,0.12);
+  --teal-text:  #5EEAD4;
+  --orange:     #FB923C;
+  --orange-bg:  rgba(251,146,60,0.12);
+  --orange-text:#FDBA74;
+  --gold:       #FCD34D;
+  --gold-bg:    rgba(252,211,77,0.12);
+
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.4);
+  --shadow:    0 4px 16px rgba(0,0,0,0.4);
+  --shadow-lg: 0 10px 40px rgba(0,0,0,0.5);
 }
+
+/* ══════════════════════════════════════════════
+   BASE STYLES
+══════════════════════════════════════════════ */
+html { scroll-behavior: smooth; }
 
 body {
-  font-family: 'DM Sans', sans-serif;
-  background: var(--obsidian);
+  font-family: 'Inter', sans-serif;
+  background: var(--bg);
   color: var(--text);
   min-height: 100vh;
   overflow-x: hidden;
+  font-size: 14px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  transition: background 0.2s, color 0.2s;
 }
 
-::-webkit-scrollbar {
-  width: 6px;
-}
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--text4); }
 
-::-webkit-scrollbar-track {
-  background: var(--void);
-}
+#root { min-height: 100vh; }
 
-::-webkit-scrollbar-thumb {
-  background: var(--border2);
-  border-radius: 3px;
-}
-
-#root {
-  min-height: 100vh;
-}
-
-.font-display {
-  font-family: 'Playfair Display', serif;
-}
-
-.font-mono {
-  font-family: 'DM Mono', monospace;
-}
+input, select, textarea, button { font-family: 'Inter', sans-serif; }
+table { border-collapse: collapse; }

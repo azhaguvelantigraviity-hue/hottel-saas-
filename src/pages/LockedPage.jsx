@@ -18,7 +18,7 @@ const LockedPage = ({ feature, requiredPlan, onNav }) => (
       >
         <span style={{ fontSize: '28px' }}>🔒</span>
       </div>
-      <h2 style={{ fontFamily: 'Playfair Display,serif', fontSize: '24px', marginBottom: '10px' }}>{feature}</h2>
+      <h2 style={{ fontFamily: 'Poppins,sans-serif', fontSize: '24px', marginBottom: '10px' }}>{feature}</h2>
       <p style={{ color: 'var(--text3)', fontSize: '14px', lineHeight: 1.7, marginBottom: '24px' }}>
         This feature is available on the <span style={{ color: 'var(--gold)', fontWeight: '700', textTransform: 'capitalize' }}>{requiredPlan}</span> plan and above. Upgrade to unlock full access.
       </p>
@@ -33,7 +33,7 @@ const LockedPage = ({ feature, requiredPlan, onNav }) => (
           cursor: 'pointer',
           fontWeight: '600',
           fontSize: '14px',
-          fontFamily: 'DM Sans,sans-serif',
+          fontFamily: 'Inter, sans-serif',
         }}
       >
         Upgrade Now

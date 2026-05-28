@@ -32,7 +32,7 @@ const WhatsAppPage = () => {
 
   const thStyle = { padding:'10px 14px', textAlign:'left', fontSize:11, color:'var(--text3)', fontWeight:600, letterSpacing:'0.06em', textTransform:'uppercase', borderBottom:'1px solid var(--border)' };
   const tdStyle = { padding:'12px 14px', fontSize:13, color:'var(--text2)', borderBottom:'1px solid var(--border)' };
-  const inputStyle = { width:'100%', background:'var(--surface)', border:'1px solid var(--border)', borderRadius:8, padding:'10px 14px', color:'var(--text)', fontFamily:'DM Sans,sans-serif', fontSize:14, boxSizing:'border-box' };
+  const inputStyle = { width:'100%', background:'var(--surface)', border:'1px solid var(--border)', borderRadius:8, padding:'10px 14px', color:'var(--text)', fontFamily:'Inter, sans-serif', fontSize:14, boxSizing:'border-box' };
 
   return (
     <div style={{ flex:1, overflowY:'auto', padding:24 }}>
@@ -44,7 +44,7 @@ const WhatsAppPage = () => {
       </div>
       <div style={{ background:'var(--card)', border:'1px solid var(--border)', borderRadius:'var(--radius-lg)', padding:24 }}>
         <div style={{ display:'flex', gap:4, marginBottom:24, background:'var(--surface)', borderRadius:10, padding:4 }}>
-          {TABS.map((t,i) => <button key={i} onClick={() => setTab(i)} style={{ flex:1, padding:'9px 8px', borderRadius:8, border:'none', cursor:'pointer', fontFamily:'DM Sans,sans-serif', fontSize:13, fontWeight:500, background:tab===i?'var(--card)':'transparent', color:tab===i?'var(--gold)':'var(--text2)' }}>{t}</button>)}
+          {TABS.map((t,i) => <button key={i} onClick={() => setTab(i)} style={{ flex:1, padding:'9px 8px', borderRadius:8, border:'none', cursor:'pointer', fontFamily:'Inter, sans-serif', fontSize:13, fontWeight:500, background:tab===i?'var(--card)':'transparent', color:tab===i?'var(--gold)':'var(--text2)' }}>{t}</button>)}
         </div>
 
         {tab === 0 && (
@@ -56,7 +56,7 @@ const WhatsAppPage = () => {
                     <div style={{ fontSize:14, fontWeight:700, color:'var(--text)', marginBottom:4 }}>{tpl.name}</div>
                     <span style={{ fontSize:11, fontWeight:600, color:tpl.status==='approved'?'var(--green)':'var(--amber)', textTransform:'uppercase' }}>{tpl.status}</span>
                   </div>
-                  <button onClick={() => setTestSent(tpl.id)} style={{ background:'rgba(201,168,76,0.12)', border:'1px solid rgba(201,168,76,0.3)', borderRadius:8, padding:'6px 14px', color:'var(--gold)', cursor:'pointer', fontSize:12, fontFamily:'DM Sans,sans-serif', fontWeight:600 }}>
+                  <button onClick={() => setTestSent(tpl.id)} style={{ background:'rgba(201,168,76,0.12)', border:'1px solid rgba(201,168,76,0.3)', borderRadius:8, padding:'6px 14px', color:'var(--gold)', cursor:'pointer', fontSize:12, fontFamily:'Inter, sans-serif', fontWeight:600 }}>
                     {testSent === tpl.id ? '✓ Sent!' : 'Send Test'}
                   </button>
                 </div>
@@ -110,7 +110,7 @@ const WhatsAppPage = () => {
             <div style={{ padding:14, background:'rgba(201,168,76,0.08)', border:'1px solid rgba(201,168,76,0.2)', borderRadius:8, marginBottom:16 }}>
               <div style={{ fontSize:13, color:'var(--text2)' }}>Estimated recipients: <strong style={{ color:'var(--gold)' }}>142 guests</strong></div>
             </div>
-            <button style={{ background:'linear-gradient(135deg,#25D366,#128C7E)', border:'none', borderRadius:8, padding:'12px 32px', color:'#fff', cursor:'pointer', fontFamily:'DM Sans,sans-serif', fontWeight:600, fontSize:14, display:'flex', alignItems:'center', gap:8 }}>
+            <button style={{ background:'linear-gradient(135deg,#25D366,#128C7E)', border:'none', borderRadius:8, padding:'12px 32px', color:'#fff', cursor:'pointer', fontFamily:'Inter, sans-serif', fontWeight:600, fontSize:14, display:'flex', alignItems:'center', gap:8 }}>
               <Icon name="whatsapp" size={16} color="#fff" /> Send Campaign
             </button>
           </div>
@@ -131,8 +131,8 @@ const WhatsAppPage = () => {
               <div style={{ fontSize:12, color:'var(--text3)' }}>Last verified: 2025-07-14 09:00</div>
             </div>
             <div style={{ display:'flex', gap:12 }}>
-              <button style={{ background:'linear-gradient(135deg,#C9A84C,#8A6F2E)', border:'none', borderRadius:8, padding:'12px 24px', color:'#fff', cursor:'pointer', fontFamily:'DM Sans,sans-serif', fontWeight:600, fontSize:14 }}>Save Settings</button>
-              <button style={{ background:'transparent', border:'1px solid var(--border)', borderRadius:8, padding:'12px 24px', color:'var(--text2)', cursor:'pointer', fontFamily:'DM Sans,sans-serif', fontSize:14 }}>Test Connection</button>
+              <button style={{ background:'linear-gradient(135deg,#C9A84C,#8A6F2E)', border:'none', borderRadius:8, padding:'12px 24px', color:'#fff', cursor:'pointer', fontFamily:'Inter, sans-serif', fontWeight:600, fontSize:14 }}>Save Settings</button>
+              <button style={{ background:'transparent', border:'1px solid var(--border)', borderRadius:8, padding:'12px 24px', color:'var(--text2)', cursor:'pointer', fontFamily:'Inter, sans-serif', fontSize:14 }}>Test Connection</button>
             </div>
           </div>
         )}

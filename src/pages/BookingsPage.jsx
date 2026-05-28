@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Icon from '../components/Icon';
 import Badge from '../components/Badge';
 import Avatar from '../components/Avatar';
@@ -245,7 +245,14 @@ const BookingDetail = ({ booking, onClose, onAction }) => (
 );
 
 const BookingsPage = () => {
-  const [bookings, setBookings] = useState(BOOKINGS);
+  const [bookings, setBookings] = useState(() => {
+    const saved = localStorage.getItem('stayos_bookings');
+    return saved ? JSON.parse(saved) : BOOKINGS;
+  });
+
+  useEffect(() => {
+    localStorage.setItem('stayos_bookings', JSON.stringify(bookings));
+  }, [bookings]);
   const [filter, setFilter] = useState('all');
   const [search, setSearch] = useState('');
   const [showNew, setShowNew] = useState(false);
@@ -282,16 +289,34 @@ const BookingsPage = () => {
       {showNew && <Modal title="New Booking" onClose={() => setShowNew(false)}><NewBookingForm onClose={() => setShowNew(false)} onSave={handleSave} /></Modal>}
       {selected && <Modal title={`Booking ${selected.id}`} onClose={() => setSelected(null)}><BookingDetail booking={selected} onClose={() => setSelected(null)} onAction={handleAction} /></Modal>}
 
-      {/* Stats */}
-      <div style={{ display: 'flex', gap: '12px', marginBottom: '24px', flexWrap: 'wrap' }}>
-        {stats.map(s => (
-          <div key={s.label} style={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: 'var(--radius)', padding: '14px 20px', textAlign: 'center', minWidth: '100px' }}>
-            <div style={{ fontSize: '24px', fontWeight: '700', fontFamily: 'Playfair Display,serif', color: s.color }}>{s.count}</div>
-            <div style={{ fontSize: '11px', color: 'var(--text3)', marginTop: '2px' }}>{s.label}</div>
-          </div>
-        ))}
-        <div style={{ flex: 1 }} />
-        <button onClick={() => setShowNew(true)} style={{ padding: '10px 20px', background: 'linear-gradient(135deg,#C9A84C,#8A6F2E)', border: 'none', borderRadius: '8px', color: '#fff', cursor: 'pointer', fontWeight: '600', fontSize: '13px', display: 'flex', alignItems: 'center', gap: '6px', fontFamily: 'DM Sans,sans-serif', alignSelf: 'center' }}>
+      {/* Stats + New Booking button */}
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '24px', flexWrap: 'wrap', gap: '12px' }}>
+        <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
+          {stats.map(s => (
+            <div key={s.label} style={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: 'var(--radius)', padding: '14px 20px', textAlign: 'center', minWidth: '90px' }}>
+              <div style={{ fontSize: '24px', fontWeight: '700', fontFamily: 'Playfair Display,serif', color: s.color }}>{s.count}</div>
+              <div style={{ fontSize: '11px', color: 'var(--text3)', marginTop: '2px' }}>{s.label}</div>
+            </div>
+          ))}
+        </div>
+        <button
+          onClick={() => setShowNew(true)}
+          style={{
+            padding: '10px 20px',
+            background: 'linear-gradient(135deg,#C9A84C,#8A6F2E)',
+            border: 'none',
+            borderRadius: '8px',
+            color: '#fff',
+            cursor: 'pointer',
+            fontWeight: '600',
+            fontSize: '13px',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '6px',
+            fontFamily: 'DM Sans,sans-serif',
+            flexShrink: 0,
+          }}
+        >
           <Icon name="plus" size={14} color="#fff" /> New Booking
         </button>
       </div>

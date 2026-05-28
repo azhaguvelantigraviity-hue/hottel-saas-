@@ -25,7 +25,7 @@ const HousekeepingPage = () => {
     setShowAssign(false);
   };
 
-  const inputStyle = { width: '100%', padding: '10px 12px', background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: '8px', color: 'var(--text)', fontSize: '13px', outline: 'none', fontFamily: 'DM Sans,sans-serif' };
+  const inputStyle = { width: '100%', padding: '10px 12px', background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: '8px', color: 'var(--text)', fontSize: '13px', outline: 'none', fontFamily: 'Inter, sans-serif' };
   const labelStyle = { fontSize: '11px', color: 'var(--text3)', fontWeight: '600', letterSpacing: '0.06em', display: 'block', marginBottom: '5px' };
 
   const stats = [
@@ -43,7 +43,7 @@ const HousekeepingPage = () => {
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.7)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
           <div style={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: 'var(--radius-lg)', width: '100%', maxWidth: '480px' }}>
             <div style={{ padding: '24px', borderBottom: '1px solid var(--border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <h2 style={{ fontFamily: 'Playfair Display,serif', fontSize: '20px' }}>Assign Task</h2>
+              <h2 style={{ fontFamily: 'Poppins,sans-serif', fontSize: '20px' }}>Assign Task</h2>
               <button onClick={() => setShowAssign(false)} style={{ background: 'none', border: 'none', cursor: 'pointer' }}><Icon name="x" size={20} color="var(--text3)" /></button>
             </div>
             <div style={{ padding: '24px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
@@ -84,8 +84,8 @@ const HousekeepingPage = () => {
                 <textarea style={{ ...inputStyle, resize: 'vertical', minHeight: '60px' }} value={newTask.notes} onChange={e => setNewTask(p => ({ ...p, notes: e.target.value }))} />
               </div>
               <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end' }}>
-                <button onClick={() => setShowAssign(false)} style={{ padding: '10px 20px', background: 'transparent', border: '1px solid var(--border)', borderRadius: '8px', color: 'var(--text2)', cursor: 'pointer', fontFamily: 'DM Sans,sans-serif', fontSize: '13px' }}>Cancel</button>
-                <button onClick={addTask} style={{ padding: '10px 24px', background: 'linear-gradient(135deg,#C9A84C,#8A6F2E)', border: 'none', borderRadius: '8px', color: '#fff', cursor: 'pointer', fontWeight: '600', fontSize: '13px', fontFamily: 'DM Sans,sans-serif' }}>Assign Task</button>
+                <button onClick={() => setShowAssign(false)} style={{ padding: '10px 20px', background: 'transparent', border: '1px solid var(--border)', borderRadius: '8px', color: 'var(--text2)', cursor: 'pointer', fontFamily: 'Inter, sans-serif', fontSize: '13px' }}>Cancel</button>
+                <button onClick={addTask} style={{ padding: '10px 24px', background: 'linear-gradient(135deg,#C9A84C,#8A6F2E)', border: 'none', borderRadius: '8px', color: '#fff', cursor: 'pointer', fontWeight: '600', fontSize: '13px', fontFamily: 'Inter, sans-serif' }}>Assign Task</button>
               </div>
             </div>
           </div>
@@ -96,7 +96,7 @@ const HousekeepingPage = () => {
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: '14px', marginBottom: '24px' }}>
         {stats.map(s => (
           <div key={s.label} style={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: 'var(--radius)', padding: '16px', textAlign: 'center' }}>
-            <div style={{ fontSize: '26px', fontWeight: '700', fontFamily: 'Playfair Display,serif', color: s.color, marginBottom: '4px' }}>{s.value}</div>
+            <div style={{ fontSize: '26px', fontWeight: '700', fontFamily: 'Poppins,sans-serif', color: s.color, marginBottom: '4px' }}>{s.value}</div>
             <div style={{ fontSize: '12px', color: 'var(--text3)' }}>{s.label}</div>
           </div>
         ))}
@@ -108,12 +108,12 @@ const HousekeepingPage = () => {
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px' }}>
             <div style={{ display: 'flex', gap: '8px' }}>
               {['all', 'pending', 'in-progress', 'completed'].map(f => (
-                <button key={f} onClick={() => setFilter(f)} style={{ padding: '6px 14px', borderRadius: '20px', border: '1px solid', fontSize: '12px', fontWeight: '600', cursor: 'pointer', fontFamily: 'DM Sans,sans-serif', textTransform: 'capitalize', background: filter === f ? 'var(--gold)' : 'transparent', borderColor: filter === f ? 'var(--gold)' : 'var(--border)', color: filter === f ? '#000' : 'var(--text2)' }}>
+                <button key={f} onClick={() => setFilter(f)} style={{ padding: '6px 14px', borderRadius: '20px', border: '1px solid', fontSize: '12px', fontWeight: '600', cursor: 'pointer', fontFamily: 'Inter, sans-serif', textTransform: 'capitalize', background: filter === f ? 'var(--gold)' : 'transparent', borderColor: filter === f ? 'var(--gold)' : 'var(--border)', color: filter === f ? '#000' : 'var(--text2)' }}>
                   {f === 'all' ? 'All' : f.replace('-', ' ')}
                 </button>
               ))}
             </div>
-            <button onClick={() => setShowAssign(true)} style={{ padding: '8px 16px', background: 'linear-gradient(135deg,#C9A84C,#8A6F2E)', border: 'none', borderRadius: '8px', color: '#fff', cursor: 'pointer', fontWeight: '600', fontSize: '12px', display: 'flex', alignItems: 'center', gap: '6px', fontFamily: 'DM Sans,sans-serif' }}>
+            <button onClick={() => setShowAssign(true)} style={{ padding: '8px 16px', background: 'linear-gradient(135deg,#C9A84C,#8A6F2E)', border: 'none', borderRadius: '8px', color: '#fff', cursor: 'pointer', fontWeight: '600', fontSize: '12px', display: 'flex', alignItems: 'center', gap: '6px', fontFamily: 'Inter, sans-serif' }}>
               <Icon name="plus" size={12} color="#fff" /> Assign Task
             </button>
           </div>
@@ -124,7 +124,7 @@ const HousekeepingPage = () => {
                 <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: '10px' }}>
                   <div>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
-                      <span style={{ fontSize: '16px', fontWeight: '900', fontFamily: 'Playfair Display,serif', color: 'var(--gold)' }}>Room {task.room}</span>
+                      <span style={{ fontSize: '16px', fontWeight: '900', fontFamily: 'Poppins,sans-serif', color: 'var(--gold)' }}>Room {task.room}</span>
                       <Badge color={priorityColor[task.priority]}>{task.priority}</Badge>
                     </div>
                     <div style={{ fontSize: '13px', fontWeight: '600' }}>{task.type}</div>
@@ -138,8 +138,8 @@ const HousekeepingPage = () => {
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                   <div style={{ fontSize: '12px', color: 'var(--text2)' }}>👤 {task.assignedTo}</div>
                   <div style={{ display: 'flex', gap: '6px' }}>
-                    {task.status === 'pending' && <button onClick={() => updateStatus(task.id, 'in-progress')} style={{ padding: '5px 10px', background: 'rgba(167,139,250,0.15)', border: '1px solid rgba(167,139,250,0.3)', borderRadius: '6px', color: 'var(--violet)', cursor: 'pointer', fontSize: '11px', fontWeight: '600', fontFamily: 'DM Sans,sans-serif' }}>Start</button>}
-                    {task.status === 'in-progress' && <button onClick={() => updateStatus(task.id, 'completed')} style={{ padding: '5px 10px', background: 'rgba(52,211,153,0.15)', border: '1px solid rgba(52,211,153,0.3)', borderRadius: '6px', color: 'var(--green)', cursor: 'pointer', fontSize: '11px', fontWeight: '600', fontFamily: 'DM Sans,sans-serif' }}>Complete</button>}
+                    {task.status === 'pending' && <button onClick={() => updateStatus(task.id, 'in-progress')} style={{ padding: '5px 10px', background: 'rgba(167,139,250,0.15)', border: '1px solid rgba(167,139,250,0.3)', borderRadius: '6px', color: 'var(--violet)', cursor: 'pointer', fontSize: '11px', fontWeight: '600', fontFamily: 'Inter, sans-serif' }}>Start</button>}
+                    {task.status === 'in-progress' && <button onClick={() => updateStatus(task.id, 'completed')} style={{ padding: '5px 10px', background: 'rgba(52,211,153,0.15)', border: '1px solid rgba(52,211,153,0.3)', borderRadius: '6px', color: 'var(--green)', cursor: 'pointer', fontSize: '11px', fontWeight: '600', fontFamily: 'Inter, sans-serif' }}>Complete</button>}
                     {task.status === 'completed' && <span style={{ fontSize: '11px', color: 'var(--green)' }}>✓ Done</span>}
                   </div>
                 </div>
@@ -156,7 +156,7 @@ const HousekeepingPage = () => {
               const hkColor = { clean: 'var(--green)', dirty: 'var(--rose)', inspect: 'var(--amber)' };
               return (
                 <div key={r.id} style={{ background: 'var(--card)', border: `1px solid ${hkColor[r.housekeeping]}30`, borderRadius: '8px', padding: '10px', textAlign: 'center' }}>
-                  <div style={{ fontSize: '16px', fontWeight: '900', fontFamily: 'Playfair Display,serif', color: hkColor[r.housekeeping] }}>{r.id}</div>
+                  <div style={{ fontSize: '16px', fontWeight: '900', fontFamily: 'Poppins,sans-serif', color: hkColor[r.housekeeping] }}>{r.id}</div>
                   <div style={{ fontSize: '9px', color: 'var(--text3)', textTransform: 'uppercase', marginTop: '2px' }}>{r.housekeeping}</div>
                 </div>
               );

@@ -1,144 +1,208 @@
-import React from 'react';
+import React, { useState } from 'react';
 import Icon from './Icon';
 
 const Sidebar = ({ role, active, onNav, onLogout, plan }) => {
+
   const adminNav = [
     { id: 'dashboard', icon: 'dashboard', label: 'Dashboard' },
-    { id: 'hotels', icon: 'hotel', label: 'Hotels' },
+    { id: 'hotels',    icon: 'hotel',     label: 'Hotels' },
     { id: 'subscriptions', icon: 'crown', label: 'Subscriptions' },
-    { id: 'revenue', icon: 'dollar', label: 'Revenue' },
-    { id: 'analytics', icon: 'chart', label: 'Analytics' },
-    { id: 'multibranch', icon: 'branch', label: 'Multi-Branch' },
-    { id: 'audit', icon: 'shield', label: 'Audit Logs' },
-    { id: 'settings', icon: 'settings', label: 'Settings' },
+    { id: 'revenue',   icon: 'dollar',    label: 'Revenue' },
+    { id: 'analytics', icon: 'chart',     label: 'Analytics' },
+    { id: 'multibranch', icon: 'branch',  label: 'Multi-Branch' },
+    { id: 'audit',     icon: 'shield',    label: 'Audit Logs' },
+    { id: 'settings',  icon: 'settings',  label: 'Settings' },
   ];
 
   const hotelNavGroups = [
     {
-      label: 'Operations',
+      label: 'MAIN MENU',
       items: [
-        { id: 'dashboard', icon: 'dashboard', label: 'Dashboard', plans: ['starter','professional','enterprise'] },
-        { id: 'rooms', icon: 'bed', label: 'Rooms', plans: ['starter','professional','enterprise'] },
-        { id: 'bookings', icon: 'calendar', label: 'Bookings', plans: ['starter','professional','enterprise'] },
-        { id: 'checkin', icon: 'qr', label: 'Smart Check-In', plans: ['enterprise'] },
-        { id: 'billing', icon: 'receipt', label: 'Billing', plans: ['starter','professional','enterprise'] },
-      ]
+        { id: 'dashboard', icon: 'dashboard', label: 'Dashboard',      plans: ['starter','professional','enterprise'] },
+        { id: 'rooms',     icon: 'bed',       label: 'Rooms',          plans: ['starter','professional','enterprise'] },
+        { id: 'bookings',  icon: 'calendar',  label: 'Bookings',       plans: ['starter','professional','enterprise'] },
+        { id: 'checkin',   icon: 'qr',        label: 'Smart Check-In', plans: ['enterprise'] },
+        { id: 'billing',   icon: 'receipt',   label: 'Billing',        plans: ['starter','professional','enterprise'] },
+      ],
     },
     {
-      label: 'Guest Services',
+      label: 'GUEST SERVICES',
       items: [
-        { id: 'guests', icon: 'crm', label: 'Guest CRM', plans: ['professional','enterprise'] },
-        { id: 'loyalty', icon: 'loyalty', label: 'Loyalty', plans: ['professional','enterprise'] },
-        { id: 'restaurant', icon: 'food', label: 'Restaurant POS', plans: ['professional','enterprise'] },
-        { id: 'laundry', icon: 'laundry', label: 'Laundry', plans: ['professional','enterprise'] },
-        { id: 'travel', icon: 'taxi', label: 'Travel Desk', plans: ['enterprise'] },
-        { id: 'events', icon: 'events', label: 'Events & Halls', plans: ['enterprise'] },
-      ]
+        { id: 'guests',     icon: 'crm',        label: 'Guest CRM',      plans: ['professional','enterprise'] },
+        { id: 'loyalty',    icon: 'loyalty',     label: 'Loyalty Program',plans: ['professional','enterprise'] },
+        { id: 'restaurant', icon: 'food',        label: 'Restaurant POS', plans: ['professional','enterprise'] },
+        { id: 'laundry',    icon: 'laundry',     label: 'Laundry',        plans: ['professional','enterprise'] },
+        { id: 'travel',     icon: 'taxi',        label: 'Travel Desk',    plans: ['enterprise'] },
+        { id: 'events',     icon: 'events',      label: 'Events & Halls', plans: ['enterprise'] },
+      ],
     },
     {
-      label: 'Staff',
+      label: 'STAFF MANAGEMENT',
       items: [
-        { id: 'employees', icon: 'users', label: 'Employees', plans: ['professional','enterprise'] },
-        { id: 'housekeeping', icon: 'key', label: 'Housekeeping', plans: ['professional','enterprise'] },
-        { id: 'maintenance', icon: 'maintenance', label: 'Maintenance', plans: ['professional','enterprise'] },
-      ]
+        { id: 'employees',    icon: 'users',       label: 'Employees',    plans: ['professional','enterprise'] },
+        { id: 'housekeeping', icon: 'key',         label: 'Housekeeping', plans: ['professional','enterprise'] },
+        { id: 'attendance',   icon: 'calendar',    label: 'Attendance',   plans: ['professional','enterprise'] },
+        { id: 'payroll',      icon: 'dollar',      label: 'Payroll',      plans: ['professional','enterprise'] },
+      ],
     },
     {
-      label: 'Business',
+      label: 'BUSINESS',
       items: [
-        { id: 'channel', icon: 'channel', label: 'Channel Manager', plans: ['professional','enterprise'] },
-        { id: 'revenue', icon: 'revenue', label: 'Revenue AI', plans: ['enterprise'] },
-        { id: 'analytics', icon: 'chart', label: 'Analytics', plans: ['professional','enterprise'] },
-        { id: 'marketing', icon: 'marketing', label: 'Marketing', plans: ['professional','enterprise'] },
-        { id: 'whatsapp', icon: 'whatsapp', label: 'WhatsApp', plans: ['professional','enterprise'] },
-      ]
+        { id: 'channel',    icon: 'channel',    label: 'Channel Manager', plans: ['professional','enterprise'] },
+        { id: 'revenue',    icon: 'revenue',    label: 'Revenue AI',      plans: ['enterprise'] },
+        { id: 'analytics',  icon: 'chart',      label: 'Analytics',       plans: ['professional','enterprise'] },
+        { id: 'marketing',  icon: 'marketing',  label: 'Marketing',       plans: ['professional','enterprise'] },
+        { id: 'whatsapp',   icon: 'whatsapp',   label: 'WhatsApp',        plans: ['professional','enterprise'] },
+      ],
     },
     {
-      label: 'System',
+      label: 'SYSTEM',
       items: [
-        { id: 'inventory', icon: 'inventory', label: 'Inventory', plans: ['professional','enterprise'] },
-        { id: 'iot', icon: 'iot', label: 'IoT & Door Locks', plans: ['enterprise'] },
-        { id: 'security', icon: 'security', label: 'Security', plans: ['enterprise'] },
+        { id: 'inventory',     icon: 'inventory',    label: 'Inventory',     plans: ['professional','enterprise'] },
+        { id: 'iot',           icon: 'iot',          label: 'IoT & Locks',   plans: ['enterprise'] },
+        { id: 'security',      icon: 'security',     label: 'Security',      plans: ['enterprise'] },
         { id: 'notifications', icon: 'notification', label: 'Notifications', plans: ['starter','professional','enterprise'] },
-        { id: 'chatbot', icon: 'chatbot', label: 'AI Chatbot', plans: ['enterprise'] },
-        { id: 'reports', icon: 'report', label: 'Reports', plans: ['starter','professional','enterprise'] },
-        { id: 'settings', icon: 'settings', label: 'Settings', plans: ['starter','professional','enterprise'] },
-      ]
+        { id: 'chatbot',       icon: 'chatbot',      label: 'AI Chatbot',    plans: ['enterprise'] },
+        { id: 'reports',       icon: 'report',       label: 'Reports',       plans: ['starter','professional','enterprise'] },
+        { id: 'settings',      icon: 'settings',     label: 'Settings',      plans: ['starter','professional','enterprise'] },
+      ],
     },
   ];
 
-  const btnStyle = (isActive, locked) => ({
-    display: 'flex',
-    alignItems: 'center',
-    gap: '10px',
-    padding: '8px 12px',
-    borderRadius: '8px',
-    border: 'none',
-    cursor: locked ? 'not-allowed' : 'pointer',
-    textAlign: 'left',
-    width: '100%',
-    fontFamily: 'DM Sans, sans-serif',
-    fontSize: '13px',
-    fontWeight: '500',
-    transition: 'all 0.15s',
-    background: isActive ? 'rgba(201, 168, 76, 0.12)' : 'transparent',
-    color: isActive ? 'var(--gold)' : locked ? 'var(--text3)' : 'var(--text2)',
-    opacity: locked ? 0.4 : 1,
-  });
+  const planColors = { starter: '#6B7280', professional: '#14B8A6', enterprise: '#D97706' };
+  const planColor = planColors[plan] || '#6B7280';
+
+  const NavBtn = ({ item, locked }) => {
+    const isActive = active === item.id;
+    return (
+      <button
+        onClick={() => !locked && onNav(item.id)}
+        title={locked ? `Requires ${item.plans?.[0]} plan` : item.label}
+        style={{
+          display: 'flex', alignItems: 'center', gap: '10px',
+          padding: '8px 12px', borderRadius: '8px', border: 'none',
+          cursor: locked ? 'not-allowed' : 'pointer',
+          textAlign: 'left', width: '100%', fontSize: '13px', fontWeight: '500',
+          transition: 'all 0.15s',
+          background: isActive ? 'var(--sidebar-active-bg)' : 'transparent',
+          color: isActive ? 'var(--sidebar-active-text)' : locked ? 'rgba(199,210,254,0.3)' : 'var(--sidebar-text)',
+        }}
+        onMouseEnter={e => { if (!isActive && !locked) e.currentTarget.style.background = 'rgba(255,255,255,0.06)'; }}
+        onMouseLeave={e => { if (!isActive) e.currentTarget.style.background = 'transparent'; }}
+      >
+        <Icon
+          name={item.icon}
+          size={15}
+          color={isActive ? '#FFFFFF' : locked ? 'rgba(199,210,254,0.3)' : '#A5B4FC'}
+        />
+        <span style={{ flex: 1, letterSpacing: '0.01em' }}>{item.label}</span>
+        {locked && <span style={{ fontSize: '9px', opacity: 0.5 }}>🔒</span>}
+        {isActive && (
+          <div style={{ width: '4px', height: '4px', borderRadius: '50%', background: '#818CF8', flexShrink: 0 }} />
+        )}
+      </button>
+    );
+  };
 
   return (
-    <aside style={{ width: '220px', flexShrink: 0, background: 'var(--void)', borderRight: '1px solid var(--border)', display: 'flex', flexDirection: 'column', height: '100vh', position: 'sticky', top: 0 }}>
-      <div style={{ padding: '20px 20px', borderBottom: '1px solid var(--border)', display: 'flex', alignItems: 'center', gap: '10px' }}>
-        <div style={{ width: '32px', height: '32px', background: 'linear-gradient(135deg, #C9A84C, #8A6F2E)', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-          <Icon name="hotel" size={16} color="#fff" />
+    <aside style={{
+      width: '220px', flexShrink: 0,
+      background: 'var(--sidebar-bg)',
+      display: 'flex', flexDirection: 'column',
+      height: '100vh', position: 'sticky', top: 0,
+      borderRight: '1px solid var(--sidebar-border)',
+    }}>
+      {/* Logo */}
+      <div style={{
+        padding: '20px 20px 16px',
+        borderBottom: '1px solid var(--sidebar-border)',
+        display: 'flex', alignItems: 'center', gap: '10px',
+      }}>
+        <div style={{
+          width: '34px', height: '34px',
+          background: 'linear-gradient(135deg, #6366F1, #4F46E5)',
+          borderRadius: '10px', display: 'flex', alignItems: 'center',
+          justifyContent: 'center', flexShrink: 0,
+          boxShadow: '0 4px 12px rgba(99,102,241,0.4)',
+        }}>
+          <span style={{ fontSize: '16px' }}>👑</span>
         </div>
         <div>
-          <div style={{ fontSize: '16px', fontWeight: '700', fontFamily: 'Playfair Display, serif', lineHeight: 1.1 }}>StayOS</div>
-          <div style={{ fontSize: '10px', color: 'var(--text3)', letterSpacing: '0.06em' }}>{role === 'admin' ? 'PLATFORM ADMIN' : 'HOTEL PORTAL'}</div>
+          <div style={{ fontSize: '16px', fontWeight: '700', color: '#FFFFFF', letterSpacing: '-0.01em' }}>StayOS</div>
+          <div style={{ fontSize: '10px', color: 'var(--sidebar-text-muted)', letterSpacing: '0.08em', textTransform: 'uppercase' }}>
+            {role === 'admin' ? 'Platform Admin' : 'Hotel Portal'}
+          </div>
         </div>
       </div>
 
-      <nav style={{ flex: 1, padding: '12px 10px', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '2px' }}>
+      {/* Nav */}
+      <nav style={{ flex: 1, padding: '10px 10px', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '1px' }}>
         {role === 'admin' ? (
-          adminNav.map((item) => {
-            const isActive = active === item.id;
-            return (
-              <button key={item.id} onClick={() => onNav(item.id)} style={btnStyle(isActive, false)}>
-                <Icon name={item.icon} size={16} color={isActive ? 'var(--gold)' : 'var(--text2)'} />
-                <span style={{ flex: 1 }}>{item.label}</span>
-              </button>
-            );
-          })
+          adminNav.map(item => <NavBtn key={item.id} item={item} locked={false} />)
         ) : (
           hotelNavGroups.map((group, gi) => (
-            <div key={gi}>
-              {gi > 0 && <div style={{ height: 1, background: 'var(--border)', margin: '8px 4px' }} />}
-              <div style={{ fontSize: '9px', color: 'var(--text3)', letterSpacing: '0.1em', textTransform: 'uppercase', padding: '6px 12px 4px', fontWeight: 600 }}>{group.label}</div>
-              {group.items.map((item) => {
+            <div key={gi} style={{ marginBottom: '4px' }}>
+              <div style={{
+                fontSize: '10px', fontWeight: '600', letterSpacing: '0.1em',
+                color: 'var(--sidebar-group-label)', padding: '10px 12px 4px',
+                textTransform: 'uppercase',
+              }}>
+                {group.label}
+              </div>
+              {group.items.map(item => {
                 const locked = item.plans && !item.plans.includes(plan || 'starter');
-                const isActive = active === item.id;
-                return (
-                  <button key={item.id} onClick={() => !locked && onNav(item.id)} style={btnStyle(isActive, locked)}>
-                    <Icon name={item.icon} size={15} color={isActive ? 'var(--gold)' : locked ? 'var(--text3)' : 'var(--text2)'} />
-                    <span style={{ flex: 1 }}>{item.label}</span>
-                    {locked && <span style={{ fontSize: '9px', color: 'var(--text3)' }}>🔒</span>}
-                  </button>
-                );
+                return <NavBtn key={item.id} item={item} locked={locked} />;
               })}
             </div>
           ))
         )}
       </nav>
 
-      <div style={{ padding: '12px 10px', borderTop: '1px solid var(--border)' }}>
+      {/* Footer */}
+      <div style={{ padding: '12px 10px', borderTop: '1px solid var(--sidebar-border)' }}>
         {role === 'hotel' && plan && (
-          <div style={{ padding: '8px 12px', background: 'rgba(201, 168, 76, 0.08)', border: '1px solid rgba(201, 168, 76, 0.2)', borderRadius: '8px', marginBottom: '8px' }}>
-            <div style={{ fontSize: '10px', color: 'var(--text3)', letterSpacing: '0.06em', marginBottom: '2px' }}>CURRENT PLAN</div>
-            <div style={{ fontSize: '13px', fontWeight: '700', color: 'var(--gold)', textTransform: 'capitalize' }}>{plan}</div>
+          <div style={{
+            padding: '10px 12px', marginBottom: '8px',
+            background: 'rgba(255,255,255,0.06)',
+            border: '1px solid rgba(255,255,255,0.1)',
+            borderRadius: '10px',
+          }}>
+            <div style={{ fontSize: '10px', color: 'var(--sidebar-text-muted)', letterSpacing: '0.08em', marginBottom: '3px' }}>
+              CURRENT PLAN
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              <div style={{ fontSize: '14px', fontWeight: '700', color: planColor, textTransform: 'capitalize' }}>
+                {plan}
+              </div>
+              <span style={{ fontSize: '14px' }}>👑</span>
+            </div>
+            <button
+              onClick={() => onNav('settings')}
+              style={{
+                marginTop: '6px', width: '100%', padding: '5px',
+                background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.12)',
+                borderRadius: '6px', color: 'var(--sidebar-text)', cursor: 'pointer',
+                fontSize: '11px', fontWeight: '500',
+              }}
+            >
+              View Plan Details
+            </button>
           </div>
         )}
-        <button onClick={onLogout} style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '9px 12px', borderRadius: '8px', border: 'none', cursor: 'pointer', textAlign: 'left', width: '100%', fontFamily: 'DM Sans, sans-serif', fontSize: '13px', color: 'var(--text3)', background: 'transparent' }}>
-          <Icon name="logout" size={16} color="var(--text3)" /> Sign Out
+        <button
+          onClick={onLogout}
+          style={{
+            display: 'flex', alignItems: 'center', gap: '10px',
+            padding: '9px 12px', borderRadius: '8px', border: 'none',
+            cursor: 'pointer', width: '100%', fontSize: '13px',
+            color: 'rgba(199,210,254,0.6)', background: 'transparent',
+            transition: 'all 0.15s',
+          }}
+          onMouseEnter={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.06)'; e.currentTarget.style.color = '#C7D2FE'; }}
+          onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = 'rgba(199,210,254,0.6)'; }}
+        >
+          <Icon name="logout" size={15} color="currentColor" />
+          <span>Sign Out</span>
         </button>
       </div>
     </aside>

@@ -3,7 +3,7 @@ import Icon from '../components/Icon';
 import Badge from '../components/Badge';
 import { PLANS } from '../data/mockData';
 
-const Landing = ({ onLogin }) => {
+const Landing = ({ onLogin, theme, setTheme }) => {
   const [hoveredPlan, setHoveredPlan] = useState('professional');
 
   return (
@@ -16,7 +16,7 @@ const Landing = ({ onLogin }) => {
           alignItems: 'center',
           justifyContent: 'space-between',
           borderBottom: '1px solid var(--border)',
-          background: 'rgba(10,10,15,0.8)',
+          background: 'var(--void)',
           backdropFilter: 'blur(20px)',
           position: 'sticky',
           top: 0,
@@ -49,6 +49,24 @@ const Landing = ({ onLogin }) => {
           </span>
         </div>
         <div style={{ display: 'flex', gap: '12px' }}>
+          <button
+            onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+            style={{
+              padding: '9px',
+              background: 'transparent',
+              border: '1px solid var(--border2)',
+              borderRadius: '8px',
+              color: 'var(--text2)',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              transition: 'all 0.2s',
+            }}
+            title={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}
+          >
+            <Icon name={theme === 'dark' ? 'sun' : 'moon'} size={18} color="currentColor" />
+          </button>
           <button
             onClick={() => onLogin('hotel')}
             style={{
@@ -177,54 +195,61 @@ const Landing = ({ onLogin }) => {
       </div>
 
       {/* FEATURES STRIP */}
-      <div
-        style={{
-          padding: '0 60px 80px',
+      <div style={{ padding: '0 60px 80px', maxWidth: '1100px', margin: '0 auto' }}>
+        <div style={{ textAlign: 'center', marginBottom: '32px' }}>
+          <h2 style={{ fontFamily: 'Playfair Display,serif', fontSize: '32px', fontWeight: '700', marginBottom: '8px' }}>
+            Everything Your Hotel Needs
+          </h2>
+          <p style={{ color: 'var(--text2)', fontSize: '15px' }}>24+ modules built for modern hospitality</p>
+        </div>
+        <div style={{
           display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit,minmax(200px,1fr))',
-          gap: '16px',
-          maxWidth: '1100px',
-          margin: '0 auto',
-        }}
-      >
-        {[
-          { icon: 'bed', label: 'Room Management', color: '#2DD4BF' },
-          { icon: 'users', label: 'Employee Control', color: '#A78BFA' },
-          { icon: 'food', label: 'Restaurant POS', color: '#FB7185' },
-          { icon: 'maintenance', label: 'Maintenance Ops', color: '#FCD34D' },
-          { icon: 'channel', label: 'OTA Channel Sync', color: '#60A5FA' },
-          { icon: 'revenue', label: 'Revenue Analytics', color: '#C9A84C' },
-        ].map((f) => (
-          <div
-            key={f.label}
-            style={{
-              background: 'var(--card)',
-              border: '1px solid var(--border)',
-              borderRadius: 'var(--radius)',
-              padding: '20px',
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-              gap: '10px',
-              textAlign: 'center',
-            }}
-          >
+          gridTemplateColumns: 'repeat(3, 1fr)',
+          gap: '14px',
+        }}>
+          {[
+            { icon: 'bed',         label: 'Room Management',     color: '#2DD4BF', desc: 'Live room status & floor map' },
+            { icon: 'calendar',    label: 'Smart Bookings',       color: '#A78BFA', desc: 'Reservations with pet charges' },
+            { icon: 'food',        label: 'Restaurant POS',       color: '#FB7185', desc: 'Orders, kitchen & billing' },
+            { icon: 'maintenance', label: 'Maintenance',          color: '#FCD34D', desc: 'Tickets & repair tracking' },
+            { icon: 'channel',     label: 'OTA Channel Sync',     color: '#60A5FA', desc: 'Booking.com, Expedia & more' },
+            { icon: 'revenue',     label: 'Revenue Analytics',    color: '#C9A84C', desc: 'AI pricing & forecasting' },
+            { icon: 'users',       label: 'Employee Management',  color: '#34D399', desc: 'Attendance & payroll' },
+            { icon: 'key',         label: 'Housekeeping',         color: '#F97316', desc: 'Tasks, timers & room status' },
+            { icon: 'crm',         label: 'Guest CRM & Loyalty',  color: '#EC4899', desc: 'Points, tiers & referrals' },
+            { icon: 'shield',      label: 'Security & CCTV',      color: '#8B5CF6', desc: 'Visitor logs & 2FA' },
+            { icon: 'invoice',     label: 'Advanced Billing',     color: '#06B6D4', desc: 'Split pay, GST & PDF invoices' },
+            { icon: 'hotel',       label: 'Multi-Branch',         color: '#EF4444', desc: 'Centralized control' },
+          ].map((f) => (
             <div
+              key={f.label}
               style={{
-                width: '44px',
-                height: '44px',
-                borderRadius: '12px',
-                background: `${f.color}18`,
+                background: 'var(--card)',
+                border: '1px solid var(--border)',
+                borderRadius: 'var(--radius)',
+                padding: '18px 20px',
                 display: 'flex',
                 alignItems: 'center',
-                justifyContent: 'center',
+                gap: '14px',
+                transition: 'border-color 0.2s, transform 0.2s',
+                cursor: 'default',
               }}
+              onMouseEnter={e => { e.currentTarget.style.borderColor = f.color; e.currentTarget.style.transform = 'translateY(-2px)'; }}
+              onMouseLeave={e => { e.currentTarget.style.borderColor = 'var(--border)'; e.currentTarget.style.transform = 'none'; }}
             >
-              <Icon name={f.icon} size={20} color={f.color} />
+              <div style={{
+                width: '42px', height: '42px', borderRadius: '10px', flexShrink: 0,
+                background: `${f.color}18`, display: 'flex', alignItems: 'center', justifyContent: 'center',
+              }}>
+                <Icon name={f.icon} size={20} color={f.color} />
+              </div>
+              <div>
+                <div style={{ fontSize: '13px', fontWeight: '700', color: 'var(--text)', marginBottom: '2px' }}>{f.label}</div>
+                <div style={{ fontSize: '11px', color: 'var(--text3)' }}>{f.desc}</div>
+              </div>
             </div>
-            <span style={{ fontSize: '13px', fontWeight: '600', color: 'var(--text2)' }}>{f.label}</span>
-          </div>
-        ))}
+          ))}
+        </div>
       </div>
 
       {/* PRICING */}

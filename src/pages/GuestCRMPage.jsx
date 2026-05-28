@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Icon from '../components/Icon';
 import Badge from '../components/Badge';
 import Avatar from '../components/Avatar';
@@ -7,7 +7,7 @@ import { GUESTS, BOOKINGS } from '../data/mockData';
 const loyaltyColor = { Platinum: 'gold', Gold: 'amber', Silver: 'gray', Bronze: 'rose' };
 const statusColor = { vip: 'gold', regular: 'teal', new: 'green' };
 
-const inputStyle = { width: '100%', padding: '10px 12px', background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: '8px', color: 'var(--text)', fontSize: '13px', outline: 'none', fontFamily: 'DM Sans,sans-serif' };
+const inputStyle = { width: '100%', padding: '10px 12px', background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: '8px', color: 'var(--text)', fontSize: '13px', outline: 'none', fontFamily: 'Inter, sans-serif' };
 const labelStyle = { fontSize: '11px', color: 'var(--text3)', fontWeight: '600', letterSpacing: '0.06em', display: 'block', marginBottom: '5px' };
 
 const GuestDetail = ({ guest, onClose }) => {
@@ -19,7 +19,7 @@ const GuestDetail = ({ guest, onClose }) => {
           <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
             <Avatar initials={guest.name.split(' ').map(n => n[0]).join('')} color={guest.status === 'vip' ? 'var(--gold)' : 'var(--teal)'} size={48} />
             <div>
-              <h2 style={{ fontFamily: 'Playfair Display,serif', fontSize: '20px' }}>{guest.name}</h2>
+              <h2 style={{ fontFamily: 'Poppins,sans-serif', fontSize: '20px' }}>{guest.name}</h2>
               <div style={{ display: 'flex', gap: '6px', marginTop: '4px' }}>
                 <Badge color={statusColor[guest.status]}>{guest.status.toUpperCase()}</Badge>
                 <Badge color={loyaltyColor[guest.loyalty]}>{guest.loyalty}</Badge>
@@ -67,7 +67,14 @@ const GuestDetail = ({ guest, onClose }) => {
 };
 
 const GuestCRMPage = () => {
-  const [guests, setGuests] = useState(GUESTS);
+  const [guests, setGuests] = useState(() => {
+    const saved = localStorage.getItem('stayos_guests');
+    return saved ? JSON.parse(saved) : GUESTS;
+  });
+
+  useEffect(() => {
+    localStorage.setItem('stayos_guests', JSON.stringify(guests));
+  }, [guests]);
   const [search, setSearch] = useState('');
   const [filter, setFilter] = useState('all');
   const [selected, setSelected] = useState(null);
@@ -90,7 +97,7 @@ const GuestCRMPage = () => {
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.7)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
           <div style={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: 'var(--radius-lg)', width: '100%', maxWidth: '480px' }}>
             <div style={{ padding: '24px', borderBottom: '1px solid var(--border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <h2 style={{ fontFamily: 'Playfair Display,serif', fontSize: '20px' }}>Add Guest</h2>
+              <h2 style={{ fontFamily: 'Poppins,sans-serif', fontSize: '20px' }}>Add Guest</h2>
               <button onClick={() => setShowAdd(false)} style={{ background: 'none', border: 'none', cursor: 'pointer' }}><Icon name="x" size={20} color="var(--text3)" /></button>
             </div>
             <div style={{ padding: '24px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
@@ -105,8 +112,8 @@ const GuestCRMPage = () => {
                 <textarea style={{ ...inputStyle, resize: 'vertical', minHeight: '60px' }} value={newGuest.notes} onChange={e => setNewGuest(p => ({ ...p, notes: e.target.value }))} />
               </div>
               <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end' }}>
-                <button onClick={() => setShowAdd(false)} style={{ padding: '10px 20px', background: 'transparent', border: '1px solid var(--border)', borderRadius: '8px', color: 'var(--text2)', cursor: 'pointer', fontFamily: 'DM Sans,sans-serif', fontSize: '13px' }}>Cancel</button>
-                <button onClick={() => { if (newGuest.name) { setGuests(p => [...p, { ...newGuest, id: p.length + 1, visits: 0, totalSpent: 0, lastVisit: '—', status: 'new', loyalty: 'Bronze' }]); setShowAdd(false); setNewGuest({ name: '', email: '', phone: '', city: '', notes: '' }); } }} style={{ padding: '10px 24px', background: 'linear-gradient(135deg,#C9A84C,#8A6F2E)', border: 'none', borderRadius: '8px', color: '#fff', cursor: 'pointer', fontWeight: '600', fontSize: '13px', fontFamily: 'DM Sans,sans-serif' }}>Add Guest</button>
+                <button onClick={() => setShowAdd(false)} style={{ padding: '10px 20px', background: 'transparent', border: '1px solid var(--border)', borderRadius: '8px', color: 'var(--text2)', cursor: 'pointer', fontFamily: 'Inter, sans-serif', fontSize: '13px' }}>Cancel</button>
+                <button onClick={() => { if (newGuest.name) { setGuests(p => [...p, { ...newGuest, id: p.length + 1, visits: 0, totalSpent: 0, lastVisit: '—', status: 'new', loyalty: 'Bronze' }]); setShowAdd(false); setNewGuest({ name: '', email: '', phone: '', city: '', notes: '' }); } }} style={{ padding: '10px 24px', background: 'linear-gradient(135deg,#C9A84C,#8A6F2E)', border: 'none', borderRadius: '8px', color: '#fff', cursor: 'pointer', fontWeight: '600', fontSize: '13px', fontFamily: 'Inter, sans-serif' }}>Add Guest</button>
               </div>
             </div>
           </div>
@@ -122,7 +129,7 @@ const GuestCRMPage = () => {
           { label: 'Total Revenue', value: `₹${(totalRevenue / 1000).toFixed(0)}K`, color: 'var(--green)' },
         ].map(s => (
           <div key={s.label} style={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: 'var(--radius)', padding: '16px', textAlign: 'center' }}>
-            <div style={{ fontSize: '24px', fontWeight: '700', fontFamily: 'Playfair Display,serif', color: s.color, marginBottom: '4px' }}>{s.value}</div>
+            <div style={{ fontSize: '24px', fontWeight: '700', fontFamily: 'Poppins,sans-serif', color: s.color, marginBottom: '4px' }}>{s.value}</div>
             <div style={{ fontSize: '12px', color: 'var(--text3)' }}>{s.label}</div>
           </div>
         ))}
@@ -131,11 +138,11 @@ const GuestCRMPage = () => {
       {/* Filters */}
       <div style={{ display: 'flex', gap: '10px', marginBottom: '20px', flexWrap: 'wrap', alignItems: 'center' }}>
         {['all', 'vip', 'regular', 'new', 'Platinum', 'Gold', 'Silver'].map(f => (
-          <button key={f} onClick={() => setFilter(f)} style={{ padding: '6px 14px', borderRadius: '20px', border: '1px solid', fontSize: '12px', fontWeight: '600', cursor: 'pointer', fontFamily: 'DM Sans,sans-serif', textTransform: 'capitalize', background: filter === f ? 'var(--gold)' : 'transparent', borderColor: filter === f ? 'var(--gold)' : 'var(--border)', color: filter === f ? '#000' : 'var(--text2)' }}>{f}</button>
+          <button key={f} onClick={() => setFilter(f)} style={{ padding: '6px 14px', borderRadius: '20px', border: '1px solid', fontSize: '12px', fontWeight: '600', cursor: 'pointer', fontFamily: 'Inter, sans-serif', textTransform: 'capitalize', background: filter === f ? 'var(--gold)' : 'transparent', borderColor: filter === f ? 'var(--gold)' : 'var(--border)', color: filter === f ? '#000' : 'var(--text2)' }}>{f}</button>
         ))}
         <div style={{ marginLeft: 'auto', display: 'flex', gap: '8px' }}>
           <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search guests…" style={{ ...inputStyle, width: '200px' }} />
-          <button onClick={() => setShowAdd(true)} style={{ padding: '10px 16px', background: 'linear-gradient(135deg,#C9A84C,#8A6F2E)', border: 'none', borderRadius: '8px', color: '#fff', cursor: 'pointer', fontWeight: '600', fontSize: '13px', display: 'flex', alignItems: 'center', gap: '6px', fontFamily: 'DM Sans,sans-serif', whiteSpace: 'nowrap' }}>
+          <button onClick={() => setShowAdd(true)} style={{ padding: '10px 16px', background: 'linear-gradient(135deg,#C9A84C,#8A6F2E)', border: 'none', borderRadius: '8px', color: '#fff', cursor: 'pointer', fontWeight: '600', fontSize: '13px', display: 'flex', alignItems: 'center', gap: '6px', fontFamily: 'Inter, sans-serif', whiteSpace: 'nowrap' }}>
             <Icon name="plus" size={14} color="#fff" /> Add Guest
           </button>
         </div>

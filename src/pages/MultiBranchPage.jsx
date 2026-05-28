@@ -56,7 +56,7 @@ const MultiBranchPage = () => {
       </div>
       <div style={{ background:'var(--card)', border:'1px solid var(--border)', borderRadius:'var(--radius-lg)', padding:24 }}>
         <div style={{ display:'flex', gap:4, marginBottom:24, background:'var(--surface)', borderRadius:10, padding:4 }}>
-          {TABS.map((t,i) => <button key={i} onClick={() => setTab(i)} style={{ flex:1, padding:'9px 8px', borderRadius:8, border:'none', cursor:'pointer', fontFamily:'DM Sans,sans-serif', fontSize:13, fontWeight:500, background:tab===i?'var(--card)':'transparent', color:tab===i?'var(--gold)':'var(--text2)' }}>{t}</button>)}
+          {TABS.map((t,i) => <button key={i} onClick={() => setTab(i)} style={{ flex:1, padding:'9px 8px', borderRadius:8, border:'none', cursor:'pointer', fontFamily:'Inter, sans-serif', fontSize:13, fontWeight:500, background:tab===i?'var(--card)':'transparent', color:tab===i?'var(--gold)':'var(--text2)' }}>{t}</button>)}
         </div>
 
         {tab === 0 && (
@@ -155,7 +155,7 @@ const MultiBranchPage = () => {
                   </div>
                   <div style={{ display:'flex', alignItems:'center', gap:8 }}>
                     <span style={{ fontSize:13, color:'var(--teal)', fontFamily:'DM Mono,monospace' }}>{p.value}</span>
-                    <button style={{ background:'transparent', border:'1px solid var(--border)', borderRadius:6, padding:'3px 10px', color:'var(--text3)', cursor:'pointer', fontSize:11, fontFamily:'DM Sans,sans-serif' }}>Edit</button>
+                    <button style={{ background:'transparent', border:'1px solid var(--border)', borderRadius:6, padding:'3px 10px', color:'var(--text3)', cursor:'pointer', fontSize:11, fontFamily:'Inter, sans-serif' }}>Edit</button>
                   </div>
                 </div>
               ))}
@@ -173,7 +173,7 @@ const MultiBranchPage = () => {
                   </div>
                 </div>
               ))}
-              <button style={{ width:'100%', background:'linear-gradient(135deg,#C9A84C,#8A6F2E)', border:'none', borderRadius:8, padding:'10px', color:'#fff', cursor:'pointer', fontFamily:'DM Sans,sans-serif', fontWeight:600, fontSize:13 }}>+ New Transfer Request</button>
+              <button style={{ width:'100%', background:'linear-gradient(135deg,#C9A84C,#8A6F2E)', border:'none', borderRadius:8, padding:'10px', color:'#fff', cursor:'pointer', fontFamily:'Inter, sans-serif', fontWeight:600, fontSize:13 }}>+ New Transfer Request</button>
             </div>
           </div>
         )}

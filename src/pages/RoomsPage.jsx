@@ -25,7 +25,7 @@ const RoomsPage = ({ onNav }) => {
               fontSize: '12px',
               fontWeight: '600',
               cursor: 'pointer',
-              fontFamily: 'DM Sans,sans-serif',
+              fontFamily: 'Inter, sans-serif',
               background: filterStatus === s ? statusColor[s] || 'var(--gold)' : 'transparent',
               borderColor: filterStatus === s ? statusColor[s] || 'var(--gold)' : 'var(--border)',
               color: filterStatus === s ? '#000' : 'var(--text2)',
@@ -44,7 +44,7 @@ const RoomsPage = ({ onNav }) => {
               border: '1px solid',
               fontSize: '12px',
               cursor: 'pointer',
-              fontFamily: 'DM Sans,sans-serif',
+              fontFamily: 'Inter, sans-serif',
               background: view === 'grid' ? 'var(--gold)' : 'transparent',
               borderColor: view === 'grid' ? 'var(--gold)' : 'var(--border)',
               color: view === 'grid' ? '#000' : 'var(--text2)',
@@ -60,7 +60,7 @@ const RoomsPage = ({ onNav }) => {
               border: '1px solid',
               fontSize: '12px',
               cursor: 'pointer',
-              fontFamily: 'DM Sans,sans-serif',
+              fontFamily: 'Inter, sans-serif',
               background: view === 'list' ? 'var(--gold)' : 'transparent',
               borderColor: view === 'list' ? 'var(--gold)' : 'var(--border)',
               color: view === 'list' ? '#000' : 'var(--text2)',
@@ -82,7 +82,7 @@ const RoomsPage = ({ onNav }) => {
               display: 'flex',
               alignItems: 'center',
               gap: '4px',
-              fontFamily: 'DM Sans,sans-serif',
+              fontFamily: 'Inter, sans-serif',
             }}
           >
             <Icon name="plus" size={12} color="#fff" /> New Booking
@@ -116,7 +116,7 @@ const RoomsPage = ({ onNav }) => {
             >
               <div style={{ position: 'absolute', top: 0, right: 0, width: '50px', height: '50px', background: `radial-gradient(circle, ${statusColor[r.status]}20, transparent)`, pointerEvents: 'none' }} />
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '10px' }}>
-                <span style={{ fontSize: '22px', fontWeight: '900', fontFamily: 'Playfair Display,serif', color: statusColor[r.status] }}>{r.id}</span>
+                <span style={{ fontSize: '22px', fontWeight: '900', fontFamily: 'Poppins,sans-serif', color: statusColor[r.status] }}>{r.id}</span>
                 <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: hkColor[r.housekeeping], marginTop: '4px' }} />
               </div>
               <div style={{ fontSize: '11px', fontWeight: '600', color: 'var(--text2)', marginBottom: '4px' }}>{r.type}</div>

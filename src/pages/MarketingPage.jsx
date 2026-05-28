@@ -38,7 +38,7 @@ const MarketingPage = () => {
 
   const thStyle = { padding:'10px 14px', textAlign:'left', fontSize:11, color:'var(--text3)', fontWeight:600, letterSpacing:'0.06em', textTransform:'uppercase', borderBottom:'1px solid var(--border)' };
   const tdStyle = { padding:'12px 14px', fontSize:13, color:'var(--text2)', borderBottom:'1px solid var(--border)' };
-  const inputStyle = { width:'100%', background:'var(--surface)', border:'1px solid var(--border)', borderRadius:8, padding:'10px 14px', color:'var(--text)', fontFamily:'DM Sans,sans-serif', fontSize:14, boxSizing:'border-box' };
+  const inputStyle = { width:'100%', background:'var(--surface)', border:'1px solid var(--border)', borderRadius:8, padding:'10px 14px', color:'var(--text)', fontFamily:'Inter, sans-serif', fontSize:14, boxSizing:'border-box' };
 
   return (
     <div style={{ flex:1, overflowY:'auto', padding:24 }}>
@@ -52,12 +52,12 @@ const MarketingPage = () => {
             <div style={{ marginBottom:20 }}>
               <label style={{ fontSize:11, color:'var(--text3)', display:'block', marginBottom:5, textTransform:'uppercase', letterSpacing:'0.06em' }}>Discount Type</label>
               <div style={{ display:'flex', gap:8 }}>
-                {['percent','flat'].map(t => <button key={t} onClick={() => setNewCoupon(p=>({...p,type:t}))} style={{ flex:1, padding:'8px', borderRadius:8, border:`1px solid ${newCoupon.type===t?'var(--gold)':'var(--border)'}`, background:newCoupon.type===t?'rgba(201,168,76,0.12)':'transparent', color:newCoupon.type===t?'var(--gold)':'var(--text2)', cursor:'pointer', fontFamily:'DM Sans,sans-serif', textTransform:'capitalize' }}>{t === 'percent' ? '% Percentage' : '₹ Flat Amount'}</button>)}
+                {['percent','flat'].map(t => <button key={t} onClick={() => setNewCoupon(p=>({...p,type:t}))} style={{ flex:1, padding:'8px', borderRadius:8, border:`1px solid ${newCoupon.type===t?'var(--gold)':'var(--border)'}`, background:newCoupon.type===t?'rgba(201,168,76,0.12)':'transparent', color:newCoupon.type===t?'var(--gold)':'var(--text2)', cursor:'pointer', fontFamily:'Inter, sans-serif', textTransform:'capitalize' }}>{t === 'percent' ? '% Percentage' : '₹ Flat Amount'}</button>)}
               </div>
             </div>
             <div style={{ display:'flex', gap:12 }}>
-              <button onClick={() => setShowCouponModal(false)} style={{ flex:1, background:'transparent', border:'1px solid var(--border)', borderRadius:8, padding:'10px', color:'var(--text2)', cursor:'pointer', fontFamily:'DM Sans,sans-serif' }}>Cancel</button>
-              <button onClick={() => setShowCouponModal(false)} style={{ flex:1, background:'linear-gradient(135deg,#C9A84C,#8A6F2E)', border:'none', borderRadius:8, padding:'10px', color:'#fff', cursor:'pointer', fontFamily:'DM Sans,sans-serif', fontWeight:600 }}>Create</button>
+              <button onClick={() => setShowCouponModal(false)} style={{ flex:1, background:'transparent', border:'1px solid var(--border)', borderRadius:8, padding:'10px', color:'var(--text2)', cursor:'pointer', fontFamily:'Inter, sans-serif' }}>Cancel</button>
+              <button onClick={() => setShowCouponModal(false)} style={{ flex:1, background:'linear-gradient(135deg,#C9A84C,#8A6F2E)', border:'none', borderRadius:8, padding:'10px', color:'#fff', cursor:'pointer', fontFamily:'Inter, sans-serif', fontWeight:600 }}>Create</button>
             </div>
           </div>
         </div>
@@ -70,13 +70,13 @@ const MarketingPage = () => {
       </div>
       <div style={{ background:'var(--card)', border:'1px solid var(--border)', borderRadius:'var(--radius-lg)', padding:24 }}>
         <div style={{ display:'flex', gap:4, marginBottom:24, background:'var(--surface)', borderRadius:10, padding:4 }}>
-          {TABS.map((t,i) => <button key={i} onClick={() => setTab(i)} style={{ flex:1, padding:'9px 8px', borderRadius:8, border:'none', cursor:'pointer', fontFamily:'DM Sans,sans-serif', fontSize:13, fontWeight:500, background:tab===i?'var(--card)':'transparent', color:tab===i?'var(--gold)':'var(--text2)' }}>{t}</button>)}
+          {TABS.map((t,i) => <button key={i} onClick={() => setTab(i)} style={{ flex:1, padding:'9px 8px', borderRadius:8, border:'none', cursor:'pointer', fontFamily:'Inter, sans-serif', fontSize:13, fontWeight:500, background:tab===i?'var(--card)':'transparent', color:tab===i?'var(--gold)':'var(--text2)' }}>{t}</button>)}
         </div>
 
         {tab === 0 && (
           <div>
             <div style={{ display:'flex', justifyContent:'flex-end', marginBottom:16 }}>
-              <button onClick={() => setShowCouponModal(true)} style={{ background:'linear-gradient(135deg,#C9A84C,#8A6F2E)', border:'none', borderRadius:8, padding:'10px 20px', color:'#fff', cursor:'pointer', fontFamily:'DM Sans,sans-serif', fontWeight:600, fontSize:13, display:'flex', alignItems:'center', gap:6 }}><Icon name="plus" size={14} color="#fff" />Create Coupon</button>
+              <button onClick={() => setShowCouponModal(true)} style={{ background:'linear-gradient(135deg,#C9A84C,#8A6F2E)', border:'none', borderRadius:8, padding:'10px 20px', color:'#fff', cursor:'pointer', fontFamily:'Inter, sans-serif', fontWeight:600, fontSize:13, display:'flex', alignItems:'center', gap:6 }}><Icon name="plus" size={14} color="#fff" />Create Coupon</button>
             </div>
             <table style={{ width:'100%', borderCollapse:'collapse' }}>
               <thead><tr>{['Code','Discount','Usage','Max Usage','Expiry','Status','Action'].map(h=><th key={h} style={thStyle}>{h}</th>)}</tr></thead>
@@ -89,7 +89,7 @@ const MarketingPage = () => {
                     <td style={{ ...tdStyle, fontFamily:'DM Mono,monospace' }}>{c.maxUsage}</td>
                     <td style={tdStyle}>{c.expiry}</td>
                     <td style={tdStyle}><span style={{ fontSize:11, fontWeight:600, color:c.status==='active'?'var(--green)':'var(--rose)', textTransform:'uppercase' }}>{c.status}</span></td>
-                    <td style={tdStyle}><button style={{ background:'transparent', border:'1px solid var(--border)', borderRadius:6, padding:'4px 12px', color:'var(--text2)', cursor:'pointer', fontSize:12, fontFamily:'DM Sans,sans-serif' }}>Edit</button></td>
+                    <td style={tdStyle}><button style={{ background:'transparent', border:'1px solid var(--border)', borderRadius:6, padding:'4px 12px', color:'var(--text2)', cursor:'pointer', fontSize:12, fontFamily:'Inter, sans-serif' }}>Edit</button></td>
                   </tr>
                 ))}
               </tbody>
@@ -136,7 +136,7 @@ const MarketingPage = () => {
                   </div>
                 </div>
                 <div style={{ fontSize:13, color:'var(--text2)', lineHeight:1.6, marginBottom:10 }}>{r.text}</div>
-                {!r.replied && <button style={{ background:'transparent', border:'1px solid var(--border)', borderRadius:8, padding:'6px 14px', color:'var(--text2)', cursor:'pointer', fontSize:12, fontFamily:'DM Sans,sans-serif' }}>Reply to Review</button>}
+                {!r.replied && <button style={{ background:'transparent', border:'1px solid var(--border)', borderRadius:8, padding:'6px 14px', color:'var(--text2)', cursor:'pointer', fontSize:12, fontFamily:'Inter, sans-serif' }}>Reply to Review</button>}
               </div>
             ))}
           </div>
@@ -158,8 +158,8 @@ const MarketingPage = () => {
                   </div>
                 </div>
                 <div style={{ display:'flex', gap:8 }}>
-                  <button style={{ background:'transparent', border:'1px solid var(--border)', borderRadius:6, padding:'5px 12px', color:'var(--text2)', cursor:'pointer', fontSize:12, fontFamily:'DM Sans,sans-serif' }}>Edit</button>
-                  <button style={{ background:'transparent', border:'1px solid var(--border)', borderRadius:6, padding:'5px 12px', color:'var(--text2)', cursor:'pointer', fontSize:12, fontFamily:'DM Sans,sans-serif' }}>Preview</button>
+                  <button style={{ background:'transparent', border:'1px solid var(--border)', borderRadius:6, padding:'5px 12px', color:'var(--text2)', cursor:'pointer', fontSize:12, fontFamily:'Inter, sans-serif' }}>Edit</button>
+                  <button style={{ background:'transparent', border:'1px solid var(--border)', borderRadius:6, padding:'5px 12px', color:'var(--text2)', cursor:'pointer', fontSize:12, fontFamily:'Inter, sans-serif' }}>Preview</button>
                 </div>
               </div>
             ))}

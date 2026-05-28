@@ -51,7 +51,7 @@ const SecurityPage = () => {
       </div>
       <div style={{ background:'var(--card)', border:'1px solid var(--border)', borderRadius:'var(--radius-lg)', padding:24 }}>
         <div style={{ display:'flex', gap:4, marginBottom:24, background:'var(--surface)', borderRadius:10, padding:4, flexWrap:'wrap' }}>
-          {TABS.map((t,i) => <button key={i} onClick={() => setTab(i)} style={{ flex:1, minWidth:100, padding:'9px 8px', borderRadius:8, border:'none', cursor:'pointer', fontFamily:'DM Sans,sans-serif', fontSize:12, fontWeight:500, background:tab===i?'var(--card)':'transparent', color:tab===i?'var(--gold)':'var(--text2)' }}>{t}</button>)}
+          {TABS.map((t,i) => <button key={i} onClick={() => setTab(i)} style={{ flex:1, minWidth:100, padding:'9px 8px', borderRadius:8, border:'none', cursor:'pointer', fontFamily:'Inter, sans-serif', fontSize:12, fontWeight:500, background:tab===i?'var(--card)':'transparent', color:tab===i?'var(--gold)':'var(--text2)' }}>{t}</button>)}
         </div>
 
         {tab === 0 && (
@@ -153,7 +153,7 @@ const SecurityPage = () => {
                   <div style={{ fontSize:14, fontWeight:500, color:'var(--text)' }}>{s.device}</div>
                   <div style={{ fontSize:12, color:'var(--text3)' }}>{s.location} · {s.lastActive}</div>
                 </div>
-                {s.current ? <span style={{ fontSize:11, fontWeight:600, color:'var(--green)', background:'rgba(52,211,153,0.12)', padding:'4px 10px', borderRadius:20 }}>Current Session</span> : <button style={{ background:'rgba(251,113,133,0.12)', border:'1px solid rgba(251,113,133,0.3)', borderRadius:8, padding:'6px 14px', color:'var(--rose)', cursor:'pointer', fontSize:12, fontFamily:'DM Sans,sans-serif', fontWeight:600 }}>Revoke</button>}
+                {s.current ? <span style={{ fontSize:11, fontWeight:600, color:'var(--green)', background:'rgba(52,211,153,0.12)', padding:'4px 10px', borderRadius:20 }}>Current Session</span> : <button style={{ background:'rgba(251,113,133,0.12)', border:'1px solid rgba(251,113,133,0.3)', borderRadius:8, padding:'6px 14px', color:'var(--rose)', cursor:'pointer', fontSize:12, fontFamily:'Inter, sans-serif', fontWeight:600 }}>Revoke</button>}
               </div>
             ))}
           </div>

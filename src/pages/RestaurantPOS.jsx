@@ -47,14 +47,14 @@ const RestaurantPOS = () => {
 
   const updateOrderStatus = (id, status) => setOrders(prev => prev.map(o => o.id === id ? { ...o, status } : o));
 
-  const inputStyle = { padding: '10px 12px', background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: '8px', color: 'var(--text)', fontSize: '13px', outline: 'none', fontFamily: 'DM Sans,sans-serif' };
+  const inputStyle = { padding: '10px 12px', background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: '8px', color: 'var(--text)', fontSize: '13px', outline: 'none', fontFamily: 'Inter, sans-serif' };
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', flex: 1, overflow: 'hidden' }}>
       {/* Tabs */}
       <div style={{ padding: '16px 32px 0', borderBottom: '1px solid var(--border)', display: 'flex', gap: '0' }}>
         {[['pos', 'New Order'], ['orders', 'Active Orders'], ['history', 'Order History']].map(([id, label]) => (
-          <button key={id} onClick={() => setActiveTab(id)} style={{ padding: '10px 20px', background: 'none', border: 'none', borderBottom: `2px solid ${activeTab === id ? 'var(--gold)' : 'transparent'}`, color: activeTab === id ? 'var(--gold)' : 'var(--text3)', cursor: 'pointer', fontSize: '13px', fontWeight: '600', fontFamily: 'DM Sans,sans-serif', transition: 'all 0.2s' }}>
+          <button key={id} onClick={() => setActiveTab(id)} style={{ padding: '10px 20px', background: 'none', border: 'none', borderBottom: `2px solid ${activeTab === id ? 'var(--gold)' : 'transparent'}`, color: activeTab === id ? 'var(--gold)' : 'var(--text3)', cursor: 'pointer', fontSize: '13px', fontWeight: '600', fontFamily: 'Inter, sans-serif', transition: 'all 0.2s' }}>
             {label}
           </button>
         ))}
@@ -66,7 +66,7 @@ const RestaurantPOS = () => {
           <div style={{ padding: '24px', overflowY: 'auto' }}>
             <div style={{ display: 'flex', gap: '8px', marginBottom: '20px', flexWrap: 'wrap' }}>
               {categories.map(c => (
-                <button key={c} onClick={() => setCatFilter(c)} style={{ padding: '6px 14px', borderRadius: '20px', border: '1px solid', fontSize: '12px', fontWeight: '600', cursor: 'pointer', fontFamily: 'DM Sans,sans-serif', background: catFilter === c ? 'var(--gold)' : 'transparent', borderColor: catFilter === c ? 'var(--gold)' : 'var(--border)', color: catFilter === c ? '#000' : 'var(--text2)' }}>{c}</button>
+                <button key={c} onClick={() => setCatFilter(c)} style={{ padding: '6px 14px', borderRadius: '20px', border: '1px solid', fontSize: '12px', fontWeight: '600', cursor: 'pointer', fontFamily: 'Inter, sans-serif', background: catFilter === c ? 'var(--gold)' : 'transparent', borderColor: catFilter === c ? 'var(--gold)' : 'var(--border)', color: catFilter === c ? '#000' : 'var(--text2)' }}>{c}</button>
               ))}
             </div>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(160px,1fr))', gap: '12px' }}>
@@ -95,7 +95,7 @@ const RestaurantPOS = () => {
               <div style={{ fontSize: '15px', fontWeight: '700', marginBottom: '12px' }}>Current Order</div>
               <div style={{ display: 'flex', gap: '8px', marginBottom: '10px' }}>
                 {['dine-in', 'room-service', 'takeaway'].map(t => (
-                  <button key={t} onClick={() => setOrderType(t)} style={{ flex: 1, padding: '6px', borderRadius: '6px', border: '1px solid', fontSize: '10px', fontWeight: '600', cursor: 'pointer', fontFamily: 'DM Sans,sans-serif', textTransform: 'capitalize', background: orderType === t ? 'var(--gold)' : 'transparent', borderColor: orderType === t ? 'var(--gold)' : 'var(--border)', color: orderType === t ? '#000' : 'var(--text2)' }}>
+                  <button key={t} onClick={() => setOrderType(t)} style={{ flex: 1, padding: '6px', borderRadius: '6px', border: '1px solid', fontSize: '10px', fontWeight: '600', cursor: 'pointer', fontFamily: 'Inter, sans-serif', textTransform: 'capitalize', background: orderType === t ? 'var(--gold)' : 'transparent', borderColor: orderType === t ? 'var(--gold)' : 'var(--border)', color: orderType === t ? '#000' : 'var(--text2)' }}>
                     {t.replace('-', ' ')}
                   </button>
                 ))}
@@ -133,7 +133,7 @@ const RestaurantPOS = () => {
                 <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '16px', fontWeight: '700', color: 'var(--gold)', marginBottom: '14px' }}>
                   <span>Total</span><span>₹{(cartTotal + tax).toLocaleString()}</span>
                 </div>
-                <button onClick={placeOrder} disabled={!tableNo} style={{ width: '100%', padding: '12px', background: tableNo ? 'linear-gradient(135deg,#C9A84C,#8A6F2E)' : 'var(--border)', border: 'none', borderRadius: '8px', color: tableNo ? '#fff' : 'var(--text3)', cursor: tableNo ? 'pointer' : 'not-allowed', fontWeight: '600', fontSize: '14px', fontFamily: 'DM Sans,sans-serif' }}>
+                <button onClick={placeOrder} disabled={!tableNo} style={{ width: '100%', padding: '12px', background: tableNo ? 'linear-gradient(135deg,#C9A84C,#8A6F2E)' : 'var(--border)', border: 'none', borderRadius: '8px', color: tableNo ? '#fff' : 'var(--text3)', cursor: tableNo ? 'pointer' : 'not-allowed', fontWeight: '600', fontSize: '14px', fontFamily: 'Inter, sans-serif' }}>
                   Place Order
                 </button>
               </div>
@@ -164,8 +164,8 @@ const RestaurantPOS = () => {
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid var(--border)', paddingTop: '10px' }}>
                   <span style={{ fontSize: '15px', fontWeight: '700', color: 'var(--gold)', fontFamily: 'DM Mono,monospace' }}>₹{order.total.toLocaleString()}</span>
-                  {order.status === 'pending' && <button onClick={() => updateOrderStatus(order.id, 'preparing')} style={{ padding: '6px 12px', background: 'rgba(167,139,250,0.15)', border: '1px solid rgba(167,139,250,0.3)', borderRadius: '6px', color: 'var(--violet)', cursor: 'pointer', fontSize: '12px', fontWeight: '600', fontFamily: 'DM Sans,sans-serif' }}>Start Preparing</button>}
-                  {order.status === 'preparing' && <button onClick={() => updateOrderStatus(order.id, 'delivered')} style={{ padding: '6px 12px', background: 'rgba(52,211,153,0.15)', border: '1px solid rgba(52,211,153,0.3)', borderRadius: '6px', color: 'var(--green)', cursor: 'pointer', fontSize: '12px', fontWeight: '600', fontFamily: 'DM Sans,sans-serif' }}>Mark Delivered</button>}
+                  {order.status === 'pending' && <button onClick={() => updateOrderStatus(order.id, 'preparing')} style={{ padding: '6px 12px', background: 'rgba(167,139,250,0.15)', border: '1px solid rgba(167,139,250,0.3)', borderRadius: '6px', color: 'var(--violet)', cursor: 'pointer', fontSize: '12px', fontWeight: '600', fontFamily: 'Inter, sans-serif' }}>Start Preparing</button>}
+                  {order.status === 'preparing' && <button onClick={() => updateOrderStatus(order.id, 'delivered')} style={{ padding: '6px 12px', background: 'rgba(52,211,153,0.15)', border: '1px solid rgba(52,211,153,0.3)', borderRadius: '6px', color: 'var(--green)', cursor: 'pointer', fontSize: '12px', fontWeight: '600', fontFamily: 'Inter, sans-serif' }}>Mark Delivered</button>}
                 </div>
               </div>
             ))}

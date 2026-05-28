@@ -94,11 +94,11 @@ const ChatbotPage = () => {
         <div style={{ padding:'12px 16px', borderTop:'1px solid var(--border)', flexShrink:0 }}>
           <div style={{ display:'flex', flexWrap:'wrap', gap:6, marginBottom:12 }}>
             {QUICK_REPLIES.map(qr => (
-              <button key={qr} onClick={() => sendMessage(qr)} style={{ padding:'6px 14px', borderRadius:20, border:'1px solid var(--border)', background:'var(--surface)', color:'var(--text2)', cursor:'pointer', fontSize:12, fontFamily:'DM Sans,sans-serif', transition:'all 0.15s' }} onMouseEnter={e=>{e.target.style.borderColor='var(--gold)';e.target.style.color='var(--gold)'}} onMouseLeave={e=>{e.target.style.borderColor='var(--border)';e.target.style.color='var(--text2)'}}>{qr}</button>
+              <button key={qr} onClick={() => sendMessage(qr)} style={{ padding:'6px 14px', borderRadius:20, border:'1px solid var(--border)', background:'var(--surface)', color:'var(--text2)', cursor:'pointer', fontSize:12, fontFamily:'Inter, sans-serif', transition:'all 0.15s' }} onMouseEnter={e=>{e.target.style.borderColor='var(--gold)';e.target.style.color='var(--gold)'}} onMouseLeave={e=>{e.target.style.borderColor='var(--border)';e.target.style.color='var(--text2)'}}>{qr}</button>
             ))}
           </div>
           <div style={{ display:'flex', gap:8 }}>
-            <input value={input} onChange={e => setInput(e.target.value)} onKeyDown={e => e.key==='Enter' && sendMessage(input)} placeholder="Type your message..." style={{ flex:1, background:'var(--surface)', border:'1px solid var(--border)', borderRadius:24, padding:'10px 18px', color:'var(--text)', fontFamily:'DM Sans,sans-serif', fontSize:14, outline:'none' }} />
+            <input value={input} onChange={e => setInput(e.target.value)} onKeyDown={e => e.key==='Enter' && sendMessage(input)} placeholder="Type your message..." style={{ flex:1, background:'var(--surface)', border:'1px solid var(--border)', borderRadius:24, padding:'10px 18px', color:'var(--text)', fontFamily:'Inter, sans-serif', fontSize:14, outline:'none' }} />
             <button onClick={() => sendMessage(input)} style={{ width:44, height:44, borderRadius:'50%', background:'linear-gradient(135deg,#C9A84C,#8A6F2E)', border:'none', cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0 }}>
               <Icon name="send" size={16} color="#fff" />
             </button>

@@ -51,7 +51,7 @@ const InventoryPage = () => {
       <div style={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: 'var(--radius-lg)', padding: 24 }}>
         <div style={{ display: 'flex', gap: 4, marginBottom: 24, background: 'var(--surface)', borderRadius: 10, padding: 4 }}>
           {TABS.map((t, i) => (
-            <button key={i} onClick={() => setTab(i)} style={{ flex: 1, padding: '9px 8px', borderRadius: 8, border: 'none', cursor: 'pointer', fontFamily: 'DM Sans, sans-serif', fontSize: 12, fontWeight: 500, background: tab === i ? 'var(--card)' : 'transparent', color: tab === i ? 'var(--gold)' : 'var(--text2)' }}>{t}</button>
+            <button key={i} onClick={() => setTab(i)} style={{ flex: 1, padding: '9px 8px', borderRadius: 8, border: 'none', cursor: 'pointer', fontFamily: 'Inter, sans-serif', fontSize: 12, fontWeight: 500, background: tab === i ? 'var(--card)' : 'transparent', color: tab === i ? 'var(--gold)' : 'var(--text2)' }}>{t}</button>
           ))}
         </div>
 
@@ -90,7 +90,7 @@ const InventoryPage = () => {
                       <td style={tdStyle}>{item.unit}</td>
                       <td style={tdStyle}>{item.lastUpdated}</td>
                       <td style={tdStyle}><span style={{ fontSize: 11, fontWeight: 600, color: statusColor[st], textTransform: 'uppercase' }}>{st}</span></td>
-                      <td style={tdStyle}><button style={{ background: 'rgba(201,168,76,0.12)', border: '1px solid rgba(201,168,76,0.3)', borderRadius: 6, padding: '4px 12px', color: 'var(--gold)', cursor: 'pointer', fontSize: 12, fontFamily: 'DM Sans, sans-serif' }}>Restock</button></td>
+                      <td style={tdStyle}><button style={{ background: 'rgba(201,168,76,0.12)', border: '1px solid rgba(201,168,76,0.3)', borderRadius: 6, padding: '4px 12px', color: 'var(--gold)', cursor: 'pointer', fontSize: 12, fontFamily: 'Inter, sans-serif' }}>Restock</button></td>
                     </tr>
                   );
                 })}
@@ -111,7 +111,7 @@ const InventoryPage = () => {
                     <div style={{ fontSize: 12, color: 'var(--text3)' }}>Stock: {item.stock} {item.unit} / Min: {item.minLevel} {item.unit}</div>
                   </div>
                   <span style={{ fontSize: 11, fontWeight: 700, color: statusColor[st], textTransform: 'uppercase' }}>{st}</span>
-                  <button style={{ background: 'linear-gradient(135deg,#C9A84C,#8A6F2E)', border: 'none', borderRadius: 8, padding: '8px 16px', color: '#fff', cursor: 'pointer', fontSize: 12, fontFamily: 'DM Sans, sans-serif', fontWeight: 600 }}>Create PO</button>
+                  <button style={{ background: 'linear-gradient(135deg,#C9A84C,#8A6F2E)', border: 'none', borderRadius: 8, padding: '8px 16px', color: '#fff', cursor: 'pointer', fontSize: 12, fontFamily: 'Inter, sans-serif', fontWeight: 600 }}>Create PO</button>
                 </div>
               );
             })}

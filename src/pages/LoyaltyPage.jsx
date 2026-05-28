@@ -51,7 +51,7 @@ const LoyaltyPage = () => {
       <div style={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: 'var(--radius-lg)', padding: 24 }}>
         <div style={{ display: 'flex', gap: 4, marginBottom: 24, background: 'var(--surface)', borderRadius: 10, padding: 4 }}>
           {TABS.map((t, i) => (
-            <button key={i} onClick={() => setTab(i)} style={{ flex: 1, padding: '9px 8px', borderRadius: 8, border: 'none', cursor: 'pointer', fontFamily: 'DM Sans, sans-serif', fontSize: 13, fontWeight: 500, background: tab === i ? 'var(--card)' : 'transparent', color: tab === i ? 'var(--gold)' : 'var(--text2)' }}>{t}</button>
+            <button key={i} onClick={() => setTab(i)} style={{ flex: 1, padding: '9px 8px', borderRadius: 8, border: 'none', cursor: 'pointer', fontFamily: 'Inter, sans-serif', fontSize: 13, fontWeight: 500, background: tab === i ? 'var(--card)' : 'transparent', color: tab === i ? 'var(--gold)' : 'var(--text2)' }}>{t}</button>
           ))}
         </div>
 
@@ -60,7 +60,7 @@ const LoyaltyPage = () => {
             {MEMBERS.map(m => (
               <div key={m.id} style={{ background: 'var(--surface)', border: `1px solid ${tierColor[m.tier]}44`, borderRadius: 'var(--radius)', padding: 20 }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16 }}>
-                  <Avatar name={m.name} size={44} />
+                  <Avatar initials={m.name.split(' ').map(n => n[0]).join('')} color={tierColor[m.tier]} size={44} />
                   <div>
                     <div style={{ fontSize: 15, fontWeight: 700, color: 'var(--text)' }}>{m.name}</div>
                     <div style={{ fontSize: 12, color: tierColor[m.tier], fontWeight: 600 }}>{m.tier}</div>
@@ -75,8 +75,8 @@ const LoyaltyPage = () => {
                   ))}
                 </div>
                 <div style={{ display: 'flex', gap: 8 }}>
-                  <button style={{ flex: 1, background: 'transparent', border: '1px solid var(--border)', borderRadius: 8, padding: '8px', color: 'var(--text2)', cursor: 'pointer', fontSize: 12, fontFamily: 'DM Sans, sans-serif' }}>View</button>
-                  <button style={{ flex: 1, background: 'linear-gradient(135deg,#C9A84C,#8A6F2E)', border: 'none', borderRadius: 8, padding: '8px', color: '#fff', cursor: 'pointer', fontSize: 12, fontFamily: 'DM Sans, sans-serif', fontWeight: 600 }}>Add Points</button>
+                  <button style={{ flex: 1, background: 'transparent', border: '1px solid var(--border)', borderRadius: 8, padding: '8px', color: 'var(--text2)', cursor: 'pointer', fontSize: 12, fontFamily: 'Inter, sans-serif' }}>View</button>
+                  <button style={{ flex: 1, background: 'linear-gradient(135deg,#C9A84C,#8A6F2E)', border: 'none', borderRadius: 8, padding: '8px', color: '#fff', cursor: 'pointer', fontSize: 12, fontFamily: 'Inter, sans-serif', fontWeight: 600 }}>Add Points</button>
                 </div>
               </div>
             ))}

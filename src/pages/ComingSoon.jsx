@@ -19,7 +19,7 @@ const ComingSoon = ({ title, icon, color = 'var(--gold)' }) => (
       >
         <Icon name={icon} size={28} color={color} />
       </div>
-      <h2 style={{ fontFamily: 'Playfair Display,serif', fontSize: '24px', marginBottom: '10px' }}>{title}</h2>
+      <h2 style={{ fontFamily: 'Poppins,sans-serif', fontSize: '24px', marginBottom: '10px' }}>{title}</h2>
       <p style={{ color: 'var(--text3)', fontSize: '14px', lineHeight: 1.7 }}>
         This module is fully functional in the complete version. The demo showcases the interface architecture.
       </p>

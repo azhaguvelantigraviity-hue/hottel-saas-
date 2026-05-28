@@ -74,7 +74,7 @@ const AdminDashboard = ({ onNav }) => {
           </div>
           <div style={{ marginTop: '20px', padding: '12px', background: 'var(--surface)', borderRadius: '8px' }}>
             <div style={{ fontSize: '12px', color: 'var(--text3)', marginBottom: '4px' }}>Upgrade Opportunities</div>
-            <div style={{ fontSize: '22px', fontWeight: '700', color: 'var(--gold)', fontFamily: 'Playfair Display,serif' }}>18</div>
+            <div style={{ fontSize: '22px', fontWeight: '700', color: 'var(--gold)', fontFamily: 'Poppins,sans-serif' }}>18</div>
             <div style={{ fontSize: '11px', color: 'var(--text3)' }}>Starter hotels eligible to upgrade</div>
           </div>
         </div>
@@ -95,7 +95,7 @@ const AdminDashboard = ({ onNav }) => {
               display: 'flex',
               alignItems: 'center',
               gap: '4px',
-              fontFamily: 'DM Sans,sans-serif',
+              fontFamily: 'Inter, sans-serif',
             }}
           >
             View All <Icon name="arrow" size={14} color="var(--gold)" />

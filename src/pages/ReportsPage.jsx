@@ -107,7 +107,7 @@ const ReportsPage = () => (
               cursor: 'pointer',
               fontSize: '12px',
               fontWeight: '600',
-              fontFamily: 'DM Sans,sans-serif',
+              fontFamily: 'Inter, sans-serif',
             }}
           >
             Download PDF

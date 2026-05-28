@@ -8,7 +8,7 @@ import { HOTELS, PLANS } from '../data/mockData';
 const inp = {
   width: '100%', padding: '10px 12px', background: 'var(--surface)',
   border: '1px solid var(--border)', borderRadius: '8px', color: 'var(--text)',
-  fontSize: '13px', outline: 'none', fontFamily: 'DM Sans,sans-serif',
+  fontSize: '13px', outline: 'none', fontFamily: 'Inter, sans-serif',
 };
 const lbl = {
   fontSize: '11px', color: 'var(--text3)', fontWeight: '600',
@@ -45,7 +45,7 @@ const HotelDetailModal = ({ hotel, onClose, onEdit }) => {
           <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
             <Avatar initials={hotel.avatar} color={plan.accent} size={52} />
             <div>
-              <h2 style={{ fontFamily: 'Playfair Display,serif', fontSize: '20px', marginBottom: '4px' }}>
+              <h2 style={{ fontFamily: 'Poppins,sans-serif', fontSize: '20px', marginBottom: '4px' }}>
                 {hotel.name}
               </h2>
               <div style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
@@ -126,7 +126,7 @@ const HotelDetailModal = ({ hotel, onClose, onEdit }) => {
               style={{
                 flex: 1, padding: '11px', background: 'linear-gradient(135deg,#C9A84C,#8A6F2E)',
                 border: 'none', borderRadius: '8px', color: '#fff', cursor: 'pointer',
-                fontWeight: '600', fontSize: '13px', fontFamily: 'DM Sans,sans-serif',
+                fontWeight: '600', fontSize: '13px', fontFamily: 'Inter, sans-serif',
                 display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px',
               }}
             >
@@ -138,7 +138,7 @@ const HotelDetailModal = ({ hotel, onClose, onEdit }) => {
                 padding: '11px 20px', background: 'transparent',
                 border: '1px solid var(--border)', borderRadius: '8px',
                 color: 'var(--text2)', cursor: 'pointer', fontSize: '13px',
-                fontFamily: 'DM Sans,sans-serif',
+                fontFamily: 'Inter, sans-serif',
               }}
             >
               Close
@@ -185,7 +185,7 @@ const EditHotelModal = ({ hotel, onClose, onSave }) => {
           padding: '24px', borderBottom: '1px solid var(--border)',
           display: 'flex', alignItems: 'center', justifyContent: 'space-between',
         }}>
-          <h2 style={{ fontFamily: 'Playfair Display,serif', fontSize: '20px' }}>Edit Hotel</h2>
+          <h2 style={{ fontFamily: 'Poppins,sans-serif', fontSize: '20px' }}>Edit Hotel</h2>
           <button onClick={onClose} style={{ background: 'none', border: 'none', cursor: 'pointer' }}>
             <Icon name="x" size={20} color="var(--text3)" />
           </button>
@@ -246,7 +246,7 @@ const EditHotelModal = ({ hotel, onClose, onSave }) => {
                 padding: '10px 20px', background: 'transparent',
                 border: '1px solid var(--border)', borderRadius: '8px',
                 color: 'var(--text2)', cursor: 'pointer', fontSize: '13px',
-                fontFamily: 'DM Sans,sans-serif',
+                fontFamily: 'Inter, sans-serif',
               }}
             >
               Cancel
@@ -256,7 +256,7 @@ const EditHotelModal = ({ hotel, onClose, onSave }) => {
               style={{
                 padding: '10px 24px', background: 'linear-gradient(135deg,#C9A84C,#8A6F2E)',
                 border: 'none', borderRadius: '8px', color: '#fff', cursor: 'pointer',
-                fontWeight: '600', fontSize: '13px', fontFamily: 'DM Sans,sans-serif',
+                fontWeight: '600', fontSize: '13px', fontFamily: 'Inter, sans-serif',
               }}
             >
               Save Changes
@@ -270,14 +270,18 @@ const EditHotelModal = ({ hotel, onClose, onSave }) => {
 
 // ── Add Hotel Modal ───────────────────────────────────────────
 const AddHotelModal = ({ onClose, onAdd }) => {
+  const [showPassword, setShowPassword] = useState(false);
   const [form, setForm] = useState({
     name: '', city: '', contact: '', plan: 'professional', status: 'active',
-    rooms: '', staff: '', avatar: '',
+    rooms: '', staff: '', avatar: '', adminEmail: '', adminPassword: ''
   });
   const set = (k, v) => setForm(p => ({ ...p, [k]: v }));
 
   const handleAdd = () => {
-    if (!form.name || !form.city) return;
+    if (!form.name || !form.city || !form.adminEmail || !form.adminPassword) {
+      alert("Please fill in the required fields (Name, City, Admin Email, Password)");
+      return;
+    }
     onAdd({
       ...form,
       id: Date.now(),
@@ -304,7 +308,7 @@ const AddHotelModal = ({ onClose, onAdd }) => {
           padding: '24px', borderBottom: '1px solid var(--border)',
           display: 'flex', alignItems: 'center', justifyContent: 'space-between',
         }}>
-          <h2 style={{ fontFamily: 'Playfair Display,serif', fontSize: '20px' }}>Add New Hotel</h2>
+          <h2 style={{ fontFamily: 'Poppins,sans-serif', fontSize: '20px' }}>Add New Hotel</h2>
           <button onClick={onClose} style={{ background: 'none', border: 'none', cursor: 'pointer' }}>
             <Icon name="x" size={20} color="var(--text3)" />
           </button>
@@ -348,11 +352,52 @@ const AddHotelModal = ({ onClose, onAdd }) => {
               <input type="number" style={inp} value={form.staff} onChange={e => set('staff', e.target.value)} placeholder="e.g. 12" />
             </div>
           </div>
+
+          <div style={{ marginTop: '8px', borderTop: '1px solid var(--border)', paddingTop: '16px' }}>
+            <div style={{ fontSize: '13px', fontWeight: '600', marginBottom: '12px', color: 'var(--text)' }}>Admin Login Credentials</div>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+              <div>
+                <label style={lbl}>ADMIN EMAIL *</label>
+                <input type="email" style={inp} value={form.adminEmail} onChange={e => set('adminEmail', e.target.value)} placeholder="admin@hotel.com" />
+              </div>
+              <div style={{ position: 'relative' }}>
+                <label style={lbl}>TEMPORARY PASSWORD *</label>
+                <input 
+                  type={showPassword ? 'text' : 'password'} 
+                  style={{ ...inp, paddingRight: '40px' }} 
+                  value={form.adminPassword} 
+                  onChange={e => set('adminPassword', e.target.value)} 
+                  placeholder="••••••••" 
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  style={{
+                    position: 'absolute',
+                    right: '10px',
+                    bottom: '8px',
+                    background: 'none',
+                    border: 'none',
+                    cursor: 'pointer',
+                    color: 'var(--text3)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    padding: '2px'
+                  }}
+                  title={showPassword ? "Hide password" : "Show password"}
+                >
+                  <Icon name={showPassword ? "eye-off" : "eye"} size={16} color="currentColor" />
+                </button>
+              </div>
+            </div>
+          </div>
+
           <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end', marginTop: '4px' }}>
-            <button onClick={onClose} style={{ padding: '10px 20px', background: 'transparent', border: '1px solid var(--border)', borderRadius: '8px', color: 'var(--text2)', cursor: 'pointer', fontSize: '13px', fontFamily: 'DM Sans,sans-serif' }}>
+            <button onClick={onClose} style={{ padding: '10px 20px', background: 'transparent', border: '1px solid var(--border)', borderRadius: '8px', color: 'var(--text2)', cursor: 'pointer', fontSize: '13px', fontFamily: 'Inter, sans-serif' }}>
               Cancel
             </button>
-            <button onClick={handleAdd} style={{ padding: '10px 24px', background: 'linear-gradient(135deg,#C9A84C,#8A6F2E)', border: 'none', borderRadius: '8px', color: '#fff', cursor: 'pointer', fontWeight: '600', fontSize: '13px', fontFamily: 'DM Sans,sans-serif' }}>
+            <button onClick={handleAdd} style={{ padding: '10px 24px', background: 'linear-gradient(135deg,#C9A84C,#8A6F2E)', border: 'none', borderRadius: '8px', color: '#fff', cursor: 'pointer', fontWeight: '600', fontSize: '13px', fontFamily: 'Inter, sans-serif' }}>
               Add Hotel
             </button>
           </div>
@@ -416,7 +461,7 @@ const AdminHotels = () => {
               style={{
                 padding: '6px 14px', borderRadius: '20px', border: '1px solid',
                 fontSize: '12px', fontWeight: '600', cursor: 'pointer',
-                fontFamily: 'DM Sans,sans-serif', textTransform: 'capitalize',
+                fontFamily: 'Inter, sans-serif', textTransform: 'capitalize',
                 background: filter === f ? 'var(--gold)' : 'transparent',
                 borderColor: filter === f ? 'var(--gold)' : 'var(--border)',
                 color: filter === f ? '#000' : 'var(--text2)',
@@ -432,7 +477,7 @@ const AdminHotels = () => {
             padding: '9px 18px', background: 'linear-gradient(135deg,#C9A84C,#8A6F2E)',
             border: 'none', borderRadius: '8px', color: '#fff', cursor: 'pointer',
             fontSize: '13px', fontWeight: '600', display: 'flex', alignItems: 'center',
-            gap: '6px', fontFamily: 'DM Sans,sans-serif',
+            gap: '6px', fontFamily: 'Inter, sans-serif',
           }}
         >
           <Icon name="plus" size={14} color="#fff" /> Add Hotel
@@ -501,7 +546,7 @@ const AdminHotels = () => {
                   background: 'rgba(201,168,76,0.1)',
                   border: '1px solid rgba(201,168,76,0.25)',
                   borderRadius: '6px', color: 'var(--gold)', cursor: 'pointer',
-                  fontSize: '12px', fontWeight: '600', fontFamily: 'DM Sans,sans-serif',
+                  fontSize: '12px', fontWeight: '600', fontFamily: 'Inter, sans-serif',
                   transition: 'background 0.15s',
                 }}
                 onMouseEnter={e => e.currentTarget.style.background = 'rgba(201,168,76,0.2)'}

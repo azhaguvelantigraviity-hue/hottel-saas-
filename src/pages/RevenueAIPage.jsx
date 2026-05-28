@@ -35,7 +35,7 @@ const RevenueAIPage = () => {
     <div style={{ display: 'flex', flexDirection: 'column', flex: 1, overflow: 'hidden' }}>
       <div style={{ padding: '16px 32px 0', borderBottom: '1px solid var(--border)', display: 'flex', gap: '0' }}>
         {[['insights', 'AI Insights'], ['forecast', 'Revenue Forecast'], ['pricing', 'Dynamic Pricing'], ['competitors', 'Competitor Intel']].map(([id, label]) => (
-          <button key={id} onClick={() => setActiveTab(id)} style={{ padding: '10px 20px', background: 'none', border: 'none', borderBottom: `2px solid ${activeTab === id ? 'var(--gold)' : 'transparent'}`, color: activeTab === id ? 'var(--gold)' : 'var(--text3)', cursor: 'pointer', fontSize: '13px', fontWeight: '600', fontFamily: 'DM Sans,sans-serif' }}>
+          <button key={id} onClick={() => setActiveTab(id)} style={{ padding: '10px 20px', background: 'none', border: 'none', borderBottom: `2px solid ${activeTab === id ? 'var(--gold)' : 'transparent'}`, color: activeTab === id ? 'var(--gold)' : 'var(--text3)', cursor: 'pointer', fontSize: '13px', fontWeight: '600', fontFamily: 'Inter, sans-serif' }}>
             {label}
           </button>
         ))}
@@ -52,7 +52,7 @@ const RevenueAIPage = () => {
                 { label: 'GOPPAR', value: '₹2,184', trend: '+12%', color: 'var(--violet)' },
               ].map(s => (
                 <div key={s.label} style={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: 'var(--radius)', padding: '16px' }}>
-                  <div style={{ fontSize: '24px', fontWeight: '700', fontFamily: 'Playfair Display,serif', color: s.color, marginBottom: '4px' }}>{s.value}</div>
+                  <div style={{ fontSize: '24px', fontWeight: '700', fontFamily: 'Poppins,sans-serif', color: s.color, marginBottom: '4px' }}>{s.value}</div>
                   <div style={{ fontSize: '12px', color: 'var(--text3)', marginBottom: '4px' }}>{s.label}</div>
                   <div style={{ fontSize: '12px', color: 'var(--green)', fontWeight: '600' }}>↑ {s.trend} vs last month</div>
                 </div>
@@ -68,7 +68,7 @@ const RevenueAIPage = () => {
                     <div style={{ fontSize: '13px', color: 'var(--text2)', marginBottom: '8px' }}>{ins.desc}</div>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                       <span style={{ fontSize: '13px', fontWeight: '700', fontFamily: 'DM Mono,monospace', color: ins.type === 'warning' ? 'var(--rose)' : 'var(--green)' }}>{ins.impact}</span>
-                      <button style={{ padding: '5px 12px', background: 'rgba(201,168,76,0.15)', border: '1px solid rgba(201,168,76,0.3)', borderRadius: '6px', color: 'var(--gold)', cursor: 'pointer', fontSize: '12px', fontWeight: '600', fontFamily: 'DM Sans,sans-serif' }}>{ins.action}</button>
+                      <button style={{ padding: '5px 12px', background: 'rgba(201,168,76,0.15)', border: '1px solid rgba(201,168,76,0.3)', borderRadius: '6px', color: 'var(--gold)', cursor: 'pointer', fontSize: '12px', fontWeight: '600', fontFamily: 'Inter, sans-serif' }}>{ins.action}</button>
                     </div>
                   </div>
                 </div>
@@ -145,7 +145,7 @@ const RevenueAIPage = () => {
                     <div style={{ fontSize: '12px', color: 'var(--text3)', textDecoration: 'line-through' }}>₹{r.current.toLocaleString()}</div>
                     <div style={{ fontSize: '14px', fontWeight: '700', color: r.change.startsWith('+') ? 'var(--green)' : 'var(--rose)', fontFamily: 'DM Mono,monospace' }}>₹{r.recommended.toLocaleString()} <span style={{ fontSize: '11px' }}>({r.change})</span></div>
                   </div>
-                  <button style={{ padding: '6px 12px', background: 'rgba(201,168,76,0.15)', border: '1px solid rgba(201,168,76,0.3)', borderRadius: '6px', color: 'var(--gold)', cursor: 'pointer', fontSize: '12px', fontWeight: '600', fontFamily: 'DM Sans,sans-serif', whiteSpace: 'nowrap' }}>Apply</button>
+                  <button style={{ padding: '6px 12px', background: 'rgba(201,168,76,0.15)', border: '1px solid rgba(201,168,76,0.3)', borderRadius: '6px', color: 'var(--gold)', cursor: 'pointer', fontSize: '12px', fontWeight: '600', fontFamily: 'Inter, sans-serif', whiteSpace: 'nowrap' }}>Apply</button>
                 </div>
               ))}
             </div>

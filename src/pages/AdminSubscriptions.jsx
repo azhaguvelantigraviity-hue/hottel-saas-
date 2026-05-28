@@ -33,7 +33,7 @@ const AdminSubscriptions = () => (
           <div style={{ fontSize: '13px', fontWeight: '700', color: plan.accent, letterSpacing: '0.08em', marginBottom: '8px' }}>
             {plan.name.toUpperCase()}
           </div>
-          <div style={{ fontSize: '32px', fontWeight: '900', fontFamily: 'Playfair Display,serif', marginBottom: '4px' }}>
+          <div style={{ fontSize: '32px', fontWeight: '900', fontFamily: 'Poppins,sans-serif', marginBottom: '4px' }}>
             {plan.id === 'starter' ? '18' : plan.id === 'professional' ? '27' : '11'}
           </div>
           <div style={{ fontSize: '13px', color: 'var(--text3)', marginBottom: '16px' }}>Active hotels</div>
@@ -89,7 +89,7 @@ const AdminSubscriptions = () => (
                 <Badge color={h.status === 'active' ? 'green' : h.status === 'trial' ? 'amber' : 'rose'}>{h.status}</Badge>
               </td>
               <td style={{ padding: '12px' }}>
-                <button style={{ fontSize: '12px', color: 'var(--gold)', background: 'none', border: 'none', cursor: 'pointer', fontFamily: 'DM Sans,sans-serif' }}>
+                <button style={{ fontSize: '12px', color: 'var(--gold)', background: 'none', border: 'none', cursor: 'pointer', fontFamily: 'Inter, sans-serif' }}>
                   Manage
                 </button>
               </td>

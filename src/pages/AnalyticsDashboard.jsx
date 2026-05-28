@@ -69,7 +69,7 @@ const DonutChart = () => {
         return <circle key={i} cx={cx} cy={cy} r={r} fill="none" stroke={d.color} strokeWidth={strokeW} strokeDasharray={`${dashArray} ${circumference}`} strokeDashoffset={dashOffset} style={{ transform:'rotate(-90deg)', transformOrigin:'80px 80px' }} />;
       })}
       <text x={cx} y={cy-6} textAnchor="middle" fill="var(--text)" fontSize="18" fontWeight="700" fontFamily="DM Mono,monospace">68%</text>
-      <text x={cx} y={cy+12} textAnchor="middle" fill="var(--text3)" fontSize="10" fontFamily="DM Sans,sans-serif">MARGIN</text>
+      <text x={cx} y={cy+12} textAnchor="middle" fill="var(--text3)" fontSize="10" fontFamily="Inter, sans-serif">MARGIN</text>
     </svg>
   );
 };
@@ -109,7 +109,7 @@ const AnalyticsDashboard = () => {
         <StatCard title="NPS Score" value="72" icon="star" color="var(--green)" />
       </div>
       <div style={{ display:'flex', gap:4, marginBottom:20, background:'var(--card)', borderRadius:10, padding:4, border:'1px solid var(--border)' }}>
-        {TABS.map((t,i) => <button key={i} onClick={() => setTab(i)} style={{ flex:1, padding:'9px 8px', borderRadius:8, border:'none', cursor:'pointer', fontFamily:'DM Sans,sans-serif', fontSize:12, fontWeight:500, background:tab===i?'var(--surface)':'transparent', color:tab===i?'var(--gold)':'var(--text2)' }}>{t}</button>)}
+        {TABS.map((t,i) => <button key={i} onClick={() => setTab(i)} style={{ flex:1, padding:'9px 8px', borderRadius:8, border:'none', cursor:'pointer', fontFamily:'Inter, sans-serif', fontSize:12, fontWeight:500, background:tab===i?'var(--surface)':'transparent', color:tab===i?'var(--gold)':'var(--text2)' }}>{t}</button>)}
       </div>
 
       {tab === 0 && (

@@ -69,7 +69,7 @@ const AttendancePage = () => {
     <div style={{ display: 'flex', flexDirection: 'column', flex: 1, overflow: 'hidden' }}>
       <div style={{ padding: '16px 32px 0', borderBottom: '1px solid var(--border)', display: 'flex', gap: '0' }}>
         {[['today', 'Daily Attendance'], ['monthly', 'Monthly Summary'], ['report', 'Attendance Report']].map(([id, label]) => (
-          <button key={id} onClick={() => setActiveTab(id)} style={{ padding: '10px 20px', background: 'none', border: 'none', borderBottom: `2px solid ${activeTab === id ? 'var(--gold)' : 'transparent'}`, color: activeTab === id ? 'var(--gold)' : 'var(--text3)', cursor: 'pointer', fontSize: '13px', fontWeight: '600', fontFamily: 'DM Sans,sans-serif' }}>
+          <button key={id} onClick={() => setActiveTab(id)} style={{ padding: '10px 20px', background: 'none', border: 'none', borderBottom: `2px solid ${activeTab === id ? 'var(--gold)' : 'transparent'}`, color: activeTab === id ? 'var(--gold)' : 'var(--text3)', cursor: 'pointer', fontSize: '13px', fontWeight: '600', fontFamily: 'Inter, sans-serif' }}>
             {label}
           </button>
         ))}
@@ -82,12 +82,12 @@ const AttendancePage = () => {
             <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '24px', flexWrap: 'wrap' }}>
               <div>
                 <label style={{ fontSize: '11px', color: 'var(--text3)', fontWeight: '600', letterSpacing: '0.06em', display: 'block', marginBottom: '5px' }}>SELECT DATE</label>
-                <input type="date" value={selectedDate} onChange={e => setSelectedDate(e.target.value)} style={{ padding: '10px 12px', background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: '8px', color: 'var(--text)', fontSize: '13px', outline: 'none', fontFamily: 'DM Sans,sans-serif' }} />
+                <input type="date" value={selectedDate} onChange={e => setSelectedDate(e.target.value)} style={{ padding: '10px 12px', background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: '8px', color: 'var(--text)', fontSize: '13px', outline: 'none', fontFamily: 'Inter, sans-serif' }} />
               </div>
               <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
                 {stats.map(s => (
                   <div key={s.label} style={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: 'var(--radius)', padding: '12px 18px', textAlign: 'center' }}>
-                    <div style={{ fontSize: '22px', fontWeight: '700', fontFamily: 'Playfair Display,serif', color: s.color }}>{s.count}</div>
+                    <div style={{ fontSize: '22px', fontWeight: '700', fontFamily: 'Poppins,sans-serif', color: s.color }}>{s.count}</div>
                     <div style={{ fontSize: '11px', color: 'var(--text3)' }}>{s.label}</div>
                   </div>
                 ))}
@@ -132,16 +132,16 @@ const AttendancePage = () => {
                         <td style={{ padding: '12px' }}>
                           <div style={{ display: 'flex', gap: '4px' }}>
                             {(!rec || rec.status !== 'present') && (
-                              <button onClick={() => markAttendance(emp.id, 'present')} style={{ padding: '4px 8px', background: 'rgba(52,211,153,0.15)', border: '1px solid rgba(52,211,153,0.3)', borderRadius: '5px', color: 'var(--green)', cursor: 'pointer', fontSize: '11px', fontWeight: '600', fontFamily: 'DM Sans,sans-serif' }}>In</button>
+                              <button onClick={() => markAttendance(emp.id, 'present')} style={{ padding: '4px 8px', background: 'rgba(52,211,153,0.15)', border: '1px solid rgba(52,211,153,0.3)', borderRadius: '5px', color: 'var(--green)', cursor: 'pointer', fontSize: '11px', fontWeight: '600', fontFamily: 'Inter, sans-serif' }}>In</button>
                             )}
                             {rec?.status === 'present' && !rec.checkOut && (
-                              <button onClick={() => checkOut(emp.id)} style={{ padding: '4px 8px', background: 'rgba(201,168,76,0.15)', border: '1px solid rgba(201,168,76,0.3)', borderRadius: '5px', color: 'var(--gold)', cursor: 'pointer', fontSize: '11px', fontWeight: '600', fontFamily: 'DM Sans,sans-serif' }}>Out</button>
+                              <button onClick={() => checkOut(emp.id)} style={{ padding: '4px 8px', background: 'rgba(201,168,76,0.15)', border: '1px solid rgba(201,168,76,0.3)', borderRadius: '5px', color: 'var(--gold)', cursor: 'pointer', fontSize: '11px', fontWeight: '600', fontFamily: 'Inter, sans-serif' }}>Out</button>
                             )}
                             {(!rec || rec.status !== 'absent') && (
-                              <button onClick={() => markAttendance(emp.id, 'absent')} style={{ padding: '4px 8px', background: 'rgba(251,113,133,0.1)', border: '1px solid rgba(251,113,133,0.3)', borderRadius: '5px', color: 'var(--rose)', cursor: 'pointer', fontSize: '11px', fontWeight: '600', fontFamily: 'DM Sans,sans-serif' }}>Abs</button>
+                              <button onClick={() => markAttendance(emp.id, 'absent')} style={{ padding: '4px 8px', background: 'rgba(251,113,133,0.1)', border: '1px solid rgba(251,113,133,0.3)', borderRadius: '5px', color: 'var(--rose)', cursor: 'pointer', fontSize: '11px', fontWeight: '600', fontFamily: 'Inter, sans-serif' }}>Abs</button>
                             )}
                             {(!rec || rec.status !== 'leave') && (
-                              <button onClick={() => markAttendance(emp.id, 'leave')} style={{ padding: '4px 8px', background: 'rgba(252,211,77,0.1)', border: '1px solid rgba(252,211,77,0.3)', borderRadius: '5px', color: 'var(--amber)', cursor: 'pointer', fontSize: '11px', fontWeight: '600', fontFamily: 'DM Sans,sans-serif' }}>Leave</button>
+                              <button onClick={() => markAttendance(emp.id, 'leave')} style={{ padding: '4px 8px', background: 'rgba(252,211,77,0.1)', border: '1px solid rgba(252,211,77,0.3)', borderRadius: '5px', color: 'var(--amber)', cursor: 'pointer', fontSize: '11px', fontWeight: '600', fontFamily: 'Inter, sans-serif' }}>Leave</button>
                             )}
                           </div>
                         </td>

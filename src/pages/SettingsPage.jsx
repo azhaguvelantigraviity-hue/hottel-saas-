@@ -10,7 +10,7 @@ const SettingsPage = ({ role, plan, onNav }) => (
           <div style={{ display: 'flex', alignItems: 'center', gap: '20px', flexWrap: 'wrap' }}>
             <div style={{ padding: '16px 24px', background: `${PLANS[plan || 'starter'].accent}12`, border: `1px solid ${PLANS[plan || 'starter'].accent}30`, borderRadius: 'var(--radius)' }}>
               <div style={{ fontSize: '12px', color: 'var(--text3)', marginBottom: '4px' }}>PLAN</div>
-              <div style={{ fontSize: '22px', fontWeight: '700', fontFamily: 'Playfair Display,serif', color: PLANS[plan || 'starter'].accent, textTransform: 'capitalize' }}>
+              <div style={{ fontSize: '22px', fontWeight: '700', fontFamily: 'Poppins,sans-serif', color: PLANS[plan || 'starter'].accent, textTransform: 'capitalize' }}>
                 {plan}
               </div>
             </div>
@@ -33,7 +33,7 @@ const SettingsPage = ({ role, plan, onNav }) => (
                   cursor: 'pointer',
                   fontWeight: '600',
                   fontSize: '14px',
-                  fontFamily: 'DM Sans,sans-serif',
+                  fontFamily: 'Inter, sans-serif',
                 }}
               >
                 Upgrade Plan ↗
@@ -65,7 +65,7 @@ const SettingsPage = ({ role, plan, onNav }) => (
                     color: 'var(--text)',
                     fontSize: '13px',
                     outline: 'none',
-                    fontFamily: 'DM Sans,sans-serif',
+                    fontFamily: 'Inter, sans-serif',
                   }}
                 />
               </div>
@@ -80,7 +80,7 @@ const SettingsPage = ({ role, plan, onNav }) => (
                 cursor: 'pointer',
                 fontWeight: '600',
                 fontSize: '13px',
-                fontFamily: 'DM Sans,sans-serif',
+                fontFamily: 'Inter, sans-serif',
                 marginTop: '4px',
               }}
             >

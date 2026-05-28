@@ -52,7 +52,7 @@ const LaundryPage = () => {
       <div style={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: 'var(--radius-lg)', padding: 24 }}>
         <div style={{ display: 'flex', gap: 4, marginBottom: 24, background: 'var(--surface)', borderRadius: 10, padding: 4 }}>
           {TABS.map((t, i) => (
-            <button key={i} onClick={() => setTab(i)} style={{ flex: 1, padding: '9px 8px', borderRadius: 8, border: 'none', cursor: 'pointer', fontFamily: 'DM Sans, sans-serif', fontSize: 13, fontWeight: 500, background: tab === i ? 'var(--card)' : 'transparent', color: tab === i ? 'var(--gold)' : 'var(--text2)' }}>{t}</button>
+            <button key={i} onClick={() => setTab(i)} style={{ flex: 1, padding: '9px 8px', borderRadius: 8, border: 'none', cursor: 'pointer', fontFamily: 'Inter, sans-serif', fontSize: 13, fontWeight: 500, background: tab === i ? 'var(--card)' : 'transparent', color: tab === i ? 'var(--gold)' : 'var(--text2)' }}>{t}</button>
           ))}
         </div>
 
@@ -76,7 +76,7 @@ const LaundryPage = () => {
                   <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 8 }}>
                     <span style={{ fontSize: 12, fontWeight: 700, color: statusColor[order.status], textTransform: 'uppercase', padding: '4px 12px', background: `${statusColor[order.status]}18`, borderRadius: 20 }}>{order.status}</span>
                     {order.status !== 'delivered' && (
-                      <button onClick={() => advance(order.id)} style={{ background: 'linear-gradient(135deg,#C9A84C,#8A6F2E)', border: 'none', borderRadius: 8, padding: '6px 14px', color: '#fff', cursor: 'pointer', fontSize: 12, fontFamily: 'DM Sans, sans-serif', fontWeight: 600 }}>Advance →</button>
+                      <button onClick={() => advance(order.id)} style={{ background: 'linear-gradient(135deg,#C9A84C,#8A6F2E)', border: 'none', borderRadius: 8, padding: '6px 14px', color: '#fff', cursor: 'pointer', fontSize: 12, fontFamily: 'Inter, sans-serif', fontWeight: 600 }}>Advance →</button>
                     )}
                   </div>
                 </div>
@@ -97,7 +97,7 @@ const LaundryPage = () => {
               {[['Room Number','room'],['Guest Name','guest']].map(([label, field]) => (
                 <div key={field}>
                   <label style={{ fontSize: 12, color: 'var(--text3)', display: 'block', marginBottom: 6, textTransform: 'uppercase', letterSpacing: '0.06em' }}>{label}</label>
-                  <input value={form[field]} onChange={e => setForm(f => ({ ...f, [field]: e.target.value }))} style={{ width: '100%', background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 8, padding: '10px 14px', color: 'var(--text)', fontFamily: 'DM Sans, sans-serif', fontSize: 14, boxSizing: 'border-box' }} />
+                  <input value={form[field]} onChange={e => setForm(f => ({ ...f, [field]: e.target.value }))} style={{ width: '100%', background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 8, padding: '10px 14px', color: 'var(--text)', fontFamily: 'Inter, sans-serif', fontSize: 14, boxSizing: 'border-box' }} />
                 </div>
               ))}
             </div>
@@ -125,7 +125,7 @@ const LaundryPage = () => {
               <span style={{ fontSize: 14, color: 'var(--text2)' }}>Total Amount</span>
               <span style={{ fontSize: 20, fontWeight: 700, color: 'var(--gold)', fontFamily: 'DM Mono, monospace' }}>₹{Math.round(formTotal)}</span>
             </div>
-            <button onClick={addOrder} style={{ background: 'linear-gradient(135deg,#C9A84C,#8A6F2E)', border: 'none', borderRadius: 8, padding: '12px 32px', color: '#fff', cursor: 'pointer', fontFamily: 'DM Sans, sans-serif', fontWeight: 600, fontSize: 14 }}>Create Order</button>
+            <button onClick={addOrder} style={{ background: 'linear-gradient(135deg,#C9A84C,#8A6F2E)', border: 'none', borderRadius: 8, padding: '12px 32px', color: '#fff', cursor: 'pointer', fontFamily: 'Inter, sans-serif', fontWeight: 600, fontSize: 14 }}>Create Order</button>
           </div>
         )}
 

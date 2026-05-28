@@ -55,7 +55,7 @@ const IoTPage = () => {
       </div>
       <div style={{ background:'var(--card)', border:'1px solid var(--border)', borderRadius:'var(--radius-lg)', padding:24 }}>
         <div style={{ display:'flex', gap:4, marginBottom:24, background:'var(--surface)', borderRadius:10, padding:4 }}>
-          {TABS.map((t,i) => <button key={i} onClick={() => setTab(i)} style={{ flex:1, padding:'9px 8px', borderRadius:8, border:'none', cursor:'pointer', fontFamily:'DM Sans,sans-serif', fontSize:13, fontWeight:500, background:tab===i?'var(--card)':'transparent', color:tab===i?'var(--gold)':'var(--text2)' }}>{t}</button>)}
+          {TABS.map((t,i) => <button key={i} onClick={() => setTab(i)} style={{ flex:1, padding:'9px 8px', borderRadius:8, border:'none', cursor:'pointer', fontFamily:'Inter, sans-serif', fontSize:13, fontWeight:500, background:tab===i?'var(--card)':'transparent', color:tab===i?'var(--gold)':'var(--text2)' }}>{t}</button>)}
         </div>
 
         {tab === 0 && (
@@ -75,7 +75,7 @@ const IoTPage = () => {
                       <Icon name={room.locked?'lock':'unlock'} size={16} color={room.locked?'var(--green)':'var(--rose)'} />
                       <span style={{ fontSize:13, color:'var(--text2)' }}>Door Lock</span>
                     </div>
-                    <button onClick={() => updateRoom(room.id, 'locked', !room.locked)} style={{ padding:'4px 12px', borderRadius:20, border:`1px solid ${room.locked?'var(--green)':'var(--rose)'}`, background:'transparent', color:room.locked?'var(--green)':'var(--rose)', cursor:'pointer', fontSize:11, fontFamily:'DM Sans,sans-serif', fontWeight:600 }}>{room.locked?'Locked':'Unlocked'}</button>
+                    <button onClick={() => updateRoom(room.id, 'locked', !room.locked)} style={{ padding:'4px 12px', borderRadius:20, border:`1px solid ${room.locked?'var(--green)':'var(--rose)'}`, background:'transparent', color:room.locked?'var(--green)':'var(--rose)', cursor:'pointer', fontSize:11, fontFamily:'Inter, sans-serif', fontWeight:600 }}>{room.locked?'Locked':'Unlocked'}</button>
                   </div>
                   <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center' }}>
                     <div style={{ display:'flex', alignItems:'center', gap:8 }}>
@@ -124,7 +124,7 @@ const IoTPage = () => {
                   <div style={{ fontSize:12, color:'var(--text3)' }}>Issued: {k.issued} · Valid until: {k.validUntil}</div>
                 </div>
                 <span style={{ fontSize:11, fontWeight:600, color:k.status==='active'?'var(--green)':'var(--rose)', textTransform:'uppercase' }}>{k.status}</span>
-                {k.status === 'active' && <button style={{ background:'rgba(251,113,133,0.12)', border:'1px solid rgba(251,113,133,0.3)', borderRadius:8, padding:'6px 14px', color:'var(--rose)', cursor:'pointer', fontSize:12, fontFamily:'DM Sans,sans-serif', fontWeight:600 }}>Revoke</button>}
+                {k.status === 'active' && <button style={{ background:'rgba(251,113,133,0.12)', border:'1px solid rgba(251,113,133,0.3)', borderRadius:8, padding:'6px 14px', color:'var(--rose)', cursor:'pointer', fontSize:12, fontFamily:'Inter, sans-serif', fontWeight:600 }}>Revoke</button>}
               </div>
             ))}
           </div>
@@ -141,7 +141,7 @@ const IoTPage = () => {
                   <td style={{ ...tdStyle, color:'var(--text)', fontWeight:500 }}>{c.guest}</td>
                   <td style={tdStyle}>{c.issued}</td>
                   <td style={tdStyle}><span style={{ fontSize:11, fontWeight:600, color:c.status==='active'?'var(--green)':'var(--rose)', textTransform:'uppercase' }}>{c.status}</span></td>
-                  <td style={tdStyle}><button style={{ background:'transparent', border:'1px solid var(--border)', borderRadius:6, padding:'4px 12px', color:'var(--text2)', cursor:'pointer', fontSize:12, fontFamily:'DM Sans,sans-serif' }}>{c.status==='active'?'Deactivate':'Reactivate'}</button></td>
+                  <td style={tdStyle}><button style={{ background:'transparent', border:'1px solid var(--border)', borderRadius:6, padding:'4px 12px', color:'var(--text2)', cursor:'pointer', fontSize:12, fontFamily:'Inter, sans-serif' }}>{c.status==='active'?'Deactivate':'Reactivate'}</button></td>
                 </tr>
               ))}
             </tbody>

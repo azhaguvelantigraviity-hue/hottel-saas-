@@ -44,7 +44,7 @@ const EventsPage = () => {
       <div style={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: 'var(--radius-lg)', padding: 24 }}>
         <div style={{ display: 'flex', gap: 4, marginBottom: 24, background: 'var(--surface)', borderRadius: 10, padding: 4 }}>
           {TABS.map((t, i) => (
-            <button key={i} onClick={() => setTab(i)} style={{ flex: 1, padding: '9px 8px', borderRadius: 8, border: 'none', cursor: 'pointer', fontFamily: 'DM Sans, sans-serif', fontSize: 13, fontWeight: 500, background: tab === i ? 'var(--card)' : 'transparent', color: tab === i ? 'var(--gold)' : 'var(--text2)' }}>{t}</button>
+            <button key={i} onClick={() => setTab(i)} style={{ flex: 1, padding: '9px 8px', borderRadius: 8, border: 'none', cursor: 'pointer', fontFamily: 'Inter, sans-serif', fontSize: 13, fontWeight: 500, background: tab === i ? 'var(--card)' : 'transparent', color: tab === i ? 'var(--gold)' : 'var(--text2)' }}>{t}</button>
           ))}
         </div>
 
@@ -68,7 +68,7 @@ const EventsPage = () => {
                     ))}
                   </div>
                 </div>
-                <button onClick={() => { setTab(3); }} style={{ width: '100%', background: 'linear-gradient(135deg,#C9A84C,#8A6F2E)', border: 'none', borderRadius: 8, padding: '10px', color: '#fff', cursor: 'pointer', fontFamily: 'DM Sans, sans-serif', fontWeight: 600, fontSize: 13 }}>Book Hall</button>
+                <button onClick={() => { setTab(3); }} style={{ width: '100%', background: 'linear-gradient(135deg,#C9A84C,#8A6F2E)', border: 'none', borderRadius: 8, padding: '10px', color: '#fff', cursor: 'pointer', fontFamily: 'Inter, sans-serif', fontWeight: 600, fontSize: 13 }}>Book Hall</button>
               </div>
             ))}
           </div>
@@ -102,7 +102,7 @@ const EventsPage = () => {
               return (
                 <div key={pkg.name} style={{ background: 'var(--surface)', border: `1px solid ${colors[i]}44`, borderRadius: 'var(--radius)', padding: 20 }}>
                   <div style={{ fontSize: 18, fontWeight: 700, color: colors[i], marginBottom: 4 }}>{pkg.name}</div>
-                  <div style={{ fontSize: 24, fontWeight: 700, color: 'var(--text)', fontFamily: 'DM Mono, monospace', marginBottom: 16 }}>₹{pkg.price}<span style={{ fontSize: 13, color: 'var(--text3)', fontFamily: 'DM Sans, sans-serif', fontWeight: 400 }}>/head</span></div>
+                  <div style={{ fontSize: 24, fontWeight: 700, color: 'var(--text)', fontFamily: 'DM Mono, monospace', marginBottom: 16 }}>₹{pkg.price}<span style={{ fontSize: 13, color: 'var(--text3)', fontFamily: 'Inter, sans-serif', fontWeight: 400 }}>/head</span></div>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
                     {pkg.items.map(item => <div key={item} style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 13, color: 'var(--text2)' }}><Icon name="check" size={14} color={colors[i]} />{item}</div>)}
                   </div>
@@ -118,27 +118,27 @@ const EventsPage = () => {
             {[['Event Name','event','text'],['Client Name','client','text'],['Date','date','date'],['Number of Guests','guests','number']].map(([label, field, type]) => (
               <div key={field} style={{ marginBottom: 14 }}>
                 <label style={{ fontSize: 12, color: 'var(--text3)', display: 'block', marginBottom: 6, textTransform: 'uppercase', letterSpacing: '0.06em' }}>{label}</label>
-                <input type={type} value={form[field] || ''} onChange={e => setForm(f => ({ ...f, [field]: e.target.value }))} style={{ width: '100%', background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 8, padding: '10px 14px', color: 'var(--text)', fontFamily: 'DM Sans, sans-serif', fontSize: 14, boxSizing: 'border-box' }} />
+                <input type={type} value={form[field] || ''} onChange={e => setForm(f => ({ ...f, [field]: e.target.value }))} style={{ width: '100%', background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 8, padding: '10px 14px', color: 'var(--text)', fontFamily: 'Inter, sans-serif', fontSize: 14, boxSizing: 'border-box' }} />
               </div>
             ))}
             <div style={{ marginBottom: 14 }}>
               <label style={{ fontSize: 12, color: 'var(--text3)', display: 'block', marginBottom: 6, textTransform: 'uppercase', letterSpacing: '0.06em' }}>Hall</label>
-              <select value={form.hall} onChange={e => setForm(f => ({ ...f, hall: e.target.value }))} style={{ width: '100%', background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 8, padding: '10px 14px', color: 'var(--text)', fontFamily: 'DM Sans, sans-serif', fontSize: 14 }}>
+              <select value={form.hall} onChange={e => setForm(f => ({ ...f, hall: e.target.value }))} style={{ width: '100%', background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 8, padding: '10px 14px', color: 'var(--text)', fontFamily: 'Inter, sans-serif', fontSize: 14 }}>
                 <option value="">Select Hall</option>
                 {HALLS.map(h => <option key={h.id} value={h.name}>{h.name} ({h.capacity} pax)</option>)}
               </select>
             </div>
             <div style={{ marginBottom: 14 }}>
               <label style={{ fontSize: 12, color: 'var(--text3)', display: 'block', marginBottom: 6, textTransform: 'uppercase', letterSpacing: '0.06em' }}>Catering Package</label>
-              <select value={form.catering} onChange={e => setForm(f => ({ ...f, catering: e.target.value }))} style={{ width: '100%', background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 8, padding: '10px 14px', color: 'var(--text)', fontFamily: 'DM Sans, sans-serif', fontSize: 14 }}>
+              <select value={form.catering} onChange={e => setForm(f => ({ ...f, catering: e.target.value }))} style={{ width: '100%', background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 8, padding: '10px 14px', color: 'var(--text)', fontFamily: 'Inter, sans-serif', fontSize: 14 }}>
                 {CATERING.map(c => <option key={c.name} value={c.name}>{c.name} — ₹{c.price}/head</option>)}
               </select>
             </div>
             <div style={{ marginBottom: 20 }}>
               <label style={{ fontSize: 12, color: 'var(--text3)', display: 'block', marginBottom: 6, textTransform: 'uppercase', letterSpacing: '0.06em' }}>Special Requirements</label>
-              <textarea value={form.notes} onChange={e => setForm(f => ({ ...f, notes: e.target.value }))} rows={3} style={{ width: '100%', background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 8, padding: '10px 14px', color: 'var(--text)', fontFamily: 'DM Sans, sans-serif', fontSize: 14, resize: 'vertical', boxSizing: 'border-box' }} />
+              <textarea value={form.notes} onChange={e => setForm(f => ({ ...f, notes: e.target.value }))} rows={3} style={{ width: '100%', background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 8, padding: '10px 14px', color: 'var(--text)', fontFamily: 'Inter, sans-serif', fontSize: 14, resize: 'vertical', boxSizing: 'border-box' }} />
             </div>
-            <button style={{ background: 'linear-gradient(135deg,#C9A84C,#8A6F2E)', border: 'none', borderRadius: 8, padding: '12px 32px', color: '#fff', cursor: 'pointer', fontFamily: 'DM Sans, sans-serif', fontWeight: 600, fontSize: 14 }}>Create Booking</button>
+            <button style={{ background: 'linear-gradient(135deg,#C9A84C,#8A6F2E)', border: 'none', borderRadius: 8, padding: '12px 32px', color: '#fff', cursor: 'pointer', fontFamily: 'Inter, sans-serif', fontWeight: 600, fontSize: 14 }}>Create Booking</button>
           </div>
         )}
       </div>

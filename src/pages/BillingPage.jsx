@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import StatCard from '../components/StatCard';
 import Icon from '../components/Icon';
 import Badge from '../components/Badge';
@@ -22,6 +22,32 @@ const ADVANCES = [
 const TABS = ['Invoice Generator', 'Split Payment', 'Advance Payment', 'Refunds', 'Invoice History'];
 
 const InvoiceModal = ({ inv, onClose }) => {
+  const printRef = useRef(null);
+
+  const handleDownloadPdf = () => {
+    if (!printRef.current) return;
+
+    if (!window.html2pdf) {
+      const script = document.createElement('script');
+      script.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js';
+      script.onload = () => generatePdf();
+      document.body.appendChild(script);
+    } else {
+      generatePdf();
+    }
+
+    function generatePdf() {
+      const opt = {
+        margin:       0.5,
+        filename:     `${inv.id}.pdf`,
+        image:        { type: 'jpeg', quality: 0.98 },
+        html2canvas:  { scale: 2, useCORS: true },
+        jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' }
+      };
+      window.html2pdf().set(opt).from(printRef.current).save();
+    }
+  };
+
   if (!inv) return null;
   const subtotal = inv.roomCharge + inv.food + inv.laundry + inv.other;
   const cgst = Math.round(subtotal * 0.09);
@@ -29,9 +55,10 @@ const InvoiceModal = ({ inv, onClose }) => {
   return (
     <div style={{ position:'fixed', inset:0, background:'rgba(0,0,0,0.7)', display:'flex', alignItems:'center', justifyContent:'center', zIndex:1000 }}>
       <div style={{ background:'#fff', borderRadius:12, padding:32, width:560, maxHeight:'90vh', overflowY:'auto', color:'#111' }}>
-        <div style={{ display:'flex', justifyContent:'space-between', alignItems:'flex-start', marginBottom:24 }}>
+        <div ref={printRef} style={{ padding: '10px' }}>
+          <div style={{ display:'flex', justifyContent:'space-between', alignItems:'flex-start', marginBottom:24 }}>
           <div>
-            <div style={{ fontSize:22, fontWeight:800, fontFamily:'Playfair Display,serif', color:'#C9A84C' }}>The Grand Meridian</div>
+            <div style={{ fontSize:22, fontWeight:800, fontFamily:'Poppins,sans-serif', color:'#C9A84C' }}>The Grand Meridian</div>
             <div style={{ fontSize:12, color:'#666' }}>Mumbai, Maharashtra · GST: 27AABCG1234A1Z5</div>
           </div>
           <div style={{ textAlign:'right' }}>
@@ -57,10 +84,11 @@ const InvoiceModal = ({ inv, onClose }) => {
           </tbody>
         </table>
         <div style={{ fontSize:12, color:'#888', marginBottom:20 }}>Thank you for staying at The Grand Meridian. We hope to see you again!</div>
+        </div>
         <div style={{ display:'flex', gap:12 }}>
-          <button onClick={onClose} style={{ flex:1, background:'#f0f0f0', border:'none', borderRadius:8, padding:'10px', cursor:'pointer', fontFamily:'DM Sans,sans-serif', fontWeight:600 }}>Close</button>
-          <button style={{ flex:1, background:'#111', border:'none', borderRadius:8, padding:'10px', color:'#fff', cursor:'pointer', fontFamily:'DM Sans,sans-serif', fontWeight:600 }}>🖨 Print</button>
-          <button style={{ flex:1, background:'linear-gradient(135deg,#C9A84C,#8A6F2E)', border:'none', borderRadius:8, padding:'10px', color:'#fff', cursor:'pointer', fontFamily:'DM Sans,sans-serif', fontWeight:600 }}>⬇ Download PDF</button>
+          <button onClick={onClose} style={{ flex:1, background:'#f0f0f0', border:'none', borderRadius:8, padding:'10px', cursor:'pointer', fontFamily:'Inter, sans-serif', fontWeight:600 }}>Close</button>
+          <button onClick={() => window.print()} style={{ flex:1, background:'#111', border:'none', borderRadius:8, padding:'10px', color:'#fff', cursor:'pointer', fontFamily:'Inter, sans-serif', fontWeight:600 }}>🖨 Print</button>
+          <button onClick={handleDownloadPdf} style={{ flex:1, background:'linear-gradient(135deg,#C9A84C,#8A6F2E)', border:'none', borderRadius:8, padding:'10px', color:'#fff', cursor:'pointer', fontFamily:'Inter, sans-serif', fontWeight:600 }}>⬇ Download PDF</button>
         </div>
       </div>
     </div>
@@ -76,7 +104,7 @@ const BillingPage = () => {
 
   const thStyle = { padding:'10px 14px', textAlign:'left', fontSize:11, color:'var(--text3)', fontWeight:600, letterSpacing:'0.06em', textTransform:'uppercase', borderBottom:'1px solid var(--border)' };
   const tdStyle = { padding:'12px 14px', fontSize:13, color:'var(--text2)', borderBottom:'1px solid var(--border)' };
-  const inputStyle = { width:'100%', background:'var(--surface)', border:'1px solid var(--border)', borderRadius:8, padding:'10px 14px', color:'var(--text)', fontFamily:'DM Sans,sans-serif', fontSize:14, boxSizing:'border-box' };
+  const inputStyle = { width:'100%', background:'var(--surface)', border:'1px solid var(--border)', borderRadius:8, padding:'10px 14px', color:'var(--text)', fontFamily:'Inter, sans-serif', fontSize:14, boxSizing:'border-box' };
 
   return (
     <div style={{ flex:1, overflowY:'auto', padding:24 }}>
@@ -89,7 +117,7 @@ const BillingPage = () => {
       </div>
       <div style={{ background:'var(--card)', border:'1px solid var(--border)', borderRadius:'var(--radius-lg)', padding:24 }}>
         <div style={{ display:'flex', gap:4, marginBottom:24, background:'var(--surface)', borderRadius:10, padding:4, flexWrap:'wrap' }}>
-          {TABS.map((t,i) => <button key={i} onClick={() => setTab(i)} style={{ flex:1, minWidth:100, padding:'9px 8px', borderRadius:8, border:'none', cursor:'pointer', fontFamily:'DM Sans,sans-serif', fontSize:12, fontWeight:500, background:tab===i?'var(--card)':'transparent', color:tab===i?'var(--gold)':'var(--text2)' }}>{t}</button>)}
+          {TABS.map((t,i) => <button key={i} onClick={() => setTab(i)} style={{ flex:1, minWidth:100, padding:'9px 8px', borderRadius:8, border:'none', cursor:'pointer', fontFamily:'Inter, sans-serif', fontSize:12, fontWeight:500, background:tab===i?'var(--card)':'transparent', color:tab===i?'var(--gold)':'var(--text2)' }}>{t}</button>)}
         </div>
 
         {tab === 0 && (
@@ -122,10 +150,10 @@ const BillingPage = () => {
                 <div style={{ marginTop:16, marginBottom:16 }}>
                   <div style={{ fontSize:12, color:'var(--text3)', marginBottom:8, textTransform:'uppercase', letterSpacing:'0.06em' }}>Payment Method</div>
                   <div style={{ display:'flex', gap:8 }}>
-                    {['Cash','Card','UPI','Split'].map(m => <button key={m} onClick={() => setPayMethod(m)} style={{ flex:1, padding:'8px', borderRadius:8, border:`1px solid ${payMethod===m?'var(--gold)':'var(--border)'}`, background:payMethod===m?'rgba(201,168,76,0.12)':'transparent', color:payMethod===m?'var(--gold)':'var(--text2)', cursor:'pointer', fontSize:12, fontFamily:'DM Sans,sans-serif' }}>{m}</button>)}
+                    {['Cash','Card','UPI','Split'].map(m => <button key={m} onClick={() => setPayMethod(m)} style={{ flex:1, padding:'8px', borderRadius:8, border:`1px solid ${payMethod===m?'var(--gold)':'var(--border)'}`, background:payMethod===m?'rgba(201,168,76,0.12)':'transparent', color:payMethod===m?'var(--gold)':'var(--text2)', cursor:'pointer', fontSize:12, fontFamily:'Inter, sans-serif' }}>{m}</button>)}
                   </div>
                 </div>
-                <button onClick={() => setShowModal(true)} style={{ background:'linear-gradient(135deg,#C9A84C,#8A6F2E)', border:'none', borderRadius:8, padding:'12px 32px', color:'#fff', cursor:'pointer', fontFamily:'DM Sans,sans-serif', fontWeight:600, fontSize:14 }}>Generate Invoice</button>
+                <button onClick={() => setShowModal(true)} style={{ background:'linear-gradient(135deg,#C9A84C,#8A6F2E)', border:'none', borderRadius:8, padding:'12px 32px', color:'#fff', cursor:'pointer', fontFamily:'Inter, sans-serif', fontWeight:600, fontSize:14 }}>Generate Invoice</button>
               </div>
             )}
           </div>
@@ -143,8 +171,8 @@ const BillingPage = () => {
                 <div><label style={{ fontSize:11, color:'var(--text3)', display:'block', marginBottom:5, textTransform:'uppercase', letterSpacing:'0.06em' }}>Amount (₹)</label><input type="number" value={p.amount} onChange={e => setSplitPayers(prev => prev.map((x,j) => j===i?{...x,amount:e.target.value}:x))} style={inputStyle} /></div>
               </div>
             ))}
-            <button onClick={() => setSplitPayers(p => [...p, { name:'', amount:'' }])} style={{ background:'transparent', border:'1px dashed var(--border)', borderRadius:8, padding:'10px 20px', color:'var(--text3)', cursor:'pointer', fontFamily:'DM Sans,sans-serif', marginBottom:16, width:'100%' }}>+ Add Payer</button>
-            <button style={{ background:'linear-gradient(135deg,#C9A84C,#8A6F2E)', border:'none', borderRadius:8, padding:'12px 32px', color:'#fff', cursor:'pointer', fontFamily:'DM Sans,sans-serif', fontWeight:600, fontSize:14 }}>Process Split Payment</button>
+            <button onClick={() => setSplitPayers(p => [...p, { name:'', amount:'' }])} style={{ background:'transparent', border:'1px dashed var(--border)', borderRadius:8, padding:'10px 20px', color:'var(--text3)', cursor:'pointer', fontFamily:'Inter, sans-serif', marginBottom:16, width:'100%' }}>+ Add Payer</button>
+            <button style={{ background:'linear-gradient(135deg,#C9A84C,#8A6F2E)', border:'none', borderRadius:8, padding:'12px 32px', color:'#fff', cursor:'pointer', fontFamily:'Inter, sans-serif', fontWeight:600, fontSize:14 }}>Process Split Payment</button>
           </div>
         )}
 
@@ -154,7 +182,7 @@ const BillingPage = () => {
             {[['Guest Name','text'],['Booking ID','text'],['Amount (₹)','number'],['Payment Method','text']].map(([l,t]) => (
               <div key={l} style={{ marginBottom:14 }}><label style={{ fontSize:11, color:'var(--text3)', display:'block', marginBottom:5, textTransform:'uppercase', letterSpacing:'0.06em' }}>{l}</label><input type={t} style={inputStyle} /></div>
             ))}
-            <button style={{ background:'linear-gradient(135deg,#C9A84C,#8A6F2E)', border:'none', borderRadius:8, padding:'12px 32px', color:'#fff', cursor:'pointer', fontFamily:'DM Sans,sans-serif', fontWeight:600, fontSize:14, marginBottom:24 }}>Record Advance</button>
+            <button style={{ background:'linear-gradient(135deg,#C9A84C,#8A6F2E)', border:'none', borderRadius:8, padding:'12px 32px', color:'#fff', cursor:'pointer', fontFamily:'Inter, sans-serif', fontWeight:600, fontSize:14, marginBottom:24 }}>Record Advance</button>
             <div style={{ fontSize:14, fontWeight:600, color:'var(--text)', marginBottom:12 }}>Recent Advances</div>
             {ADVANCES.map(a => (
               <div key={a.id} style={{ display:'flex', justifyContent:'space-between', alignItems:'center', padding:14, background:'var(--surface)', border:'1px solid var(--border)', borderRadius:8, marginBottom:8 }}>
@@ -177,8 +205,8 @@ const BillingPage = () => {
                 <span style={{ fontFamily:'DM Mono,monospace', fontSize:16, fontWeight:700, color:'var(--rose)' }}>₹{r.amount.toLocaleString()}</span>
                 {r.status === 'pending' ? (
                   <div style={{ display:'flex', gap:8 }}>
-                    <button style={{ background:'rgba(52,211,153,0.12)', border:'1px solid rgba(52,211,153,0.3)', borderRadius:8, padding:'6px 14px', color:'var(--green)', cursor:'pointer', fontSize:12, fontFamily:'DM Sans,sans-serif', fontWeight:600 }}>Approve</button>
-                    <button style={{ background:'rgba(251,113,133,0.12)', border:'1px solid rgba(251,113,133,0.3)', borderRadius:8, padding:'6px 14px', color:'var(--rose)', cursor:'pointer', fontSize:12, fontFamily:'DM Sans,sans-serif', fontWeight:600 }}>Reject</button>
+                    <button style={{ background:'rgba(52,211,153,0.12)', border:'1px solid rgba(52,211,153,0.3)', borderRadius:8, padding:'6px 14px', color:'var(--green)', cursor:'pointer', fontSize:12, fontFamily:'Inter, sans-serif', fontWeight:600 }}>Approve</button>
+                    <button style={{ background:'rgba(251,113,133,0.12)', border:'1px solid rgba(251,113,133,0.3)', borderRadius:8, padding:'6px 14px', color:'var(--rose)', cursor:'pointer', fontSize:12, fontFamily:'Inter, sans-serif', fontWeight:600 }}>Reject</button>
                   </div>
                 ) : <span style={{ fontSize:11, fontWeight:600, color:'var(--green)', textTransform:'uppercase' }}>{r.status}</span>}
               </div>
@@ -199,7 +227,7 @@ const BillingPage = () => {
                   <td style={{ ...tdStyle, fontFamily:'DM Mono,monospace', color:'var(--text)' }}>₹{inv.total.toLocaleString()}</td>
                   <td style={tdStyle}>{inv.method}</td>
                   <td style={tdStyle}><span style={{ fontSize:11, fontWeight:600, color:inv.status==='paid'?'var(--green)':'var(--amber)', textTransform:'uppercase' }}>{inv.status}</span></td>
-                  <td style={tdStyle}><button onClick={() => { setSelectedInv(inv); setShowModal(true); }} style={{ background:'transparent', border:'1px solid var(--border)', borderRadius:6, padding:'4px 12px', color:'var(--text2)', cursor:'pointer', fontSize:12, fontFamily:'DM Sans,sans-serif' }}>View</button></td>
+                  <td style={tdStyle}><button onClick={() => { setSelectedInv(inv); setShowModal(true); }} style={{ background:'transparent', border:'1px solid var(--border)', borderRadius:6, padding:'4px 12px', color:'var(--text2)', cursor:'pointer', fontSize:12, fontFamily:'Inter, sans-serif' }}>View</button></td>
                 </tr>
               ))}
             </tbody>

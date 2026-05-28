@@ -26,7 +26,7 @@ const TravelDeskPage = () => {
 
   const thStyle = { padding: '10px 14px', textAlign: 'left', fontSize: 11, color: 'var(--text3)', fontWeight: 600, letterSpacing: '0.06em', textTransform: 'uppercase', borderBottom: '1px solid var(--border)' };
   const tdStyle = { padding: '12px 14px', fontSize: 13, color: 'var(--text2)', borderBottom: '1px solid var(--border)' };
-  const inputStyle = { width: '100%', background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 8, padding: '10px 14px', color: 'var(--text)', fontFamily: 'DM Sans, sans-serif', fontSize: 14, boxSizing: 'border-box' };
+  const inputStyle = { width: '100%', background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 8, padding: '10px 14px', color: 'var(--text)', fontFamily: 'Inter, sans-serif', fontSize: 14, boxSizing: 'border-box' };
 
   return (
     <div style={{ flex: 1, overflowY: 'auto', padding: 24 }}>
@@ -39,7 +39,7 @@ const TravelDeskPage = () => {
       <div style={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: 'var(--radius-lg)', padding: 24 }}>
         <div style={{ display: 'flex', gap: 4, marginBottom: 24, background: 'var(--surface)', borderRadius: 10, padding: 4 }}>
           {TABS.map((t, i) => (
-            <button key={i} onClick={() => setTab(i)} style={{ flex: 1, padding: '9px 8px', borderRadius: 8, border: 'none', cursor: 'pointer', fontFamily: 'DM Sans, sans-serif', fontSize: 13, fontWeight: 500, background: tab === i ? 'var(--card)' : 'transparent', color: tab === i ? 'var(--gold)' : 'var(--text2)' }}>{t}</button>
+            <button key={i} onClick={() => setTab(i)} style={{ flex: 1, padding: '9px 8px', borderRadius: 8, border: 'none', cursor: 'pointer', fontFamily: 'Inter, sans-serif', fontSize: 13, fontWeight: 500, background: tab === i ? 'var(--card)' : 'transparent', color: tab === i ? 'var(--gold)' : 'var(--text2)' }}>{t}</button>
           ))}
         </div>
 
@@ -62,10 +62,10 @@ const TravelDeskPage = () => {
               <div style={{ marginBottom: 16 }}>
                 <label style={{ fontSize: 11, color: 'var(--text3)', display: 'block', marginBottom: 5, textTransform: 'uppercase', letterSpacing: '0.06em' }}>Vehicle Type</label>
                 <div style={{ display: 'flex', gap: 8 }}>
-                  {VEHICLES.map(v => <button key={v} onClick={() => setForm(p=>({...p,vehicle:v}))} style={{ flex: 1, padding: '8px 4px', borderRadius: 8, border: `1px solid ${form.vehicle===v?'var(--gold)':'var(--border)'}`, background: form.vehicle===v?'rgba(201,168,76,0.12)':'transparent', color: form.vehicle===v?'var(--gold)':'var(--text2)', cursor: 'pointer', fontSize: 11, fontFamily: 'DM Sans, sans-serif' }}>{v}</button>)}
+                  {VEHICLES.map(v => <button key={v} onClick={() => setForm(p=>({...p,vehicle:v}))} style={{ flex: 1, padding: '8px 4px', borderRadius: 8, border: `1px solid ${form.vehicle===v?'var(--gold)':'var(--border)'}`, background: form.vehicle===v?'rgba(201,168,76,0.12)':'transparent', color: form.vehicle===v?'var(--gold)':'var(--text2)', cursor: 'pointer', fontSize: 11, fontFamily: 'Inter, sans-serif' }}>{v}</button>)}
                 </div>
               </div>
-              <button style={{ background: 'linear-gradient(135deg,#C9A84C,#8A6F2E)', border: 'none', borderRadius: 8, padding: '12px 32px', color: '#fff', cursor: 'pointer', fontFamily: 'DM Sans, sans-serif', fontWeight: 600, fontSize: 14 }}>Book Cab</button>
+              <button style={{ background: 'linear-gradient(135deg,#C9A84C,#8A6F2E)', border: 'none', borderRadius: 8, padding: '12px 32px', color: '#fff', cursor: 'pointer', fontFamily: 'Inter, sans-serif', fontWeight: 600, fontSize: 14 }}>Book Cab</button>
             </div>
             <div style={{ flex: 2, minWidth: 300 }}>
               <div style={{ fontSize: 15, fontWeight: 700, color: 'var(--text)', marginBottom: 16 }}>Active Bookings</div>
@@ -93,7 +93,7 @@ const TravelDeskPage = () => {
           <div style={{ maxWidth: 520 }}>
             <div style={{ fontSize: 15, fontWeight: 700, color: 'var(--text)', marginBottom: 16 }}>Airport Transfer Booking</div>
             <div style={{ display: 'flex', gap: 8, marginBottom: 16 }}>
-              {['pickup','drop'].map(t => <button key={t} onClick={() => setAirForm(f=>({...f,type:t}))} style={{ flex:1, padding:'10px', borderRadius:8, border:`1px solid ${airForm.type===t?'var(--gold)':'var(--border)'}`, background:airForm.type===t?'rgba(201,168,76,0.12)':'transparent', color:airForm.type===t?'var(--gold)':'var(--text2)', cursor:'pointer', fontFamily:'DM Sans,sans-serif', fontWeight:600, textTransform:'capitalize' }}>{t === 'pickup' ? '✈ Airport Pickup' : '✈ Airport Drop'}</button>)}
+              {['pickup','drop'].map(t => <button key={t} onClick={() => setAirForm(f=>({...f,type:t}))} style={{ flex:1, padding:'10px', borderRadius:8, border:`1px solid ${airForm.type===t?'var(--gold)':'var(--border)'}`, background:airForm.type===t?'rgba(201,168,76,0.12)':'transparent', color:airForm.type===t?'var(--gold)':'var(--text2)', cursor:'pointer', fontFamily:'Inter, sans-serif', fontWeight:600, textTransform:'capitalize' }}>{t === 'pickup' ? '✈ Airport Pickup' : '✈ Airport Drop'}</button>)}
             </div>
             {[['Guest Name','guest'],['Room Number','room'],['Flight Number','flight']].map(([l,f]) => (
               <div key={f} style={{ marginBottom: 12 }}><label style={{ fontSize:11, color:'var(--text3)', display:'block', marginBottom:5, textTransform:'uppercase', letterSpacing:'0.06em' }}>{l}</label><input value={airForm[f]} onChange={e=>setAirForm(p=>({...p,[f]:e.target.value}))} style={inputStyle} placeholder={f==='flight'?'e.g. AI-202':''} /></div>
@@ -105,7 +105,7 @@ const TravelDeskPage = () => {
             <div style={{ padding:14, background:'rgba(201,168,76,0.08)', border:'1px solid rgba(201,168,76,0.2)', borderRadius:8, marginBottom:16 }}>
               <div style={{ fontSize:13, color:'var(--text2)' }}>Sedan: ₹1,800 · SUV: ₹2,400 · Luxury: ₹3,500</div>
             </div>
-            <button style={{ background:'linear-gradient(135deg,#C9A84C,#8A6F2E)', border:'none', borderRadius:8, padding:'12px 32px', color:'#fff', cursor:'pointer', fontFamily:'DM Sans,sans-serif', fontWeight:600, fontSize:14 }}>Book Transfer</button>
+            <button style={{ background:'linear-gradient(135deg,#C9A84C,#8A6F2E)', border:'none', borderRadius:8, padding:'12px 32px', color:'#fff', cursor:'pointer', fontFamily:'Inter, sans-serif', fontWeight:600, fontSize:14 }}>Book Transfer</button>
           </div>
         )}
 
@@ -128,7 +128,7 @@ const TravelDeskPage = () => {
                       {pkg.highlights.map(h => <span key={h} style={{ fontSize:11, padding:'3px 8px', background:'var(--card)', border:'1px solid var(--border)', borderRadius:20, color:'var(--text2)' }}>{h}</span>)}
                     </div>
                   </div>
-                  <button style={{ width:'100%', background:`linear-gradient(135deg,${colors[i]},${colors[i]}99)`, border:'none', borderRadius:8, padding:'10px', color:'#fff', cursor:'pointer', fontFamily:'DM Sans,sans-serif', fontWeight:600, fontSize:13 }}>Book Package</button>
+                  <button style={{ width:'100%', background:`linear-gradient(135deg,${colors[i]},${colors[i]}99)`, border:'none', borderRadius:8, padding:'10px', color:'#fff', cursor:'pointer', fontFamily:'Inter, sans-serif', fontWeight:600, fontSize:13 }}>Book Package</button>
                 </div>
               );
             })}

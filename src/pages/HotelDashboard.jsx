@@ -74,7 +74,7 @@ const HotelDashboard = ({ plan, onNav }) => {
               <span style={{ fontSize: '14px', fontWeight: '700', color: s.color, fontFamily: 'DM Mono,monospace' }}>{s.count}</span>
             </div>
           ))}
-          <button style={{ width: '100%', marginTop: '8px', padding: '8px', background: 'rgba(52,211,153,0.1)', border: '1px solid rgba(52,211,153,0.25)', borderRadius: '6px', color: 'var(--green)', cursor: 'pointer', fontSize: '12px', fontWeight: '600', fontFamily: 'DM Sans,sans-serif' }}>
+          <button style={{ width: '100%', marginTop: '8px', padding: '8px', background: 'rgba(52,211,153,0.1)', border: '1px solid rgba(52,211,153,0.25)', borderRadius: '6px', color: 'var(--green)', cursor: 'pointer', fontSize: '12px', fontWeight: '600', fontFamily: 'Inter, sans-serif' }}>
             Assign Tasks
           </button>
         </div>
@@ -84,7 +84,7 @@ const HotelDashboard = ({ plan, onNav }) => {
       <div style={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: 'var(--radius)', padding: '24px' }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '20px' }}>
           <div style={{ fontSize: '15px', fontWeight: '700' }}>Recent Bookings</div>
-          <button onClick={() => onNav && onNav('bookings')} style={{ fontSize: '13px', color: 'var(--gold)', background: 'none', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px', fontFamily: 'DM Sans,sans-serif' }}>
+          <button onClick={() => onNav && onNav('bookings')} style={{ fontSize: '13px', color: 'var(--gold)', background: 'none', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px', fontFamily: 'Inter, sans-serif' }}>
             All Bookings <Icon name="arrow" size={14} color="var(--gold)" />
           </button>
         </div>

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Landing from './pages/Landing';
 import Login from './pages/Login';
 import AdminDashboard from './pages/AdminDashboard';
@@ -18,6 +18,8 @@ import RevenueAIPage from './pages/RevenueAIPage';
 import SettingsPage from './pages/SettingsPage';
 import LockedPage from './pages/LockedPage';
 import ComingSoon from './pages/ComingSoon';
+import AuditLogs from './pages/AuditLogs';
+import AdminRevenue from './pages/AdminRevenue';
 import SmartCheckInPage from './pages/SmartCheckInPage';
 import InventoryPage from './pages/InventoryPage';
 import LoyaltyPage from './pages/LoyaltyPage';
@@ -44,10 +46,10 @@ const AdminApp = ({ onLogout }) => {
     dashboard: <AdminDashboard onNav={setPage} />,
     hotels: <AdminHotels />,
     subscriptions: <AdminSubscriptions />,
-    revenue: <ComingSoon title="Revenue Management" icon="dollar" color="var(--teal)" />,
+    revenue: <AdminRevenue />,
     analytics: <AnalyticsDashboard />,
     multibranch: <MultiBranchPage />,
-    audit: <ComingSoon title="Audit Logs" icon="shield" color="var(--rose)" />,
+    audit: <AuditLogs />,
     settings: <SettingsPage role="admin" />,
   };
 
@@ -58,10 +60,10 @@ const AdminApp = ({ onLogout }) => {
   };
 
   return (
-    <div style={{ display: 'flex', height: '100vh', background: 'var(--obsidian)' }}>
+    <div style={{ display: 'flex', height: '100vh', background: 'var(--bg)' }}>
       <Sidebar role="admin" active={page} onNav={setPage} onLogout={onLogout} />
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
-        <Topbar title={titles[page] || 'Admin'} subtitle="StayOS Platform Administration" role="admin" />
+        <Topbar title={titles[page] || 'Admin'} subtitle="StayOS Platform Administration" role="admin" onNav={setPage} />
         <div style={{ flex: 1, overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
           {pages[page] || pages.dashboard}
         </div>
@@ -71,15 +73,16 @@ const AdminApp = ({ onLogout }) => {
 };
 
 // ── HOTEL APP ─────────────────────────────────────────────────────────────────
-const HotelApp = ({ onLogout, initialPlan = 'enterprise' }) => {
+const HotelApp = ({ onLogout, initialPlan = 'enterprise', role = 'manager' }) => {
   const [page, setPage] = useState('dashboard');
   const plan = initialPlan;
 
   const planFeatures = {
-    starter: ['dashboard','rooms','bookings','billing','notifications','reports','settings'],
+    starter:      ['dashboard','rooms','bookings','billing','notifications','reports','settings'],
     professional: ['dashboard','rooms','bookings','billing','notifications','guests','loyalty','employees','housekeeping','restaurant','laundry','maintenance','channel','analytics','marketing','whatsapp','inventory','reports','settings'],
-    enterprise: ['dashboard','rooms','bookings','billing','notifications','checkin','guests','loyalty','restaurant','laundry','travel','events','employees','housekeeping','maintenance','channel','revenue','analytics','marketing','whatsapp','inventory','iot','security','chatbot','reports','settings'],
+    enterprise:   ['dashboard','rooms','bookings','billing','notifications','checkin','guests','loyalty','restaurant','laundry','travel','events','employees','housekeeping','maintenance','channel','revenue','analytics','marketing','whatsapp','inventory','iot','security','chatbot','reports','settings'],
   };
+  // allowed = everything the plan unlocks — no role filtering (role only affects sidebar grouping)
   const allowed = planFeatures[plan] || planFeatures.starter;
 
   const titles = {
@@ -96,12 +99,17 @@ const HotelApp = ({ onLogout, initialPlan = 'enterprise' }) => {
   };
 
   const reqPlans = {
-    checkin: 'enterprise', travel: 'enterprise', events: 'enterprise',
-    iot: 'enterprise', security: 'enterprise', chatbot: 'enterprise',
+    // starter features — no lock needed
+    rooms: 'starter', bookings: 'starter', billing: 'starter',
+    notifications: 'starter', reports: 'starter', settings: 'starter',
+    // professional features
     guests: 'professional', loyalty: 'professional', employees: 'professional',
     housekeeping: 'professional', restaurant: 'professional', laundry: 'professional',
     maintenance: 'professional', channel: 'professional', analytics: 'professional',
     marketing: 'professional', whatsapp: 'professional', inventory: 'professional',
+    // enterprise features
+    checkin: 'enterprise', travel: 'enterprise', events: 'enterprise',
+    iot: 'enterprise', security: 'enterprise', chatbot: 'enterprise',
     revenue: 'enterprise',
   };
 
@@ -147,10 +155,10 @@ const HotelApp = ({ onLogout, initialPlan = 'enterprise' }) => {
   };
 
   return (
-    <div style={{ display: 'flex', height: '100vh', background: 'var(--obsidian)' }}>
+    <div style={{ display: 'flex', height: '100vh', background: 'var(--bg)' }}>
       <Sidebar role="hotel" active={page} onNav={setPage} onLogout={onLogout} plan={plan} />
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
-        <Topbar title={titles[page] || 'Hotel'} subtitle={subtitles[plan]} role="hotel" />
+        <Topbar title={titles[page] || 'Hotel'} subtitle={subtitles[plan]} role="hotel" onNav={setPage} />
         <div style={{ flex: 1, overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
           {getPage()}
         </div>
@@ -164,24 +172,41 @@ const App = () => {
   const [screen, setScreen] = useState('landing');
   const [loginType, setLoginType] = useState(null);
   const [hotelPlan, setHotelPlan] = useState('enterprise');
+  const [hotelRole, setHotelRole] = useState('manager');
+  const [theme, setTheme] = useState(() => {
+    // Persist theme across reloads
+    return localStorage.getItem('stayos_theme') || 'light';
+  });
+
+  useEffect(() => {
+    if (theme === 'dark') {
+      document.documentElement.classList.add('dark');
+      document.documentElement.classList.remove('light');
+    } else {
+      document.documentElement.classList.remove('dark');
+      document.documentElement.classList.add('light');
+    }
+    localStorage.setItem('stayos_theme', theme);
+  }, [theme]);
 
   const handleLogin = (type) => {
     setLoginType(type);
     setScreen(`login-${type}`);
   };
 
-  const handleHotelSuccess = (plan) => {
+  const handleHotelSuccess = (plan, role) => {
     setHotelPlan(plan || 'enterprise');
+    setHotelRole(role || 'manager');
     setScreen('hotel');
   };
 
   return (
     <>
-      {screen === 'landing' && <Landing onLogin={handleLogin} />}
+      {screen === 'landing' && <Landing onLogin={handleLogin} theme={theme} setTheme={setTheme} />}
       {screen === 'login-admin' && <Login type="admin" onSuccess={() => setScreen('admin')} onBack={() => setScreen('landing')} />}
       {screen === 'login-hotel' && <Login type="hotel" onSuccess={handleHotelSuccess} onBack={() => setScreen('landing')} />}
-      {screen === 'admin' && <AdminApp onLogout={() => setScreen('landing')} />}
-      {screen === 'hotel' && <HotelApp onLogout={() => setScreen('landing')} initialPlan={hotelPlan} />}
+      {screen === 'admin' && <AdminApp onLogout={() => setScreen('landing')} theme={theme} setTheme={setTheme} />}
+      {screen === 'hotel' && <HotelApp onLogout={() => setScreen('landing')} initialPlan={hotelPlan} role={hotelRole} theme={theme} setTheme={setTheme} />}
     </>
   );
 };

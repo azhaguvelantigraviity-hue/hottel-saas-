@@ -49,7 +49,7 @@ const NotificationsPage = () => {
       </div>
       <div style={{ background:'var(--card)', border:'1px solid var(--border)', borderRadius:'var(--radius-lg)', padding:24 }}>
         <div style={{ display:'flex', gap:4, marginBottom:24, background:'var(--surface)', borderRadius:10, padding:4 }}>
-          {TABS.map((t,i) => <button key={i} onClick={() => setTab(i)} style={{ flex:1, padding:'9px 8px', borderRadius:8, border:'none', cursor:'pointer', fontFamily:'DM Sans,sans-serif', fontSize:13, fontWeight:500, background:tab===i?'var(--card)':'transparent', color:tab===i?'var(--gold)':'var(--text2)' }}>{t}</button>)}
+          {TABS.map((t,i) => <button key={i} onClick={() => setTab(i)} style={{ flex:1, padding:'9px 8px', borderRadius:8, border:'none', cursor:'pointer', fontFamily:'Inter, sans-serif', fontSize:13, fontWeight:500, background:tab===i?'var(--card)':'transparent', color:tab===i?'var(--gold)':'var(--text2)' }}>{t}</button>)}
         </div>
 
         {tab === 0 && (
@@ -57,10 +57,10 @@ const NotificationsPage = () => {
             <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:16, flexWrap:'wrap', gap:8 }}>
               <div style={{ display:'flex', gap:6 }}>
                 {['all','unread','booking','payment','maintenance','system'].map(f => (
-                  <button key={f} onClick={() => setFilter(f)} style={{ padding:'5px 12px', borderRadius:20, border:`1px solid ${filter===f?'var(--gold)':'var(--border)'}`, background:filter===f?'rgba(201,168,76,0.12)':'transparent', color:filter===f?'var(--gold)':'var(--text3)', cursor:'pointer', fontSize:11, fontFamily:'DM Sans,sans-serif', textTransform:'capitalize' }}>{f}</button>
+                  <button key={f} onClick={() => setFilter(f)} style={{ padding:'5px 12px', borderRadius:20, border:`1px solid ${filter===f?'var(--gold)':'var(--border)'}`, background:filter===f?'rgba(201,168,76,0.12)':'transparent', color:filter===f?'var(--gold)':'var(--text3)', cursor:'pointer', fontSize:11, fontFamily:'Inter, sans-serif', textTransform:'capitalize' }}>{f}</button>
                 ))}
               </div>
-              {unread > 0 && <button onClick={markAllRead} style={{ background:'transparent', border:'1px solid var(--border)', borderRadius:8, padding:'6px 14px', color:'var(--text2)', cursor:'pointer', fontSize:12, fontFamily:'DM Sans,sans-serif' }}>Mark All Read</button>}
+              {unread > 0 && <button onClick={markAllRead} style={{ background:'transparent', border:'1px solid var(--border)', borderRadius:8, padding:'6px 14px', color:'var(--text2)', cursor:'pointer', fontSize:12, fontFamily:'Inter, sans-serif' }}>Mark All Read</button>}
             </div>
             <div style={{ display:'flex', flexDirection:'column', gap:6 }}>
               {filtered.map(n => (
@@ -118,7 +118,7 @@ const NotificationsPage = () => {
                 <div style={{ fontSize:16, fontWeight:700, color:'var(--amber)' }}>Subscription Expiry Warning</div>
               </div>
               <div style={{ fontSize:14, color:'var(--text2)', marginBottom:12 }}>Your <strong>Enterprise Plan</strong> expires in <strong>14 days</strong> (July 28, 2025). Renew now to avoid service interruption.</div>
-              <button style={{ background:'linear-gradient(135deg,#C9A84C,#8A6F2E)', border:'none', borderRadius:8, padding:'10px 24px', color:'#fff', cursor:'pointer', fontFamily:'DM Sans,sans-serif', fontWeight:600, fontSize:14 }}>Renew Plan</button>
+              <button style={{ background:'linear-gradient(135deg,#C9A84C,#8A6F2E)', border:'none', borderRadius:8, padding:'10px 24px', color:'#fff', cursor:'pointer', fontFamily:'Inter, sans-serif', fontWeight:600, fontSize:14 }}>Renew Plan</button>
             </div>
             <div style={{ padding:20, background:'rgba(52,211,153,0.08)', border:'1px solid rgba(52,211,153,0.2)', borderRadius:'var(--radius)' }}>
               <div style={{ display:'flex', alignItems:'center', gap:12, marginBottom:4 }}>
