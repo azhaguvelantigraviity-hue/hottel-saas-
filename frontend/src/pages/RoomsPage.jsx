@@ -7,6 +7,13 @@ const RoomsPage = ({ onNav }) => {
   const [view, setView] = useState('grid');
   const [filterStatus, setFilterStatus] = useState('all');
   const filtered = filterStatus === 'all' ? ROOMS : ROOMS.filter((r) => r.status === filterStatus);
+  const counts = {
+    all: ROOMS.length,
+    occupied: ROOMS.filter((r) => r.status === 'occupied').length,
+    available: ROOMS.filter((r) => r.status === 'available').length,
+    reserved: ROOMS.filter((r) => r.status === 'reserved').length,
+    maintenance: ROOMS.filter((r) => r.status === 'maintenance').length,
+  };
 
   const statusColor = { occupied: 'var(--gold)', available: 'var(--green)', reserved: 'var(--violet)', maintenance: 'var(--rose)' };
   const hkColor = { clean: 'var(--green)', dirty: 'var(--rose)', inspect: 'var(--amber)' };
@@ -32,7 +39,7 @@ const RoomsPage = ({ onNav }) => {
               textTransform: 'capitalize',
             }}
           >
-            {s}
+            {s} ({counts[s]})
           </button>
         ))}
         <div style={{ marginLeft: 'auto', display: 'flex', gap: '6px' }}>
@@ -90,7 +97,11 @@ const RoomsPage = ({ onNav }) => {
         </div>
       </div>
 
-      {view === 'grid' ? (
+      {filtered.length === 0 ? (
+        <div style={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: 'var(--radius)', padding: '40px', textAlign: 'center', color: 'var(--text3)' }}>
+          No rooms found for this status.
+        </div>
+      ) : view === 'grid' ? (
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(180px,1fr))', gap: '12px' }}>
           {filtered.map((r) => (
             <div

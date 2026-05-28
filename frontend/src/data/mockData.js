@@ -65,7 +65,14 @@ export const PLANS = {
 
 export const HOTELS = [];
 
-export const ROOMS = [];
+export const ROOMS = [
+  { id: '101', type: 'Deluxe King', floor: 1, status: 'available', housekeeping: 'clean', rate: 4500, guest: '' },
+  { id: '102', type: 'Deluxe Twin', floor: 1, status: 'occupied', housekeeping: 'clean', rate: 4700, guest: 'Aarav Shah' },
+  { id: '103', type: 'Suite', floor: 1, status: 'reserved', housekeeping: 'inspect', rate: 7800, guest: 'Neha Kapoor' },
+  { id: '201', type: 'Executive', floor: 2, status: 'available', housekeeping: 'clean', rate: 5600, guest: '' },
+  { id: '202', type: 'Premium Suite', floor: 2, status: 'maintenance', housekeeping: 'dirty', rate: 9200, guest: '' },
+  { id: '203', type: 'Deluxe King', floor: 2, status: 'available', housekeeping: 'clean', rate: 4900, guest: '' },
+];
 
 export const EMPLOYEES = [];
 
@@ -89,4 +96,9 @@ export const REVENUE_DATA = [];
 
 export const ADMIN_REVENUE = [];
 
-export const PET_CHARGES = {};
+export const PET_CHARGES = {
+  small: { label: 'Small Pet', perNight: 400 },
+  medium: { label: 'Medium Pet', perNight: 650 },
+  large: { label: 'Large Pet', perNight: 900 },
+  deposit: 2000,
+};

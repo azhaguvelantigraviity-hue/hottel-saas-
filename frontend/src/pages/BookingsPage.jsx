@@ -245,7 +245,7 @@ const BookingDetail = ({ booking, onClose, onAction }) => (
 );
 
 const BookingsPage = () => {
-  const [bookings, setBookings] = useState([]);
+  const [bookings, setBookings] = useState(BOOKINGS);
   const [filter, setFilter] = useState('all');
   const [search, setSearch] = useState('');
   const [showNew, setShowNew] = useState(false);
@@ -258,11 +258,29 @@ const BookingsPage = () => {
   });
 
   const handleAction = (id, newStatus) => {
-    setBookings(prev => prev.map(b => b.id === id ? { ...b, status: newStatus } : b));
+    setBookings(prev => prev.map(b => {
+      if (b.id !== id) return b;
+      const roomId = String(b.room).split(' ')[0];
+      const room = ROOMS.find(r => String(r.id) === roomId);
+      if (room) {
+        if (newStatus === 'checked-in') {
+          room.status = 'occupied';
+          room.guest = b.guest;
+        } else if (newStatus === 'checked-out' || newStatus === 'cancelled') {
+          room.status = 'available';
+          room.guest = '';
+        }
+      }
+      return { ...b, status: newStatus };
+    }));
   };
 
   const handleSave = (newBooking) => {
     const room = ROOMS.find(r => String(r.id) === String(newBooking.room));
+    if (room) {
+      room.status = 'reserved';
+      room.guest = newBooking.guest;
+    }
     setBookings(prev => [...prev, {
       ...newBooking,
       room: room ? `${room.id} – ${room.type}` : newBooking.room,
