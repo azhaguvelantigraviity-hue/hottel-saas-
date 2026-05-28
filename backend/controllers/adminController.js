@@ -74,8 +74,8 @@ exports.getPlatformRevenue = asyncHandler(async (_req, res) => {
 });
 
 exports.getAuditLogs = asyncHandler(async (_req, res) => {
-  // In production: query AuditLog model. Return mock for now.
-  sendSuccess(res, []);
+  const logs = []; // TODO: integrate AuditLog model
+  sendSuccess(res, logs);
 });
 
 exports.getAllUsers = asyncHandler(async (_req, res) => {

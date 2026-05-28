@@ -3,21 +3,11 @@ import StatCard from '../components/StatCard';
 import Icon from '../components/Icon';
 import Badge from '../components/Badge';
 
-const INVOICES = [
-  { id:'INV-2025-001', guest:'Aditya Kumar', room:'301', checkIn:'2025-07-08', checkOut:'2025-07-18', nights:10, roomCharge:280000, food:12400, laundry:820, other:2800, gst:53282, total:349302, status:'paid', date:'2025-07-18', method:'Card' },
-  { id:'INV-2025-002', guest:'Priya Sharma', room:'103', checkIn:'2025-07-09', checkOut:'2025-07-15', nights:6, roomCharge:51000, food:4200, laundry:440, other:1500, gst:10282, total:67422, status:'paid', date:'2025-07-15', method:'UPI' },
-  { id:'INV-2025-003', guest:'Rohit Verma', room:'201', checkIn:'2025-07-11', checkOut:'2025-07-13', nights:2, roomCharge:24000, food:1800, laundry:260, other:0, gst:4691, total:30751, status:'pending', date:'2025-07-13', method:'-' },
-];
+const INVOICES = [];
 
-const REFUNDS = [
-  { id:'RF-001', invoice:'INV-2025-002', guest:'Priya Sharma', amount:3500, reason:'Overcharged for minibar', status:'pending', date:'2025-07-15' },
-  { id:'RF-002', invoice:'INV-2025-001', guest:'Aditya Kumar', amount:1200, reason:'Cancelled room service', status:'approved', date:'2025-07-16' },
-];
+const REFUNDS = [];
 
-const ADVANCES = [
-  { id:'ADV-001', guest:'Karan Malhotra', booking:'BK-1008', amount:10000, date:'2025-07-14', status:'recorded' },
-  { id:'ADV-002', guest:'Riya Desai', booking:'BK-1007', amount:5000, date:'2025-07-13', status:'recorded' },
-];
+const ADVANCES = [];
 
 const TABS = ['Invoice Generator', 'Split Payment', 'Advance Payment', 'Refunds', 'Invoice History'];
 
@@ -58,8 +48,8 @@ const InvoiceModal = ({ inv, onClose }) => {
         <div ref={printRef} style={{ padding: '10px' }}>
           <div style={{ display:'flex', justifyContent:'space-between', alignItems:'flex-start', marginBottom:24 }}>
           <div>
-            <div style={{ fontSize:22, fontWeight:800, fontFamily:'Poppins,sans-serif', color:'#C9A84C' }}>The Grand Meridian</div>
-            <div style={{ fontSize:12, color:'#666' }}>Mumbai, Maharashtra · GST: 27AABCG1234A1Z5</div>
+            <div style={{ fontSize:22, fontWeight:800, fontFamily:'Poppins,sans-serif', color:'#C9A84C' }}>Hotel Name</div>
+            <div style={{ fontSize:12, color:'#666' }}>GST details</div>
           </div>
           <div style={{ textAlign:'right' }}>
             <div style={{ fontSize:16, fontWeight:700, color:'#111' }}>TAX INVOICE</div>
@@ -83,7 +73,7 @@ const InvoiceModal = ({ inv, onClose }) => {
             <tr style={{ background:'#C9A84C11' }}><td style={{ padding:'10px 12px', fontSize:15, fontWeight:700 }}>Total</td><td style={{ padding:'10px 12px', fontSize:15, textAlign:'right', fontWeight:700, fontFamily:'DM Mono,monospace', color:'#C9A84C' }}>₹{inv.total.toLocaleString()}</td></tr>
           </tbody>
         </table>
-        <div style={{ fontSize:12, color:'#888', marginBottom:20 }}>Thank you for staying at The Grand Meridian. We hope to see you again!</div>
+        <div style={{ fontSize:12, color:'#888', marginBottom:20 }}>Thank you for your stay!</div>
         </div>
         <div style={{ display:'flex', gap:12 }}>
           <button onClick={onClose} style={{ flex:1, background:'#f0f0f0', border:'none', borderRadius:8, padding:'10px', cursor:'pointer', fontFamily:'Inter, sans-serif', fontWeight:600 }}>Close</button>
@@ -110,9 +100,9 @@ const BillingPage = () => {
     <div style={{ flex:1, overflowY:'auto', padding:24 }}>
       {showModal && <InvoiceModal inv={selectedInv} onClose={() => setShowModal(false)} />}
       <div style={{ display:'grid', gridTemplateColumns:'repeat(4,1fr)', gap:16, marginBottom:24 }}>
-        <StatCard title="Invoices Today" value="8" icon="receipt" color="var(--gold)" />
-        <StatCard title="Revenue Today" value="₹4.2L" icon="dollar" color="var(--green)" />
-        <StatCard title="Pending" value="3" icon="info" color="var(--amber)" />
+        <StatCard title="Invoices Today" value="-" icon="receipt" color="var(--gold)" />
+        <StatCard title="Revenue Today" value="-" icon="dollar" color="var(--green)" />
+        <StatCard title="Pending" value="-" icon="info" color="var(--amber)" />
         <StatCard title="Refunds" value={REFUNDS.length} icon="refresh" color="var(--rose)" />
       </div>
       <div style={{ background:'var(--card)', border:'1px solid var(--border)', borderRadius:'var(--radius-lg)', padding:24 }}>
@@ -163,7 +153,7 @@ const BillingPage = () => {
           <div style={{ maxWidth:480 }}>
             <div style={{ fontSize:15, fontWeight:700, color:'var(--text)', marginBottom:16 }}>Split Payment</div>
             <div style={{ padding:14, background:'var(--surface)', border:'1px solid var(--border)', borderRadius:8, marginBottom:16 }}>
-              <div style={{ fontSize:13, color:'var(--text2)' }}>Total Bill: <span style={{ fontFamily:'DM Mono,monospace', color:'var(--gold)', fontWeight:700 }}>₹30,751</span></div>
+              <div style={{ fontSize:13, color:'var(--text2)' }}>Total Bill: <span style={{ fontFamily:'DM Mono,monospace', color:'var(--gold)', fontWeight:700 }}>-</span></div>
             </div>
             {splitPayers.map((p, i) => (
               <div key={i} style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:12, marginBottom:12 }}>

@@ -2,16 +2,7 @@ import React, { useState } from 'react';
 import Badge from '../components/Badge';
 import Icon from '../components/Icon';
 
-const MOCK_LOGS = [
-  { id: 'AL-1045', action: 'Login Success', user: 'Platform Admin', email: 'admin@stayos.com', ip: '192.168.1.45', date: '2026-05-27 10:15 AM', status: 'success' },
-  { id: 'AL-1044', action: 'Created Hotel', target: 'The Royal Palace', user: 'Platform Admin', email: 'admin@stayos.com', ip: '192.168.1.45', date: '2026-05-27 09:30 AM', status: 'success' },
-  { id: 'AL-1043', action: 'Failed Login', user: 'Unknown', email: 'admin@stayos.com', ip: '10.0.0.8', date: '2026-05-26 11:22 PM', status: 'failed' },
-  { id: 'AL-1042', action: 'Updated Plan', target: 'Azure Boutique', details: 'Professional → Enterprise', user: 'Billing System', email: 'system@stayos.com', ip: '127.0.0.1', date: '2026-05-26 04:10 PM', status: 'success' },
-  { id: 'AL-1041', action: 'Suspended Hotel', target: 'Desert Bloom Hotel', details: 'Payment Overdue', user: 'Platform Admin', email: 'admin@stayos.com', ip: '192.168.1.45', date: '2026-05-25 02:45 PM', status: 'warning' },
-  { id: 'AL-1040', action: 'Modified Settings', details: 'Changed Tax Rate to 18%', user: 'Platform Admin', email: 'admin@stayos.com', ip: '192.168.1.45', date: '2026-05-25 09:12 AM', status: 'success' },
-  { id: 'AL-1039', action: 'Exported Data', details: 'Exported Revenue Report Q1', user: 'Platform Admin', email: 'admin@stayos.com', ip: '192.168.1.45', date: '2026-05-24 11:05 AM', status: 'success' },
-  { id: 'AL-1038', action: 'Deleted User', target: 'John Doe', user: 'Platform Admin', email: 'admin@stayos.com', ip: '192.168.1.45', date: '2026-05-23 10:15 AM', status: 'success' },
-];
+const LOGS = [];
 
 const thStyle = { padding: '16px 20px', textAlign: 'left', fontSize: '11px', color: 'var(--text3)', fontWeight: '600', letterSpacing: '0.06em', textTransform: 'uppercase', borderBottom: '1px solid var(--border)', background: 'var(--surface)' };
 const tdStyle = { padding: '16px 20px', fontSize: '13px', color: 'var(--text2)', borderBottom: '1px solid var(--border)' };
@@ -20,8 +11,8 @@ const AuditLogs = () => {
   const [filter, setFilter] = useState('all');
   
   const filteredLogs = filter === 'all' 
-    ? MOCK_LOGS 
-    : MOCK_LOGS.filter(log => log.status === filter);
+    ? LOGS 
+    : LOGS.filter(log => log.status === filter);
 
   return (
     <div style={{ padding: '32px', overflowY: 'auto', flex: 1 }}>

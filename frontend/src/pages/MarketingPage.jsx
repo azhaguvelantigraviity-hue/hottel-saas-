@@ -3,31 +3,13 @@ import StatCard from '../components/StatCard';
 import Icon from '../components/Icon';
 import Badge from '../components/Badge';
 
-const COUPONS = [
-  { id:1, code:'SUMMER25', discount:'25%', type:'percent', usage:18, maxUsage:50, expiry:'2025-08-31', status:'active' },
-  { id:2, code:'FLAT500', discount:'₹500', type:'flat', usage:32, maxUsage:100, expiry:'2025-07-31', status:'active' },
-  { id:3, code:'WELCOME10', discount:'10%', type:'percent', usage:5, maxUsage:200, expiry:'2025-12-31', status:'active' },
-  { id:4, code:'MONSOON30', discount:'30%', type:'percent', usage:50, maxUsage:50, expiry:'2025-07-15', status:'expired' },
-];
+const COUPONS = [];
 
-const CAMPAIGNS = [
-  { id:1, name:'Monsoon Getaway', channel:'Email + WhatsApp', reach:1240, conversions:48, revenue:192000, roi:'340%', status:'active' },
-  { id:2, name:'Corporate Weekend', channel:'Email', reach:580, conversions:22, revenue:88000, roi:'280%', status:'active' },
-  { id:3, name:'Festive Season Offer', channel:'SMS + Email', reach:2100, conversions:0, revenue:0, roi:'-', status:'scheduled' },
-];
+const CAMPAIGNS = [];
 
-const REVIEWS = [
-  { id:1, guest:'Aditya Kumar', rating:5, text:'Exceptional stay! The Presidential Suite was magnificent. Staff was incredibly attentive. Will definitely return.', date:'2025-07-10', replied:true },
-  { id:2, guest:'Priya Sharma', rating:4, text:'Beautiful hotel with great amenities. The spa was wonderful. Minor issue with room service timing but overall excellent.', date:'2025-07-09', replied:false },
-  { id:3, guest:'Rohit Verma', rating:5, text:'Perfect for business travel. Fast WiFi, great meeting facilities, and the restaurant food was outstanding.', date:'2025-07-13', replied:true },
-  { id:4, guest:'Kavya Nair', rating:3, text:'Good location and clean rooms. Check-in process was a bit slow. The pool area was lovely though.', date:'2025-07-12', replied:false },
-];
+const REVIEWS = [];
 
-const SEO_PAGES = [
-  { id:1, title:'Luxury Hotel in Mumbai', slug:'/luxury-hotel-mumbai', meta:'Experience unparalleled luxury at The Grand Meridian, Mumbai\'s premier 5-star hotel.', status:'published', traffic:1240 },
-  { id:2, title:'Wedding Venue Mumbai', slug:'/wedding-venue-mumbai', meta:'Host your dream wedding at The Grand Meridian. Grand Ballroom for 500 guests.', status:'published', traffic:890 },
-  { id:3, title:'Corporate Events Mumbai', slug:'/corporate-events-mumbai', meta:'State-of-the-art conference facilities for corporate events and meetings.', status:'draft', traffic:0 },
-];
+const SEO_PAGES = [];
 
 const TABS = ['Coupons', 'Promo Campaigns', 'Google Reviews', 'SEO Pages'];
 
@@ -65,7 +47,7 @@ const MarketingPage = () => {
       <div style={{ display:'grid', gridTemplateColumns:'repeat(4,1fr)', gap:16, marginBottom:24 }}>
         <StatCard title="Active Coupons" value={COUPONS.filter(c=>c.status==='active').length} icon="marketing" color="var(--gold)" />
         <StatCard title="Campaigns" value={CAMPAIGNS.length} icon="trending" color="var(--teal)" />
-        <StatCard title="Avg Rating" value="4.3 ★" icon="star" color="var(--amber)" />
+        <StatCard title="Avg Rating" value="-" icon="star" color="var(--amber)" />
         <StatCard title="SEO Pages" value={SEO_PAGES.length} icon="report" color="var(--violet)" />
       </div>
       <div style={{ background:'var(--card)', border:'1px solid var(--border)', borderRadius:'var(--radius-lg)', padding:24 }}>

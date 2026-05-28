@@ -3,25 +3,17 @@ import StatCard from '../components/StatCard';
 import Icon from '../components/Icon';
 import Badge from '../components/Badge';
 
-const CAB_BOOKINGS = [
-  { id:'CB-001', guest:'Aditya Kumar', room:'301', pickup:'Hotel Lobby', destination:'Chhatrapati Shivaji Airport', date:'2025-07-15', time:'06:00', vehicle:'Luxury', driver:'Ramesh Patil', status:'confirmed', amount:2800 },
-  { id:'CB-002', guest:'Rohit Verma', room:'201', pickup:'Hotel Lobby', destination:'Bandra Kurla Complex', date:'2025-07-14', time:'09:30', vehicle:'Sedan', driver:'Sunil Yadav', status:'in-progress', amount:850 },
-  { id:'CB-003', guest:'Priya Sharma', room:'103', pickup:'Juhu Beach', destination:'Hotel', date:'2025-07-14', time:'18:00', vehicle:'SUV', driver:'Unassigned', status:'pending', amount:1200 },
-];
+const CAB_BOOKINGS = [];
 
-const PACKAGES = [
-  { id:1, name:'City Tour', duration:'8 hrs', price:2500, includes:['AC Vehicle','Driver','Fuel','Toll'], highlights:['Gateway of India','Marine Drive','Elephanta Caves','Colaba Market'] },
-  { id:2, name:'Hill Station Trip', duration:'2 Days', price:8500, includes:['AC Vehicle','Driver','Fuel','Toll','1 Night Stay'], highlights:['Lonavala','Khandala','Bhushi Dam','Tiger Point'] },
-  { id:3, name:'Beach Trip', duration:'1 Day', price:6000, includes:['AC Vehicle','Driver','Fuel','Toll','Lunch'], highlights:['Alibaug Beach','Kashid Beach','Murud Beach'] },
-];
+const PACKAGES = [];
 
-const VEHICLES = ['Sedan', 'SUV', 'Luxury', 'Mini Bus'];
+const VEHICLES = [];
 const statusColor = { confirmed:'var(--green)', pending:'var(--amber)', 'in-progress':'var(--teal)', cancelled:'var(--rose)' };
 const TABS = ['Cab Booking', 'Airport Transfers', 'Travel Packages'];
 
 const TravelDeskPage = () => {
   const [tab, setTab] = useState(0);
-  const [form, setForm] = useState({ pickup:'Hotel Lobby', destination:'', date:'', time:'', vehicle:'Sedan', guest:'', room:'', notes:'' });
+  const [form, setForm] = useState({ pickup:'', destination:'', date:'', time:'', vehicle:'Sedan', guest:'', room:'', notes:'' });
   const [airForm, setAirForm] = useState({ guest:'', room:'', flight:'', type:'pickup', date:'', time:'', vehicle:'Sedan' });
 
   const thStyle = { padding: '10px 14px', textAlign: 'left', fontSize: 11, color: 'var(--text3)', fontWeight: 600, letterSpacing: '0.06em', textTransform: 'uppercase', borderBottom: '1px solid var(--border)' };
@@ -31,10 +23,10 @@ const TravelDeskPage = () => {
   return (
     <div style={{ flex: 1, overflowY: 'auto', padding: 24 }}>
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 16, marginBottom: 24 }}>
-        <StatCard title="Today's Cabs" value="6" icon="taxi" color="var(--gold)" />
-        <StatCard title="Airport Transfers" value="3" icon="map" color="var(--teal)" />
-        <StatCard title="Packages Booked" value="2" icon="star" color="var(--violet)" />
-        <StatCard title="Revenue Today" value="₹18,400" icon="dollar" color="var(--green)" />
+        <StatCard title="Today's Cabs" value="-" icon="taxi" color="var(--gold)" />
+        <StatCard title="Airport Transfers" value="-" icon="map" color="var(--teal)" />
+        <StatCard title="Packages Booked" value="-" icon="star" color="var(--violet)" />
+        <StatCard title="Revenue Today" value="-" icon="dollar" color="var(--green)" />
       </div>
       <div style={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: 'var(--radius-lg)', padding: 24 }}>
         <div style={{ display: 'flex', gap: 4, marginBottom: 24, background: 'var(--surface)', borderRadius: 10, padding: 4 }}>
@@ -103,7 +95,7 @@ const TravelDeskPage = () => {
               <div><label style={{ fontSize:11, color:'var(--text3)', display:'block', marginBottom:5, textTransform:'uppercase', letterSpacing:'0.06em' }}>Time</label><input type="time" value={airForm.time} onChange={e=>setAirForm(p=>({...p,time:e.target.value}))} style={inputStyle} /></div>
             </div>
             <div style={{ padding:14, background:'rgba(201,168,76,0.08)', border:'1px solid rgba(201,168,76,0.2)', borderRadius:8, marginBottom:16 }}>
-              <div style={{ fontSize:13, color:'var(--text2)' }}>Sedan: ₹1,800 · SUV: ₹2,400 · Luxury: ₹3,500</div>
+              <div style={{ fontSize:13, color:'var(--text2)' }}>Vehicle pricing configured in system settings</div>
             </div>
             <button style={{ background:'linear-gradient(135deg,#C9A84C,#8A6F2E)', border:'none', borderRadius:8, padding:'12px 32px', color:'#fff', cursor:'pointer', fontFamily:'Inter, sans-serif', fontWeight:600, fontSize:14 }}>Book Transfer</button>
           </div>

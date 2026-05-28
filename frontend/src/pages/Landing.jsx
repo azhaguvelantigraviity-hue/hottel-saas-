@@ -125,7 +125,7 @@ const Landing = ({ onLogin, theme, setTheme }) => {
         >
           <Icon name="star" size={12} color="#C9A84C" />
           <span style={{ fontSize: '12px', color: '#C9A84C', fontWeight: '600', letterSpacing: '0.06em' }}>
-            TRUSTED BY 56+ HOTELS ACROSS INDIA
+            ALL-IN-ONE HOTEL MANAGEMENT PLATFORM
           </span>
         </div>
         <h1

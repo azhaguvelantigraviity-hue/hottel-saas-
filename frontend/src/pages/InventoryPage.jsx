@@ -3,24 +3,9 @@ import StatCard from '../components/StatCard';
 import Icon from '../components/Icon';
 import Badge from '../components/Badge';
 
-const INVENTORY = [
-  { id:1, name:'King Bed Sheets', category:'Bedsheets', stock:45, minLevel:20, unit:'sets', lastUpdated:'2025-07-13', cost:850 },
-  { id:2, name:'Bath Towels', category:'Towels', stock:8, minLevel:30, unit:'pcs', lastUpdated:'2025-07-14', cost:320 },
-  { id:3, name:'Hand Towels', category:'Towels', stock:22, minLevel:40, unit:'pcs', lastUpdated:'2025-07-12', cost:180 },
-  { id:4, name:'Shampoo (50ml)', category:'Toiletries', stock:3, minLevel:50, unit:'bottles', lastUpdated:'2025-07-14', cost:45 },
-  { id:5, name:'Soap Bars', category:'Toiletries', stock:67, minLevel:60, unit:'pcs', lastUpdated:'2025-07-11', cost:25 },
-  { id:6, name:'Rice (kg)', category:'Food & Beverages', stock:28, minLevel:15, unit:'kg', lastUpdated:'2025-07-13', cost:60 },
-  { id:7, name:'Mineral Water (500ml)', category:'Food & Beverages', stock:12, minLevel:100, unit:'bottles', lastUpdated:'2025-07-14', cost:15 },
-  { id:8, name:'Floor Cleaner (L)', category:'Cleaning', stock:18, minLevel:10, unit:'liters', lastUpdated:'2025-07-10', cost:120 },
-  { id:9, name:'LED Bulbs', category:'Electronics', stock:6, minLevel:20, unit:'pcs', lastUpdated:'2025-07-08', cost:180 },
-  { id:10, name:'Toilet Paper Rolls', category:'Toiletries', stock:95, minLevel:80, unit:'rolls', lastUpdated:'2025-07-14', cost:18 },
-];
+const INVENTORY = [];
 
-const POS = [
-  { id:'PO-001', supplier:'Linen World', items:'Bed Sheets x50, Towels x100', amount:52500, status:'delivered', date:'2025-07-10' },
-  { id:'PO-002', supplier:'CleanPro Supplies', items:'Shampoo x200, Soap x300', amount:18000, status:'approved', date:'2025-07-13' },
-  { id:'PO-003', supplier:'BrightBulb Co.', items:'LED Bulbs x50', amount:9000, status:'pending', date:'2025-07-14' },
-];
+const POS = [];
 
 const getStatus = (item) => {
   if (item.stock <= item.minLevel * 0.3) return 'critical';

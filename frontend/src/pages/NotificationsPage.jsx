@@ -3,26 +3,9 @@ import StatCard from '../components/StatCard';
 import Icon from '../components/Icon';
 import Badge from '../components/Badge';
 
-const NOTIFS_INIT = [
-  { id:1, type:'booking', icon:'calendar', title:'New Booking Received', desc:'BK-1008 — Karan Malhotra, Room 304, Jul 16–20', time:'2 min ago', read:false, color:'var(--gold)' },
-  { id:2, type:'payment', icon:'dollar', title:'Payment Confirmed', desc:'₹67,422 received for INV-2025-002 via UPI', time:'15 min ago', read:false, color:'var(--green)' },
-  { id:3, type:'housekeeping', icon:'key', title:'Housekeeping Complete', desc:'Room 101 — Linen change completed by Anita Patel', time:'32 min ago', read:false, color:'var(--teal)' },
-  { id:4, type:'maintenance', icon:'maintenance', title:'Maintenance Alert', desc:'MT-004 — Elevator door sensor malfunction in Lobby', time:'1 hr ago', read:false, color:'var(--rose)' },
-  { id:5, type:'system', icon:'shield', title:'Security Login', desc:'New login from Chrome/Windows at 192.168.1.45', time:'2 hrs ago', read:true, color:'var(--violet)' },
-  { id:6, type:'booking', icon:'calendar', title:'Check-out Reminder', desc:'Rohit Verma (Room 201) checks out today at 12:00 PM', time:'3 hrs ago', read:true, color:'var(--gold)' },
-  { id:7, type:'payment', icon:'dollar', title:'Advance Payment Recorded', desc:'₹10,000 advance from Karan Malhotra for BK-1008', time:'4 hrs ago', read:true, color:'var(--green)' },
-  { id:8, type:'system', icon:'bell', title:'Subscription Expiry Warning', desc:'Your Enterprise plan expires in 14 days. Renew now.', time:'1 day ago', read:false, color:'var(--amber)' },
-  { id:9, type:'housekeeping', icon:'key', title:'DND Activated', desc:'Room 103 — Priya Sharma activated Do Not Disturb', time:'1 day ago', read:true, color:'var(--teal)' },
-  { id:10, type:'maintenance', icon:'maintenance', title:'Ticket Resolved', desc:'MT-003 — TV remote issue in Room 301 resolved', time:'2 days ago', read:true, color:'var(--green)' },
-];
+const NOTIFS_INIT = [];
 
-const NOTIF_SETTINGS = [
-  { id:'booking', label:'Booking Notifications', desc:'New bookings, cancellations, modifications', email:true, sms:true, push:true, whatsapp:false },
-  { id:'payment', label:'Payment Notifications', desc:'Payments received, refunds, pending invoices', email:true, sms:false, push:true, whatsapp:true },
-  { id:'housekeeping', label:'Housekeeping Alerts', desc:'Task completions, DND status, room status', email:false, sms:false, push:true, whatsapp:false },
-  { id:'maintenance', label:'Maintenance Alerts', desc:'New tickets, status updates, urgent issues', email:true, sms:true, push:true, whatsapp:false },
-  { id:'system', label:'System Notifications', desc:'Security events, logins, system updates', email:true, sms:false, push:true, whatsapp:false },
-];
+const NOTIF_SETTINGS = [];
 
 const TABS = ['Live Feed', 'Settings', 'Subscription Alerts'];
 
@@ -117,7 +100,7 @@ const NotificationsPage = () => {
                 <Icon name="crown" size={24} color="var(--amber)" />
                 <div style={{ fontSize:16, fontWeight:700, color:'var(--amber)' }}>Subscription Expiry Warning</div>
               </div>
-              <div style={{ fontSize:14, color:'var(--text2)', marginBottom:12 }}>Your <strong>Enterprise Plan</strong> expires in <strong>14 days</strong> (July 28, 2025). Renew now to avoid service interruption.</div>
+              <div style={{ fontSize:14, color:'var(--text2)', marginBottom:12 }}>Your plan expires soon. Renew now to avoid service interruption.</div>
               <button style={{ background:'linear-gradient(135deg,#C9A84C,#8A6F2E)', border:'none', borderRadius:8, padding:'10px 24px', color:'#fff', cursor:'pointer', fontFamily:'Inter, sans-serif', fontWeight:600, fontSize:14 }}>Renew Plan</button>
             </div>
             <div style={{ padding:20, background:'rgba(52,211,153,0.08)', border:'1px solid rgba(52,211,153,0.2)', borderRadius:'var(--radius)' }}>

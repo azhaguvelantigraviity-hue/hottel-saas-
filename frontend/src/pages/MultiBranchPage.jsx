@@ -4,34 +4,13 @@ import Icon from '../components/Icon';
 import Badge from '../components/Badge';
 import Avatar from '../components/Avatar';
 
-const BRANCHES = [
-  { id:1, name:'The Grand Meridian', city:'Mumbai', rooms:240, occupancy:87, revenue:284000, staff:42, status:'active', plan:'enterprise', avatar:'GM' },
-  { id:2, name:'Coastal Pearl Resort', city:'Kochi', rooms:185, occupancy:91, revenue:198000, staff:38, status:'active', plan:'enterprise', avatar:'CP' },
-  { id:3, name:'Skyline Suites', city:'Delhi', rooms:310, occupancy:78, revenue:312000, staff:55, status:'active', plan:'enterprise', avatar:'SS' },
-];
+const BRANCHES = [];
 
-const CONSOLIDATED = [
-  { month:'Jan', revenue:168000, occupancy:78 },
-  { month:'Feb', revenue:182000, occupancy:81 },
-  { month:'Mar', revenue:224000, occupancy:85 },
-  { month:'Apr', revenue:248000, occupancy:88 },
-  { month:'May', revenue:196000, occupancy:79 },
-  { month:'Jun', revenue:284000, occupancy:91 },
-  { month:'Jul', revenue:312000, occupancy:87 },
-];
+const CONSOLIDATED = [];
 
-const POLICIES = [
-  { id:1, name:'Check-in Time', value:'2:00 PM', scope:'All Branches' },
-  { id:2, name:'Check-out Time', value:'12:00 PM', scope:'All Branches' },
-  { id:3, name:'Pet Policy', value:'Allowed with deposit', scope:'All Branches' },
-  { id:4, name:'Cancellation Policy', value:'24 hrs free cancellation', scope:'All Branches' },
-  { id:5, name:'Loyalty Points Rate', value:'1 point per ₹100 spent', scope:'All Branches' },
-];
+const POLICIES = [];
 
-const TRANSFERS = [
-  { id:1, employee:'Rajesh Kumar', from:'The Grand Meridian', to:'Skyline Suites', role:'Front Desk Manager', date:'2025-08-01', status:'approved' },
-  { id:2, employee:'Anita Patel', from:'Coastal Pearl Resort', to:'The Grand Meridian', role:'Housekeeping Supervisor', date:'2025-07-20', status:'pending' },
-];
+const TRANSFERS = [];
 
 const TABS = ['Branch Overview', 'Consolidated Reports', 'Branch Comparison', 'Central Settings'];
 
@@ -39,7 +18,7 @@ const MultiBranchPage = () => {
   const [tab, setTab] = useState(0);
   const totalRevenue = BRANCHES.reduce((s,b) => s+b.revenue, 0);
   const totalRooms = BRANCHES.reduce((s,b) => s+b.rooms, 0);
-  const avgOccupancy = Math.round(BRANCHES.reduce((s,b) => s+b.occupancy, 0) / BRANCHES.length);
+  const avgOccupancy = BRANCHES.length > 0 ? Math.round(BRANCHES.reduce((s,b) => s+b.occupancy, 0) / BRANCHES.length) : 0;
   const totalStaff = BRANCHES.reduce((s,b) => s+b.staff, 0);
 
   const maxRev = Math.max(...CONSOLIDATED.map(m => m.revenue));
@@ -107,7 +86,7 @@ const MultiBranchPage = () => {
               </div>
             </div>
             <div style={{ display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:12 }}>
-              {[['Total Revenue (Jul)', `₹${totalRevenue.toLocaleString()}`, 'var(--gold)'], ['Total Rooms', totalRooms, 'var(--teal)'], ['Avg Occupancy', `${avgOccupancy}%`, 'var(--green)']].map(([l,v,c]) => (
+              {[['Total Revenue', `₹${totalRevenue.toLocaleString()}`, 'var(--gold)'], ['Total Rooms', totalRooms, 'var(--teal)'], ['Avg Occupancy', `${avgOccupancy}%`, 'var(--green)']].map(([l,v,c]) => (
                 <div key={l} style={{ background:'var(--surface)', border:'1px solid var(--border)', borderRadius:'var(--radius)', padding:16, textAlign:'center' }}>
                   <div style={{ fontSize:22, fontWeight:700, color:c, fontFamily:'DM Mono,monospace', marginBottom:4 }}>{v}</div>
                   <div style={{ fontSize:12, color:'var(--text3)' }}>{l}</div>

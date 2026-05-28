@@ -34,16 +34,12 @@ const AdminSubscriptions = () => (
             {plan.name.toUpperCase()}
           </div>
           <div style={{ fontSize: '32px', fontWeight: '900', fontFamily: 'Poppins,sans-serif', marginBottom: '4px' }}>
-            {plan.id === 'starter' ? '18' : plan.id === 'professional' ? '27' : '11'}
+            {'0'}
           </div>
           <div style={{ fontSize: '13px', color: 'var(--text3)', marginBottom: '16px' }}>Active hotels</div>
           <div style={{ fontSize: '24px', fontWeight: '700', color: plan.accent, fontFamily: 'DM Mono,monospace', marginBottom: '4px' }}>
             ₹
-            {plan.id === 'starter'
-              ? (18 * plan.price).toLocaleString()
-              : plan.id === 'professional'
-              ? (27 * plan.price).toLocaleString()
-              : (11 * plan.price).toLocaleString()}
+            {0}
           </div>
           <div style={{ fontSize: '12px', color: 'var(--text3)' }}>Monthly contribution</div>
           <div style={{ marginTop: '16px', borderTop: '1px solid var(--border)', paddingTop: '16px' }}>
@@ -84,7 +80,7 @@ const AdminSubscriptions = () => (
               </td>
               <td style={{ padding: '12px', fontSize: '13px', fontFamily: 'DM Mono,monospace' }}>₹{PLANS[h.plan].price.toLocaleString()}</td>
               <td style={{ padding: '12px', fontSize: '12px', color: 'var(--text3)' }}>{h.joined}</td>
-              <td style={{ padding: '12px', fontSize: '12px', color: 'var(--text2)' }}>Aug 1, 2025</td>
+              <td style={{ padding: '12px', fontSize: '12px', color: 'var(--text2)' }}>-</td>
               <td style={{ padding: '12px' }}>
                 <Badge color={h.status === 'active' ? 'green' : h.status === 'trial' ? 'amber' : 'rose'}>{h.status}</Badge>
               </td>

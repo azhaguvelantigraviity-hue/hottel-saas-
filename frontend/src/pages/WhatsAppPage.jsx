@@ -3,29 +3,17 @@ import StatCard from '../components/StatCard';
 import Icon from '../components/Icon';
 import Badge from '../components/Badge';
 
-const TEMPLATES = [
-  { id:1, name:'Booking Confirmation', preview:'Dear {guest_name}, your booking {booking_id} at The Grand Meridian is confirmed. Check-in: {checkin_date}. Room: {room_type}. We look forward to welcoming you!', status:'approved' },
-  { id:2, name:'Check-in Reminder', preview:'Hello {guest_name}! Your check-in at The Grand Meridian is tomorrow at 2:00 PM. Room {room_number} is ready for you. Need airport transfer? Reply YES.', status:'approved' },
-  { id:3, name:'Invoice Ready', preview:'Dear {guest_name}, your invoice #{invoice_id} for ₹{amount} is ready. Download: {link}. Thank you for staying with us!', status:'approved' },
-  { id:4, name:'Payment Reminder', preview:'Hi {guest_name}, your payment of ₹{amount} for booking {booking_id} is pending. Please complete payment to confirm your reservation.', status:'pending' },
-  { id:5, name:'Checkout Summary', preview:'Thank you for staying at The Grand Meridian, {guest_name}! We hope you enjoyed your {nights}-night stay. Rate your experience: {rating_link}', status:'approved' },
-];
+const TEMPLATES = [];
 
-const SENT_MESSAGES = [
-  { id:1, guest:'Aditya Kumar', phone:'9876500006', template:'Booking Confirmation', status:'read', time:'2025-07-08 14:02' },
-  { id:2, guest:'Priya Sharma', phone:'9876500002', template:'Check-in Reminder', status:'delivered', time:'2025-07-08 18:00' },
-  { id:3, guest:'Rohit Verma', phone:'9876500004', template:'Invoice Ready', status:'read', time:'2025-07-13 12:30' },
-  { id:4, guest:'Kavya Nair', phone:'9876500003', template:'Booking Confirmation', status:'failed', time:'2025-07-12 10:15' },
-  { id:5, guest:'Sneha Iyer', phone:'9876500005', template:'Check-in Reminder', status:'delivered', time:'2025-07-12 18:00' },
-];
+const SENT_MESSAGES = [];
 
 const TABS = ['Message Templates', 'Sent Messages', 'Bulk Campaigns', 'Settings'];
 const statusColor = { read:'var(--green)', delivered:'var(--teal)', failed:'var(--rose)', pending:'var(--amber)' };
 
 const WhatsAppPage = () => {
   const [tab, setTab] = useState(0);
-  const [apiKey, setApiKey] = useState('waba_live_••••••••••••••••••••••••••••••••');
-  const [webhook, setWebhook] = useState('https://api.stayos.in/webhooks/whatsapp');
+  const [apiKey, setApiKey] = useState('');
+  const [webhook, setWebhook] = useState('');
   const [segment, setSegment] = useState('all');
   const [bulkTemplate, setBulkTemplate] = useState('');
   const [testSent, setTestSent] = useState(null);
@@ -37,9 +25,9 @@ const WhatsAppPage = () => {
   return (
     <div style={{ flex:1, overflowY:'auto', padding:24 }}>
       <div style={{ display:'grid', gridTemplateColumns:'repeat(4,1fr)', gap:16, marginBottom:24 }}>
-        <StatCard title="Messages Sent" value="142" icon="whatsapp" color="var(--green)" />
-        <StatCard title="Delivered" value="138" icon="check" color="var(--teal)" />
-        <StatCard title="Read Rate" value="94%" icon="eye" color="var(--gold)" />
+        <StatCard title="Messages Sent" value="-" icon="whatsapp" color="var(--green)" />
+        <StatCard title="Delivered" value="-" icon="check" color="var(--teal)" />
+        <StatCard title="Read Rate" value="-" icon="eye" color="var(--gold)" />
         <StatCard title="Templates" value={TEMPLATES.length} icon="report" color="var(--violet)" />
       </div>
       <div style={{ background:'var(--card)', border:'1px solid var(--border)', borderRadius:'var(--radius-lg)', padding:24 }}>
@@ -89,11 +77,11 @@ const WhatsAppPage = () => {
             <div style={{ marginBottom:14 }}>
               <label style={{ fontSize:11, color:'var(--text3)', display:'block', marginBottom:6, textTransform:'uppercase', letterSpacing:'0.06em' }}>Guest Segment</label>
               <select value={segment} onChange={e=>setSegment(e.target.value)} style={inputStyle}>
-                <option value="all">All Guests (142)</option>
-                <option value="checkedin">Currently Checked-In (4)</option>
-                <option value="upcoming">Upcoming Arrivals (3)</option>
-                <option value="vip">VIP Guests (3)</option>
-                <option value="loyalty">Loyalty Members (5)</option>
+                <option value="all">All Guests</option>
+                <option value="checkedin">Currently Checked-In</option>
+                <option value="upcoming">Upcoming Arrivals</option>
+                <option value="vip">VIP Guests</option>
+                <option value="loyalty">Loyalty Members</option>
               </select>
             </div>
             <div style={{ marginBottom:14 }}>
@@ -108,7 +96,7 @@ const WhatsAppPage = () => {
               <input type="datetime-local" style={inputStyle} />
             </div>
             <div style={{ padding:14, background:'rgba(201,168,76,0.08)', border:'1px solid rgba(201,168,76,0.2)', borderRadius:8, marginBottom:16 }}>
-              <div style={{ fontSize:13, color:'var(--text2)' }}>Estimated recipients: <strong style={{ color:'var(--gold)' }}>142 guests</strong></div>
+              <div style={{ fontSize:13, color:'var(--text2)' }}>Estimated recipients: <strong style={{ color:'var(--gold)' }}>-</strong></div>
             </div>
             <button style={{ background:'linear-gradient(135deg,#25D366,#128C7E)', border:'none', borderRadius:8, padding:'12px 32px', color:'#fff', cursor:'pointer', fontFamily:'Inter, sans-serif', fontWeight:600, fontSize:14, display:'flex', alignItems:'center', gap:8 }}>
               <Icon name="whatsapp" size={16} color="#fff" /> Send Campaign
@@ -128,7 +116,7 @@ const WhatsAppPage = () => {
             </div>
             <div style={{ marginBottom:20, padding:14, background:'rgba(52,211,153,0.08)', border:'1px solid rgba(52,211,153,0.2)', borderRadius:8 }}>
               <div style={{ fontSize:13, color:'var(--green)', fontWeight:600 }}>✓ Connection Active</div>
-              <div style={{ fontSize:12, color:'var(--text3)' }}>Last verified: 2025-07-14 09:00</div>
+              <div style={{ fontSize:12, color:'var(--text3)' }}>Last verified: -</div>
             </div>
             <div style={{ display:'flex', gap:12 }}>
               <button style={{ background:'linear-gradient(135deg,#C9A84C,#8A6F2E)', border:'none', borderRadius:8, padding:'12px 24px', color:'#fff', cursor:'pointer', fontFamily:'Inter, sans-serif', fontWeight:600, fontSize:14 }}>Save Settings</button>

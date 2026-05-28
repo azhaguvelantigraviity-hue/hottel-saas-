@@ -67,14 +67,7 @@ const GuestDetail = ({ guest, onClose }) => {
 };
 
 const GuestCRMPage = () => {
-  const [guests, setGuests] = useState(() => {
-    const saved = localStorage.getItem('stayos_guests');
-    return saved ? JSON.parse(saved) : GUESTS;
-  });
-
-  useEffect(() => {
-    localStorage.setItem('stayos_guests', JSON.stringify(guests));
-  }, [guests]);
+  const [guests, setGuests] = useState([]);
   const [search, setSearch] = useState('');
   const [filter, setFilter] = useState('all');
   const [selected, setSelected] = useState(null);

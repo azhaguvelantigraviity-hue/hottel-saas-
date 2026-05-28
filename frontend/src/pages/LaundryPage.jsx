@@ -3,13 +3,9 @@ import StatCard from '../components/StatCard';
 import Icon from '../components/Icon';
 import Badge from '../components/Badge';
 
-const PRICING = { Shirt:80, Trouser:100, Suit:250, Saree:200, Bedsheet:150, Towel:60 };
+const PRICING = {};
 
-const ORDERS_INIT = [
-  { id:'LN-001', room:'101', guest:'Arjun Mehta', items:[{name:'Shirt',qty:3},{name:'Trouser',qty:2}], status:'washing', pickup:'09:00', express:false, amount:440 },
-  { id:'LN-002', room:'301', guest:'Aditya Kumar', items:[{name:'Suit',qty:2},{name:'Shirt',qty:4}], status:'ready', pickup:'08:30', express:true, amount:820 },
-  { id:'LN-003', room:'201', guest:'Rohit Verma', items:[{name:'Trouser',qty:1},{name:'Shirt',qty:2}], status:'delivered', pickup:'07:00', express:false, amount:260 },
-];
+const ORDERS_INIT = [];
 
 const STATUS_FLOW = ['picked','washing','drying','ready','delivered'];
 const statusColor = { picked:'var(--blue)', washing:'var(--teal)', drying:'var(--amber)', ready:'var(--green)', delivered:'var(--text3)' };
@@ -44,7 +40,7 @@ const LaundryPage = () => {
   return (
     <div style={{ flex: 1, overflowY: 'auto', padding: 24 }}>
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 16, marginBottom: 24 }}>
-        <StatCard title="Total Today" value="12" icon="laundry" color="var(--teal)" />
+        <StatCard title="Total Today" value="-" icon="laundry" color="var(--teal)" />
         <StatCard title="In Progress" value={orders.filter(o=>['picked','washing','drying'].includes(o.status)).length} icon="refresh" color="var(--amber)" />
         <StatCard title="Ready" value={orders.filter(o=>o.status==='ready').length} icon="check" color="var(--green)" />
         <StatCard title="Delivered" value={orders.filter(o=>o.status==='delivered').length} icon="arrow" color="var(--text3)" />

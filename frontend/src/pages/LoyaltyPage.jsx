@@ -4,33 +4,13 @@ import Icon from '../components/Icon';
 import Badge from '../components/Badge';
 import Avatar from '../components/Avatar';
 
-const MEMBERS = [
-  { id:1, name:'Aditya Kumar', tier:'Platinum', points:8420, stays:12, referrals:3, phone:'9876500006', joinDate:'2023-01-15' },
-  { id:2, name:'Rohit Verma', tier:'Gold', points:3150, stays:8, referrals:1, phone:'9876500004', joinDate:'2023-06-20' },
-  { id:3, name:'Arjun Mehta', tier:'Gold', points:2800, stays:5, referrals:2, phone:'9876500001', joinDate:'2024-02-10' },
-  { id:4, name:'Priya Sharma', tier:'Silver', points:950, stays:3, referrals:0, phone:'9876500002', joinDate:'2024-05-15' },
-  { id:5, name:'Sneha Iyer', tier:'Bronze', points:320, stays:2, referrals:1, phone:'9876500005', joinDate:'2024-07-01' },
-];
+const MEMBERS = [];
 
-const TIERS = [
-  { name:'Platinum', minPoints:5000, discount:15, color:'#E5E4E2', benefits:['15% room discount','Free airport transfer','Dedicated concierge','Free breakfast','Late checkout 2PM'] },
-  { name:'Gold', minPoints:2000, discount:10, color:'#C9A84C', benefits:['10% room discount','Priority check-in','Free room upgrade','Welcome drink'] },
-  { name:'Silver', minPoints:500, discount:5, color:'#C0C0C0', benefits:['5% room discount','Early check-in','Complimentary newspaper'] },
-  { name:'Bronze', minPoints:0, discount:0, color:'#CD7F32', benefits:['Welcome points on signup','Birthday bonus points'] },
-];
+const TIERS = [];
 
-const REFERRALS = [
-  { id:1, referrer:'Aditya Kumar', referred:'Kavya Nair', bonus:500, status:'credited', date:'2025-06-10' },
-  { id:2, referrer:'Arjun Mehta', referred:'Riya Desai', bonus:500, status:'credited', date:'2025-07-01' },
-  { id:3, referrer:'Arjun Mehta', referred:'Karan Malhotra', bonus:500, status:'pending', date:'2025-07-12' },
-  { id:4, referrer:'Sneha Iyer', referred:'Meera Pillai', bonus:500, status:'pending', date:'2025-07-14' },
-];
+const REFERRALS = [];
 
-const REDEMPTIONS = [
-  { id:1, member:'Aditya Kumar', points:1000, value:'₹1,000 room discount', date:'2025-07-08', status:'used' },
-  { id:2, member:'Rohit Verma', points:500, value:'Free breakfast x2', date:'2025-07-11', status:'used' },
-  { id:3, member:'Arjun Mehta', points:300, value:'Spa session discount', date:'2025-07-13', status:'pending' },
-];
+const REDEMPTIONS = [];
 
 const tierColor = { Platinum:'#E5E4E2', Gold:'#C9A84C', Silver:'#C0C0C0', Bronze:'#CD7F32' };
 const TABS = ['Members', 'Tiers & Benefits', 'Referrals', 'Redeem History'];
@@ -45,7 +25,7 @@ const LoyaltyPage = () => {
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 16, marginBottom: 24 }}>
         <StatCard title="Total Members" value={MEMBERS.length} icon="loyalty" color="var(--gold)" />
         <StatCard title="Platinum Members" value={MEMBERS.filter(m=>m.tier==='Platinum').length} icon="crown" color="var(--violet)" />
-        <StatCard title="Points Issued" value="15,640" icon="star" color="var(--teal)" />
+        <StatCard title="Points Issued" value="-" icon="star" color="var(--teal)" />
         <StatCard title="Referrals" value={REFERRALS.length} icon="users" color="var(--green)" />
       </div>
       <div style={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: 'var(--radius-lg)', padding: 24 }}>

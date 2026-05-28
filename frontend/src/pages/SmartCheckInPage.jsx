@@ -9,7 +9,7 @@ const QRTab = () => {
   const [bookingId, setBookingId] = useState('');
   const [found, setFound] = useState(null);
   const [checkedIn, setCheckedIn] = useState(false);
-  const BOOKINGS = { 'BK-1003': { guest: 'Kavya Nair', room: '203 – Deluxe Queen', checkIn: '2025-07-12', checkOut: '2025-07-16' }, 'BK-1007': { guest: 'Riya Desai', room: '102 – Standard Twin', checkIn: '2025-07-15', checkOut: '2025-07-17' } };
+  const BOOKINGS = {};
   const lookup = () => { setFound(BOOKINGS[bookingId.toUpperCase()] || 'not_found'); setCheckedIn(false); };
   const cells = Array.from({ length: 100 }, (_, i) => Math.random() > 0.5);
   return (
@@ -53,7 +53,7 @@ const IDScanTab = () => {
   const [scanning, setScanning] = useState(false);
   const [filled, setFilled] = useState(false);
   const [form, setForm] = useState({ name: '', idNumber: '', dob: '', type: 'aadhaar' });
-  const simulate = () => { setScanning(true); setTimeout(() => { setForm({ name: 'Arjun Mehta', idNumber: '4521 8734 9012', dob: '1990-05-14', type: 'aadhaar' }); setScanning(false); setFilled(true); }, 2000); };
+  const simulate = () => { setScanning(true); setTimeout(() => { setScanning(false); setFilled(true); }, 2000); };
   return (
     <div style={{ maxWidth: 480 }}>
       <div style={{ display: 'flex', gap: 12, marginBottom: 20 }}>
@@ -85,7 +85,7 @@ const FaceTab = () => {
         {status === 'capturing' && <div style={{ position: 'absolute', inset: -4, borderRadius: '50%', border: '4px solid var(--gold)', animation: 'pulse 1s infinite', opacity: 0.5 }} />}
       </div>
       <div style={{ fontSize: 14, color: status === 'verified' ? 'var(--green)' : 'var(--text2)' }}>
-        {status === 'idle' ? 'Position face within the frame' : status === 'capturing' ? 'Capturing...' : '✓ Face Verified — Match: 98.4%'}
+        {status === 'idle' ? 'Position face within the frame' : status === 'capturing' ? 'Capturing...' : '✓ Face Verified'}
       </div>
       <div style={{ display: 'flex', gap: 12 }}>
         <button onClick={() => { setStatus('capturing'); setTimeout(() => setStatus('verified'), 2000); }} disabled={status === 'capturing'} style={{ background: 'linear-gradient(135deg,#C9A84C,#8A6F2E)', border: 'none', borderRadius: 8, padding: '10px 24px', color: '#fff', cursor: 'pointer', fontFamily: 'Inter, sans-serif', fontWeight: 600 }}>Capture</button>
@@ -119,10 +119,10 @@ const SmartCheckInPage = () => {
   return (
     <div style={{ flex: 1, overflowY: 'auto', padding: 24 }}>
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 16, marginBottom: 24 }}>
-        <StatCard title="Today's Check-ins" value="4" icon="check" color="var(--green)" />
-        <StatCard title="Pending" value="2" icon="calendar" color="var(--amber)" />
-        <StatCard title="QR Used" value="3" icon="qr" color="var(--teal)" />
-        <StatCard title="Avg Time" value="2.4 min" icon="refresh" color="var(--violet)" />
+        <StatCard title="Today's Check-ins" value="-" icon="check" color="var(--green)" />
+        <StatCard title="Pending" value="-" icon="calendar" color="var(--amber)" />
+        <StatCard title="QR Used" value="-" icon="qr" color="var(--teal)" />
+        <StatCard title="Avg Time" value="-" icon="refresh" color="var(--violet)" />
       </div>
       <div style={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: 'var(--radius-lg)', padding: 24 }}>
         <div style={{ display: 'flex', gap: 4, marginBottom: 24, background: 'var(--surface)', borderRadius: 10, padding: 4 }}>

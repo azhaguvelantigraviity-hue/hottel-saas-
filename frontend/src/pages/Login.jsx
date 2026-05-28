@@ -1,95 +1,309 @@
 import React, { useState } from 'react';
-import Icon from '../components/Icon';
 
 const DEMO_ACCOUNTS = {
-  admin: [{ email: 'admin@stayos.in', pass: 'demo123', label: 'Platform Admin', plan: null, role: 'admin' }],
-  hotel: [
-    { email: 'gm@grandmeridian.com', pass: 'demo123', label: 'The Grand Meridian (Manager)', plan: 'enterprise', role: 'manager' },
-    { email: 'desk@grandmeridian.com', pass: 'demo123', label: 'The Grand Meridian (Receptionist)', plan: 'enterprise', role: 'receptionist' },
-    { email: 'ops@azuregoa.com', pass: 'demo123', label: 'Azure Boutique Hotel (Manager)', plan: 'professional', role: 'manager' },
-    { email: 'frontdesk@hilltopinn.com', pass: 'demo123', label: 'Hilltop Heritage Inn (Receptionist)', plan: 'starter', role: 'receptionist' },
-  ],
+  admin: [],
+  hotel: [],
 };
 
 const Login = ({ type, onSuccess, onBack }) => {
-  const defaults = DEMO_ACCOUNTS[type][0];
-  const [email, setEmail] = useState(defaults.email);
-  const [pass, setPass] = useState(defaults.pass);
-  const [loading, setLoading] = useState(false);
-  const [selectedPlan, setSelectedPlan] = useState(defaults.plan);
-  const [selectedRole, setSelectedRole] = useState(defaults.role);
+  const defaults = DEMO_ACCOUNTS[type][0] || {};
+  const [email,        setEmail]        = useState(defaults.email || '');
+  const [pass,         setPass]         = useState(defaults.pass || '');
+  const [loading,      setLoading]      = useState(false);
+  const [selectedPlan, setSelectedPlan] = useState(defaults.plan || null);
+  const [selectedRole, setSelectedRole] = useState(defaults.role || '');
+  const [selectedKey,  setSelectedKey]  = useState(defaults.email || '');
+  const [showPass,     setShowPass]     = useState(false);
 
   const handleAccountSelect = (acc) => {
     setEmail(acc.email);
     setPass(acc.pass);
     setSelectedPlan(acc.plan);
     setSelectedRole(acc.role);
+    setSelectedKey(acc.email);
   };
 
   const handleLogin = () => {
+    if (!email || !pass) return;
     setLoading(true);
     setTimeout(() => {
       setLoading(false);
       onSuccess(selectedPlan, selectedRole);
-    }, 800);
+    }, 900);
   };
 
-  const inputStyle = {
-    width: '100%', padding: '12px 14px', background: 'var(--surface)', border: '1px solid var(--border)',
-    borderRadius: '8px', color: 'var(--text)', fontSize: '14px', outline: 'none', fontFamily: 'Inter, sans-serif',
+  const inp = {
+    width: '100%',
+    padding: '11px 14px',
+    background: 'var(--bg)',
+    border: '1px solid var(--border)',
+    borderRadius: '8px',
+    color: 'var(--text)',
+    fontSize: '14px',
+    outline: 'none',
+    transition: 'border-color 0.15s',
+  };
+
+  const lbl = {
+    fontSize: '11px',
+    color: 'var(--text3)',
+    fontWeight: '600',
+    letterSpacing: '0.07em',
+    display: 'block',
+    marginBottom: '6px',
+    textTransform: 'uppercase',
   };
 
   return (
-    <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--obsidian)', position: 'relative' }}>
-      <div style={{ position: 'absolute', inset: 0, background: 'radial-gradient(ellipse 40% 60% at 50% 50%, rgba(201,168,76,0.05), transparent)', pointerEvents: 'none' }} />
-      <div style={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: 'var(--radius-lg)', padding: '48px', width: '100%', maxWidth: '440px', position: 'relative' }}>
-        <button onClick={onBack} style={{ position: 'absolute', top: '20px', left: '20px', background: 'none', border: 'none', color: 'var(--text3)', cursor: 'pointer', fontSize: '13px', display: 'flex', alignItems: 'center', gap: '4px', fontFamily: 'Inter, sans-serif' }}>
+    <div style={{
+      minHeight: '100vh',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      background: 'var(--bg)',
+      padding: '20px',
+    }}>
+      {/* Card */}
+      <div style={{
+        background: 'var(--surface)',
+        border: '1px solid var(--border)',
+        borderRadius: '16px',
+        padding: '40px',
+        width: '100%',
+        maxWidth: '460px',
+        boxShadow: 'var(--shadow)',
+        position: 'relative',
+      }}>
+        {/* Back */}
+        <button
+          onClick={onBack}
+          style={{
+            position: 'absolute', top: '18px', left: '18px',
+            background: 'none', border: 'none', cursor: 'pointer',
+            fontSize: '13px', color: 'var(--text3)',
+            display: 'flex', alignItems: 'center', gap: '4px',
+            padding: '4px 8px', borderRadius: '6px',
+            transition: 'background 0.15s',
+          }}
+          onMouseEnter={e => e.currentTarget.style.background = 'var(--bg)'}
+          onMouseLeave={e => e.currentTarget.style.background = 'none'}
+        >
           ← Back
         </button>
 
-        <div style={{ textAlign: 'center', marginBottom: '28px' }}>
-          <div style={{ width: '52px', height: '52px', background: 'linear-gradient(135deg,#C9A84C,#8A6F2E)', borderRadius: '14px', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px' }}>
-            <Icon name={type === 'admin' ? 'shield' : 'hotel'} size={24} color="#fff" />
+        {/* Header */}
+        <div style={{ textAlign: 'center', marginBottom: '28px', paddingTop: '8px' }}>
+          <div style={{
+            width: '56px', height: '56px',
+            background: 'linear-gradient(135deg, #6366F1, #4F46E5)',
+            borderRadius: '14px',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            margin: '0 auto 14px',
+            boxShadow: '0 4px 16px rgba(99,102,241,0.35)',
+            fontSize: '24px',
+          }}>
+            {type === 'admin' ? '🛡️' : '🏨'}
           </div>
-          <h2 style={{ fontFamily: 'Poppins,sans-serif', fontSize: '26px', marginBottom: '6px' }}>
+          <h2 style={{
+            fontSize: '22px', fontWeight: '700',
+            color: 'var(--text)', marginBottom: '4px',
+            letterSpacing: '-0.02em',
+          }}>
             {type === 'admin' ? 'Admin Portal' : 'Hotel Login'}
           </h2>
-          <p style={{ color: 'var(--text3)', fontSize: '14px' }}>
-            {type === 'admin' ? 'StayOS Platform Administration' : 'Sub-Admin Dashboard Access'}
+          <p style={{ color: 'var(--text3)', fontSize: '13px' }}>
+            {type === 'admin'
+              ? 'StayOS Platform Administration'
+              : 'Sign in to your hotel account'}
           </p>
         </div>
 
-        {/* Demo account switcher for hotel */}
-        {type === 'hotel' && (
-          <div style={{ marginBottom: '20px' }}>
-            <div style={{ fontSize: '11px', color: 'var(--text3)', fontWeight: '600', letterSpacing: '0.06em', marginBottom: '8px' }}>DEMO ACCOUNTS</div>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-              {DEMO_ACCOUNTS.hotel.map(acc => (
-                <button key={acc.email} onClick={() => handleAccountSelect(acc)} style={{ padding: '10px 12px', background: email === acc.email ? 'rgba(201,168,76,0.12)' : 'var(--surface)', border: `1px solid ${email === acc.email ? 'var(--gold)' : 'var(--border)'}`, borderRadius: '8px', color: email === acc.email ? 'var(--gold)' : 'var(--text2)', cursor: 'pointer', fontSize: '12px', fontWeight: '600', textAlign: 'left', fontFamily: 'Inter, sans-serif', transition: 'all 0.15s' }}>
-                  {acc.label}
-                </button>
-              ))}
-            </div>
-          </div>
-        )}
+        {/* Demo account selector */}
+        <div style={{ marginBottom: '22px' }}>
+          {DEMO_ACCOUNTS[type].length > 0 && <div style={lbl}>
+            {type === 'admin' ? 'ACCOUNT' : 'DEMO ACCOUNTS'}
+          </div>}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+            {DEMO_ACCOUNTS[type].map(acc => {
+              const isSelected = selectedKey === acc.email;
+              return (
+                <button
+                  key={acc.email}
+                  onClick={() => handleAccountSelect(acc)}
+                  style={{
+                    padding: '11px 14px',
+                    background: isSelected ? 'var(--primary-bg)' : 'var(--bg)',
+                    border: `1.5px solid ${isSelected ? 'var(--primary)' : 'var(--border)'}`,
+                    borderRadius: '10px',
+                    cursor: 'pointer',
+                    textAlign: 'left',
+                    transition: 'all 0.15s',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '12px',
+                  }}
+                  onMouseEnter={e => { if (!isSelected) e.currentTarget.style.borderColor = 'var(--border2)'; }}
+                  onMouseLeave={e => { if (!isSelected) e.currentTarget.style.borderColor = 'var(--border)'; }}
+                >
+                  {/* Icon */}
+                  <div style={{
+                    width: '36px', height: '36px', borderRadius: '8px', flexShrink: 0,
+                    background: isSelected ? 'rgba(99,102,241,0.12)' : 'var(--card2)',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    fontSize: '18px',
+                  }}>
+                    {acc.icon}
+                  </div>
 
+                  {/* Text */}
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{
+                      fontSize: '13px', fontWeight: '600',
+                      color: isSelected ? 'var(--primary)' : 'var(--text)',
+                      marginBottom: '1px',
+                    }}>
+                      {acc.label}
+                    </div>
+                    <div style={{ fontSize: '11px', color: 'var(--text3)' }}>
+                      {acc.sublabel}
+                    </div>
+                  </div>
+
+                  {/* Plan badge */}
+                  {acc.badge && (
+                    <span style={{
+                      padding: '2px 8px', borderRadius: '20px', fontSize: '10px',
+                      fontWeight: '700', flexShrink: 0,
+                      background: `${acc.badgeColor}18`,
+                      color: acc.badgeColor,
+                      border: `1px solid ${acc.badgeColor}30`,
+                    }}>
+                      {acc.badge}
+                    </span>
+                  )}
+
+                  {/* Selected indicator */}
+                  {isSelected && (
+                    <div style={{
+                      width: '18px', height: '18px', borderRadius: '50%',
+                      background: 'var(--primary)', flexShrink: 0,
+                      display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    }}>
+                      <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="3">
+                        <polyline points="20,6 9,17 4,12" />
+                      </svg>
+                    </div>
+                  )}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Divider */}
+        {DEMO_ACCOUNTS[type].length > 0 && <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '20px' }}>
+          <div style={{ flex: 1, height: '1px', background: 'var(--border)' }} />
+          <span style={{ fontSize: '11px', color: 'var(--text4)', fontWeight: '500' }}>OR ENTER MANUALLY</span>
+          <div style={{ flex: 1, height: '1px', background: 'var(--border)' }} />
+        </div>}
+
+        {/* Form */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
           <div>
-            <label style={{ fontSize: '12px', color: 'var(--text3)', fontWeight: '600', letterSpacing: '0.06em', display: 'block', marginBottom: '6px' }}>EMAIL</label>
-            <input value={email} onChange={e => setEmail(e.target.value)} style={inputStyle} />
+            <label style={lbl}>EMAIL</label>
+            <input
+              value={email}
+              onChange={e => setEmail(e.target.value)}
+              placeholder="Enter email address"
+              style={inp}
+              onFocus={e => e.target.style.borderColor = 'var(--primary)'}
+              onBlur={e => e.target.style.borderColor = 'var(--border)'}
+            />
           </div>
+
           <div>
-            <label style={{ fontSize: '12px', color: 'var(--text3)', fontWeight: '600', letterSpacing: '0.06em', display: 'block', marginBottom: '6px' }}>PASSWORD</label>
-            <input type="password" value={pass} onChange={e => setPass(e.target.value)} style={inputStyle} />
+            <label style={lbl}>PASSWORD</label>
+            <div style={{ position: 'relative' }}>
+              <input
+                type={showPass ? 'text' : 'password'}
+                value={pass}
+                onChange={e => setPass(e.target.value)}
+                placeholder="Enter password"
+                style={{ ...inp, paddingRight: '44px' }}
+                onFocus={e => e.target.style.borderColor = 'var(--primary)'}
+                onBlur={e => e.target.style.borderColor = 'var(--border)'}
+                onKeyDown={e => e.key === 'Enter' && handleLogin()}
+              />
+              <button
+                type="button"
+                onClick={() => setShowPass(v => !v)}
+                style={{
+                  position: 'absolute', right: '12px', top: '50%',
+                  transform: 'translateY(-50%)',
+                  background: 'none', border: 'none', cursor: 'pointer',
+                  color: 'var(--text4)', fontSize: '13px', padding: '2px',
+                }}
+              >
+                {showPass ? '🙈' : '👁️'}
+              </button>
+            </div>
           </div>
-          <button onClick={handleLogin} disabled={loading} style={{ padding: '13px', background: 'linear-gradient(135deg,#C9A84C,#8A6F2E)', border: 'none', borderRadius: '8px', color: '#fff', cursor: 'pointer', fontSize: '15px', fontWeight: '600', fontFamily: 'Inter, sans-serif', marginTop: '6px', opacity: loading ? 0.7 : 1 }}>
-            {loading ? 'Signing in…' : 'Sign In'}
+
+          <button
+            onClick={handleLogin}
+            disabled={loading || !email || !pass}
+            style={{
+              padding: '13px',
+              background: loading || !email || !pass
+                ? 'var(--border2)'
+                : 'linear-gradient(135deg, #6366F1, #4F46E5)',
+              border: 'none',
+              borderRadius: '10px',
+              color: loading || !email || !pass ? 'var(--text4)' : '#fff',
+              cursor: loading || !email || !pass ? 'not-allowed' : 'pointer',
+              fontSize: '15px',
+              fontWeight: '600',
+              marginTop: '4px',
+              transition: 'all 0.2s',
+              boxShadow: loading || !email || !pass ? 'none' : '0 4px 14px rgba(99,102,241,0.35)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '8px',
+            }}
+          >
+            {loading ? (
+              <>
+                <div style={{
+                  width: '16px', height: '16px', borderRadius: '50%',
+                  border: '2px solid rgba(255,255,255,0.3)',
+                  borderTopColor: '#fff',
+                  animation: 'spin 0.7s linear infinite',
+                }} />
+                Signing in…
+              </>
+            ) : (
+              'Sign In'
+            )}
           </button>
         </div>
-        <p style={{ textAlign: 'center', marginTop: '16px', fontSize: '12px', color: 'var(--text3)' }}>
-          Demo credentials pre-filled — just click Sign In
+
+        {/* Footer note */}
+        <p style={{
+          textAlign: 'center', marginTop: '16px',
+          fontSize: '12px', color: 'var(--text4)',
+          lineHeight: 1.5,
+        }}>
+          Enter your credentials to sign in
         </p>
       </div>
+
+      {/* Spinner keyframe */}
+      <style>{`
+        @keyframes spin {
+          to { transform: rotate(360deg); }
+        }
+      `}</style>
     </div>
   );
 };

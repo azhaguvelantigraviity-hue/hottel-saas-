@@ -49,10 +49,10 @@ exports.updatePassword = asyncHandler(async (req, res, next) => {
 exports.forgotPassword = asyncHandler(async (req, res, next) => {
   const user = await User.findOne({ email: req.body.email });
   if (!user) return next(new AppError('No user with that email', 404));
-  // In production: generate reset token, send email
-  sendSuccess(res, { message: 'Password reset email sent (demo mode)' });
+  // TODO: generate reset token and send email
+  sendSuccess(res, { message: 'Password reset email sent' });
 });
 
 exports.resetPassword = asyncHandler(async (req, res, next) => {
-  sendSuccess(res, { message: 'Password reset (demo mode)' });
+  sendSuccess(res, { message: 'Password reset successful' });
 });

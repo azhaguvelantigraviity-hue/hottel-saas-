@@ -5,14 +5,7 @@ import { CHANNEL_DATA, REVENUE_DATA } from '../data/mockData';
 
 const ChannelManagerPage = () => {
   const [channels, setChannels] = useState(CHANNEL_DATA.map(c => ({ ...c, connected: true, lastSync: '2 min ago' })));
-  const [rates, setRates] = useState([
-    { type: 'Standard Twin', base: 2800, booking: 2800, expedia: 2800, agoda: 2800 },
-    { type: 'Deluxe King', base: 4200, booking: 4200, expedia: 4200, agoda: 4200 },
-    { type: 'Deluxe Queen', base: 3600, booking: 3600, expedia: 3600, agoda: 3600 },
-    { type: 'Suite', base: 8500, booking: 8500, expedia: 8500, agoda: 8500 },
-    { type: 'Premium Suite', base: 12000, booking: 12000, expedia: 12000, agoda: 12000 },
-    { type: 'Presidential Suite', base: 28000, booking: 28000, expedia: 28000, agoda: 28000 },
-  ]);
+  const [rates, setRates] = useState([]);
   const [activeTab, setActiveTab] = useState('overview');
 
   const totalRevenue = channels.reduce((s, c) => s + c.revenue, 0);
@@ -43,7 +36,7 @@ const ChannelManagerPage = () => {
             {/* Summary Stats */}
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: '16px', marginBottom: '28px' }}>
               {[
-                { label: 'Total Bookings (Jul)', value: totalBookings, color: 'var(--gold)', sub: 'All channels' },
+                { label: 'Total Bookings', value: totalBookings, color: 'var(--gold)', sub: 'All channels' },
                 { label: 'Gross Revenue', value: `₹${(totalRevenue / 1000).toFixed(0)}K`, color: 'var(--green)', sub: 'Before commission' },
                 { label: 'Commission Paid', value: `₹${(totalCommission / 1000).toFixed(1)}K`, color: 'var(--rose)', sub: 'OTA fees' },
               ].map(s => (
@@ -91,7 +84,7 @@ const ChannelManagerPage = () => {
               <div style={{ fontSize: '15px', fontWeight: '700', marginBottom: '20px' }}>Monthly Booking Trend</div>
               <div style={{ height: '160px', display: 'flex', alignItems: 'flex-end', gap: '12px' }}>
                 {REVENUE_DATA.map((d, i) => {
-                  const max = 214;
+                  const max = Math.max(...REVENUE_DATA.map(d => d.bookings), 1);
                   return (
                     <div key={i} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px' }}>
                       <div style={{ fontSize: '10px', color: 'var(--text3)' }}>{d.bookings}</div>
@@ -159,7 +152,7 @@ const ChannelManagerPage = () => {
               </div>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7,1fr)', gap: '4px' }}>
                 {Array.from({ length: 31 }, (_, i) => {
-                  const occ = [70, 85, 90, 60, 75, 95, 88, 72, 65, 80, 91, 78, 55, 82, 88, 92, 70, 65, 78, 85, 90, 72, 68, 80, 88, 95, 82, 70, 75, 85, 90][i];
+                  const occ = 0;
                   const color = occ > 85 ? 'var(--rose)' : occ > 70 ? 'var(--amber)' : 'var(--green)';
                   return (
                     <div key={i} style={{ background: 'var(--surface)', borderRadius: '6px', padding: '8px 4px', textAlign: 'center', border: `1px solid ${color}30` }}>

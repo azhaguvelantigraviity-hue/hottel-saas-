@@ -8,19 +8,9 @@ const RevenueAIPage = () => {
   const [dynamicPricing, setDynamicPricing] = useState(true);
   const [autoAdjust, setAutoAdjust] = useState(false);
 
-  const insights = [
-    { type: 'opportunity', icon: '📈', title: 'Weekend Surge Detected', desc: 'Occupancy forecast for Jul 19-20 is 94%. Recommend increasing rates by 15-20%.', impact: '+₹18,400', action: 'Apply Rate Increase' },
-    { type: 'warning', icon: '⚠️', title: 'Low Occupancy — Jul 22-24', desc: 'Midweek occupancy projected at 52%. Consider promotional rates or OTA flash deals.', impact: '-₹24,000 risk', action: 'Create Promotion' },
-    { type: 'info', icon: '💡', title: 'Competitor Rate Alert', desc: 'Nearby hotels have dropped rates by 8% for next week. Consider matching or differentiating.', impact: 'Neutral', action: 'View Competitors' },
-    { type: 'success', icon: '✅', title: 'Revenue Goal on Track', desc: 'July revenue is 94% of monthly target with 17 days remaining.', impact: '₹1,16,000 to go', action: 'View Forecast' },
-  ];
+  const insights = [];
 
-  const forecast = [
-    { week: 'Jul 14-20', occupancy: 88, revPAR: 3696, adr: 4200, revenue: 529920 },
-    { week: 'Jul 21-27', occupancy: 72, revPAR: 3024, adr: 4200, revenue: 433728 },
-    { week: 'Jul 28-Aug 3', occupancy: 81, revPAR: 3402, adr: 4200, revenue: 487872 },
-    { week: 'Aug 4-10', occupancy: 85, revPAR: 3570, adr: 4200, revenue: 511920 },
-  ];
+  const forecast = [];
 
   const Toggle = ({ value, onChange }) => (
     <div onClick={onChange} style={{ width: '44px', height: '24px', borderRadius: '12px', cursor: 'pointer', transition: 'background 0.2s', background: value ? 'var(--gold)' : 'var(--border)', position: 'relative', flexShrink: 0 }}>
@@ -46,10 +36,10 @@ const RevenueAIPage = () => {
           <>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: '14px', marginBottom: '28px' }}>
               {[
-                { label: 'RevPAR', value: '₹3,528', trend: '+8%', color: 'var(--gold)' },
-                { label: 'ADR', value: '₹4,200', trend: '+5%', color: 'var(--teal)' },
-                { label: 'Occupancy', value: '84%', trend: '+3%', color: 'var(--green)' },
-                { label: 'GOPPAR', value: '₹2,184', trend: '+12%', color: 'var(--violet)' },
+                { label: 'RevPAR', value: '-', trend: '-', color: 'var(--gold)' },
+                { label: 'ADR', value: '-', trend: '-', color: 'var(--teal)' },
+                { label: 'Occupancy', value: '-', trend: '-', color: 'var(--green)' },
+                { label: 'GOPPAR', value: '-', trend: '-', color: 'var(--violet)' },
               ].map(s => (
                 <div key={s.label} style={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: 'var(--radius)', padding: '16px' }}>
                   <div style={{ fontSize: '24px', fontWeight: '700', fontFamily: 'Poppins,sans-serif', color: s.color, marginBottom: '4px' }}>{s.value}</div>
@@ -67,7 +57,7 @@ const RevenueAIPage = () => {
                     <div style={{ fontSize: '14px', fontWeight: '700', marginBottom: '4px' }}>{ins.title}</div>
                     <div style={{ fontSize: '13px', color: 'var(--text2)', marginBottom: '8px' }}>{ins.desc}</div>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                      <span style={{ fontSize: '13px', fontWeight: '700', fontFamily: 'DM Mono,monospace', color: ins.type === 'warning' ? 'var(--rose)' : 'var(--green)' }}>{ins.impact}</span>
+                      <span style={{ fontSize: '13px', fontWeight: '700', fontFamily: 'DM Mono,monospace', color: ins.type === 'warning' ? 'var(--rose)' : 'var(--green)' }}>{ins.impact || '-'}</span>
                       <button style={{ padding: '5px 12px', background: 'rgba(201,168,76,0.15)', border: '1px solid rgba(201,168,76,0.3)', borderRadius: '6px', color: 'var(--gold)', cursor: 'pointer', fontSize: '12px', fontWeight: '600', fontFamily: 'Inter, sans-serif' }}>{ins.action}</button>
                     </div>
                   </div>
@@ -83,7 +73,7 @@ const RevenueAIPage = () => {
               <div style={{ fontSize: '15px', fontWeight: '700', marginBottom: '20px' }}>4-Week Revenue Forecast</div>
               <div style={{ height: '180px', display: 'flex', alignItems: 'flex-end', gap: '16px' }}>
                 {forecast.map((f, i) => {
-                  const max = 530000;
+                  const max = Math.max(...forecast.map(f => f.revenue), 1);
                   return (
                     <div key={i} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px' }}>
                       <div style={{ fontSize: '11px', color: 'var(--text3)', fontFamily: 'DM Mono,monospace' }}>₹{(f.revenue / 1000).toFixed(0)}K</div>
@@ -130,12 +120,7 @@ const RevenueAIPage = () => {
 
             <div style={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: 'var(--radius)', padding: '24px' }}>
               <div style={{ fontSize: '15px', fontWeight: '700', marginBottom: '16px' }}>AI Rate Recommendations</div>
-              {[
-                { room: 'Deluxe King', current: 4200, recommended: 4830, reason: 'High demand weekend', change: '+15%' },
-                { room: 'Suite', current: 8500, recommended: 9350, reason: 'Low availability', change: '+10%' },
-                { room: 'Standard Twin', current: 2800, recommended: 2520, reason: 'Midweek low demand', change: '-10%' },
-                { room: 'Presidential Suite', current: 28000, recommended: 32200, reason: 'Peak season', change: '+15%' },
-              ].map(r => (
+              {[].map(r => (
                 <div key={r.room} style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px 0', borderBottom: '1px solid var(--border)' }}>
                   <div style={{ flex: 1 }}>
                     <div style={{ fontSize: '13px', fontWeight: '600' }}>{r.room}</div>
@@ -156,7 +141,7 @@ const RevenueAIPage = () => {
           <div>
             <div style={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: 'var(--radius)', padding: '24px', marginBottom: '20px' }}>
               <div style={{ fontSize: '15px', fontWeight: '700', marginBottom: '4px' }}>Competitor Rate Intelligence</div>
-              <div style={{ fontSize: '12px', color: 'var(--text3)', marginBottom: '20px' }}>Mumbai market · Updated 1 hour ago</div>
+              <div style={{ fontSize: '12px', color: 'var(--text3)', marginBottom: '20px' }}>Market data</div>
               <table style={{ width: '100%', borderCollapse: 'collapse' }}>
                 <thead>
                   <tr style={{ borderBottom: '1px solid var(--border)' }}>
@@ -166,13 +151,7 @@ const RevenueAIPage = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {[
-                    { name: 'The Grand Meridian (Us)', stars: 5, std: 2800, deluxe: 4200, suite: 8500, occ: 84, diff: 0 },
-                    { name: 'Taj Lands End', stars: 5, std: 3200, deluxe: 4800, suite: 9500, occ: 88, diff: +14 },
-                    { name: 'JW Marriott', stars: 5, std: 3500, deluxe: 5200, suite: 11000, occ: 91, diff: +24 },
-                    { name: 'Trident Nariman', stars: 5, std: 2600, deluxe: 3900, suite: 7800, occ: 79, diff: -7 },
-                    { name: 'ITC Grand Central', stars: 5, std: 2900, deluxe: 4400, suite: 8800, occ: 82, diff: +5 },
-                  ].map((h, i) => (
+                  {[].map((h, i) => (
                     <tr key={i} style={{ borderBottom: '1px solid var(--border)', background: i === 0 ? 'rgba(201,168,76,0.05)' : 'transparent' }}>
                       <td style={{ padding: '12px', fontSize: '13px', fontWeight: i === 0 ? '700' : '400', color: i === 0 ? 'var(--gold)' : 'var(--text)' }}>{h.name}</td>
                       <td style={{ padding: '12px', fontSize: '13px', color: 'var(--amber)' }}>{'★'.repeat(h.stars)}</td>

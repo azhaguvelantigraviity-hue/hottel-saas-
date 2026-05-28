@@ -10,7 +10,7 @@ const ReportsPage = () => (
         <div style={{ fontSize: '12px', color: 'var(--text3)', marginBottom: '20px' }}>Last 7 months</div>
         <div style={{ height: '180px', display: 'flex', alignItems: 'flex-end', gap: '10px' }}>
           {REVENUE_DATA.map((d, i) => {
-            const max = 124000;
+            const max = Math.max(...REVENUE_DATA.map(d => Math.max(d.revenue, d.expenses)), 1);
             return (
               <div key={i} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px' }}>
                 <div style={{ width: '100%', display: 'flex', alignItems: 'flex-end', gap: '3px', height: '160px' }}>
@@ -36,13 +36,8 @@ const ReportsPage = () => (
 
       <div style={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: 'var(--radius)', padding: '24px' }}>
         <div style={{ fontSize: '15px', fontWeight: '700', marginBottom: '4px' }}>Booking Sources</div>
-        <div style={{ fontSize: '12px', color: 'var(--text3)', marginBottom: '20px' }}>July 2025</div>
-        {[
-          { label: 'Direct', count: 38, pct: 45, color: 'var(--gold)' },
-          { label: 'Booking.com', count: 22, pct: 26, color: 'var(--teal)' },
-          { label: 'Expedia', count: 14, pct: 17, color: 'var(--violet)' },
-          { label: 'Agoda', count: 10, pct: 12, color: 'var(--rose)' },
-        ].map((s) => (
+        <div style={{ fontSize: '12px', color: 'var(--text3)', marginBottom: '20px' }}>Current period</div>
+        {[].map((s) => (
           <div key={s.label} style={{ marginBottom: '14px' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '5px' }}>
               <span style={{ fontSize: '13px', color: 'var(--text2)' }}>{s.label}</span>
@@ -59,14 +54,7 @@ const ReportsPage = () => (
     </div>
 
     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(200px,1fr))', gap: '14px' }}>
-      {[
-        { title: 'Monthly P&L Report', date: 'Jul 2025', icon: 'report', color: 'var(--gold)' },
-        { title: 'Occupancy Report', date: 'Jul 2025', icon: 'bed', color: 'var(--teal)' },
-        { title: 'Staff Attendance', date: 'Jul 2025', icon: 'users', color: 'var(--violet)' },
-        { title: 'Housekeeping Log', date: 'Jul 2025', icon: 'key', color: 'var(--green)' },
-        { title: 'Maintenance Report', date: 'Jul 2025', icon: 'maintenance', color: 'var(--amber)' },
-        { title: 'Guest Feedback', date: 'Jul 2025', icon: 'crm', color: 'var(--rose)' },
-      ].map((r) => (
+      {[].map((r) => (
         <div
           key={r.title}
           style={{

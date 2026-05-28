@@ -8,7 +8,7 @@ const statusColor = { present: 'green', absent: 'rose', leave: 'amber', late: 'v
 
 const AttendancePage = () => {
   const [attendance, setAttendance] = useState(ATTENDANCE);
-  const [selectedDate, setSelectedDate] = useState('2025-07-14');
+  const [selectedDate, setSelectedDate] = useState(new Date().toISOString().slice(0, 10));
   const [activeTab, setActiveTab] = useState('today');
 
   const todayRecords = attendance.filter(a => a.date === selectedDate);
@@ -156,7 +156,7 @@ const AttendancePage = () => {
 
         {activeTab === 'monthly' && (
           <>
-            <div style={{ fontSize: '15px', fontWeight: '700', marginBottom: '20px' }}>Monthly Attendance Summary — July 2025</div>
+            <div style={{ fontSize: '15px', fontWeight: '700', marginBottom: '20px' }}>Monthly Attendance Summary</div>
             <div style={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: 'var(--radius)', overflow: 'hidden' }}>
               <table style={{ width: '100%', borderCollapse: 'collapse' }}>
                 <thead>

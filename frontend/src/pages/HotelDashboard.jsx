@@ -7,15 +7,15 @@ import { ROOMS, REVENUE_DATA, BOOKINGS } from '../data/mockData';
 const HotelDashboard = ({ plan, onNav }) => {
   const occupied = ROOMS.filter((r) => r.status === 'occupied').length;
   const available = ROOMS.filter((r) => r.status === 'available').length;
-  const occupancyPct = Math.round((occupied / ROOMS.length) * 100);
+  const occupancyPct = ROOMS.length > 0 ? Math.round((occupied / ROOMS.length) * 100) : 0;
 
   return (
     <div style={{ padding: '32px', overflowY: 'auto', flex: 1 }}>
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '16px', marginBottom: '28px' }}>
-        <StatCard icon="bed" iconColor="#2DD4BF" label="Total Rooms" value={ROOMS.length} sub={`${occupied} occupied`} trend={occupancyPct - 70} />
-        <StatCard icon="calendar" iconColor="#A78BFA" label="Today's Bookings" value="6" sub="3 check-ins" trend={20} />
-        <StatCard icon="dollar" iconColor="#C9A84C" label="Today's Revenue" value="₹54.2K" sub="vs ₹48K yesterday" trend={12} />
-        <StatCard icon="users" iconColor="#34D399" label="Staff On Duty" value="24" sub="4 departments" />
+        <StatCard icon="bed" iconColor="#2DD4BF" label="Total Rooms" value={ROOMS.length} sub={`${occupied} occupied`} trend={0} />
+        <StatCard icon="calendar" iconColor="#A78BFA" label="Today's Bookings" value="-" sub="-" trend={0} />
+        <StatCard icon="dollar" iconColor="#C9A84C" label="Today's Revenue" value="-" sub="-" trend={0} />
+        <StatCard icon="users" iconColor="#34D399" label="Staff On Duty" value="-" sub="-" />
       </div>
 
       {/* Occupancy + Quick Stats */}
@@ -36,9 +36,9 @@ const HotelDashboard = ({ plan, onNav }) => {
             ))}
           </div>
           <div style={{ height: '8px', background: 'var(--surface)', borderRadius: '4px', overflow: 'hidden', display: 'flex' }}>
-            <div style={{ height: '100%', width: `${(occupied / ROOMS.length) * 100}%`, background: 'var(--gold)' }} />
-            <div style={{ height: '100%', width: `${(available / ROOMS.length) * 100}%`, background: 'var(--green)' }} />
-            <div style={{ height: '100%', width: `${(ROOMS.filter((r) => r.status === 'reserved').length / ROOMS.length) * 100}%`, background: 'var(--violet)' }} />
+            <div style={{ height: '100%', width: `${ROOMS.length > 0 ? (occupied / ROOMS.length) * 100 : 0}%`, background: 'var(--gold)' }} />
+            <div style={{ height: '100%', width: `${ROOMS.length > 0 ? (available / ROOMS.length) * 100 : 0}%`, background: 'var(--green)' }} />
+            <div style={{ height: '100%', width: `${ROOMS.length > 0 ? (ROOMS.filter((r) => r.status === 'reserved').length / ROOMS.length) * 100 : 0}%`, background: 'var(--violet)' }} />
           </div>
           <div style={{ fontSize: '12px', color: 'var(--text3)', marginTop: '8px', textAlign: 'center' }}>{occupancyPct}% occupancy rate</div>
         </div>
@@ -47,7 +47,7 @@ const HotelDashboard = ({ plan, onNav }) => {
           <div style={{ fontSize: '15px', fontWeight: '700', marginBottom: '16px' }}>Revenue (7 days)</div>
           <div style={{ height: '120px', display: 'flex', alignItems: 'flex-end', gap: '8px' }}>
             {REVENUE_DATA.slice(-7).map((d, i) => {
-              const max = 124000;
+              const max = Math.max(...REVENUE_DATA.slice(-7).map(d => d.revenue), 1);
               const pct = d.revenue / max;
               return (
                 <div key={i} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px' }}>

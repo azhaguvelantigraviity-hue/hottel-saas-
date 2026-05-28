@@ -1,32 +1,15 @@
 import React, { useState, useEffect, useRef } from 'react';
 import Icon from '../components/Icon';
 
-const BOT_RESPONSES = {
-  'room availability': 'We currently have Standard Twin, Deluxe King, and Suite rooms available. Check-in is available from today. Would you like me to check specific dates?',
-  'check-in': 'Check-in time is 2:00 PM. Early check-in from 10:00 AM is available for ₹500 extra, subject to availability. Late check-out until 12:00 PM is complimentary for Gold+ loyalty members.',
-  'checkout': 'Check-out time is 12:00 PM noon. Late check-out until 2:00 PM is available for ₹800. Please inform the front desk at least 2 hours in advance.',
-  'restaurant': 'Our restaurant is open: Breakfast 7:00–10:30 AM, Lunch 12:30–3:00 PM, Dinner 7:00–11:00 PM. Room service is available 24/7. Would you like to see the menu?',
-  'menu': 'Popular items: Club Sandwich ₹450, Butter Chicken ₹680, Continental Breakfast ₹850, Grilled Fish ₹780. Full menu available at the restaurant or via room service.',
-  'amenities': 'We offer: Swimming Pool (6AM–10PM), Spa & Wellness Center, Fitness Center (24/7), Business Center, Free High-Speed WiFi, Valet Parking, Concierge Service, and Airport Transfers.',
-  'wifi': 'WiFi Network: GrandMeridian_Guest | Password: Stay@2025. For premium bandwidth, ask at the front desk.',
-  'pricing': 'Room rates: Standard Twin ₹2,800/night, Deluxe King ₹4,200/night, Suite ₹8,500/night, Presidential Suite ₹28,000/night. Rates include breakfast for 2.',
-  'pet': 'We are a pet-friendly hotel! Pet charges: Small pets ₹500/night, Medium dogs ₹750/night, Large dogs ₹1,000/night. A refundable deposit of ₹2,000 is required.',
-  'default': 'Thank you for your question! Our front desk team is available 24/7 to assist you. You can also call us at +91 22 4567 8900 or email concierge@grandmeridian.com.',
-};
-
-const QUICK_REPLIES = ['Room Availability', 'Check-in Time', 'Restaurant Menu', 'Amenities', 'Pricing', 'WiFi Password', 'Pet Policy'];
+const QUICK_REPLIES = [];
 
 const getBotResponse = (msg) => {
-  const lower = msg.toLowerCase();
-  for (const [key, response] of Object.entries(BOT_RESPONSES)) {
-    if (lower.includes(key)) return response;
-  }
-  return BOT_RESPONSES.default;
+  return 'I\'ll connect you with a team member who can help.';
 };
 
 const ChatbotPage = () => {
   const [messages, setMessages] = useState([
-    { id:1, from:'bot', text:'Hello! Welcome to The Grand Meridian. I\'m your AI concierge. How can I assist you today?', time:new Date().toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'}) },
+    { id:1, from:'bot', text:'Welcome! How can I help you?', time:new Date().toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'}) },
   ]);
   const [input, setInput] = useState('');
   const [typing, setTyping] = useState(false);

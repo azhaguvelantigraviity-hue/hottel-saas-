@@ -20,7 +20,7 @@ const SettingsPage = ({ role, plan, onNav }) => (
             </div>
             <div style={{ padding: '16px 24px', background: 'var(--surface)', borderRadius: 'var(--radius)' }}>
               <div style={{ fontSize: '12px', color: 'var(--text3)', marginBottom: '4px' }}>NEXT RENEWAL</div>
-              <div style={{ fontSize: '16px', fontWeight: '600' }}>Aug 1, 2025</div>
+                <div style={{ fontSize: '16px', fontWeight: '600' }}>-</div>
             </div>
             {plan !== 'enterprise' && (
               <button

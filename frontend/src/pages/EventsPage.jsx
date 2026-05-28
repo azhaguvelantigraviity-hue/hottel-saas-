@@ -3,24 +3,11 @@ import StatCard from '../components/StatCard';
 import Icon from '../components/Icon';
 import Badge from '../components/Badge';
 
-const HALLS = [
-  { id:1, name:'Grand Ballroom', capacity:500, rate:150000, amenities:['Stage','Sound System','Projector','Catering Kitchen'], available:[true,false,true,true,false,true,true] },
-  { id:2, name:'Conference Room A', capacity:50, rate:25000, amenities:['Projector','Whiteboard','Video Conf','AC'], available:[true,true,false,true,true,true,false] },
-  { id:3, name:'Board Room', capacity:20, rate:12000, amenities:['Smart TV','Video Conf','Whiteboard'], available:[false,true,true,true,true,false,true] },
-  { id:4, name:'Lawn Garden', capacity:300, rate:80000, amenities:['Outdoor Lighting','Tent Setup','Sound System'], available:[true,true,true,false,true,true,true] },
-];
+const HALLS = [];
 
-const BOOKINGS = [
-  { id:'EV-001', event:'Wedding Reception', hall:'Grand Ballroom', date:'2025-07-20', client:'Sharma Family', guests:350, catering:'Premium', amount:875000, status:'confirmed' },
-  { id:'EV-002', event:'Corporate Conference', hall:'Conference Room A', date:'2025-07-18', client:'TechCorp Ltd', guests:45, catering:'Standard', amount:67500, status:'confirmed' },
-  { id:'EV-003', event:'Birthday Party', hall:'Lawn Garden', date:'2025-07-22', client:'Mehta Family', guests:120, catering:'Standard', amount:180000, status:'pending' },
-];
+const BOOKINGS = [];
 
-const CATERING = [
-  { name:'Basic', price:800, items:['Welcome Drink','Veg Starters x3','Main Course x4','Dessert x2','Soft Drinks'] },
-  { name:'Standard', price:1500, items:['Welcome Cocktail','Veg & Non-Veg Starters x5','Main Course x6','Live Counter x1','Dessert x4','Soft Drinks & Juices'] },
-  { name:'Premium', price:2500, items:['Champagne Welcome','Starters x8','Live Counters x3','Main Course x10','International Desserts x6','Open Bar','Personalized Cake'] },
-];
+const CATERING = [];
 
 const TABS = ['Halls', 'Bookings', 'Catering', 'New Booking'];
 const DAYS = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
@@ -38,8 +25,8 @@ const EventsPage = () => {
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 16, marginBottom: 24 }}>
         <StatCard title="Total Halls" value={HALLS.length} icon="events" color="var(--violet)" />
         <StatCard title="Bookings This Month" value={BOOKINGS.length} icon="calendar" color="var(--gold)" />
-        <StatCard title="Revenue" value="₹11.2L" icon="dollar" color="var(--green)" />
-        <StatCard title="Upcoming Events" value="3" icon="trending" color="var(--teal)" />
+        <StatCard title="Revenue" value="-" icon="dollar" color="var(--green)" />
+        <StatCard title="Upcoming Events" value="-" icon="trending" color="var(--teal)" />
       </div>
       <div style={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: 'var(--radius-lg)', padding: 24 }}>
         <div style={{ display: 'flex', gap: 4, marginBottom: 24, background: 'var(--surface)', borderRadius: 10, padding: 4 }}>

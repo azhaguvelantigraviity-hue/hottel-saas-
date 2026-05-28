@@ -6,17 +6,17 @@ import Icon from '../components/Icon';
 import { HOTELS, PLANS, ADMIN_REVENUE } from '../data/mockData';
 
 const AdminDashboard = ({ onNav }) => {
-  const totalMRR = 44600;
-  const totalHotels = 56;
-  const planBreakdown = { starter: 18, professional: 27, enterprise: 11 };
+  const totalMRR = 0;
+  const totalHotels = 0;
+  const planBreakdown = { starter: 0, professional: 0, enterprise: 0 };
 
   return (
     <div style={{ padding: '32px', overflowY: 'auto', flex: 1 }}>
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '16px', marginBottom: '28px' }}>
-        <StatCard icon="hotel" iconColor="#C9A84C" label="Total Hotels" value={totalHotels} sub="4 new this month" trend={8} />
-        <StatCard icon="dollar" iconColor="#2DD4BF" label="Monthly Revenue" value={`₹${(totalMRR / 1000).toFixed(0)}K`} sub="Platform MRR" trend={12} />
-        <StatCard icon="trending" iconColor="#A78BFA" label="Active Subs" value="51" sub="5 on trial" trend={6} />
-        <StatCard icon="users" iconColor="#FB7185" label="Total Rooms" value="4,820" sub="Across all hotels" trend={3} />
+        <StatCard icon="hotel" iconColor="#C9A84C" label="Total Hotels" value={totalHotels} sub="-" trend={0} />
+        <StatCard icon="dollar" iconColor="#2DD4BF" label="Monthly Revenue" value={`₹${(totalMRR / 1000).toFixed(0)}K`} sub="Platform MRR" trend={0} />
+        <StatCard icon="trending" iconColor="#A78BFA" label="Active Subs" value="-" sub="-" trend={0} />
+        <StatCard icon="users" iconColor="#FB7185" label="Total Rooms" value="-" sub="-" trend={0} />
       </div>
 
       {/* Charts Row */}
@@ -31,7 +31,7 @@ const AdminDashboard = ({ onNav }) => {
           </div>
           <div style={{ height: '200px', display: 'flex', alignItems: 'flex-end', gap: '12px', paddingBottom: '10px' }}>
             {ADMIN_REVENUE.map((d, i) => {
-              const max = 44600;
+              const max = Math.max(...ADMIN_REVENUE.map(d => d.mrr), 1);
               const pct = d.mrr / max;
               return (
                 <div key={i} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px' }}>
@@ -57,9 +57,9 @@ const AdminDashboard = ({ onNav }) => {
           <div style={{ fontSize: '12px', color: 'var(--text3)', marginBottom: '20px' }}>Active subscriptions</div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
             {[
-              { name: 'Enterprise', count: planBreakdown.enterprise, total: 56, color: '#C9A84C' },
-              { name: 'Professional', count: planBreakdown.professional, total: 56, color: '#2DD4BF' },
-              { name: 'Starter', count: planBreakdown.starter, total: 56, color: '#6E6A62' },
+{ name: 'Enterprise', count: planBreakdown.enterprise, total: totalHotels, color: '#C9A84C' },
+{ name: 'Professional', count: planBreakdown.professional, total: totalHotels, color: '#2DD4BF' },
+{ name: 'Starter', count: planBreakdown.starter, total: totalHotels, color: '#6E6A62' },
             ].map((p) => (
               <div key={p.name}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px' }}>
@@ -74,7 +74,7 @@ const AdminDashboard = ({ onNav }) => {
           </div>
           <div style={{ marginTop: '20px', padding: '12px', background: 'var(--surface)', borderRadius: '8px' }}>
             <div style={{ fontSize: '12px', color: 'var(--text3)', marginBottom: '4px' }}>Upgrade Opportunities</div>
-            <div style={{ fontSize: '22px', fontWeight: '700', color: 'var(--gold)', fontFamily: 'Poppins,sans-serif' }}>18</div>
+            <div style={{ fontSize: '22px', fontWeight: '700', color: 'var(--gold)', fontFamily: 'Poppins,sans-serif' }}>0</div>
             <div style={{ fontSize: '11px', color: 'var(--text3)' }}>Starter hotels eligible to upgrade</div>
           </div>
         </div>

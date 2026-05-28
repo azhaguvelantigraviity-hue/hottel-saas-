@@ -114,9 +114,9 @@ const HotelApp = ({ onLogout, initialPlan = 'enterprise', role = 'manager' }) =>
   };
 
   const subtitles = {
-    starter: 'Hilltop Heritage Inn — Starter Plan',
-    professional: 'Azure Boutique Hotel — Professional Plan',
-    enterprise: 'The Grand Meridian — Enterprise Plan',
+    starter: 'Starter Plan',
+    professional: 'Professional Plan',
+    enterprise: 'Enterprise Plan',
   };
 
   const getPage = () => {

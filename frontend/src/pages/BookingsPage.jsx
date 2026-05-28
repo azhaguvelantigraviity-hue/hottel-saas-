@@ -245,14 +245,7 @@ const BookingDetail = ({ booking, onClose, onAction }) => (
 );
 
 const BookingsPage = () => {
-  const [bookings, setBookings] = useState(() => {
-    const saved = localStorage.getItem('stayos_bookings');
-    return saved ? JSON.parse(saved) : BOOKINGS;
-  });
-
-  useEffect(() => {
-    localStorage.setItem('stayos_bookings', JSON.stringify(bookings));
-  }, [bookings]);
+  const [bookings, setBookings] = useState([]);
   const [filter, setFilter] = useState('all');
   const [search, setSearch] = useState('');
   const [showNew, setShowNew] = useState(false);

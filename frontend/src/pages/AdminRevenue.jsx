@@ -2,30 +2,11 @@ import React, { useState } from 'react';
 import StatCard from '../components/StatCard';
 import Badge from '../components/Badge';
 
-const REVENUE_DATA = [
-  { name: 'Jan', subscriptions: 420000, commissions: 125000 },
-  { name: 'Feb', subscriptions: 450000, commissions: 140000 },
-  { name: 'Mar', subscriptions: 485000, commissions: 165000 },
-  { name: 'Apr', subscriptions: 510000, commissions: 180000 },
-  { name: 'May', subscriptions: 540000, commissions: 210000 },
-  { name: 'Jun', subscriptions: 590000, commissions: 245000 },
-  { name: 'Jul', subscriptions: 620000, commissions: 280000 },
-];
+const REVENUE_DATA = [];
 
-const PLAN_DATA = [
-  { name: 'Enterprise', value: 450000, color: 'var(--gold)' },
-  { name: 'Professional', value: 140000, color: 'var(--teal)' },
-  { name: 'Starter', value: 30000, color: 'var(--text3)' },
-];
+const PLAN_DATA = [];
 
-const TRANSACTIONS = [
-  { id: 'TXN-9081', hotel: 'The Grand Meridian', type: 'Subscription', amount: 45000, date: '2026-05-27', status: 'completed' },
-  { id: 'TXN-9080', hotel: 'Azure Boutique', type: 'Commission', amount: 12400, date: '2026-05-27', status: 'completed' },
-  { id: 'TXN-9079', hotel: 'Coastal Pearl Resort', type: 'Subscription', amount: 45000, date: '2026-05-26', status: 'pending' },
-  { id: 'TXN-9078', hotel: 'Hilltop Heritage Inn', type: 'Subscription', amount: 15000, date: '2026-05-26', status: 'completed' },
-  { id: 'TXN-9077', hotel: 'Desert Bloom Hotel', type: 'Commission', amount: 4200, date: '2026-05-25', status: 'failed' },
-  { id: 'TXN-9076', hotel: 'Skyline Suites', type: 'Subscription', amount: 28000, date: '2026-05-25', status: 'completed' },
-];
+const TRANSACTIONS = [];
 
 const thStyle = { padding: '14px 20px', textAlign: 'left', fontSize: '11px', color: 'var(--text3)', fontWeight: '600', letterSpacing: '0.06em', textTransform: 'uppercase', borderBottom: '1px solid var(--border)', background: 'var(--surface)' };
 const tdStyle = { padding: '14px 20px', fontSize: '13px', color: 'var(--text2)', borderBottom: '1px solid var(--border)' };
@@ -113,10 +94,10 @@ const AdminRevenue = () => {
 
       {/* KPI Cards */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '16px', marginBottom: '24px' }}>
-        <StatCard title="Total MRR" value="₹9.0L" icon="dollar" color="var(--teal)" />
-        <StatCard title="Subscription Revenue" value="₹6.2L" icon="crown" color="var(--gold)" />
-        <StatCard title="Commission Revenue" value="₹2.8L" icon="chart" color="var(--violet)" />
-        <StatCard title="Avg Rev Per Hotel" value="₹45K" icon="hotel" color="var(--rose)" />
+        <StatCard title="Total MRR" value="-" icon="dollar" color="var(--teal)" />
+        <StatCard title="Subscription Revenue" value="-" icon="crown" color="var(--gold)" />
+        <StatCard title="Commission Revenue" value="-" icon="chart" color="var(--violet)" />
+        <StatCard title="Avg Rev Per Hotel" value="-" icon="hotel" color="var(--rose)" />
       </div>
 
       {/* Charts Row */}
@@ -148,15 +129,15 @@ const AdminRevenue = () => {
           <div style={{ borderTop: '1px solid var(--border)', marginTop: '16px', paddingTop: '16px' }}>
             <div style={{ fontSize: '13px', color: 'var(--text2)', marginBottom: '12px', display: 'flex', justifyContent: 'space-between' }}>
               <span>Total Active Hotels</span>
-              <span style={{ fontWeight: '600', color: 'var(--text)' }}>24</span>
+              <span style={{ fontWeight: '600', color: 'var(--text)' }}>-</span>
             </div>
             <div style={{ fontSize: '13px', color: 'var(--text2)', marginBottom: '12px', display: 'flex', justifyContent: 'space-between' }}>
               <span>Avg Churn Rate</span>
-              <span style={{ fontWeight: '600', color: 'var(--green)' }}>1.2%</span>
+              <span style={{ fontWeight: '600', color: 'var(--green)' }}>-</span>
             </div>
             <div style={{ fontSize: '13px', color: 'var(--text2)', display: 'flex', justifyContent: 'space-between' }}>
               <span>Projected Next Month</span>
-              <span style={{ fontWeight: '600', color: 'var(--gold)' }}>₹9.5L</span>
+              <span style={{ fontWeight: '600', color: 'var(--gold)' }}>-</span>
             </div>
           </div>
         </div>

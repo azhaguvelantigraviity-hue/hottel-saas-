@@ -3,33 +3,13 @@ import StatCard from '../components/StatCard';
 import Icon from '../components/Icon';
 import Badge from '../components/Badge';
 
-const CAMERAS = [
-  { id:1, location:'Main Lobby', status:'live' }, { id:2, location:'Parking Lot A', status:'live' },
-  { id:3, location:'Pool Area', status:'live' }, { id:4, location:'Restaurant Entrance', status:'offline' },
-  { id:5, location:'Floor 1 Corridor', status:'live' }, { id:6, location:'Rooftop', status:'live' },
-];
+const CAMERAS = [];
 
-const VISITORS = [
-  { id:1, name:'Ramesh Gupta', purpose:'Meeting Guest', host:'Aditya Kumar (301)', checkIn:'09:15', checkOut:'10:45', idVerified:true, date:'2025-07-14' },
-  { id:2, name:'Delivery — Amazon', purpose:'Package Delivery', host:'Front Desk', checkIn:'11:30', checkOut:'11:35', idVerified:false, date:'2025-07-14' },
-  { id:3, name:'Priya Contractor', purpose:'Maintenance', host:'Engineering Dept', checkIn:'14:00', checkOut:'16:30', idVerified:true, date:'2025-07-14' },
-  { id:4, name:'Suresh Mehta', purpose:'Business Meeting', host:'Rohit Verma (201)', checkIn:'15:00', checkOut:null, idVerified:true, date:'2025-07-14' },
-];
+const VISITORS = [];
 
-const ACTIVITY = [
-  { id:1, user:'Rajesh Kumar', action:'Staff Login', detail:'Front Desk Terminal', time:'08:02', ip:'192.168.1.45', type:'login' },
-  { id:2, user:'System', action:'Booking Created', detail:'BK-1008 — Karan Malhotra', time:'09:15', ip:'203.0.113.42', type:'booking' },
-  { id:3, user:'Anita Patel', action:'Housekeeping Update', detail:'Room 103 — Completed', time:'10:30', ip:'192.168.1.52', type:'housekeeping' },
-  { id:4, user:'System', action:'Payment Received', detail:'INV-2025-002 — ₹67,422', time:'11:45', ip:'203.0.113.18', type:'payment' },
-  { id:5, user:'Admin', action:'Settings Changed', detail:'Checkout time updated', time:'13:00', ip:'192.168.1.1', type:'system' },
-  { id:6, user:'Meena Joshi', action:'Staff Login', detail:'Reception Terminal', time:'22:05', ip:'192.168.1.46', type:'login' },
-];
+const ACTIVITY = [];
 
-const SESSIONS = [
-  { id:1, device:'Chrome / Windows 11', location:'Mumbai, IN', lastActive:'2 min ago', current:true },
-  { id:2, device:'Safari / iPhone 15', location:'Mumbai, IN', lastActive:'1 hr ago', current:false },
-  { id:3, device:'Firefox / MacOS', location:'Delhi, IN', lastActive:'3 hrs ago', current:false },
-];
+const SESSIONS = [];
 
 const TABS = ['CCTV Feeds', 'Visitor Log', 'Activity Logs', '2FA Settings', 'Device Sessions'];
 const actColor = { login:'var(--teal)', booking:'var(--gold)', housekeeping:'var(--violet)', payment:'var(--green)', system:'var(--rose)' };

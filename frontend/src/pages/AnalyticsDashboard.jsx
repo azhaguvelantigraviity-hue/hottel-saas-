@@ -2,27 +2,13 @@ import React, { useState } from 'react';
 import StatCard from '../components/StatCard';
 import Icon from '../components/Icon';
 
-const MONTHLY = [
-  { month:'Jan', revenue:68000, expenses:42000, guests:124 },
-  { month:'Feb', revenue:72000, expenses:44000, guests:138 },
-  { month:'Mar', revenue:89000, expenses:48000, guests:162 },
-  { month:'Apr', revenue:95000, expenses:52000, guests:171 },
-  { month:'May', revenue:78000, expenses:46000, guests:143 },
-  { month:'Jun', revenue:112000, expenses:58000, guests:198 },
-  { month:'Jul', revenue:124000, expenses:62000, guests:214 },
-];
+const MONTHLY = [];
 
-const OCCUPANCY = [82,75,88,91,79,85,93,87,76,82,90,88,84,79,86,92,88,83,77,85,91,89,82,78,86,90,87,83,79,85,88];
+const OCCUPANCY = [];
 
-const DEPT_PROFIT = [
-  { name:'Rooms', pct:52, color:'var(--gold)' },
-  { name:'F&B', pct:22, color:'var(--teal)' },
-  { name:'Events', pct:14, color:'var(--violet)' },
-  { name:'Spa', pct:8, color:'var(--rose)' },
-  { name:'Other', pct:4, color:'var(--blue)' },
-];
+const DEPT_PROFIT = [];
 
-const maxRev = Math.max(...MONTHLY.map(m => m.revenue));
+const maxRev = MONTHLY.length > 0 ? Math.max(...MONTHLY.map(m => m.revenue)) : 1;
 const maxOcc = 100;
 
 const BarChart = () => (
@@ -68,7 +54,7 @@ const DonutChart = () => {
         cumulative += d.pct;
         return <circle key={i} cx={cx} cy={cy} r={r} fill="none" stroke={d.color} strokeWidth={strokeW} strokeDasharray={`${dashArray} ${circumference}`} strokeDashoffset={dashOffset} style={{ transform:'rotate(-90deg)', transformOrigin:'80px 80px' }} />;
       })}
-      <text x={cx} y={cy-6} textAnchor="middle" fill="var(--text)" fontSize="18" fontWeight="700" fontFamily="DM Mono,monospace">68%</text>
+      <text x={cx} y={cy-6} textAnchor="middle" fill="var(--text)" fontSize="18" fontWeight="700" fontFamily="DM Mono,monospace">-</text>
       <text x={cx} y={cy+12} textAnchor="middle" fill="var(--text3)" fontSize="10" fontFamily="Inter, sans-serif">MARGIN</text>
     </svg>
   );
@@ -103,10 +89,10 @@ const AnalyticsDashboard = () => {
   return (
     <div style={{ flex:1, overflowY:'auto', padding:24 }}>
       <div style={{ display:'grid', gridTemplateColumns:'repeat(4,1fr)', gap:16, marginBottom:24 }}>
-        <StatCard title="RevPAR" value="₹3,842" icon="dollar" color="var(--gold)" />
-        <StatCard title="ADR" value="₹4,420" icon="trending" color="var(--teal)" />
-        <StatCard title="GOPPAR" value="₹2,180" icon="chart" color="var(--violet)" />
-        <StatCard title="NPS Score" value="72" icon="star" color="var(--green)" />
+        <StatCard title="RevPAR" value="-" icon="dollar" color="var(--gold)" />
+        <StatCard title="ADR" value="-" icon="trending" color="var(--teal)" />
+        <StatCard title="GOPPAR" value="-" icon="chart" color="var(--violet)" />
+        <StatCard title="NPS Score" value="-" icon="star" color="var(--green)" />
       </div>
       <div style={{ display:'flex', gap:4, marginBottom:20, background:'var(--card)', borderRadius:10, padding:4, border:'1px solid var(--border)' }}>
         {TABS.map((t,i) => <button key={i} onClick={() => setTab(i)} style={{ flex:1, padding:'9px 8px', borderRadius:8, border:'none', cursor:'pointer', fontFamily:'Inter, sans-serif', fontSize:12, fontWeight:500, background:tab===i?'var(--surface)':'transparent', color:tab===i?'var(--gold)':'var(--text2)' }}>{t}</button>)}
@@ -139,16 +125,16 @@ const AnalyticsDashboard = () => {
       {tab === 1 && (
         <div style={{ background:'var(--card)', border:'1px solid var(--border)', borderRadius:'var(--radius-lg)', padding:20 }}>
           <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:16 }}>
-            <div style={{ fontSize:14, fontWeight:700, color:'var(--text)' }}>Daily Occupancy Rate — July 2025</div>
+            <div style={{ fontSize:14, fontWeight:700, color:'var(--text)' }}>Daily Occupancy Rate</div>
             <div style={{ display:'flex', gap:16 }}>
-              <div style={{ fontSize:13, color:'var(--green)' }}>Peak: 93%</div>
-              <div style={{ fontSize:13, color:'var(--rose)' }}>Low: 75%</div>
-              <div style={{ fontSize:13, color:'var(--text2)' }}>Avg: 85%</div>
+              <div style={{ fontSize:13, color:'var(--green)' }}>Peak: -</div>
+              <div style={{ fontSize:13, color:'var(--rose)' }}>Low: -</div>
+              <div style={{ fontSize:13, color:'var(--text2)' }}>Avg: -</div>
             </div>
           </div>
           <OccupancyChart />
           <div style={{ display:'flex', justifyContent:'space-between', marginTop:8 }}>
-            {[1,8,15,22,29,31].map(d => <span key={d} style={{ fontSize:10, color:'var(--text3)' }}>Jul {d}</span>)}
+            {[1,8,15,22,29,31].map(d => <span key={d} style={{ fontSize:10, color:'var(--text3)' }}>{d}</span>)}
           </div>
         </div>
       )}

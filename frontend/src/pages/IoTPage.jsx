@@ -3,36 +3,13 @@ import StatCard from '../components/StatCard';
 import Icon from '../components/Icon';
 import Badge from '../components/Badge';
 
-const ROOMS_INIT = [
-  { id:'101', guest:'Arjun Mehta', locked:true, temp:22, lights:true, dnd:false },
-  { id:'103', guest:'Priya Sharma', locked:true, temp:24, lights:false, dnd:true },
-  { id:'201', guest:'Rohit Verma', locked:false, temp:21, lights:true, dnd:false },
-  { id:'203', guest:'Kavya Nair', locked:true, temp:23, lights:true, dnd:false },
-  { id:'301', guest:'Aditya Kumar', locked:true, temp:20, lights:false, dnd:true },
-  { id:'303', guest:'Sneha Iyer', locked:true, temp:22, lights:true, dnd:false },
-];
+const ROOMS_INIT = [];
 
-const MOBILE_KEYS = [
-  { id:1, guest:'Aditya Kumar', room:'301', issued:'2025-07-08 14:00', validUntil:'2025-07-18 12:00', status:'active' },
-  { id:2, guest:'Arjun Mehta', room:'101', issued:'2025-07-10 15:30', validUntil:'2025-07-14 12:00', status:'active' },
-  { id:3, guest:'Rohit Verma', room:'201', issued:'2025-07-11 13:00', validUntil:'2025-07-13 12:00', status:'expired' },
-];
+const MOBILE_KEYS = [];
 
-const RFID_CARDS = [
-  { id:'RFID-4521', room:'101', guest:'Arjun Mehta', issued:'2025-07-10', status:'active' },
-  { id:'RFID-4522', room:'103', guest:'Priya Sharma', issued:'2025-07-09', status:'active' },
-  { id:'RFID-4523', room:'201', guest:'Rohit Verma', issued:'2025-07-11', status:'deactivated' },
-  { id:'RFID-4524', room:'301', guest:'Aditya Kumar', issued:'2025-07-08', status:'active' },
-];
+const RFID_CARDS = [];
 
-const ACCESS_LOG = [
-  { id:1, room:'301', event:'Door Unlocked', method:'Mobile Key', user:'Aditya Kumar', time:'09:15' },
-  { id:2, room:'101', event:'Door Unlocked', method:'RFID Card', user:'Arjun Mehta', time:'09:42' },
-  { id:3, room:'103', event:'DND Activated', method:'Room Panel', user:'Priya Sharma', time:'10:00' },
-  { id:4, room:'201', event:'Door Unlocked', method:'Staff Key', user:'Housekeeping', time:'10:30' },
-  { id:5, room:'301', event:'AC Adjusted', method:'App', user:'Aditya Kumar', time:'11:00' },
-  { id:6, room:'103', event:'Door Locked', method:'Auto-Lock', user:'System', time:'11:15' },
-];
+const ACCESS_LOG = [];
 
 const TABS = ['Room Controls', 'Mobile Keys', 'RFID Cards', 'Access Log'];
 
