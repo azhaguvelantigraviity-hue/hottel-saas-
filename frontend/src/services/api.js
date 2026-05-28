@@ -5,17 +5,41 @@
 
 const BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api/v1';
 
+const safeGetStorage = (key, fallback = null) => {
+  try {
+    return localStorage.getItem(key) ?? fallback;
+  } catch {
+    return fallback;
+  }
+};
+
+const safeSetStorage = (key, value) => {
+  try {
+    localStorage.setItem(key, value);
+  } catch {
+    // Ignore storage write failures (private mode / disabled storage).
+  }
+};
+
+const safeRemoveStorage = (key) => {
+  try {
+    localStorage.removeItem(key);
+  } catch {
+    // Ignore storage write failures.
+  }
+};
+
 // ── Token helpers ─────────────────────────────────────────────
-export const getToken = () => localStorage.getItem('stayos_token');
-export const setToken = (t) => localStorage.setItem('stayos_token', t);
-export const removeToken = () => localStorage.removeItem('stayos_token');
+export const getToken = () => safeGetStorage('stayos_token', null);
+export const setToken = (t) => safeSetStorage('stayos_token', t);
+export const removeToken = () => safeRemoveStorage('stayos_token');
 
 export const getUser = () => {
-  try { return JSON.parse(localStorage.getItem('stayos_user') || 'null'); }
+  try { return JSON.parse(safeGetStorage('stayos_user', 'null')); }
   catch { return null; }
 };
-export const setUser = (u) => localStorage.setItem('stayos_user', JSON.stringify(u));
-export const removeUser = () => localStorage.removeItem('stayos_user');
+export const setUser = (u) => safeSetStorage('stayos_user', JSON.stringify(u));
+export const removeUser = () => safeRemoveStorage('stayos_user');
 
 // ── Core fetch wrapper ────────────────────────────────────────
 async function request(method, path, body = null, options = {}) {

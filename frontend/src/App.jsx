@@ -38,6 +38,22 @@ import MultiBranchPage from './pages/MultiBranchPage';
 import Sidebar from './components/Sidebar';
 import Topbar from './components/Topbar';
 
+const safeGetStorage = (key, fallback = null) => {
+  try {
+    return localStorage.getItem(key) ?? fallback;
+  } catch {
+    return fallback;
+  }
+};
+
+const safeSetStorage = (key, value) => {
+  try {
+    localStorage.setItem(key, value);
+  } catch {
+    // Ignore storage write failures (private mode / disabled storage).
+  }
+};
+
 // ── ADMIN APP ─────────────────────────────────────────────────────────────────
 const AdminApp = ({ onLogout }) => {
   const [page, setPage] = useState('dashboard');
@@ -174,8 +190,7 @@ const App = () => {
   const [hotelPlan, setHotelPlan] = useState('enterprise');
   const [hotelRole, setHotelRole] = useState('manager');
   const [theme, setTheme] = useState(() => {
-    // Persist theme across reloads
-    return localStorage.getItem('stayos_theme') || 'light';
+    return safeGetStorage('stayos_theme', 'light');
   });
 
   useEffect(() => {
@@ -186,7 +201,7 @@ const App = () => {
       document.documentElement.classList.remove('dark');
       document.documentElement.classList.add('light');
     }
-    localStorage.setItem('stayos_theme', theme);
+    safeSetStorage('stayos_theme', theme);
   }, [theme]);
 
   const handleLogin = (type) => {
