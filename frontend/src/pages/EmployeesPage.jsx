@@ -239,7 +239,7 @@ const EmployeesPage = ({ role, hotelDetails, plan }) => {
           </div>
 
           {/* Employee Cards */}
-          {filtered.length === 0 ? (
+          {employees.length === 0 ? (
             <div style={{
               background: 'var(--card)', border: '2px dashed var(--border)',
               borderRadius: 'var(--radius-lg)', padding: '48px 32px',
