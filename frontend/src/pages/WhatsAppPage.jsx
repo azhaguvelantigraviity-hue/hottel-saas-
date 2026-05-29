@@ -3,17 +3,26 @@ import StatCard from '../components/StatCard';
 import Icon from '../components/Icon';
 import Badge from '../components/Badge';
 
-const TEMPLATES = [];
+const TEMPLATES = [
+  { id: 'tpl_1', name: 'Booking Confirmation', status: 'approved', preview: 'Hi {{1}}, your booking at StayOS Hotel is confirmed for {{2}}. Booking ID: {{3}}.' },
+  { id: 'tpl_2', name: 'Welcome Message', status: 'approved', preview: 'Welcome to StayOS Hotel, {{1}}! We hope you have a wonderful stay with us.' },
+  { id: 'tpl_3', name: 'Check-out Reminder', status: 'pending', preview: 'Hi {{1}}, just a reminder that check-out is at 11 AM tomorrow. Let us know if you need any assistance.' }
+];
 
-const SENT_MESSAGES = [];
+const SENT_MESSAGES = [
+  { id: 'msg_1', guest: 'Rahul Sharma', phone: '+91 9876543210', template: 'Booking Confirmation', status: 'read', time: '10:30 AM' },
+  { id: 'msg_2', guest: 'Priya Patel', phone: '+91 9876543211', template: 'Welcome Message', status: 'delivered', time: '09:15 AM' },
+  { id: 'msg_3', guest: 'Amit Kumar', phone: '+91 9876543212', template: 'Check-out Reminder', status: 'failed', time: 'Yesterday' },
+  { id: 'msg_4', guest: 'Sneha Gupta', phone: '+91 9876543213', template: 'Booking Confirmation', status: 'read', time: 'Yesterday' }
+];
 
 const TABS = ['Message Templates', 'Sent Messages', 'Bulk Campaigns', 'Settings'];
 const statusColor = { read:'var(--green)', delivered:'var(--teal)', failed:'var(--rose)', pending:'var(--amber)' };
 
 const WhatsAppPage = () => {
   const [tab, setTab] = useState(0);
-  const [apiKey, setApiKey] = useState('');
-  const [webhook, setWebhook] = useState('');
+  const [apiKey, setApiKey] = useState('WA_TEST_KEY_92837492');
+  const [webhook, setWebhook] = useState('https://api.stayos.com/v1/webhooks/whatsapp');
   const [segment, setSegment] = useState('all');
   const [bulkTemplate, setBulkTemplate] = useState('');
   const [testSent, setTestSent] = useState(null);
@@ -25,9 +34,9 @@ const WhatsAppPage = () => {
   return (
     <div style={{ flex:1, overflowY:'auto', padding:24 }}>
       <div style={{ display:'grid', gridTemplateColumns:'repeat(4,1fr)', gap:16, marginBottom:24 }}>
-        <StatCard title="Messages Sent" value="-" icon="whatsapp" color="var(--green)" />
-        <StatCard title="Delivered" value="-" icon="check" color="var(--teal)" />
-        <StatCard title="Read Rate" value="-" icon="eye" color="var(--gold)" />
+        <StatCard title="Messages Sent" value="1,245" icon="whatsapp" color="var(--green)" />
+        <StatCard title="Delivered" value="98.2%" icon="check" color="var(--teal)" />
+        <StatCard title="Read Rate" value="85.4%" icon="eye" color="var(--gold)" />
         <StatCard title="Templates" value={TEMPLATES.length} icon="report" color="var(--violet)" />
       </div>
       <div style={{ background:'var(--card)', border:'1px solid var(--border)', borderRadius:'var(--radius-lg)', padding:24 }}>
@@ -116,7 +125,7 @@ const WhatsAppPage = () => {
             </div>
             <div style={{ marginBottom:20, padding:14, background:'rgba(52,211,153,0.08)', border:'1px solid rgba(52,211,153,0.2)', borderRadius:8 }}>
               <div style={{ fontSize:13, color:'var(--green)', fontWeight:600 }}>✓ Connection Active</div>
-              <div style={{ fontSize:12, color:'var(--text3)' }}>Last verified: -</div>
+              <div style={{ fontSize:12, color:'var(--text3)' }}>Last verified: Just now</div>
             </div>
             <div style={{ display:'flex', gap:12 }}>
               <button style={{ background:'linear-gradient(135deg,#C9A84C,#8A6F2E)', border:'none', borderRadius:8, padding:'12px 24px', color:'#fff', cursor:'pointer', fontFamily:'Inter, sans-serif', fontWeight:600, fontSize:14 }}>Save Settings</button>
