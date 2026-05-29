@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import Icon from './Icon';
 
-const Topbar = ({ title, subtitle, role, notifCount = 3 }) => {
+const Topbar = ({ title, subtitle, role, notifCount = 3, onNav }) => {
   const [search, setSearch] = useState('');
 
   const greeting = () => {
@@ -68,7 +68,9 @@ const Topbar = ({ title, subtitle, role, notifCount = 3 }) => {
 
         {/* Notification bell */}
         <div style={{ position: 'relative' }}>
-          <button style={{
+          <button 
+            onClick={() => onNav && onNav('notifications')}
+            style={{
             width: '38px', height: '38px', borderRadius: '10px',
             background: 'var(--bg)', border: '1px solid var(--border)',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
