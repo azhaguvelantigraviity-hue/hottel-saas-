@@ -3,13 +3,30 @@ import StatCard from '../components/StatCard';
 import Icon from '../components/Icon';
 import Badge from '../components/Badge';
 
-const ROOMS_INIT = [];
+const ROOMS_INIT = [
+  { id: '101', guest: 'Rahul Sharma', locked: true, dnd: false, temp: 22, lights: true },
+  { id: '102', guest: 'Priya Patel', locked: false, dnd: true, temp: 24, lights: false },
+  { id: '103', guest: 'Amit Kumar', locked: true, dnd: false, temp: 20, lights: true },
+  { id: '104', guest: 'Sneha Gupta', locked: true, dnd: true, temp: 23, lights: false },
+];
 
-const MOBILE_KEYS = [];
+const MOBILE_KEYS = [
+  { id: 'mk_1', guest: 'Rahul Sharma', room: '101', issued: 'Today, 10:00 AM', validUntil: 'Tomorrow, 11:00 AM', status: 'active' },
+  { id: 'mk_2', guest: 'Priya Patel', room: '102', issued: 'Yesterday, 02:00 PM', validUntil: 'Today, 11:00 AM', status: 'expired' },
+];
 
-const RFID_CARDS = [];
+const RFID_CARDS = [
+  { id: 'RFID-9021', room: '101', guest: 'Rahul Sharma', issued: 'Today, 10:05 AM', status: 'active' },
+  { id: 'RFID-9022', room: '103', guest: 'Amit Kumar', issued: 'Today, 11:30 AM', status: 'active' },
+  { id: 'RFID-8011', room: '104', guest: 'Sneha Gupta', issued: 'Yesterday, 04:15 PM', status: 'inactive' },
+];
 
-const ACCESS_LOG = [];
+const ACCESS_LOG = [
+  { id: 'log_1', room: '101', event: 'Door Unlocked', user: 'Rahul Sharma', method: 'Mobile Key', time: '10:15 AM' },
+  { id: 'log_2', room: '101', event: 'Door Locked', user: 'Rahul Sharma', method: 'Auto-lock', time: '10:16 AM' },
+  { id: 'log_3', room: '102', event: 'Door Unlocked', user: 'Housekeeping (Rita)', method: 'Master RFID', time: '11:00 AM' },
+  { id: 'log_4', room: '103', event: 'AC Temp Changed (20°C)', user: 'Amit Kumar', method: 'In-room Panel', time: '11:45 AM' },
+];
 
 const TABS = ['Room Controls', 'Mobile Keys', 'RFID Cards', 'Access Log'];
 
