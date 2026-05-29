@@ -89,12 +89,12 @@ const AdminApp = ({ onLogout }) => {
 };
 
 // ── HOTEL APP ─────────────────────────────────────────────────────────────────
-const HotelApp = ({ onLogout, initialPlan = 'enterprise', role = 'manager' }) => {
+const HotelApp = ({ onLogout, initialPlan = 'enterprise', role = 'manager', hotelDetails = null }) => {
   const [page, setPage] = useState('dashboard');
   const plan = initialPlan;
 
   const planFeatures = {
-    starter:      ['dashboard','rooms','bookings','billing','notifications','reports','settings'],
+    starter:      ['dashboard','rooms','bookings','billing','notifications','reports','settings','employees','analytics'],
     professional: ['dashboard','rooms','bookings','billing','notifications','guests','loyalty','employees','housekeeping','restaurant','laundry','maintenance','channel','analytics','marketing','whatsapp','inventory','reports','settings'],
     enterprise:   ['dashboard','rooms','bookings','billing','notifications','checkin','guests','loyalty','restaurant','laundry','travel','events','employees','housekeeping','maintenance','channel','revenue','analytics','marketing','whatsapp','inventory','iot','security','chatbot','reports','settings'],
   };
@@ -118,10 +118,11 @@ const HotelApp = ({ onLogout, initialPlan = 'enterprise', role = 'manager' }) =>
     // starter features — no lock needed
     rooms: 'starter', bookings: 'starter', billing: 'starter',
     notifications: 'starter', reports: 'starter', settings: 'starter',
+    employees: 'starter', analytics: 'starter',
     // professional features
-    guests: 'professional', loyalty: 'professional', employees: 'professional',
+    guests: 'professional', loyalty: 'professional',
     housekeeping: 'professional', restaurant: 'professional', laundry: 'professional',
-    maintenance: 'professional', channel: 'professional', analytics: 'professional',
+    maintenance: 'professional', channel: 'professional',
     marketing: 'professional', whatsapp: 'professional', inventory: 'professional',
     // enterprise features
     checkin: 'enterprise', travel: 'enterprise', events: 'enterprise',
@@ -141,7 +142,7 @@ const HotelApp = ({ onLogout, initialPlan = 'enterprise', role = 'manager' }) =>
     }
     switch (page) {
       case 'dashboard': return <HotelDashboard plan={plan} onNav={setPage} />;
-      case 'rooms': return <RoomsPage onNav={setPage} />;
+      case 'rooms': return <RoomsPage onNav={setPage} role={role} hotelDetails={hotelDetails} />;
       case 'bookings': return <BookingsPage />;
       case 'checkin': return <SmartCheckInPage />;
       case 'billing': return <BillingPage />;
@@ -151,7 +152,7 @@ const HotelApp = ({ onLogout, initialPlan = 'enterprise', role = 'manager' }) =>
       case 'laundry': return <LaundryPage />;
       case 'travel': return <TravelDeskPage />;
       case 'events': return <EventsPage />;
-      case 'employees': return <EmployeesPage />;
+      case 'employees': return <EmployeesPage role={role} hotelDetails={hotelDetails} plan={plan} />;
       case 'housekeeping': return <HousekeepingPage />;
       case 'maintenance': return <MaintenancePage />;
       case 'channel': return <ChannelManagerPage />;
@@ -172,9 +173,9 @@ const HotelApp = ({ onLogout, initialPlan = 'enterprise', role = 'manager' }) =>
 
   return (
     <div style={{ display: 'flex', height: '100vh', background: 'var(--bg)' }}>
-      <Sidebar role="hotel" active={page} onNav={setPage} onLogout={onLogout} plan={plan} />
+      <Sidebar role={role} active={page} onNav={setPage} onLogout={onLogout} plan={plan} />
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
-        <Topbar title={titles[page] || 'Hotel'} subtitle={subtitles[plan]} role="hotel" onNav={setPage} />
+        <Topbar title={titles[page] || 'Hotel'} subtitle={subtitles[plan]} role={role} onNav={setPage} />
         <div style={{ flex: 1, overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
           {getPage()}
         </div>
@@ -189,6 +190,7 @@ const App = () => {
   const [loginType, setLoginType] = useState(null);
   const [hotelPlan, setHotelPlan] = useState('enterprise');
   const [hotelRole, setHotelRole] = useState('manager');
+  const [currentHotel, setCurrentHotel] = useState(null);
   const [theme, setTheme] = useState(() => {
     return safeGetStorage('stayos_theme', 'light');
   });
@@ -209,9 +211,10 @@ const App = () => {
     setScreen(`login-${type}`);
   };
 
-  const handleHotelSuccess = (plan, role) => {
+  const handleHotelSuccess = (plan, role, hotelDetails) => {
     setHotelPlan(plan || 'enterprise');
     setHotelRole(role || 'manager');
+    setCurrentHotel(hotelDetails || null);
     setScreen('hotel');
   };
 
@@ -221,7 +224,7 @@ const App = () => {
       {screen === 'login-admin' && <Login type="admin" onSuccess={() => setScreen('admin')} onBack={() => setScreen('landing')} />}
       {screen === 'login-hotel' && <Login type="hotel" onSuccess={handleHotelSuccess} onBack={() => setScreen('landing')} />}
       {screen === 'admin' && <AdminApp onLogout={() => setScreen('landing')} theme={theme} setTheme={setTheme} />}
-      {screen === 'hotel' && <HotelApp onLogout={() => setScreen('landing')} initialPlan={hotelPlan} role={hotelRole} theme={theme} setTheme={setTheme} />}
+      {screen === 'hotel' && <HotelApp onLogout={() => setScreen('landing')} initialPlan={hotelPlan} role={hotelRole} hotelDetails={currentHotel} theme={theme} setTheme={setTheme} />}
     </>
   );
 };

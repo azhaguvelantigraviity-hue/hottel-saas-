@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import Avatar from '../components/Avatar';
 import Badge from '../components/Badge';
 import Icon from '../components/Icon';
-import { HOTELS, PLANS } from '../data/mockData';
+import { HOTELS, PLANS, getPlan } from '../data/mockData';
 
 // ── Shared input style ────────────────────────────────────────
 const inp = {
@@ -17,7 +17,7 @@ const lbl = {
 
 // ── Hotel Detail Modal ────────────────────────────────────────
 const HotelDetailModal = ({ hotel, onClose, onEdit }) => {
-  const plan = PLANS[hotel.plan];
+  const plan = getPlan(hotel.plan);
   const stats = [
     { label: 'Total Rooms',  value: hotel.rooms },
     { label: 'Staff',        value: hotel.staff },
@@ -279,7 +279,7 @@ const AddHotelModal = ({ onClose, onAdd }) => {
 
   const handleAdd = () => {
     if (!form.name || !form.city || !form.adminEmail || !form.adminPassword) {
-      alert("Please fill in the required fields (Name, City, Admin Email, Password)");
+      alert("Please fill in the required fields (Name, City, Manager Email, Password)");
       return;
     }
     onAdd({
@@ -354,14 +354,14 @@ const AddHotelModal = ({ onClose, onAdd }) => {
           </div>
 
           <div style={{ marginTop: '8px', borderTop: '1px solid var(--border)', paddingTop: '16px' }}>
-            <div style={{ fontSize: '13px', fontWeight: '600', marginBottom: '12px', color: 'var(--text)' }}>Admin Login Credentials</div>
+            <div style={{ fontSize: '13px', fontWeight: '600', marginBottom: '12px', color: 'var(--text)' }}>Manager Login Credentials</div>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
               <div>
-                <label style={lbl}>ADMIN EMAIL *</label>
-                <input type="email" style={inp} value={form.adminEmail} onChange={e => set('adminEmail', e.target.value)} placeholder="admin@hotel.com" />
+                <label style={lbl}>MANAGER EMAIL *</label>
+                <input type="email" style={inp} value={form.adminEmail} onChange={e => set('adminEmail', e.target.value)} placeholder="manager@hotel.com" />
               </div>
               <div style={{ position: 'relative' }}>
-                <label style={lbl}>TEMPORARY PASSWORD *</label>
+                <label style={lbl}>MANAGER PASSWORD *</label>
                 <input 
                   type={showPassword ? 'text' : 'password'} 
                   style={{ ...inp, paddingRight: '40px' }} 
@@ -408,8 +408,26 @@ const AddHotelModal = ({ onClose, onAdd }) => {
 };
 
 // ── Main Component ────────────────────────────────────────────
+const getStoredHotels = () => {
+  try {
+    const data = localStorage.getItem('stayos_hotels');
+    return data ? JSON.parse(data) : [];
+  } catch (e) {
+    return [];
+  }
+};
+
+const saveStoredHotels = (hotels) => {
+  try {
+    localStorage.setItem('stayos_hotels', JSON.stringify(hotels));
+  } catch (e) {}
+};
+
 const AdminHotels = () => {
-  const [hotels, setHotels] = useState(HOTELS);
+  const [hotels, setHotels] = useState(() => {
+    const stored = getStoredHotels();
+    return stored.length > 0 ? stored : HOTELS;
+  });
   const [filter, setFilter] = useState('all');
   const [viewHotel, setViewHotel] = useState(null);
   const [editHotel, setEditHotel] = useState(null);
@@ -420,11 +438,15 @@ const AdminHotels = () => {
     : hotels.filter(h => h.plan === filter || h.status === filter);
 
   const handleSave = (updated) => {
-    setHotels(prev => prev.map(h => h.id === updated.id ? updated : h));
+    const next = hotels.map(h => h.id === updated.id ? updated : h);
+    setHotels(next);
+    saveStoredHotels(next);
   };
 
   const handleAdd = (newHotel) => {
-    setHotels(prev => [...prev, newHotel]);
+    const next = [...hotels, { ...newHotel, receptionists: newHotel.receptionists || [] }];
+    setHotels(next);
+    saveStoredHotels(next);
   };
 
   return (
@@ -499,7 +521,7 @@ const AdminHotels = () => {
             {/* Card header */}
             <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: '16px' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                <Avatar initials={h.avatar} color={PLANS[h.plan].accent} size={42} />
+                <Avatar initials={h.avatar} color={getPlan(h.plan).accent} size={42} />
                 <div>
                   <div style={{ fontSize: '14px', fontWeight: '700', marginBottom: '2px' }}>{h.name}</div>
                   <div style={{ fontSize: '12px', color: 'var(--text3)' }}>{h.city} · {h.rooms} rooms</div>
@@ -576,3 +598,4 @@ const AdminHotels = () => {
 };
 
 export default AdminHotels;
+

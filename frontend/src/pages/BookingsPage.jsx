@@ -6,6 +6,27 @@ import { BOOKINGS, ROOMS, PET_CHARGES } from '../data/mockData';
 
 const statusColor = { 'checked-in': 'green', confirmed: 'teal', pending: 'amber', 'checked-out': 'gray', cancelled: 'rose' };
 const sourceColor = { direct: 'gold', 'booking.com': 'teal', expedia: 'violet', agoda: 'rose' };
+const BOOKINGS_STORAGE_KEY = 'stayos_bookings';
+const ROOMS_STORAGE_KEY = 'stayos_rooms';
+
+const safeReadJson = (key, fallback) => {
+  try {
+    const raw = localStorage.getItem(key);
+    if (!raw) return fallback;
+    const parsed = JSON.parse(raw);
+    return Array.isArray(parsed) ? parsed : fallback;
+  } catch {
+    return fallback;
+  }
+};
+
+const safeWriteJson = (key, value) => {
+  try {
+    localStorage.setItem(key, JSON.stringify(value));
+  } catch {
+    // Ignore storage write failures.
+  }
+};
 
 const Modal = ({ title, onClose, children }) => (
   <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.7)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
@@ -245,11 +266,23 @@ const BookingDetail = ({ booking, onClose, onAction }) => (
 );
 
 const BookingsPage = () => {
-  const [bookings, setBookings] = useState(BOOKINGS);
+  const [bookings, setBookings] = useState(() => safeReadJson(BOOKINGS_STORAGE_KEY, BOOKINGS));
   const [filter, setFilter] = useState('all');
   const [search, setSearch] = useState('');
   const [showNew, setShowNew] = useState(false);
   const [selected, setSelected] = useState(null);
+
+  useEffect(() => {
+    // Hydrate shared in-memory room list from persisted room states.
+    const persistedRooms = safeReadJson(ROOMS_STORAGE_KEY, null);
+    if (persistedRooms) {
+      ROOMS.splice(0, ROOMS.length, ...persistedRooms);
+    }
+  }, []);
+
+  useEffect(() => {
+    safeWriteJson(BOOKINGS_STORAGE_KEY, bookings);
+  }, [bookings]);
 
   const filtered = bookings.filter(b => {
     const matchFilter = filter === 'all' || b.status === filter;
@@ -270,6 +303,7 @@ const BookingsPage = () => {
           room.status = 'available';
           room.guest = '';
         }
+        safeWriteJson(ROOMS_STORAGE_KEY, ROOMS);
       }
       return { ...b, status: newStatus };
     }));
@@ -280,6 +314,7 @@ const BookingsPage = () => {
     if (room) {
       room.status = 'reserved';
       room.guest = newBooking.guest;
+      safeWriteJson(ROOMS_STORAGE_KEY, ROOMS);
     }
     setBookings(prev => [...prev, {
       ...newBooking,

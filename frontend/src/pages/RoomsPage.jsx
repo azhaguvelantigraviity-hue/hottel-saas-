@@ -3,16 +3,126 @@ import Icon from '../components/Icon';
 import Badge from '../components/Badge';
 import { ROOMS } from '../data/mockData';
 
-const RoomsPage = ({ onNav }) => {
+const AddRoomModal = ({ onClose, onAdd }) => {
+  const [form, setForm] = useState({ id: '', type: 'Deluxe King', floor: 1, rate: 3500 });
+  const set = (k, v) => setForm(p => ({ ...p, [k]: v }));
+  
+  const handleSave = () => {
+    if (!form.id) {
+      alert("Please enter a room number.");
+      return;
+    }
+    onAdd({
+      id: form.id,
+      type: form.type,
+      floor: +form.floor || 1,
+      status: 'available',
+      housekeeping: 'clean',
+      rate: +form.rate || 3500,
+      guest: ''
+    });
+    onClose();
+  };
+
+  const inp = {
+    width: '100%', padding: '10px 12px', background: 'var(--surface)',
+    border: '1px solid var(--border)', borderRadius: '8px', color: 'var(--text)',
+    fontSize: '13px', outline: 'none', fontFamily: 'Inter, sans-serif',
+  };
+  const lbl = {
+    fontSize: '11px', color: 'var(--text3)', fontWeight: '600',
+    letterSpacing: '0.06em', display: 'block', marginBottom: '5px',
+  };
+
+  return (
+    <div style={{
+      position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.7)', zIndex: 1000,
+      display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px',
+    }}>
+      <div style={{
+        background: 'var(--card)', border: '1px solid var(--border)',
+        borderRadius: 'var(--radius-lg)', width: '100%', maxWidth: '400px',
+      }}>
+        <div style={{
+          padding: '20px 24px', borderBottom: '1px solid var(--border)',
+          display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+        }}>
+          <h2 style={{ fontFamily: 'Poppins,sans-serif', fontSize: '18px' }}>Add Room</h2>
+          <button onClick={onClose} style={{ background: 'none', border: 'none', cursor: 'pointer' }}>
+            <Icon name="x" size={20} color="var(--text3)" />
+          </button>
+        </div>
+        <div style={{ padding: '24px', display: 'flex', flexDirection: 'column', gap: '14px' }}>
+          <div>
+            <label style={lbl}>ROOM NUMBER / ID *</label>
+            <input style={inp} value={form.id} onChange={e => set('id', e.target.value)} placeholder="e.g. 301" />
+          </div>
+          <div>
+            <label style={lbl}>ROOM TYPE</label>
+            <select style={inp} value={form.type} onChange={e => set('type', e.target.value)}>
+              {['Standard Twin','Deluxe King','Deluxe Queen','Suite','Premium Suite','Presidential Suite', 'Executive'].map(t => (
+                <option key={t} value={t}>{t}</option>
+              ))}
+            </select>
+          </div>
+          <div>
+            <label style={lbl}>FLOOR</label>
+            <input type="number" style={inp} value={form.floor} onChange={e => set('floor', e.target.value)} />
+          </div>
+          <div>
+            <label style={lbl}>NIGHTLY RATE (₹)</label>
+            <input type="number" style={inp} value={form.rate} onChange={e => set('rate', e.target.value)} />
+          </div>
+          <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end', marginTop: '8px' }}>
+            <button onClick={onClose} style={{ padding: '9px 18px', background: 'transparent', border: '1px solid var(--border)', borderRadius: '8px', color: 'var(--text2)', cursor: 'pointer', fontSize: '13px', fontFamily: 'Inter, sans-serif' }}>
+              Cancel
+            </button>
+            <button onClick={handleSave} style={{ padding: '9px 20px', background: 'linear-gradient(135deg,#C9A84C,#8A6F2E)', border: 'none', borderRadius: '8px', color: '#fff', cursor: 'pointer', fontWeight: '600', fontSize: '13px', fontFamily: 'Inter, sans-serif' }}>
+              Save Room
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const RoomsPage = ({ onNav, role, hotelDetails }) => {
   const [view, setView] = useState('grid');
   const [filterStatus, setFilterStatus] = useState('all');
-  const filtered = filterStatus === 'all' ? ROOMS : ROOMS.filter((r) => r.status === filterStatus);
+  const [showAddRoom, setShowAddRoom] = useState(false);
+  const [rooms, setRooms] = useState(() => {
+    try {
+      const stored = localStorage.getItem(`stayos_rooms_${hotelDetails?.id || 'default'}`);
+      return stored ? JSON.parse(stored) : ROOMS;
+    } catch {
+      return ROOMS;
+    }
+  });
+
+  const roomLimit = hotelDetails?.rooms ?? 10;
+
+  const handleAddRoom = (newRoom) => {
+    if (rooms.length >= roomLimit) {
+      alert(`Room Limit Reached! Your hotel is limited to ${roomLimit} rooms by the Administrator. Please contact Platform Admin to upgrade.`);
+      return;
+    }
+    if (rooms.some(r => r.id === newRoom.id)) {
+      alert(`Room ${newRoom.id} already exists!`);
+      return;
+    }
+    const nextRooms = [...rooms, newRoom];
+    setRooms(nextRooms);
+    localStorage.setItem(`stayos_rooms_${hotelDetails?.id || 'default'}`, JSON.stringify(nextRooms));
+  };
+
+  const filtered = filterStatus === 'all' ? rooms : rooms.filter((r) => r.status === filterStatus);
   const counts = {
-    all: ROOMS.length,
-    occupied: ROOMS.filter((r) => r.status === 'occupied').length,
-    available: ROOMS.filter((r) => r.status === 'available').length,
-    reserved: ROOMS.filter((r) => r.status === 'reserved').length,
-    maintenance: ROOMS.filter((r) => r.status === 'maintenance').length,
+    all: rooms.length,
+    occupied: rooms.filter((r) => r.status === 'occupied').length,
+    available: rooms.filter((r) => r.status === 'available').length,
+    reserved: rooms.filter((r) => r.status === 'reserved').length,
+    maintenance: rooms.filter((r) => r.status === 'maintenance').length,
   };
 
   const statusColor = { occupied: 'var(--gold)', available: 'var(--green)', reserved: 'var(--violet)', maintenance: 'var(--rose)' };
@@ -75,25 +185,47 @@ const RoomsPage = ({ onNav }) => {
           >
             List
           </button>
-          <button
-            onClick={() => onNav && onNav('bookings')}
-            style={{
-              padding: '7px 14px',
-              background: 'linear-gradient(135deg,#C9A84C,#8A6F2E)',
-              border: 'none',
-              borderRadius: '8px',
-              color: '#fff',
-              cursor: 'pointer',
-              fontSize: '12px',
-              fontWeight: '600',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '4px',
-              fontFamily: 'Inter, sans-serif',
-            }}
-          >
-            <Icon name="plus" size={12} color="#fff" /> New Booking
-          </button>
+          {role === 'manager' ? (
+            <button
+              onClick={() => setShowAddRoom(true)}
+              style={{
+                padding: '7px 14px',
+                background: 'linear-gradient(135deg,#C9A84C,#8A6F2E)',
+                border: 'none',
+                borderRadius: '8px',
+                color: '#fff',
+                cursor: 'pointer',
+                fontSize: '12px',
+                fontWeight: '600',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '4px',
+                fontFamily: 'Inter, sans-serif',
+              }}
+            >
+              <Icon name="plus" size={12} color="#fff" /> Add Room
+            </button>
+          ) : (
+            <button
+              onClick={() => onNav && onNav('bookings')}
+              style={{
+                padding: '7px 14px',
+                background: 'linear-gradient(135deg,#C9A84C,#8A6F2E)',
+                border: 'none',
+                borderRadius: '8px',
+                color: '#fff',
+                cursor: 'pointer',
+                fontSize: '12px',
+                fontWeight: '600',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '4px',
+                fontFamily: 'Inter, sans-serif',
+              }}
+            >
+              <Icon name="plus" size={12} color="#fff" /> New Booking
+            </button>
+          )}
         </div>
       </div>
 
@@ -175,6 +307,7 @@ const RoomsPage = ({ onNav }) => {
           </table>
         </div>
       )}
+      {showAddRoom && <AddRoomModal onClose={() => setShowAddRoom(false)} onAdd={handleAddRoom} />}
     </div>
   );
 };

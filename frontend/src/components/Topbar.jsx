@@ -11,8 +11,8 @@ const Topbar = ({ title, subtitle, role, notifCount = 3 }) => {
     return 'Good Evening,';
   };
 
-  const userName  = role === 'admin' ? 'Admin' : 'User';
-  const userInitials = role === 'admin' ? 'A' : 'U';
+  const userName  = role === 'admin' ? 'Admin' : role === 'manager' ? 'Manager' : role === 'staff' ? 'Receptionist' : 'User';
+  const userInitials = role === 'admin' ? 'A' : role === 'manager' ? 'M' : role === 'staff' ? 'R' : 'U';
 
   return (
     <div style={{

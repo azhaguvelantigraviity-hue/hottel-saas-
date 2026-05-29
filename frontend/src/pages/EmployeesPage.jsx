@@ -34,7 +34,7 @@ const EmployeeModal = ({ employee, onClose }) => (
 );
 
 const AddEmployeeModal = ({ onClose, onAdd }) => {
-  const [form, setForm] = useState({ name: '', role: '', dept: 'Front Office', shift: 'Morning', salary: '', phone: '', email: '', avatar: '' });
+  const [form, setForm] = useState({ name: '', role: '', dept: 'Front Office', shift: 'Morning', salary: '', phone: '', email: '', avatar: '', loginEmail: '', loginPassword: '' });
   const set = (k, v) => setForm(p => ({ ...p, [k]: v }));
   return (
     <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.7)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
@@ -47,7 +47,7 @@ const AddEmployeeModal = ({ onClose, onAdd }) => {
           {[['name', 'FULL NAME', 'text'], ['role', 'ROLE / DESIGNATION', 'text'], ['phone', 'PHONE', 'text'], ['email', 'EMAIL', 'email'], ['salary', 'MONTHLY SALARY (₹)', 'number']].map(([k, l, t]) => (
             <div key={k} style={{ gridColumn: k === 'name' || k === 'role' ? 'span 2' : 'span 1' }}>
               <label style={labelStyle}>{l}</label>
-              <input type={t} style={inputStyle} value={form[k]} onChange={e => set(k, e.target.value)} />
+              <input type={t} style={inputStyle} value={form[k] || ''} onChange={e => set(k, e.target.value)} />
             </div>
           ))}
           <div>
@@ -62,6 +62,21 @@ const AddEmployeeModal = ({ onClose, onAdd }) => {
               {['Morning', 'Evening', 'Night'].map(s => <option key={s}>{s}</option>)}
             </select>
           </div>
+          
+          <div style={{ gridColumn: 'span 2', marginTop: '8px', borderTop: '1px solid var(--border)', paddingTop: '12px' }}>
+            <span style={{ fontSize: '12px', fontWeight: '700', color: 'var(--text2)', display: 'block', marginBottom: '8px' }}>Create Receptionist Login (Optional)</span>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+              <div>
+                <label style={labelStyle}>LOGIN EMAIL</label>
+                <input type="email" style={inputStyle} value={form.loginEmail} onChange={e => set('loginEmail', e.target.value)} placeholder="recep@hotel.com" />
+              </div>
+              <div>
+                <label style={labelStyle}>LOGIN PASSWORD</label>
+                <input type="password" style={inputStyle} value={form.loginPassword} onChange={e => set('loginPassword', e.target.value)} placeholder="password" />
+              </div>
+            </div>
+          </div>
+
           <div style={{ gridColumn: 'span 2', display: 'flex', gap: '10px', justifyContent: 'flex-end', marginTop: '4px' }}>
             <button onClick={onClose} style={{ padding: '10px 20px', background: 'transparent', border: '1px solid var(--border)', borderRadius: '8px', color: 'var(--text2)', cursor: 'pointer', fontFamily: 'Inter, sans-serif', fontSize: '13px' }}>Cancel</button>
             <button onClick={() => { if (form.name && form.role) { onAdd({ ...form, id: Date.now(), status: 'off-duty', joined: new Date().toISOString().slice(0, 10), avatar: form.name.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase(), salary: +form.salary || 0 }); onClose(); } }} style={{ padding: '10px 24px', background: 'linear-gradient(135deg,#C9A84C,#8A6F2E)', border: 'none', borderRadius: '8px', color: '#fff', cursor: 'pointer', fontWeight: '600', fontSize: '13px', fontFamily: 'Inter, sans-serif' }}>Add Employee</button>
@@ -119,8 +134,15 @@ const EditEmployeeModal = ({ employee, onClose, onSave }) => {
   );
 };
 
-const EmployeesPage = () => {
-  const [employees, setEmployees] = useState(EMPLOYEES);
+const EmployeesPage = ({ role, hotelDetails, plan }) => {
+  const [employees, setEmployees] = useState(() => {
+    try {
+      const stored = localStorage.getItem(`stayos_employees_${hotelDetails?.id || 'default'}`);
+      return stored ? JSON.parse(stored) : EMPLOYEES;
+    } catch {
+      return EMPLOYEES;
+    }
+  });
   const [activeTab, setActiveTab] = useState('staff');
   const [selected, setSelected] = useState(null);
   const [showAdd, setShowAdd] = useState(false);
@@ -137,11 +159,51 @@ const EmployeesPage = () => {
     { label: 'Off Duty', value: employees.filter(e => e.status === 'off-duty').length, color: 'var(--text3)' },
   ];
 
+  const handleAddEmployee = (newEmp) => {
+    if (plan === 'starter' && employees.length >= 1) {
+      alert("Starter Plan Limit Reached! Your plan allows a maximum of 1 staff account. Please upgrade to a higher plan to add more staff.");
+      return;
+    }
+    const nextList = [...employees, newEmp];
+    setEmployees(nextList);
+    localStorage.setItem(`stayos_employees_${hotelDetails?.id || 'default'}`, JSON.stringify(nextList));
+
+    // Create credentials if provided
+    if (newEmp.loginEmail && newEmp.loginPassword && hotelDetails) {
+      try {
+        const storedHotels = JSON.parse(localStorage.getItem('stayos_hotels') || '[]');
+        const updated = storedHotels.map(h => {
+          if (h.id === hotelDetails.id) {
+            const currentReceps = h.receptionists || [];
+            const filteredReceps = currentReceps.filter(r => r.email?.toLowerCase() !== newEmp.loginEmail?.toLowerCase());
+            return {
+              ...h,
+              receptionists: [
+                ...filteredReceps,
+                { email: newEmp.loginEmail, password: newEmp.loginPassword, name: newEmp.name }
+              ]
+            };
+          }
+          return h;
+        });
+        localStorage.setItem('stayos_hotels', JSON.stringify(updated));
+      } catch (err) {
+        console.error(err);
+      }
+    }
+  };
+
+  const handleSaveEmployee = (updatedEmp) => {
+    const nextList = employees.map(e => e.id === updatedEmp.id ? updatedEmp : e);
+    setEmployees(nextList);
+    localStorage.setItem(`stayos_employees_${hotelDetails?.id || 'default'}`, JSON.stringify(nextList));
+  };
+
   return (
     <div style={{ display: 'flex', flexDirection: 'column', flex: 1, overflow: 'hidden' }}>
       {selected && <EmployeeModal employee={selected} onClose={() => setSelected(null)} />}
-      {showAdd && <AddEmployeeModal onClose={() => setShowAdd(false)} onAdd={emp => setEmployees(p => [...p, emp])} />}
-      {editEmployee && <EditEmployeeModal employee={editEmployee} onClose={() => setEditEmployee(null)} onSave={emp => setEmployees(p => p.map(e => e.id === emp.id ? emp : e))} />}
+      {showAdd && <AddEmployeeModal onClose={() => setShowAdd(false)} onAdd={handleAddEmployee} />}
+      {editEmployee && <EditEmployeeModal employee={editEmployee} onClose={() => setEditEmployee(null)} onSave={handleSaveEmployee} />}
 
       <div style={{ padding: '16px 32px 0', borderBottom: '1px solid var(--border)', display: 'flex', gap: '0' }}>
         {[['staff', 'Staff Directory'], ['attendance', 'Attendance']].map(([id, label]) => (
@@ -177,6 +239,51 @@ const EmployeesPage = () => {
           </div>
 
           {/* Employee Cards */}
+          {filtered.length === 0 ? (
+            <div style={{
+              background: 'var(--card)', border: '2px dashed var(--border)',
+              borderRadius: 'var(--radius-lg)', padding: '48px 32px',
+              textAlign: 'center', display: 'flex', flexDirection: 'column',
+              alignItems: 'center', gap: '16px',
+            }}>
+              <div style={{
+                width: '64px', height: '64px', borderRadius: '50%',
+                background: 'linear-gradient(135deg, rgba(201,168,76,0.15), rgba(201,168,76,0.05))',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                fontSize: '28px',
+              }}>
+                👤
+              </div>
+              <div>
+                <div style={{ fontSize: '18px', fontWeight: '700', fontFamily: 'Poppins, sans-serif', color: 'var(--text)', marginBottom: '6px' }}>
+                  No Staff Members Yet
+                </div>
+                <div style={{ fontSize: '13px', color: 'var(--text3)', maxWidth: '400px', lineHeight: '1.6' }}>
+                  {plan === 'starter'
+                    ? 'Your Starter plan includes 1 receptionist account. Add a receptionist to handle bookings and check-ins.'
+                    : 'Add employees to manage your hotel staff, shifts, and attendance.'}
+                </div>
+              </div>
+              <button
+                onClick={() => setShowAdd(true)}
+                style={{
+                  padding: '12px 28px',
+                  background: 'linear-gradient(135deg, #C9A84C, #8A6F2E)',
+                  border: 'none', borderRadius: '10px', color: '#fff',
+                  cursor: 'pointer', fontSize: '14px', fontWeight: '700',
+                  display: 'flex', alignItems: 'center', gap: '8px',
+                  fontFamily: 'Inter, sans-serif',
+                  boxShadow: '0 4px 14px rgba(201,168,76,0.35)',
+                  transition: 'transform 0.15s, box-shadow 0.15s',
+                }}
+                onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 6px 20px rgba(201,168,76,0.45)'; }}
+                onMouseLeave={e => { e.currentTarget.style.transform = 'none'; e.currentTarget.style.boxShadow = '0 4px 14px rgba(201,168,76,0.35)'; }}
+              >
+                <Icon name="plus" size={16} color="#fff" />
+                {plan === 'starter' ? 'Add Receptionist' : 'Add Employee'}
+              </button>
+            </div>
+          ) : (
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(300px,1fr))', gap: '14px' }}>
             {filtered.map(e => (
               <div key={e.id} style={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: 'var(--radius)', padding: '20px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
@@ -211,6 +318,7 @@ const EmployeesPage = () => {
               </div>
             ))}
           </div>
+          )}
         </div>
       )}
 

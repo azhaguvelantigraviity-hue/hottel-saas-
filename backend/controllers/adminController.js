@@ -39,7 +39,41 @@ exports.getHotel = asyncHandler(async (req, res, next) => {
 });
 
 exports.createHotel = asyncHandler(async (req, res) => {
-  const hotel = await Hotel.create(req.body);
+  const {
+    name, email, phone, website, address, plan, planStatus, totalRooms,
+    adminEmail, adminPassword, managerEmail, managerPassword
+  } = req.body;
+
+  // Create Hotel
+  const hotel = await Hotel.create({
+    name,
+    email: email || adminEmail || managerEmail,
+    phone,
+    website,
+    address,
+    plan,
+    planStatus,
+    totalRooms: totalRooms || req.body.rooms || 0
+  });
+
+  // Extract manager credentials
+  const mEmail = managerEmail || adminEmail;
+  const mPassword = managerPassword || adminPassword;
+
+  if (mEmail && mPassword) {
+    // Create the Manager user with role hotel_admin
+    const manager = await User.create({
+      name: `${name} Manager`,
+      email: mEmail,
+      password: mPassword,
+      role: 'hotel_admin',
+      hotel: hotel._id
+    });
+
+    hotel.owner = manager._id;
+    await hotel.save();
+  }
+
   sendSuccess(res, hotel, 201);
 });
 

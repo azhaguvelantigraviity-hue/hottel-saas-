@@ -52,16 +52,21 @@ const PLAN_LIMITS = {
 
 exports.enforceLimit = (limitKey, Model) => asyncHandler(async (req, _res, next) => {
   const hotelId = req.hotelId || req.user.hotel;
-  const hotel   = await Hotel.findById(hotelId).select('plan');
+  const hotel   = await Hotel.findById(hotelId).select('plan totalRooms');
   if (!hotel) return next(new AppError('Hotel not found', 404));
 
-  const limit = PLAN_LIMITS[hotel.plan]?.[limitKey];
+  let limit = PLAN_LIMITS[hotel.plan]?.[limitKey];
+  if (limitKey === 'rooms' && hotel.totalRooms !== undefined && hotel.totalRooms !== null) {
+    limit = hotel.totalRooms;
+  }
   if (!limit || limit === Infinity) return next();
 
   const count = await Model.countDocuments({ hotel: hotelId });
   if (count >= limit) {
     return next(new AppError(
-      `Your ${hotel.plan} plan allows a maximum of ${limit} ${limitKey}. Upgrade to add more.`,
+      limitKey === 'rooms' && hotel.totalRooms
+        ? `Your room limit of ${limit} rooms has been reached. Contact Admin to increase the limit.`
+        : `Your ${hotel.plan} plan allows a maximum of ${limit} ${limitKey}. Upgrade to add more.`,
       403
     ));
   }

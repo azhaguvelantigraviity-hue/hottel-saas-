@@ -39,7 +39,7 @@ const Sidebar = ({ role, active, onNav, onLogout, plan }) => {
     {
       label: 'STAFF MANAGEMENT',
       items: [
-        { id: 'employees',    icon: 'users',       label: 'Employees',    plans: ['professional','enterprise'] },
+        { id: 'employees',    icon: 'users',       label: 'Employees',    plans: ['starter','professional','enterprise'] },
         { id: 'housekeeping', icon: 'key',         label: 'Housekeeping', plans: ['professional','enterprise'] },
         { id: 'attendance',   icon: 'calendar',    label: 'Attendance',   plans: ['professional','enterprise'] },
         { id: 'payroll',      icon: 'dollar',      label: 'Payroll',      plans: ['professional','enterprise'] },
@@ -50,7 +50,7 @@ const Sidebar = ({ role, active, onNav, onLogout, plan }) => {
       items: [
         { id: 'channel',    icon: 'channel',    label: 'Channel Manager', plans: ['professional','enterprise'] },
         { id: 'revenue',    icon: 'revenue',    label: 'Revenue AI',      plans: ['enterprise'] },
-        { id: 'analytics',  icon: 'chart',      label: 'Analytics',       plans: ['professional','enterprise'] },
+        { id: 'analytics',  icon: 'chart',      label: 'Analytics',       plans: ['starter','professional','enterprise'] },
         { id: 'marketing',  icon: 'marketing',  label: 'Marketing',       plans: ['professional','enterprise'] },
         { id: 'whatsapp',   icon: 'whatsapp',   label: 'WhatsApp',        plans: ['professional','enterprise'] },
       ],
@@ -130,7 +130,7 @@ const Sidebar = ({ role, active, onNav, onLogout, plan }) => {
         <div>
           <div style={{ fontSize: '16px', fontWeight: '700', color: '#FFFFFF', letterSpacing: '-0.01em' }}>StayOS</div>
           <div style={{ fontSize: '10px', color: 'var(--sidebar-text-muted)', letterSpacing: '0.08em', textTransform: 'uppercase' }}>
-            {role === 'admin' ? 'Platform Admin' : 'Hotel Portal'}
+            {role === 'admin' ? 'Platform Admin' : role === 'manager' ? 'Hotel Manager' : 'Reception Desk'}
           </div>
         </div>
       </div>
@@ -140,27 +140,49 @@ const Sidebar = ({ role, active, onNav, onLogout, plan }) => {
         {role === 'admin' ? (
           adminNav.map(item => <NavBtn key={item.id} item={item} locked={false} />)
         ) : (
-          hotelNavGroups.map((group, gi) => (
-            <div key={gi} style={{ marginBottom: '4px' }}>
-              <div style={{
-                fontSize: '10px', fontWeight: '600', letterSpacing: '0.1em',
-                color: 'var(--sidebar-group-label)', padding: '10px 12px 4px',
-                textTransform: 'uppercase',
-              }}>
-                {group.label}
+          hotelNavGroups.map(group => {
+            const isItemVisible = (itemId) => {
+              if (role === 'manager') {
+                const managerPages = ['dashboard', 'rooms', 'employees', 'analytics', 'reports', 'settings'];
+                return managerPages.includes(itemId);
+              }
+              if (role === 'staff') {
+                const staffPages = [
+                  'dashboard', 'rooms', 'bookings', 'checkin', 'billing', 'guests', 'loyalty', 
+                  'restaurant', 'laundry', 'travel', 'events', 'housekeeping', 'attendance',
+                  'channel', 'revenue', 'analytics', 'marketing', 'whatsapp', 'inventory', 
+                  'iot', 'security', 'notifications', 'chatbot', 'reports', 'settings'
+                ];
+                return staffPages.includes(itemId);
+              }
+              return true;
+            };
+
+            const visibleItems = group.items.filter(item => isItemVisible(item.id));
+            if (visibleItems.length === 0) return null;
+
+            return (
+              <div key={group.label} style={{ marginBottom: '4px' }}>
+                <div style={{
+                  fontSize: '10px', fontWeight: '600', letterSpacing: '0.1em',
+                  color: 'var(--sidebar-group-label)', padding: '10px 12px 4px',
+                  textTransform: 'uppercase',
+                }}>
+                  {group.label}
+                </div>
+                {visibleItems.map(item => {
+                  const locked = item.plans && !item.plans.includes(plan || 'starter');
+                  return <NavBtn key={item.id} item={item} locked={locked} />;
+                })}
               </div>
-              {group.items.map(item => {
-                const locked = item.plans && !item.plans.includes(plan || 'starter');
-                return <NavBtn key={item.id} item={item} locked={locked} />;
-              })}
-            </div>
-          ))
+            );
+          })
         )}
       </nav>
 
       {/* Footer */}
       <div style={{ padding: '12px 10px', borderTop: '1px solid var(--sidebar-border)' }}>
-        {role === 'hotel' && plan && (
+        {role !== 'admin' && plan && (
           <div style={{
             padding: '10px 12px', marginBottom: '8px',
             background: 'rgba(255,255,255,0.06)',
