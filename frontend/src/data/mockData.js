@@ -200,7 +200,11 @@ export const SESSIONS = [
   { id: 'SES-05', device: 'Safari – iOS', location: 'Remote – Delhi', lastActive: '5 days ago', current: false, browser: 'Mobile Safari 18', ip: '198.51.100.75' },
 ];
 
-export const CHANNEL_DATA         = [];
+export const CHANNEL_DATA = [
+  { channel: 'Booking.com', color: '#FF5A5F', revenue: 1250000, bookings: 120, commission: 15, pct: 30 },
+  { channel: 'Expedia',     color: '#0D6EFD', revenue: 850000,  bookings: 80,  commission: 12, pct: 25 },
+  { channel: 'Agoda',       color: '#FF9900', revenue: 400000,  bookings: 45,  commission: 10, pct: 15 },
+];
 export const REVENUE_DATA         = [];
 export const ADMIN_REVENUE        = [];
 export const PET_CHARGES = {

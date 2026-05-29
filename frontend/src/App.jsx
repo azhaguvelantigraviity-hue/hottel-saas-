@@ -28,7 +28,7 @@ import LaundryPage from './pages/LaundryPage';
 import TravelDeskPage from './pages/TravelDeskPage';
 import BillingPage from './pages/BillingPage';
 import AnalyticsDashboard from './pages/AnalyticsDashboard';
-import ChatbotPage from './pages/ChatbotPage';
+// import ChatbotPage removed
 import SecurityPage from './pages/SecurityPage';
 import IoTPage from './pages/IoTPage';
 import WhatsAppPage from './pages/WhatsAppPage';
@@ -96,7 +96,7 @@ const HotelApp = ({ onLogout, initialPlan = 'enterprise', role = 'manager', hote
   const planFeatures = {
     starter:      ['dashboard','rooms','bookings','billing','notifications','reports','settings','employees','analytics'],
     professional: ['dashboard','rooms','bookings','billing','notifications','guests','loyalty','employees','housekeeping','restaurant','laundry','maintenance','channel','analytics','marketing','whatsapp','inventory','reports','settings'],
-    enterprise:   ['dashboard','rooms','bookings','billing','notifications','checkin','guests','loyalty','restaurant','laundry','travel','events','employees','housekeeping','maintenance','channel','revenue','analytics','marketing','whatsapp','inventory','iot','security','chatbot','reports','settings'],
+    enterprise:   ['dashboard','rooms','bookings','billing','notifications','checkin','guests','loyalty','restaurant','laundry','travel','events','employees','housekeeping','maintenance','channel','revenue','analytics','marketing','whatsapp','inventory','iot','security','reports','settings'],
   };
   // allowed = everything the plan unlocks — no role filtering (role only affects sidebar grouping)
   const allowed = planFeatures[plan] || planFeatures.starter;
@@ -110,7 +110,7 @@ const HotelApp = ({ onLogout, initialPlan = 'enterprise', role = 'manager', hote
     channel: 'Channel Manager', revenue: 'Revenue AI', analytics: 'Analytics Dashboard',
     marketing: 'Marketing & SEO', whatsapp: 'WhatsApp Integration',
     inventory: 'Inventory Management', iot: 'IoT & Door Locks',
-    security: 'Security & CCTV', chatbot: 'AI Chatbot',
+    security: 'Security & CCTV', // chatbot: 'AI Chatbot',
     notifications: 'Notifications', reports: 'Reports & Analytics', settings: 'Settings',
   };
 
@@ -122,11 +122,11 @@ const HotelApp = ({ onLogout, initialPlan = 'enterprise', role = 'manager', hote
     // professional features
     guests: 'professional', loyalty: 'professional',
     housekeeping: 'professional', restaurant: 'professional', laundry: 'professional',
-    maintenance: 'professional', channel: 'professional',
+    attendance: 'starter', channel: 'professional',
     marketing: 'professional', whatsapp: 'professional', inventory: 'professional',
     // enterprise features
     checkin: 'enterprise', travel: 'enterprise', events: 'enterprise',
-    iot: 'enterprise', security: 'enterprise', chatbot: 'enterprise',
+    iot: 'enterprise', security: 'enterprise',
     revenue: 'enterprise',
   };
 
@@ -163,7 +163,7 @@ const HotelApp = ({ onLogout, initialPlan = 'enterprise', role = 'manager', hote
       case 'inventory': return <InventoryPage />;
       case 'iot': return <IoTPage />;
       case 'security': return <SecurityPage />;
-      case 'chatbot': return <ChatbotPage />;
+      // case 'chatbot' removed
       case 'notifications': return <NotificationsPage />;
       case 'reports': return <ReportsPage />;
       case 'settings': return <SettingsPage role="hotel" plan={plan} onNav={setPage} />;

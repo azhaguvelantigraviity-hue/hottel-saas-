@@ -3,9 +3,18 @@ import StatCard from '../components/StatCard';
 import Icon from '../components/Icon';
 import Badge from '../components/Badge';
 
-const INVENTORY = [];
+const INVENTORY = [
+  { id: 'inv-001', name: 'Toothbrush', category: 'Personal Care', stock: 200, minLevel: 50, unit: 'pcs', lastUpdated: '2026-05-28' },
+  { id: 'inv-002', name: 'Shampoo',      category: 'Personal Care', stock: 30,  minLevel: 100, unit: 'bottles', lastUpdated: '2026-05-29' },
+  { id: 'inv-003', name: 'Towel',        category: 'Linens',       stock: 15,  minLevel: 30,  unit: 'pcs',   lastUpdated: '2026-05-27' },
+  { id: 'inv-004', name: 'Coffee Beans', category: 'Beverages',    stock: 500, minLevel: 200, unit: 'kg',    lastUpdated: '2026-05-26' },
+  { id: 'inv-005', name: 'Wine Bottle',  category: 'Beverages',    stock: 8,   minLevel: 20,  unit: 'bottles', lastUpdated: '2026-05-25' },
+];
 
-const POS = [];
+const POS = [
+  { id: 'PO-001', supplier: 'Supplier A', items: 'Toothbrush x100', amount: 5000, status: 'pending',  date: '2026-05-20' },
+  { id: 'PO-002', supplier: 'Supplier B', items: 'Shampoo x200',    amount: 12000, status: 'approved', date: '2026-05-22' },
+];
 
 const getStatus = (item) => {
   if (item.stock <= item.minLevel * 0.3) return 'critical';
