@@ -3,13 +3,29 @@ import StatCard from '../components/StatCard';
 import Icon from '../components/Icon';
 import Badge from '../components/Badge';
 
-const COUPONS = [];
+const COUPONS = [
+  { id: 'C01', code: 'SUMMER25', discount: '25%', usage: 142, maxUsage: 500, expiry: '2026-08-31', status: 'active' },
+  { id: 'C02', code: 'WELCOME10', discount: '10%', usage: 890, maxUsage: 1000, expiry: '2026-12-31', status: 'active' },
+  { id: 'C03', code: 'FLASH50', discount: '₹500', usage: 200, maxUsage: 200, expiry: '2026-05-15', status: 'expired' }
+];
 
-const CAMPAIGNS = [];
+const CAMPAIGNS = [
+  { id: 'CAMP-1', name: 'Summer Retreat Promo', channel: 'Email Newsletter', reach: 15400, conversions: 312, revenue: 1450000, roi: '340%', status: 'active' },
+  { id: 'CAMP-2', name: 'Weekend Gateway', channel: 'Instagram Ads', reach: 45000, conversions: 120, revenue: 680000, roi: '180%', status: 'active' },
+  { id: 'CAMP-3', name: 'Monsoon Special', channel: 'SMS Bulk', reach: 5000, conversions: 45, revenue: 120000, roi: '95%', status: 'draft' }
+];
 
-const REVIEWS = [];
+const REVIEWS = [
+  { id: 'REV-1', guest: 'Rahul Sharma', rating: 5, date: '2 days ago', text: 'Excellent stay! The staff was very courteous and the room was pristine.', replied: true },
+  { id: 'REV-2', guest: 'Priya Patel', rating: 4, date: '1 week ago', text: 'Good experience overall, but the check-in process took a bit long.', replied: false },
+  { id: 'REV-3', guest: 'Amit Kumar', rating: 5, date: '2 weeks ago', text: 'Loved the IoT features in the room. Very modern and convenient.', replied: true }
+];
 
-const SEO_PAGES = [];
+const SEO_PAGES = [
+  { id: 'SEO-1', title: 'Luxury Rooms in Downtown', slug: '/rooms/luxury', meta: 'Experience premium luxury...', traffic: 3450, status: 'published' },
+  { id: 'SEO-2', title: 'Wedding Venues & Halls', slug: '/events/weddings', meta: 'Book the perfect venue...', traffic: 1200, status: 'published' },
+  { id: 'SEO-3', title: 'Special Offers & Packages', slug: '/offers', meta: 'Discover our latest deals...', traffic: 890, status: 'draft' }
+];
 
 const TABS = ['Coupons', 'Promo Campaigns', 'Google Reviews', 'SEO Pages'];
 
@@ -47,7 +63,7 @@ const MarketingPage = () => {
       <div style={{ display:'grid', gridTemplateColumns:'repeat(4,1fr)', gap:16, marginBottom:24 }}>
         <StatCard title="Active Coupons" value={COUPONS.filter(c=>c.status==='active').length} icon="marketing" color="var(--gold)" />
         <StatCard title="Campaigns" value={CAMPAIGNS.length} icon="trending" color="var(--teal)" />
-        <StatCard title="Avg Rating" value="-" icon="star" color="var(--amber)" />
+        <StatCard title="Avg Rating" value="4.7" icon="star" color="var(--amber)" />
         <StatCard title="SEO Pages" value={SEO_PAGES.length} icon="report" color="var(--violet)" />
       </div>
       <div style={{ background:'var(--card)', border:'1px solid var(--border)', borderRadius:'var(--radius-lg)', padding:24 }}>
