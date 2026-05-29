@@ -4,9 +4,20 @@ import Icon from '../components/Icon';
 import Badge from '../components/Badge';
 import Avatar from '../components/Avatar';
 
-const BRANCHES = [];
+const BRANCHES = [
+  { id: 'br-001', name: 'Downtown', city: 'Mumbai', rooms: 120, occupancy: 78, revenue: 8500000, staff: 45, plan: 'Professional', status: 'active', avatar: 'D' },
+  { id: 'br-002', name: 'Uptown', city: 'Delhi', rooms: 95, occupancy: 65, revenue: 6200000, staff: 38, plan: 'Enterprise', status: 'active', avatar: 'U' },
+  { id: 'br-003', name: 'Beachside', city: 'Goa', rooms: 60, occupancy: 82, revenue: 4800000, staff: 22, plan: 'Starter', status: 'maintenance', avatar: 'B' },
+];
 
-const CONSOLIDATED = [];
+const CONSOLIDATED = [
+  { month: 'Jan', revenue: 2500000 },
+  { month: 'Feb', revenue: 2700000 },
+  { month: 'Mar', revenue: 3000000 },
+  { month: 'Apr', revenue: 3200000 },
+  { month: 'May', revenue: 3400000 },
+  { month: 'Jun', revenue: 3600000 },
+];
 
 const POLICIES = [];
 
