@@ -1,26 +1,36 @@
 import React, { useState } from 'react';
-import Icon from '../components/Icon';
 import Badge from '../components/Badge';
+import { useApi, useMutation } from '../hooks/useApi';
+import { getMenuItems, getPOSOrders, createPOSOrder, updatePOSOrder } from '../services/operationsService';
 import { RESTAURANT_ORDERS, MENU_ITEMS } from '../data/mockData';
 
 const statusColor = { pending: 'amber', preparing: 'violet', delivered: 'green', cancelled: 'rose' };
 const categories = ['All', 'Breakfast', 'Starters', 'Main Course', 'Breads', 'Desserts', 'Beverages', 'Snacks'];
 
 const RestaurantPOS = () => {
-  const [orders, setOrders] = useState(RESTAURANT_ORDERS);
   const [cart, setCart] = useState([]);
   const [tableNo, setTableNo] = useState('');
   const [orderType, setOrderType] = useState('dine-in');
   const [catFilter, setCatFilter] = useState('All');
   const [activeTab, setActiveTab] = useState('pos');
+  const [localOrders, setLocalOrders] = useState(RESTAURANT_ORDERS);
 
-  const menuFiltered = catFilter === 'All' ? MENU_ITEMS.filter(m => m.available) : MENU_ITEMS.filter(m => m.category === catFilter && m.available);
+  const { data: apiMenu } = useApi(() => getMenuItems().catch(() => ({ data: null })), []);
+  const { data: apiOrders, refetch: refetchOrders } = useApi(() => getPOSOrders().catch(() => ({ data: null })), []);
+  const { mutate: placeOrderApi } = useMutation(createPOSOrder);
+  const { mutate: updateOrderApi } = useMutation(updatePOSOrder);
+
+  const menuItems = Array.isArray(apiMenu) ? apiMenu : MENU_ITEMS;
+  const orders = Array.isArray(apiOrders) ? apiOrders : localOrders;
+
+  const menuFiltered = catFilter === 'All' ? menuItems.filter(m => m.available) : menuItems.filter(m => m.category === catFilter && m.available);
 
   const addToCart = (item) => {
     setCart(prev => {
-      const existing = prev.find(c => c.id === item.id);
-      if (existing) return prev.map(c => c.id === item.id ? { ...c, qty: c.qty + 1 } : c);
-      return [...prev, { ...item, qty: 1 }];
+      const existing = prev.find(c => c.id === item.id || c._id === item._id);
+      const key = item.id || item._id;
+      if (existing) return prev.map(c => (c.id === key || c._id === key) ? { ...c, qty: c.qty + 1 } : c);
+      return [...prev, { ...item, id: item.id || item._id, qty: 1 }];
     });
   };
 
@@ -29,23 +39,41 @@ const RestaurantPOS = () => {
   const cartTotal = cart.reduce((s, c) => s + c.price * c.qty, 0);
   const tax = Math.round(cartTotal * 0.05);
 
-  const placeOrder = () => {
+  const placeOrder = async () => {
     if (!cart.length || !tableNo) return;
-    const newOrder = {
-      id: `ORD-${String(orders.length + 1).padStart(3, '0')}`,
-      table: tableNo,
-      items: cart.map(c => ({ name: c.name, qty: c.qty, price: c.price })),
-      total: cartTotal + tax,
-      status: 'pending',
-      time: new Date().toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' }),
-      type: orderType,
-    };
-    setOrders(prev => [newOrder, ...prev]);
-    setCart([]);
-    setTableNo('');
+    try {
+      await placeOrderApi({
+        table: tableNo,
+        type: orderType,
+        items: cart.map(c => ({ menuItem: c._id, name: c.name, qty: c.qty, price: c.price })),
+      });
+      setCart([]);
+      setTableNo('');
+      refetchOrders();
+    } catch {
+      const newOrder = {
+        id: `ORD-${String(orders.length + 1).padStart(3, '0')}`,
+        table: tableNo,
+        items: cart.map(c => ({ name: c.name, qty: c.qty, price: c.price })),
+        total: cartTotal + tax,
+        status: 'pending',
+        time: new Date().toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' }),
+        type: orderType,
+      };
+      setLocalOrders(prev => [newOrder, ...prev]);
+      setCart([]);
+      setTableNo('');
+    }
   };
 
-  const updateOrderStatus = (id, status) => setOrders(prev => prev.map(o => o.id === id ? { ...o, status } : o));
+  const updateOrderStatus = async (id, status) => {
+    try {
+      await updateOrderApi(id, { status });
+      refetchOrders();
+    } catch {
+      setLocalOrders(prev => prev.map(o => o.id === id ? { ...o, status } : o));
+    }
+  };
 
   const inputStyle = { padding: '10px 12px', background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: '8px', color: 'var(--text)', fontSize: '13px', outline: 'none', fontFamily: 'Inter, sans-serif' };
 
@@ -71,9 +99,10 @@ const RestaurantPOS = () => {
             </div>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(160px,1fr))', gap: '12px' }}>
               {menuFiltered.map(item => {
-                const inCart = cart.find(c => c.id === item.id);
+                const itemKey = item.id || item._id;
+                const inCart = cart.find(c => c.id === itemKey);
                 return (
-                  <div key={item.id} onClick={() => addToCart(item)} style={{ background: 'var(--card)', border: `1px solid ${inCart ? 'var(--gold)' : 'var(--border)'}`, borderRadius: 'var(--radius)', padding: '14px', cursor: 'pointer', transition: 'all 0.2s', position: 'relative' }}
+                  <div key={itemKey} onClick={() => addToCart(item)} style={{ background: 'var(--card)', border: `1px solid ${inCart ? 'var(--gold)' : 'var(--border)'}`, borderRadius: 'var(--radius)', padding: '14px', cursor: 'pointer', transition: 'all 0.2s', position: 'relative' }}
                     onMouseEnter={e => e.currentTarget.style.borderColor = 'var(--gold)'}
                     onMouseLeave={e => e.currentTarget.style.borderColor = inCart ? 'var(--gold)' : 'var(--border)'}>
                     {inCart && <div style={{ position: 'absolute', top: '8px', right: '8px', width: '20px', height: '20px', borderRadius: '50%', background: 'var(--gold)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '11px', fontWeight: '700', color: '#000' }}>{inCart.qty}</div>}
@@ -145,12 +174,15 @@ const RestaurantPOS = () => {
       {(activeTab === 'orders' || activeTab === 'history') && (
         <div style={{ padding: '24px', overflowY: 'auto', flex: 1 }}>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(300px,1fr))', gap: '14px' }}>
-            {orders.filter(o => activeTab === 'orders' ? ['pending', 'preparing'].includes(o.status) : ['delivered', 'cancelled'].includes(o.status)).map(order => (
-              <div key={order.id} style={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: 'var(--radius)', padding: '16px' }}>
+             {orders.filter(o => activeTab === 'orders' ? ['pending', 'preparing'].includes(o.status) : ['delivered', 'cancelled'].includes(o.status)).map(order => {
+              const orderKey = order.id || order.orderId || order._id;
+              const orderIdDisplay = order.id || order.orderId || orderKey?.slice(-6);
+              return (
+              <div key={orderKey} style={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: 'var(--radius)', padding: '16px' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '12px' }}>
                   <div>
-                    <div style={{ fontSize: '14px', fontWeight: '700', fontFamily: 'DM Mono,monospace', color: 'var(--gold)' }}>{order.id}</div>
-                    <div style={{ fontSize: '12px', color: 'var(--text3)' }}>{order.table} · {order.time} · {order.type.replace('-', ' ')}</div>
+                    <div style={{ fontSize: '14px', fontWeight: '700', fontFamily: 'DM Mono,monospace', color: 'var(--gold)' }}>{orderIdDisplay}</div>
+                    <div style={{ fontSize: '12px', color: 'var(--text3)' }}>{order.table} · {order.time || new Date(order.createdAt).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' })} · {order.type.replace('-', ' ')}</div>
                   </div>
                   <Badge color={statusColor[order.status]}>{order.status}</Badge>
                 </div>
@@ -164,11 +196,11 @@ const RestaurantPOS = () => {
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid var(--border)', paddingTop: '10px' }}>
                   <span style={{ fontSize: '15px', fontWeight: '700', color: 'var(--gold)', fontFamily: 'DM Mono,monospace' }}>₹{order.total.toLocaleString()}</span>
-                  {order.status === 'pending' && <button onClick={() => updateOrderStatus(order.id, 'preparing')} style={{ padding: '6px 12px', background: 'rgba(167,139,250,0.15)', border: '1px solid rgba(167,139,250,0.3)', borderRadius: '6px', color: 'var(--violet)', cursor: 'pointer', fontSize: '12px', fontWeight: '600', fontFamily: 'Inter, sans-serif' }}>Start Preparing</button>}
-                  {order.status === 'preparing' && <button onClick={() => updateOrderStatus(order.id, 'delivered')} style={{ padding: '6px 12px', background: 'rgba(52,211,153,0.15)', border: '1px solid rgba(52,211,153,0.3)', borderRadius: '6px', color: 'var(--green)', cursor: 'pointer', fontSize: '12px', fontWeight: '600', fontFamily: 'Inter, sans-serif' }}>Mark Delivered</button>}
+                  {order.status === 'pending' && <button onClick={() => updateOrderStatus(orderKey, 'preparing')} style={{ padding: '6px 12px', background: 'rgba(167,139,250,0.15)', border: '1px solid rgba(167,139,250,0.3)', borderRadius: '6px', color: 'var(--violet)', cursor: 'pointer', fontSize: '12px', fontWeight: '600', fontFamily: 'Inter, sans-serif' }}>Start Preparing</button>}
+                  {order.status === 'preparing' && <button onClick={() => updateOrderStatus(orderKey, 'delivered')} style={{ padding: '6px 12px', background: 'rgba(52,211,153,0.15)', border: '1px solid rgba(52,211,153,0.3)', borderRadius: '6px', color: 'var(--green)', cursor: 'pointer', fontSize: '12px', fontWeight: '600', fontFamily: 'Inter, sans-serif' }}>Mark Delivered</button>}
                 </div>
-              </div>
-            ))}
+              </div>);
+            })}
           </div>
         </div>
       )}

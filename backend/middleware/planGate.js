@@ -10,6 +10,8 @@ const FEATURE_PLAN_MAP = {
   restaurantPOS:       'professional',
   channelManager:      'professional',
   advancedAnalytics:   'professional',
+  eventsModule:        'enterprise',
+  securityModule:      'enterprise',
   revenueManagementAI: 'enterprise',
   multiProperty:       'enterprise',
   whiteLabel:          'enterprise',

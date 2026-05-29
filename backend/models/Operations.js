@@ -71,7 +71,7 @@ const POSOrderSchema = new mongoose.Schema({
   orderId:    { type: String, unique: true },
   table:      String,
   type:       { type: String, enum: ['dine-in','room-service','takeaway'], default: 'dine-in' },
-  items:      [{ name: String, qty: Number, price: Number }],
+  items:      [{ menuItem: { type: mongoose.Schema.Types.ObjectId, ref: 'MenuItem' }, name: String, qty: Number, price: Number }],
   subtotal:   Number,
   tax:        { type: Number, default: 0 },
   total:      { type: Number, required: true },

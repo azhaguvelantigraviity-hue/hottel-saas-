@@ -1,22 +1,52 @@
 import React, { useState } from 'react';
 import StatCard from '../components/StatCard';
 import Icon from '../components/Icon';
-import Badge from '../components/Badge';
 
-const PRICING = {};
+// ── Pricing — hardcoded so items always show ──────────────────
+const PRICING = {
+  Shirt:    80,
+  Trouser:  100,
+  Suit:     250,
+  Saree:    200,
+  Bedsheet: 150,
+  Towel:    60,
+};
 
-const ORDERS_INIT = [];
+const ITEM_ICONS = {
+  Shirt: '👔', Trouser: '👖', Suit: '🤵',
+  Saree: '🥻', Bedsheet: '🛏️', Towel: '🧺',
+};
 
-const STATUS_FLOW = ['picked','washing','drying','ready','delivered'];
-const statusColor = { picked:'var(--blue)', washing:'var(--teal)', drying:'var(--amber)', ready:'var(--green)', delivered:'var(--text3)' };
+const STATUS_FLOW  = ['picked', 'washing', 'drying', 'ready', 'delivered'];
+const STATUS_COLOR = {
+  picked:    '#3B82F6',
+  washing:   '#14B8A6',
+  drying:    '#F59E0B',
+  ready:     '#10B981',
+  delivered: '#6B7280',
+};
+const STATUS_LABEL = {
+  picked: 'Picked Up', washing: 'Washing', drying: 'Drying',
+  ready: 'Ready', delivered: 'Delivered',
+};
 
-const TABS = ['Active Orders', 'New Order', 'Billing'];
+const TABS = ['Active Orders', 'New Order', 'Price List'];
+
+const inp = {
+  width: '100%', background: 'var(--bg)', border: '1px solid var(--border)',
+  borderRadius: '8px', padding: '10px 14px', color: 'var(--text)',
+  fontFamily: 'Inter, sans-serif', fontSize: '14px', boxSizing: 'border-box', outline: 'none',
+};
+
+const EMPTY_ITEMS = Object.fromEntries(Object.keys(PRICING).map(k => [k, 0]));
 
 const LaundryPage = () => {
-  const [tab, setTab] = useState(0);
-  const [orders, setOrders] = useState(ORDERS_INIT);
-  const [form, setForm] = useState({ room:'', guest:'', express:false, items:{ Shirt:0, Trouser:0, Suit:0, Saree:0, Bedsheet:0, Towel:0 } });
+  const [tab,    setTab]    = useState(0);
+  const [orders, setOrders] = useState([]);
+  const [form,   setForm]   = useState({ room: '', guest: '', express: false, items: { ...EMPTY_ITEMS } });
+  const [error,  setError]  = useState('');
 
+  // ── Advance order status ──────────────────────────────────
   const advance = (id) => {
     setOrders(prev => prev.map(o => {
       if (o.id !== id) return o;
@@ -25,125 +55,279 @@ const LaundryPage = () => {
     }));
   };
 
-  const calcBill = (items) => Object.entries(items).reduce((sum, [name, qty]) => sum + (PRICING[name] || 0) * qty, 0);
-  const formTotal = calcBill(form.items) * (form.express ? 1.5 : 1);
+  // ── Bill calculation ──────────────────────────────────────
+  const calcBill = (items) =>
+    Object.entries(items).reduce((sum, [name, qty]) => sum + (PRICING[name] || 0) * qty, 0);
 
+  const subtotal  = calcBill(form.items);
+  const formTotal = Math.round(subtotal * (form.express ? 1.5 : 1));
+
+  const totalItems = Object.values(form.items).reduce((s, q) => s + q, 0);
+
+  // ── Create order ──────────────────────────────────────────
   const addOrder = () => {
-    const itemList = Object.entries(form.items).filter(([,q]) => q > 0).map(([name, qty]) => ({ name, qty }));
-    if (!form.room || itemList.length === 0) return;
-    const newOrder = { id:`LN-00${orders.length + 4}`, room:form.room, guest:form.guest || 'Guest', items:itemList, status:'picked', pickup:new Date().toTimeString().slice(0,5), express:form.express, amount:Math.round(formTotal) };
+    setError('');
+    if (!form.room.trim()) { setError('Please enter a room number.'); return; }
+    if (totalItems === 0)  { setError('Please add at least one item.'); return; }
+
+    const itemList = Object.entries(form.items)
+      .filter(([, q]) => q > 0)
+      .map(([name, qty]) => ({ name, qty }));
+
+    const newOrder = {
+      id:      `LN-${String(orders.length + 1).padStart(3, '0')}`,
+      room:    form.room.trim(),
+      guest:   form.guest.trim() || 'Guest',
+      items:   itemList,
+      status:  'picked',
+      pickup:  new Date().toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', hour12: false }),
+      express: form.express,
+      amount:  formTotal,
+    };
+
     setOrders(prev => [newOrder, ...prev]);
-    setForm({ room:'', guest:'', express:false, items:{ Shirt:0, Trouser:0, Suit:0, Saree:0, Bedsheet:0, Towel:0 } });
-    setTab(0);
+    setForm({ room: '', guest: '', express: false, items: { ...EMPTY_ITEMS } });
+    setTab(0); // switch to Active Orders
   };
 
+  // ── Stats ─────────────────────────────────────────────────
+  const inProgress = orders.filter(o => ['picked', 'washing', 'drying'].includes(o.status)).length;
+  const ready      = orders.filter(o => o.status === 'ready').length;
+  const delivered  = orders.filter(o => o.status === 'delivered').length;
+
   return (
-    <div style={{ flex: 1, overflowY: 'auto', padding: 24 }}>
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 16, marginBottom: 24 }}>
-        <StatCard title="Total Today" value="-" icon="laundry" color="var(--teal)" />
-        <StatCard title="In Progress" value={orders.filter(o=>['picked','washing','drying'].includes(o.status)).length} icon="refresh" color="var(--amber)" />
-        <StatCard title="Ready" value={orders.filter(o=>o.status==='ready').length} icon="check" color="var(--green)" />
-        <StatCard title="Delivered" value={orders.filter(o=>o.status==='delivered').length} icon="arrow" color="var(--text3)" />
+    <div style={{ flex: 1, overflowY: 'auto', padding: '24px' }}>
+      {/* Stats */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: '16px', marginBottom: '24px' }}>
+        <StatCard title="Total Orders" value={orders.length} icon="laundry" color="var(--teal)" />
+        <StatCard title="In Progress"  value={inProgress}    icon="refresh" color="var(--amber)" />
+        <StatCard title="Ready"        value={ready}         icon="check"   color="var(--green)" />
+        <StatCard title="Delivered"    value={delivered}     icon="arrow"   color="var(--text3)" />
       </div>
-      <div style={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: 'var(--radius-lg)', padding: 24 }}>
-        <div style={{ display: 'flex', gap: 4, marginBottom: 24, background: 'var(--surface)', borderRadius: 10, padding: 4 }}>
+
+      <div style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: '14px', overflow: 'hidden' }}>
+        {/* Tabs */}
+        <div style={{ display: 'flex', borderBottom: '1px solid var(--border)' }}>
           {TABS.map((t, i) => (
-            <button key={i} onClick={() => setTab(i)} style={{ flex: 1, padding: '9px 8px', borderRadius: 8, border: 'none', cursor: 'pointer', fontFamily: 'Inter, sans-serif', fontSize: 13, fontWeight: 500, background: tab === i ? 'var(--card)' : 'transparent', color: tab === i ? 'var(--gold)' : 'var(--text2)' }}>{t}</button>
+            <button key={i} onClick={() => setTab(i)} style={{
+              flex: 1, padding: '14px 8px', border: 'none', cursor: 'pointer',
+              fontFamily: 'Inter, sans-serif', fontSize: '13px', fontWeight: '600',
+              background: 'transparent',
+              borderBottom: `2px solid ${tab === i ? 'var(--primary)' : 'transparent'}`,
+              color: tab === i ? 'var(--primary)' : 'var(--text3)',
+              transition: 'all 0.15s',
+            }}>{t}</button>
           ))}
         </div>
 
-        {tab === 0 && (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-            {orders.map(order => (
-              <div key={order.id} style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 'var(--radius)', padding: 16 }}>
-                <div style={{ display: 'flex', alignItems: 'flex-start', gap: 16, flexWrap: 'wrap' }}>
-                  <div style={{ flex: 1, minWidth: 200 }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 }}>
-                      <span style={{ fontFamily: 'DM Mono, monospace', fontSize: 13, color: 'var(--gold)' }}>{order.id}</span>
-                      <span style={{ fontSize: 13, fontWeight: 600, color: 'var(--text)' }}>Room {order.room}</span>
-                      <span style={{ fontSize: 12, color: 'var(--text3)' }}>— {order.guest}</span>
-                      {order.express && <span style={{ fontSize: 10, fontWeight: 700, color: 'var(--rose)', background: 'rgba(251,113,133,0.12)', padding: '2px 8px', borderRadius: 20 }}>EXPRESS</span>}
-                    </div>
-                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginBottom: 8 }}>
-                      {order.items.map(item => <span key={item.name} style={{ fontSize: 12, padding: '3px 8px', background: 'var(--card)', border: '1px solid var(--border)', borderRadius: 20, color: 'var(--text2)' }}>{item.name} ×{item.qty}</span>)}
-                    </div>
-                    <div style={{ fontSize: 12, color: 'var(--text3)' }}>Pickup: {order.pickup} · ₹{order.amount}</div>
-                  </div>
-                  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 8 }}>
-                    <span style={{ fontSize: 12, fontWeight: 700, color: statusColor[order.status], textTransform: 'uppercase', padding: '4px 12px', background: `${statusColor[order.status]}18`, borderRadius: 20 }}>{order.status}</span>
-                    {order.status !== 'delivered' && (
-                      <button onClick={() => advance(order.id)} style={{ background: 'linear-gradient(135deg,#C9A84C,#8A6F2E)', border: 'none', borderRadius: 8, padding: '6px 14px', color: '#fff', cursor: 'pointer', fontSize: 12, fontFamily: 'Inter, sans-serif', fontWeight: 600 }}>Advance →</button>
-                    )}
-                  </div>
+        <div style={{ padding: '24px' }}>
+          {/* ── Active Orders ── */}
+          {tab === 0 && (
+            <div>
+              {orders.length === 0 ? (
+                <div style={{ textAlign: 'center', padding: '60px 20px' }}>
+                  <div style={{ fontSize: '48px', marginBottom: '12px' }}>🧺</div>
+                  <div style={{ fontSize: '16px', fontWeight: '600', color: 'var(--text)', marginBottom: '6px' }}>No laundry orders yet</div>
+                  <div style={{ fontSize: '13px', color: 'var(--text3)', marginBottom: '20px' }}>Go to "New Order" tab to create one</div>
+                  <button onClick={() => setTab(1)} style={{ padding: '10px 24px', background: 'linear-gradient(135deg,#C9A84C,#8A6F2E)', border: 'none', borderRadius: '8px', color: '#fff', cursor: 'pointer', fontWeight: '600', fontSize: '13px' }}>
+                    + New Order
+                  </button>
                 </div>
-                <div style={{ display: 'flex', gap: 4, marginTop: 12 }}>
-                  {STATUS_FLOW.map((s, i) => {
-                    const cur = STATUS_FLOW.indexOf(order.status);
-                    return <div key={s} style={{ flex: 1, height: 4, borderRadius: 2, background: i <= cur ? statusColor[order.status] : 'var(--border)', transition: 'background 0.3s' }} />;
+              ) : (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                  {orders.map(order => (
+                    <div key={order.id} style={{ background: 'var(--bg)', border: '1px solid var(--border)', borderRadius: '10px', padding: '16px' }}>
+                      <div style={{ display: 'flex', alignItems: 'flex-start', gap: '16px', flexWrap: 'wrap' }}>
+                        <div style={{ flex: 1, minWidth: '200px' }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px', flexWrap: 'wrap' }}>
+                            <span style={{ fontFamily: 'DM Mono,monospace', fontSize: '13px', color: 'var(--primary)', fontWeight: '700' }}>{order.id}</span>
+                            <span style={{ fontSize: '13px', fontWeight: '700', color: 'var(--text)' }}>Room {order.room}</span>
+                            <span style={{ fontSize: '12px', color: 'var(--text3)' }}>— {order.guest}</span>
+                            {order.express && (
+                              <span style={{ fontSize: '10px', fontWeight: '700', color: '#fff', background: 'var(--rose)', padding: '2px 8px', borderRadius: '20px' }}>EXPRESS</span>
+                            )}
+                          </div>
+                          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', marginBottom: '8px' }}>
+                            {order.items.map(item => (
+                              <span key={item.name} style={{ fontSize: '12px', padding: '3px 10px', background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: '20px', color: 'var(--text2)' }}>
+                                {ITEM_ICONS[item.name] || '👕'} {item.name} ×{item.qty}
+                              </span>
+                            ))}
+                          </div>
+                          <div style={{ fontSize: '12px', color: 'var(--text3)' }}>
+                            Picked up: {order.pickup} &nbsp;·&nbsp;
+                            <span style={{ fontFamily: 'DM Mono,monospace', color: 'var(--text)', fontWeight: '600' }}>₹{order.amount}</span>
+                          </div>
+                        </div>
+                        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '8px' }}>
+                          <span style={{
+                            fontSize: '11px', fontWeight: '700', textTransform: 'uppercase',
+                            padding: '5px 14px', borderRadius: '20px',
+                            color: STATUS_COLOR[order.status],
+                            background: `${STATUS_COLOR[order.status]}18`,
+                            border: `1px solid ${STATUS_COLOR[order.status]}40`,
+                          }}>
+                            {STATUS_LABEL[order.status]}
+                          </span>
+                          {order.status !== 'delivered' && (
+                            <button
+                              onClick={() => advance(order.id)}
+                              style={{ background: 'linear-gradient(135deg,#C9A84C,#8A6F2E)', border: 'none', borderRadius: '8px', padding: '7px 16px', color: '#fff', cursor: 'pointer', fontSize: '12px', fontWeight: '600' }}
+                            >
+                              Advance →
+                            </button>
+                          )}
+                        </div>
+                      </div>
+                      {/* Progress bar */}
+                      <div style={{ display: 'flex', gap: '4px', marginTop: '12px' }}>
+                        {STATUS_FLOW.map((s, i) => {
+                          const cur = STATUS_FLOW.indexOf(order.status);
+                          return (
+                            <div key={s} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '3px' }}>
+                              <div style={{ height: '4px', width: '100%', borderRadius: '2px', background: i <= cur ? STATUS_COLOR[order.status] : 'var(--border)', transition: 'background 0.3s' }} />
+                              <div style={{ fontSize: '9px', color: i <= cur ? STATUS_COLOR[order.status] : 'var(--text4)', fontWeight: i === cur ? '700' : '400' }}>
+                                {STATUS_LABEL[s].split(' ')[0]}
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* ── New Order ── */}
+          {tab === 1 && (
+            <div style={{ maxWidth: '520px' }}>
+              <div style={{ fontSize: '15px', fontWeight: '700', color: 'var(--text)', marginBottom: '20px' }}>Create Laundry Order</div>
+
+              {/* Room + Guest */}
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '14px', marginBottom: '20px' }}>
+                <div>
+                  <label style={{ fontSize: '11px', color: 'var(--text3)', display: 'block', marginBottom: '5px', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Room Number *</label>
+                  <input value={form.room} onChange={e => setForm(f => ({ ...f, room: e.target.value }))} style={inp} placeholder="e.g. 101" />
+                </div>
+                <div>
+                  <label style={{ fontSize: '11px', color: 'var(--text3)', display: 'block', marginBottom: '5px', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Guest Name</label>
+                  <input value={form.guest} onChange={e => setForm(f => ({ ...f, guest: e.target.value }))} style={inp} placeholder="e.g. Rahul Sharma" />
+                </div>
+              </div>
+
+              {/* Items */}
+              <div style={{ marginBottom: '20px' }}>
+                <label style={{ fontSize: '11px', color: 'var(--text3)', display: 'block', marginBottom: '10px', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+                  Select Items *
+                </label>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: '10px' }}>
+                  {Object.entries(PRICING).map(([item, price]) => {
+                    const qty = form.items[item] || 0;
+                    return (
+                      <div key={item} style={{
+                        background: qty > 0 ? 'rgba(201,168,76,0.08)' : 'var(--bg)',
+                        border: `1px solid ${qty > 0 ? 'rgba(201,168,76,0.4)' : 'var(--border)'}`,
+                        borderRadius: '10px', padding: '12px', textAlign: 'center',
+                        transition: 'all 0.15s',
+                      }}>
+                        <div style={{ fontSize: '22px', marginBottom: '4px' }}>{ITEM_ICONS[item]}</div>
+                        <div style={{ fontSize: '13px', fontWeight: '600', color: 'var(--text)', marginBottom: '2px' }}>{item}</div>
+                        <div style={{ fontSize: '11px', color: 'var(--text3)', marginBottom: '10px' }}>₹{price}/pc</div>
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px' }}>
+                          <button
+                            onClick={() => setForm(f => ({ ...f, items: { ...f.items, [item]: Math.max(0, (f.items[item] || 0) - 1) } }))}
+                            style={{ width: '26px', height: '26px', borderRadius: '50%', border: '1px solid var(--border)', background: 'var(--surface)', color: 'var(--text2)', cursor: 'pointer', fontSize: '16px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: '700' }}
+                          >−</button>
+                          <span style={{ fontFamily: 'DM Mono,monospace', fontSize: '15px', fontWeight: '700', color: qty > 0 ? 'var(--gold)' : 'var(--text)', minWidth: '20px', textAlign: 'center' }}>{qty}</span>
+                          <button
+                            onClick={() => setForm(f => ({ ...f, items: { ...f.items, [item]: (f.items[item] || 0) + 1 } }))}
+                            style={{ width: '26px', height: '26px', borderRadius: '50%', border: 'none', background: 'var(--gold)', color: '#fff', cursor: 'pointer', fontSize: '16px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: '700' }}
+                          >+</button>
+                        </div>
+                      </div>
+                    );
                   })}
                 </div>
               </div>
-            ))}
-          </div>
-        )}
 
-        {tab === 1 && (
-          <div style={{ maxWidth: 480 }}>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14, marginBottom: 14 }}>
-              {[['Room Number','room'],['Guest Name','guest']].map(([label, field]) => (
-                <div key={field}>
-                  <label style={{ fontSize: 12, color: 'var(--text3)', display: 'block', marginBottom: 6, textTransform: 'uppercase', letterSpacing: '0.06em' }}>{label}</label>
-                  <input value={form[field]} onChange={e => setForm(f => ({ ...f, [field]: e.target.value }))} style={{ width: '100%', background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 8, padding: '10px 14px', color: 'var(--text)', fontFamily: 'Inter, sans-serif', fontSize: 14, boxSizing: 'border-box' }} />
+              {/* Express toggle */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '16px', padding: '12px 16px', background: 'var(--bg)', border: '1px solid var(--border)', borderRadius: '8px' }}>
+                <div
+                  onClick={() => setForm(f => ({ ...f, express: !f.express }))}
+                  style={{ width: '40px', height: '22px', borderRadius: '11px', cursor: 'pointer', transition: 'background 0.2s', background: form.express ? 'var(--gold)' : 'var(--border)', position: 'relative', flexShrink: 0 }}
+                >
+                  <div style={{ position: 'absolute', top: '3px', width: '16px', height: '16px', borderRadius: '50%', background: '#fff', transition: 'left 0.2s', left: form.express ? '21px' : '3px' }} />
+                </div>
+                <div>
+                  <div style={{ fontSize: '13px', fontWeight: '600', color: 'var(--text)' }}>Express Service</div>
+                  <div style={{ fontSize: '11px', color: 'var(--text3)' }}>50% surcharge — delivered within 4 hours</div>
+                </div>
+              </div>
+
+              {/* Bill summary */}
+              {totalItems > 0 && (
+                <div style={{ padding: '14px 16px', background: 'rgba(201,168,76,0.08)', border: '1px solid rgba(201,168,76,0.25)', borderRadius: '10px', marginBottom: '16px' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px', color: 'var(--text2)', marginBottom: '4px' }}>
+                    <span>Subtotal ({totalItems} items)</span>
+                    <span>₹{subtotal}</span>
+                  </div>
+                  {form.express && (
+                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px', color: 'var(--rose)', marginBottom: '4px' }}>
+                      <span>Express surcharge (50%)</span>
+                      <span>₹{Math.round(subtotal * 0.5)}</span>
+                    </div>
+                  )}
+                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '16px', fontWeight: '700', color: 'var(--gold)', borderTop: '1px solid rgba(201,168,76,0.2)', paddingTop: '8px', marginTop: '4px' }}>
+                    <span>Total</span>
+                    <span style={{ fontFamily: 'DM Mono,monospace' }}>₹{formTotal}</span>
+                  </div>
+                </div>
+              )}
+
+              {/* Error */}
+              {error && (
+                <div style={{ padding: '10px 14px', background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.3)', borderRadius: '8px', color: 'var(--rose)', fontSize: '13px', marginBottom: '14px' }}>
+                  ⚠️ {error}
+                </div>
+              )}
+
+              {/* Submit */}
+              <button
+                onClick={addOrder}
+                style={{
+                  width: '100%', padding: '13px', background: 'linear-gradient(135deg,#C9A84C,#8A6F2E)',
+                  border: 'none', borderRadius: '10px', color: '#fff', cursor: 'pointer',
+                  fontWeight: '700', fontSize: '15px', display: 'flex', alignItems: 'center',
+                  justifyContent: 'center', gap: '8px',
+                }}
+              >
+                🧺 Create Laundry Order
+              </button>
+            </div>
+          )}
+
+          {/* ── Price List ── */}
+          {tab === 2 && (
+            <div style={{ maxWidth: '400px' }}>
+              <div style={{ fontSize: '15px', fontWeight: '700', color: 'var(--text)', marginBottom: '16px' }}>Laundry Price List</div>
+              {Object.entries(PRICING).map(([item, price]) => (
+                <div key={item} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '12px 0', borderBottom: '1px solid var(--border)' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                    <span style={{ fontSize: '20px' }}>{ITEM_ICONS[item]}</span>
+                    <span style={{ fontSize: '14px', color: 'var(--text2)' }}>{item}</span>
+                  </div>
+                  <span style={{ fontFamily: 'DM Mono,monospace', fontSize: '14px', fontWeight: '700', color: 'var(--text)' }}>₹{price}/pc</span>
                 </div>
               ))}
-            </div>
-            <div style={{ marginBottom: 16 }}>
-              <label style={{ fontSize: 12, color: 'var(--text3)', display: 'block', marginBottom: 10, textTransform: 'uppercase', letterSpacing: '0.06em' }}>Items</label>
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 10 }}>
-                {Object.keys(PRICING).map(item => (
-                  <div key={item} style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 8, padding: 10, textAlign: 'center' }}>
-                    <div style={{ fontSize: 13, color: 'var(--text)', marginBottom: 4 }}>{item}</div>
-                    <div style={{ fontSize: 11, color: 'var(--text3)', marginBottom: 8 }}>₹{PRICING[item]}</div>
-                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
-                      <button onClick={() => setForm(f => ({ ...f, items: { ...f.items, [item]: Math.max(0, f.items[item] - 1) } }))} style={{ width: 24, height: 24, borderRadius: '50%', border: '1px solid var(--border)', background: 'var(--card)', color: 'var(--text2)', cursor: 'pointer', fontSize: 14, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>-</button>
-                      <span style={{ fontFamily: 'DM Mono, monospace', fontSize: 14, color: 'var(--text)', minWidth: 16, textAlign: 'center' }}>{form.items[item]}</span>
-                      <button onClick={() => setForm(f => ({ ...f, items: { ...f.items, [item]: f.items[item] + 1 } }))} style={{ width: 24, height: 24, borderRadius: '50%', border: '1px solid var(--border)', background: 'var(--card)', color: 'var(--text2)', cursor: 'pointer', fontSize: 14, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>+</button>
-                    </div>
-                  </div>
-                ))}
+              <div style={{ marginTop: '16px', padding: '12px', background: 'rgba(251,113,133,0.08)', border: '1px solid rgba(251,113,133,0.2)', borderRadius: '8px' }}>
+                <div style={{ fontSize: '12px', color: 'var(--rose)', fontWeight: '600', marginBottom: '2px' }}>Express Service</div>
+                <div style={{ fontSize: '13px', color: 'var(--text2)' }}>50% surcharge on base price · Delivered within 4 hours</div>
               </div>
             </div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16, padding: 12, background: 'var(--surface)', borderRadius: 8 }}>
-              <input type="checkbox" id="express" checked={form.express} onChange={e => setForm(f => ({ ...f, express: e.target.checked }))} />
-              <label htmlFor="express" style={{ fontSize: 14, color: 'var(--text2)', cursor: 'pointer' }}>Express Service (+50%)</label>
-            </div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16, padding: 14, background: 'rgba(201,168,76,0.08)', border: '1px solid rgba(201,168,76,0.2)', borderRadius: 8 }}>
-              <span style={{ fontSize: 14, color: 'var(--text2)' }}>Total Amount</span>
-              <span style={{ fontSize: 20, fontWeight: 700, color: 'var(--gold)', fontFamily: 'DM Mono, monospace' }}>₹{Math.round(formTotal)}</span>
-            </div>
-            <button onClick={addOrder} style={{ background: 'linear-gradient(135deg,#C9A84C,#8A6F2E)', border: 'none', borderRadius: 8, padding: '12px 32px', color: '#fff', cursor: 'pointer', fontFamily: 'Inter, sans-serif', fontWeight: 600, fontSize: 14 }}>Create Order</button>
-          </div>
-        )}
-
-        {tab === 2 && (
-          <div style={{ maxWidth: 480 }}>
-            <div style={{ fontSize: 15, fontWeight: 700, color: 'var(--text)', marginBottom: 16 }}>Price List</div>
-            {Object.entries(PRICING).map(([item, price]) => (
-              <div key={item} style={{ display: 'flex', justifyContent: 'space-between', padding: '10px 0', borderBottom: '1px solid var(--border)' }}>
-                <span style={{ fontSize: 14, color: 'var(--text2)' }}>{item}</span>
-                <span style={{ fontFamily: 'DM Mono, monospace', fontSize: 14, color: 'var(--text)' }}>₹{price}</span>
-              </div>
-            ))}
-            <div style={{ marginTop: 16, padding: 12, background: 'var(--surface)', borderRadius: 8 }}>
-              <div style={{ fontSize: 12, color: 'var(--text3)', marginBottom: 4 }}>GST (18%)</div>
-              <div style={{ fontSize: 13, color: 'var(--text2)' }}>Applied on total bill amount</div>
-            </div>
-            <div style={{ marginTop: 12, padding: 12, background: 'rgba(251,113,133,0.08)', border: '1px solid rgba(251,113,133,0.2)', borderRadius: 8 }}>
-              <div style={{ fontSize: 12, color: 'var(--rose)', fontWeight: 600 }}>Express Service</div>
-              <div style={{ fontSize: 13, color: 'var(--text2)' }}>50% surcharge on base price</div>
-            </div>
-          </div>
-        )}
+          )}
+        </div>
       </div>
     </div>
   );

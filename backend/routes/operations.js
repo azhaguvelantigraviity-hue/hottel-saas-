@@ -4,7 +4,15 @@ const {
   getHousekeepingTasks, createHousekeepingTask, updateHousekeepingTask,
   verifyHousekeepingTask, getHousekeepingDashboard,
   getMaintenanceRequests, createMaintenanceRequest, updateMaintenanceRequest,
+  getMenuItems, createMenuItem, updateMenuItem, deleteMenuItem,
   getPOSOrders, createPOSOrder, updatePOSOrder, getPOSSummary,
+  getHalls, createHall, updateHall, deleteHall,
+  getEventBookings, createEventBooking, updateEventBooking, deleteEventBooking,
+  getCateringPackages, createCateringPackage, updateCateringPackage, deleteCateringPackage,
+  getCameras, createCamera, updateCamera, deleteCamera,
+  getVisitors, createVisitor, updateVisitor, deleteVisitor,
+  getSecurityActivity, createSecurityActivity,
+  getUserSessions, revokeSession,
   getRevenueReport, getOccupancyReport, getBookingSourceReport, getRevenueAIInsights,
   getChannelStatus, syncChannels,
 } = require('../controllers/operationsController');
@@ -29,10 +37,48 @@ router.put  ('/maintenance/:id',  updateMaintenanceRequest);
 
 // ── Restaurant POS (Professional+) ───────────────────────────────────────────
 router.use('/pos', requireFeature('restaurantPOS'));
+router.get  ('/pos/menu',     getMenuItems);
+router.post ('/pos/menu',     createMenuItem);
+router.put  ('/pos/menu/:id', updateMenuItem);
+router.delete('/pos/menu/:id',deleteMenuItem);
 router.get  ('/pos/summary',  getPOSSummary);
 router.get  ('/pos',          getPOSOrders);
 router.post ('/pos',          createPOSOrder);
 router.put  ('/pos/:id',      updatePOSOrder);
+
+// ── Events & Halls (Enterprise) ──────────────────────────────────────────────
+router.use('/events/halls', requireFeature('eventsModule'));
+router.get  ('/events/halls',          getHalls);
+router.post ('/events/halls',          createHall);
+router.put  ('/events/halls/:id',      updateHall);
+router.delete('/events/halls/:id',     deleteHall);
+
+router.use('/events/bookings', requireFeature('eventsModule'));
+router.get  ('/events/bookings',          getEventBookings);
+router.post ('/events/bookings',          createEventBooking);
+router.put  ('/events/bookings/:id',      updateEventBooking);
+router.delete('/events/bookings/:id',     deleteEventBooking);
+
+router.use('/events/catering', requireFeature('eventsModule'));
+router.get  ('/events/catering',          getCateringPackages);
+router.post ('/events/catering',          createCateringPackage);
+router.put  ('/events/catering/:id',      updateCateringPackage);
+router.delete('/events/catering/:id',     deleteCateringPackage);
+
+// ── Security & Access Control (Enterprise) ────────────────────────────────
+router.use('/security', requireFeature('securityModule'));
+router.get  ('/security/cameras',          getCameras);
+router.post ('/security/cameras',          createCamera);
+router.put  ('/security/cameras/:id',      updateCamera);
+router.delete('/security/cameras/:id',     deleteCamera);
+router.get  ('/security/visitors',         getVisitors);
+router.post ('/security/visitors',         createVisitor);
+router.put  ('/security/visitors/:id',     updateVisitor);
+router.delete('/security/visitors/:id',    deleteVisitor);
+router.get  ('/security/activity',         getSecurityActivity);
+router.post ('/security/activity',         createSecurityActivity);
+router.get  ('/security/sessions',         getUserSessions);
+router.delete('/security/sessions/:id',    revokeSession);
 
 // ── Reports ───────────────────────────────────────────────────────────────────
 // Basic reports: all plans | Advanced: Professional+ | AI: Enterprise only
