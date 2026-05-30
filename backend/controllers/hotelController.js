@@ -298,7 +298,11 @@ const getTravelPackages = catchAsync(async (req, res) => {
 
 // ── Guests ─────────────────────────────────────────────────────
 const getGuests = catchAsync(async (req, res) => {
-  const guests = await Guest.find(hotelFilter(req)).sort('-createdAt');
+  // Log query parameters and hotel context for debugging 400 errors
+  console.log('GET /hotel/guests called with query:', req.query, 'hotelId:', req.hotelId);
+  const filter = hotelFilter(req);
+  // If hotelId is undefined, allow fetching all guests (admin) but ensure no empty filter leads to unexpected errors
+  const guests = await Guest.find(filter).sort('-createdAt');
   sendSuccess(res, guests);
 });
 const getGuest = catchAsync(async (req, res) => {

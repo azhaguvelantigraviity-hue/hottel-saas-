@@ -27,8 +27,8 @@ const errorHandler = (err, req, res, _next) => {
 
   const statusCode = error.statusCode || err.statusCode || 500;
 
-  if (statusCode >= 500) {
-    logger.error(`${req.method} ${req.originalUrl} → ${err.message}`, { stack: err.stack });
+  if (statusCode >= 400) {
+    logger.error(`${req.method} ${req.originalUrl} [${statusCode}] → ${err.message}`, { stack: err.stack });
   }
 
   res.status(statusCode).json({
