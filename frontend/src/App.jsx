@@ -34,6 +34,7 @@ import IoTPage from './pages/IoTPage';
 import WhatsAppPage from './pages/WhatsAppPage';
 import NotificationsPage from './pages/NotificationsPage';
 import MarketingPage from './pages/MarketingPage';
+import AttendancePage from './pages/AttendancePage';
 import MultiBranchPage from './pages/MultiBranchPage';
 import Sidebar from './components/Sidebar';
 import Topbar from './components/Topbar';
@@ -94,7 +95,7 @@ const HotelApp = ({ onLogout, initialPlan = 'enterprise', role = 'manager', hote
   const plan = initialPlan;
 
   const planFeatures = {
-    starter:      ['dashboard','rooms','bookings','billing','notifications','reports','settings','employees','analytics'],
+    starter:      ['dashboard','rooms','bookings','billing','notifications','reports','settings','employees','analytics','attendance'],
     professional: ['dashboard','rooms','bookings','billing','notifications','guests','loyalty','employees','housekeeping','restaurant','laundry','maintenance','channel','analytics','marketing','whatsapp','inventory','reports','settings'],
     enterprise:   ['dashboard','rooms','bookings','billing','notifications','checkin','guests','loyalty','restaurant','laundry','travel','events','employees','housekeeping','maintenance','channel','revenue','analytics','marketing','whatsapp','inventory','iot','security','reports','settings'],
   };
@@ -110,6 +111,7 @@ const HotelApp = ({ onLogout, initialPlan = 'enterprise', role = 'manager', hote
     channel: 'Channel Manager', revenue: 'Revenue AI', analytics: 'Analytics Dashboard',
     marketing: 'Marketing & SEO', whatsapp: 'WhatsApp Integration',
     inventory: 'Inventory Management', iot: 'IoT & Door Locks',
+    attendance: 'Attendance',
     security: 'Security & CCTV', // chatbot: 'AI Chatbot',
     notifications: 'Notifications', reports: 'Reports & Analytics', settings: 'Settings',
   };
@@ -153,6 +155,7 @@ const HotelApp = ({ onLogout, initialPlan = 'enterprise', role = 'manager', hote
       case 'travel': return <TravelDeskPage />;
       case 'events': return <EventsPage />;
       case 'employees': return <EmployeesPage role={role} hotelDetails={hotelDetails} plan={plan} />;
+      case 'attendance': return <AttendancePage />;
       case 'housekeeping': return <HousekeepingPage />;
       case 'maintenance': return <MaintenancePage />;
       case 'channel': return <ChannelManagerPage />;

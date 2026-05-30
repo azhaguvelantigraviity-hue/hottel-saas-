@@ -6,11 +6,26 @@ import { ATTENDANCE, EMPLOYEES } from '../data/mockData';
 
 const statusColor = { present: 'green', absent: 'rose', leave: 'amber', late: 'violet' };
 
-const AttendancePage = () => {
-  const [attendance, setAttendance] = useState(ATTENDANCE);
+const loadAttendance = (hotelId) => {
+  try {
+    const data = localStorage.getItem(`stayos_attendance_${hotelId || 'default'}`);
+    return data ? JSON.parse(data) : ATTENDANCE;
+  } catch { return ATTENDANCE; }
+};
+
+const saveAttendance = (records, hotelId) => {
+  try {
+    localStorage.setItem(`stayos_attendance_${hotelId || 'default'}`, JSON.stringify(records));
+  } catch (e) { console.error('Failed to save attendance:', e); }
+};
+
+const AttendancePage = ({ employees = [], hotelDetails = null }) => {
+  const hotelId = hotelDetails?.id || 'default';
+  const [attendance, setAttendance] = useState(() => loadAttendance(hotelId));
   const [selectedDate, setSelectedDate] = useState(new Date().toISOString().slice(0, 10));
   const [activeTab, setActiveTab] = useState('today');
 
+  const employeeList = employees.length > 0 ? employees : EMPLOYEES;
   const todayRecords = attendance.filter(a => a.date === selectedDate);
   const allDates = [...new Set(attendance.map(a => a.date))].sort().reverse();
 
@@ -21,39 +36,52 @@ const AttendancePage = () => {
     { label: 'Total Hours', count: todayRecords.reduce((s, a) => s + (a.hours || 0), 0).toFixed(1) + 'h', color: 'var(--teal)' },
   ];
 
+  const persist = (records) => {
+    setAttendance(records);
+    saveAttendance(records, hotelId);
+  };
+
   const markAttendance = (empId, status) => {
     const now = new Date();
     const timeStr = now.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', hour12: false });
     setAttendance(prev => {
       const existing = prev.find(a => a.employeeId === empId && a.date === selectedDate);
+      let next;
       if (existing) {
-        return prev.map(a => a.employeeId === empId && a.date === selectedDate
+        next = prev.map(a => a.employeeId === empId && a.date === selectedDate
           ? { ...a, status, checkIn: status === 'present' ? (a.checkIn || timeStr) : null }
           : a
         );
+      } else {
+        const emp = employeeList.find(e => e.id === empId);
+        next = [...prev, { id: Date.now(), employeeId: empId, name: emp?.name || '', date: selectedDate, checkIn: status === 'present' ? timeStr : null, checkOut: null, status, hours: null, overtime: 0 }];
       }
-      const emp = EMPLOYEES.find(e => e.id === empId);
-      return [...prev, { id: prev.length + 1, employeeId: empId, name: emp?.name || '', date: selectedDate, checkIn: status === 'present' ? timeStr : null, checkOut: null, status, hours: null, overtime: 0 }];
+      saveAttendance(next, hotelId);
+      return next;
     });
   };
 
   const checkOut = (empId) => {
     const now = new Date();
     const timeStr = now.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', hour12: false });
-    setAttendance(prev => prev.map(a => {
-      if (a.employeeId === empId && a.date === selectedDate && a.checkIn && !a.checkOut) {
-        const [inH, inM] = a.checkIn.split(':').map(Number);
-        const [outH, outM] = timeStr.split(':').map(Number);
-        const hours = Math.round(((outH * 60 + outM) - (inH * 60 + inM)) / 60 * 10) / 10;
-        const overtime = Math.max(0, hours - 8);
-        return { ...a, checkOut: timeStr, hours, overtime };
-      }
-      return a;
-    }));
+    setAttendance(prev => {
+      const next = prev.map(a => {
+        if (a.employeeId === empId && a.date === selectedDate && a.checkIn && !a.checkOut) {
+          const [inH, inM] = a.checkIn.split(':').map(Number);
+          const [outH, outM] = timeStr.split(':').map(Number);
+          const hours = Math.round(((outH * 60 + outM) - (inH * 60 + inM)) / 60 * 10) / 10;
+          const overtime = Math.max(0, hours - 8);
+          return { ...a, checkOut: timeStr, hours, overtime };
+        }
+        return a;
+      });
+      saveAttendance(next, hotelId);
+      return next;
+    });
   };
 
   // Monthly summary per employee
-  const monthlySummary = EMPLOYEES.map(emp => {
+  const monthlySummary = employeeList.map(emp => {
     const empRecords = attendance.filter(a => a.employeeId === emp.id);
     return {
       ...emp,
@@ -96,6 +124,13 @@ const AttendancePage = () => {
 
             {/* Attendance Table */}
             <div style={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: 'var(--radius)', overflow: 'hidden' }}>
+              {employeeList.length === 0 ? (
+                <div style={{ padding: '48px 32px', textAlign: 'center' }}>
+                  <div style={{ fontSize: '40px', marginBottom: '12px' }}>📋</div>
+                  <div style={{ fontSize: '15px', fontWeight: '600', color: 'var(--text)', marginBottom: '6px' }}>No employees to track</div>
+                  <div style={{ fontSize: '13px', color: 'var(--text3)' }}>Add employees from the Staff Directory tab first</div>
+                </div>
+              ) : (
               <table style={{ width: '100%', borderCollapse: 'collapse' }}>
                 <thead>
                   <tr style={{ borderBottom: '1px solid var(--border)', background: 'var(--surface)' }}>
@@ -105,7 +140,7 @@ const AttendancePage = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {EMPLOYEES.map(emp => {
+                  {employeeList.map(emp => {
                     const rec = todayRecords.find(a => a.employeeId === emp.id);
                     return (
                       <tr key={emp.id} style={{ borderBottom: '1px solid var(--border)' }}
@@ -150,6 +185,7 @@ const AttendancePage = () => {
                   })}
                 </tbody>
               </table>
+              )}
             </div>
           </>
         )}
@@ -157,6 +193,13 @@ const AttendancePage = () => {
         {activeTab === 'monthly' && (
           <>
             <div style={{ fontSize: '15px', fontWeight: '700', marginBottom: '20px' }}>Monthly Attendance Summary</div>
+            {employeeList.length === 0 ? (
+              <div style={{ padding: '48px 32px', textAlign: 'center' }}>
+                <div style={{ fontSize: '40px', marginBottom: '12px' }}>📊</div>
+                <div style={{ fontSize: '15px', fontWeight: '600', color: 'var(--text)', marginBottom: '6px' }}>No data to display</div>
+                <div style={{ fontSize: '13px', color: 'var(--text3)' }}>Add employees first to see their monthly summary</div>
+              </div>
+            ) : (
             <div style={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: 'var(--radius)', overflow: 'hidden' }}>
               <table style={{ width: '100%', borderCollapse: 'collapse' }}>
                 <thead>
@@ -203,13 +246,21 @@ const AttendancePage = () => {
                 </tbody>
               </table>
             </div>
+            )}
           </>
         )}
 
         {activeTab === 'report' && (
           <div>
             <div style={{ fontSize: '15px', fontWeight: '700', marginBottom: '20px' }}>Attendance History</div>
-            {allDates.map(date => {
+            {allDates.length === 0 ? (
+              <div style={{ padding: '48px 32px', textAlign: 'center' }}>
+                <div style={{ fontSize: '40px', marginBottom: '12px' }}>📅</div>
+                <div style={{ fontSize: '15px', fontWeight: '600', color: 'var(--text)', marginBottom: '6px' }}>No attendance records yet</div>
+                <div style={{ fontSize: '13px', color: 'var(--text3)' }}>Mark attendance from the Daily Attendance tab to see history here</div>
+              </div>
+            ) : (
+            allDates.map(date => {
               const dayRecords = attendance.filter(a => a.date === date);
               const presentCount = dayRecords.filter(a => a.status === 'present').length;
               return (
@@ -232,7 +283,8 @@ const AttendancePage = () => {
                   </div>
                 </div>
               );
-            })}
+            })
+            )}
           </div>
         )}
       </div>

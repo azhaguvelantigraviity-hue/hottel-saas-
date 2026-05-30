@@ -1,9 +1,39 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Icon from '../components/Icon';
 import Badge from '../components/Badge';
 import Avatar from '../components/Avatar';
 import AttendancePage from './AttendancePage';
 import { EMPLOYEES } from '../data/mockData';
+import { getEmployees as apiGetEmployees, createEmployee as apiCreateEmployee, updateEmployee as apiUpdateEmployee } from '../services/hotelService';
+
+const mapBEtoFE = (be) => ({
+  id: be._id,
+  name: be.name,
+  role: be.role,
+  dept: be.department,
+  shift: be.shift,
+  salary: be.salary,
+  phone: be.phone || '',
+  email: be.email || '',
+  avatar: be.avatar || be.name.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase(),
+  status: be.status === 'active' ? 'on-duty' : be.status === 'inactive' ? 'off-duty' : be.status === 'on_leave' ? 'leave' : be.status || 'off-duty',
+  joined: be.joinedAt ? new Date(be.joinedAt).toISOString().slice(0, 10) : '',
+  loginEmail: '',
+  loginPassword: '',
+});
+
+const mapFEtoBE = (fe) => ({
+  name: fe.name,
+  role: fe.role,
+  department: fe.dept,
+  shift: fe.shift,
+  salary: fe.salary,
+  phone: fe.phone,
+  email: fe.email,
+  avatar: fe.avatar,
+  status: fe.status === 'on-duty' ? 'active' : fe.status === 'off-duty' ? 'inactive' : fe.status === 'leave' ? 'on_leave' : 'active',
+  joinedAt: fe.joined ? new Date(fe.joined) : undefined,
+});
 
 const inputStyle = { width: '100%', padding: '10px 12px', background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: '8px', color: 'var(--text)', fontSize: '13px', outline: 'none', fontFamily: 'Inter, sans-serif' };
 const labelStyle = { fontSize: '11px', color: 'var(--text3)', fontWeight: '600', letterSpacing: '0.06em', display: 'block', marginBottom: '5px' };
@@ -138,11 +168,29 @@ const EmployeesPage = ({ role, hotelDetails, plan }) => {
   const [employees, setEmployees] = useState(() => {
     try {
       const stored = localStorage.getItem(`stayos_employees_${hotelDetails?.id || 'default'}`);
-      return stored ? JSON.parse(stored) : EMPLOYEES;
+      const parsed = stored ? JSON.parse(stored) : EMPLOYEES;
+      return parsed.length > 0 ? parsed : EMPLOYEES;
     } catch {
       return EMPLOYEES;
     }
   });
+  const [apiSynced, setApiSynced] = useState(false);
+
+  // Load from backend API on mount; fall back to localStorage
+  useEffect(() => {
+    apiGetEmployees()
+      .then(res => {
+        const list = (res.data || []).map(mapBEtoFE);
+        if (list.length > 0) {
+          setEmployees(list);
+          localStorage.setItem(`stayos_employees_${hotelDetails?.id || 'default'}`, JSON.stringify(list));
+        }
+      })
+      .catch(() => {
+        // API unavailable — keep localStorage data
+      })
+      .finally(() => setApiSynced(true));
+  }, [hotelDetails?.id]);
   const [activeTab, setActiveTab] = useState('staff');
   const [selected, setSelected] = useState(null);
   const [showAdd, setShowAdd] = useState(false);
@@ -164,11 +212,24 @@ const EmployeesPage = ({ role, hotelDetails, plan }) => {
       alert("Starter Plan Limit Reached! Your plan allows a maximum of 1 staff account. Please upgrade to a higher plan to add more staff.");
       return;
     }
-    const nextList = [...employees, newEmp];
-    setEmployees(nextList);
-    localStorage.setItem(`stayos_employees_${hotelDetails?.id || 'default'}`, JSON.stringify(nextList));
 
-    // Create credentials if provided
+    // Try backend API first
+    apiCreateEmployee(mapFEtoBE(newEmp))
+      .then(res => {
+        const created = mapBEtoFE(res.data);
+        const nextList = [...employees, created];
+        setEmployees(nextList);
+        localStorage.setItem(`stayos_employees_${hotelDetails?.id || 'default'}`, JSON.stringify(nextList));
+      })
+      .catch(() => {
+        // API unavailable — save to localStorage only
+        const localEmp = { ...newEmp, id: Date.now(), status: 'off-duty', joined: new Date().toISOString().slice(0, 10), avatar: newEmp.avatar || newEmp.name.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase(), salary: +newEmp.salary || 0 };
+        const nextList = [...employees, localEmp];
+        setEmployees(nextList);
+        localStorage.setItem(`stayos_employees_${hotelDetails?.id || 'default'}`, JSON.stringify(nextList));
+      });
+
+    // Create credentials if provided (localStorage only, regardless of API)
     if (newEmp.loginEmail && newEmp.loginPassword && hotelDetails) {
       try {
         const storedHotels = JSON.parse(localStorage.getItem('stayos_hotels') || '[]');
@@ -194,9 +255,20 @@ const EmployeesPage = ({ role, hotelDetails, plan }) => {
   };
 
   const handleSaveEmployee = (updatedEmp) => {
-    const nextList = employees.map(e => e.id === updatedEmp.id ? updatedEmp : e);
-    setEmployees(nextList);
-    localStorage.setItem(`stayos_employees_${hotelDetails?.id || 'default'}`, JSON.stringify(nextList));
+    // Try backend API first
+    apiUpdateEmployee(updatedEmp.id, mapFEtoBE(updatedEmp))
+      .then(res => {
+        const saved = mapBEtoFE(res.data);
+        const nextList = employees.map(e => e.id === updatedEmp.id ? saved : e);
+        setEmployees(nextList);
+        localStorage.setItem(`stayos_employees_${hotelDetails?.id || 'default'}`, JSON.stringify(nextList));
+      })
+      .catch(() => {
+        // API unavailable — save to localStorage only
+        const nextList = employees.map(e => e.id === updatedEmp.id ? updatedEmp : e);
+        setEmployees(nextList);
+        localStorage.setItem(`stayos_employees_${hotelDetails?.id || 'default'}`, JSON.stringify(nextList));
+      });
   };
 
   return (
@@ -322,7 +394,7 @@ const EmployeesPage = ({ role, hotelDetails, plan }) => {
         </div>
       )}
 
-      {activeTab === 'attendance' && <AttendancePage />}
+      {activeTab === 'attendance' && <AttendancePage employees={employees} hotelDetails={hotelDetails} />}
     </div>
   );
 };

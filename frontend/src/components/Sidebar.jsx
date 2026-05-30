@@ -41,32 +41,11 @@ const Sidebar = ({ role, active, onNav, onLogout, plan }) => {
       items: [
         { id: 'employees',    icon: 'users',       label: 'Employees',    plans: ['starter','professional','enterprise'] },
         { id: 'housekeeping', icon: 'key',         label: 'Housekeeping', plans: ['professional','enterprise'] },
-        { id: 'attendance',   icon: 'calendar',    label: 'Attendance',   plans: ['professional','enterprise'] },
+        { id: 'attendance',   icon: 'calendar',    label: 'Attendance',   plans: ['starter','professional','enterprise'] },
         { id: 'payroll',      icon: 'dollar',      label: 'Payroll',      plans: ['professional','enterprise'] },
       ],
     },
-    {
-      label: 'BUSINESS',
-      items: [
-        { id: 'channel',    icon: 'channel',    label: 'Channel Manager', plans: ['professional','enterprise'] },
-        { id: 'revenue',    icon: 'revenue',    label: 'Revenue AI',      plans: ['enterprise'] },
-        { id: 'analytics',  icon: 'chart',      label: 'Analytics',       plans: ['starter','professional','enterprise'] },
-        { id: 'marketing',  icon: 'marketing',  label: 'Marketing',       plans: ['professional','enterprise'] },
-        { id: 'whatsapp',   icon: 'whatsapp',   label: 'WhatsApp',        plans: ['professional','enterprise'] },
-      ],
-    },
-    {
-      label: 'SYSTEM',
-      items: [
-        { id: 'inventory',     icon: 'inventory',    label: 'Inventory',     plans: ['professional','enterprise'] },
-        { id: 'iot',           icon: 'iot',          label: 'IoT & Locks',   plans: ['enterprise'] },
-        { id: 'security',      icon: 'security',     label: 'Security',      plans: ['enterprise'] },
-        { id: 'notifications', icon: 'notification', label: 'Notifications', plans: ['starter','professional','enterprise'] },
-        { id: 'chatbot',       icon: 'chatbot',      label: 'AI Chatbot',    plans: ['enterprise'] },
-        { id: 'reports',       icon: 'report',       label: 'Reports',       plans: ['starter','professional','enterprise'] },
-        { id: 'settings',      icon: 'settings',     label: 'Settings',      plans: ['starter','professional','enterprise'] },
-      ],
-    },
+
   ];
 
   const planColors = { starter: '#6B7280', professional: '#14B8A6', enterprise: '#D97706' };

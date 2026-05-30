@@ -57,11 +57,19 @@ const loadHotels = () => {
   try {
     const data = localStorage.getItem('stayos_hotels');
     return data ? JSON.parse(data) : [];
-  } catch (_) { return []; }
+  } catch (e) { console.error('Failed to load hotels:', e); return []; }
 };
 
 const saveHotels = (hotels) => {
-  try { localStorage.setItem('stayos_hotels', JSON.stringify(hotels)); } catch (_) {}
+  try {
+    localStorage.setItem('stayos_hotels', JSON.stringify(hotels));
+    const saved = JSON.parse(localStorage.getItem('stayos_hotels'));
+    if (!saved || saved.length !== hotels.length) {
+      console.error('Hotel data verification failed in AdminSubscriptions');
+    }
+  } catch (e) {
+    console.error('Failed to save hotels in AdminSubscriptions:', e);
+  }
 };
 
 const inp = {

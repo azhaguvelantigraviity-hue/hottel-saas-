@@ -1,8 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import Icon from '../components/Icon';
 import Badge from '../components/Badge';
 import Avatar from '../components/Avatar';
 import { BOOKINGS, ROOMS, PET_CHARGES } from '../data/mockData';
+import * as api from '../services/hotelService';
 
 const statusColor = { 'checked-in': 'green', confirmed: 'teal', pending: 'amber', 'checked-out': 'gray', cancelled: 'rose' };
 const sourceColor = { direct: 'gold', 'booking.com': 'teal', expedia: 'violet', agoda: 'rose' };
@@ -21,12 +22,58 @@ const safeReadJson = (key, fallback) => {
 };
 
 const safeWriteJson = (key, value) => {
-  try {
-    localStorage.setItem(key, JSON.stringify(value));
-  } catch {
-    // Ignore storage write failures.
-  }
+  try { localStorage.setItem(key, JSON.stringify(value)); } catch { }
 };
+
+const formatDate = (d) => {
+  if (!d) return '';
+  const dt = new Date(d);
+  return dt.toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' });
+};
+
+const toFlat = (b) => ({
+  id: b.bookingId || b._id,
+  _id: b._id,
+  guest: b.guest ? `${b.guest.firstName || ''} ${b.guest.lastName || ''}`.trim() : (b.guest || ''),
+  phone: b.guest?.phone || b.phone || '',
+  email: b.guest?.email || b.email || '',
+  room: b.room ? `${b.room.roomNumber || ''} – ${b.room.type || ''}`.trim() : (b.room || ''),
+  checkIn: formatDate(b.checkIn),
+  checkOut: formatDate(b.checkOut),
+  nights: b.nights || 0,
+  adults: b.adults || 1,
+  children: b.children || 0,
+  amount: b.totalAmount || b.amount || 0,
+  paid: b.paidAmount || 0,
+  source: (b.source || 'direct').toLowerCase(),
+  status: (b.status || 'confirmed').replace(/_/g, '-'),
+  hasPet: b.hasPet || false,
+  petType: b.petType || '',
+  petCharge: b.petCharge || 0,
+  specialRequests: b.specialRequests || '',
+  checkedInAt: b.checkedInAt,
+  checkedOutAt: b.checkedOutAt,
+});
+
+const fromFlat = (f) => ({
+  guestName: f.guest,
+  phone: f.phone,
+  email: f.email,
+  room: f.room,
+  checkIn: f.checkIn,
+  checkOut: f.checkOut,
+  nights: f.nights,
+  adults: f.adults,
+  children: f.children,
+  amount: f.amount,
+  totalAmount: f.amount,
+  source: f.source,
+  status: (f.status || 'confirmed').replace(/-/g, '_'),
+  hasPet: f.hasPet,
+  petType: f.petType,
+  petCharge: f.petCharge,
+  specialRequests: f.specialRequests,
+});
 
 const Modal = ({ title, onClose, children }) => (
   <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.7)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
@@ -199,7 +246,7 @@ const NewBookingForm = ({ onClose, onSave }) => {
           Cancel
         </button>
         <button
-          onClick={() => { if (form.guest && form.room && form.checkIn && form.checkOut) { onSave({ ...form, id: `BK-${1009 + Math.floor(Math.random() * 100)}`, amount: totalAmount, nights, petCharge, status: 'confirmed' }); onClose(); } }}
+          onClick={() => { if (form.guest && form.room && form.checkIn && form.checkOut) { onSave(form, totalAmount, nights, petCharge); onClose(); } }}
           style={{ padding: '10px 24px', background: 'linear-gradient(135deg,#C9A84C,#8A6F2E)', border: 'none', borderRadius: '8px', color: '#fff', cursor: 'pointer', fontWeight: '600', fontSize: '13px', fontFamily: 'DM Sans,sans-serif' }}
         >
           Create Booking
@@ -247,17 +294,17 @@ const BookingDetail = ({ booking, onClose, onAction }) => (
     </div>
     <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
       {booking.status === 'confirmed' && (
-        <button onClick={() => { onAction(booking.id, 'checked-in'); onClose(); }} style={{ flex: 1, padding: '10px', background: 'rgba(52,211,153,0.15)', border: '1px solid rgba(52,211,153,0.3)', borderRadius: '8px', color: 'var(--green)', cursor: 'pointer', fontWeight: '600', fontSize: '13px', fontFamily: 'DM Sans,sans-serif' }}>
+        <button onClick={() => { onAction(booking, 'checked-in'); onClose(); }} style={{ flex: 1, padding: '10px', background: 'rgba(52,211,153,0.15)', border: '1px solid rgba(52,211,153,0.3)', borderRadius: '8px', color: 'var(--green)', cursor: 'pointer', fontWeight: '600', fontSize: '13px', fontFamily: 'DM Sans,sans-serif' }}>
           ✓ Check In
         </button>
       )}
       {booking.status === 'checked-in' && (
-        <button onClick={() => { onAction(booking.id, 'checked-out'); onClose(); }} style={{ flex: 1, padding: '10px', background: 'rgba(201,168,76,0.15)', border: '1px solid rgba(201,168,76,0.3)', borderRadius: '8px', color: 'var(--gold)', cursor: 'pointer', fontWeight: '600', fontSize: '13px', fontFamily: 'DM Sans,sans-serif' }}>
+        <button onClick={() => { onAction(booking, 'checked-out'); onClose(); }} style={{ flex: 1, padding: '10px', background: 'rgba(201,168,76,0.15)', border: '1px solid rgba(201,168,76,0.3)', borderRadius: '8px', color: 'var(--gold)', cursor: 'pointer', fontWeight: '600', fontSize: '13px', fontFamily: 'DM Sans,sans-serif' }}>
           ↗ Check Out
         </button>
       )}
       {(booking.status === 'confirmed' || booking.status === 'pending') && (
-        <button onClick={() => { onAction(booking.id, 'cancelled'); onClose(); }} style={{ padding: '10px 16px', background: 'rgba(251,113,133,0.1)', border: '1px solid rgba(251,113,133,0.3)', borderRadius: '8px', color: 'var(--rose)', cursor: 'pointer', fontWeight: '600', fontSize: '13px', fontFamily: 'DM Sans,sans-serif' }}>
+        <button onClick={() => { onAction(booking, 'cancelled'); onClose(); }} style={{ padding: '10px 16px', background: 'rgba(251,113,133,0.1)', border: '1px solid rgba(251,113,133,0.3)', borderRadius: '8px', color: 'var(--rose)', cursor: 'pointer', fontWeight: '600', fontSize: '13px', fontFamily: 'DM Sans,sans-serif' }}>
           Cancel
         </button>
       )}
@@ -271,6 +318,25 @@ const BookingsPage = () => {
   const [search, setSearch] = useState('');
   const [showNew, setShowNew] = useState(false);
   const [selected, setSelected] = useState(null);
+  const [apiReady, setApiReady] = useState(false);
+
+  // Try to load bookings from API on mount
+  useEffect(() => {
+    const loadFromApi = async () => {
+      try {
+        const res = await api.getBookings();
+        if (res.data && res.data.length > 0) {
+          const flat = res.data.map(toFlat);
+          setBookings(flat);
+          safeWriteJson(BOOKINGS_STORAGE_KEY, flat);
+          setApiReady(true);
+        }
+      } catch {
+        // API not available, use localStorage (already set via useState)
+      }
+    };
+    loadFromApi();
+  }, []);
 
   useEffect(() => {
     // Hydrate shared in-memory room list from persisted room states.
@@ -290,15 +356,31 @@ const BookingsPage = () => {
     return matchFilter && matchSearch;
   });
 
-  const handleAction = (id, newStatus) => {
+  const handleAction = useCallback(async (booking, newStatus) => {
+    const apiStatus = newStatus.replace(/-/g, '_');
+    // Try API first
+    if (apiReady && booking._id) {
+      try {
+        if (newStatus === 'checked-in') {
+          await api.checkIn(booking._id);
+        } else if (newStatus === 'checked-out') {
+          await api.checkOut(booking._id);
+        } else if (newStatus === 'cancelled') {
+          await api.cancelBooking(booking._id);
+        }
+      } catch {
+        // Fall back to localStorage below
+      }
+    }
+    // Update localStorage booking state
     setBookings(prev => prev.map(b => {
-      if (b.id !== id) return b;
-      const roomId = String(b.room).split(' ')[0];
+      if (b.id !== booking.id) return b;
+      const roomId = String(booking.room).split(' – ')[0];
       const room = ROOMS.find(r => String(r.id) === roomId);
       if (room) {
         if (newStatus === 'checked-in') {
           room.status = 'occupied';
-          room.guest = b.guest;
+          room.guest = booking.guest;
         } else if (newStatus === 'checked-out' || newStatus === 'cancelled') {
           room.status = 'available';
           room.guest = '';
@@ -307,20 +389,62 @@ const BookingsPage = () => {
       }
       return { ...b, status: newStatus };
     }));
-  };
+  }, [apiReady]);
 
-  const handleSave = (newBooking) => {
-    const room = ROOMS.find(r => String(r.id) === String(newBooking.room));
+  const handleSave = useCallback(async (form, totalAmount, nights, petCharge) => {
+    const newBooking = {
+      guest: form.guest,
+      phone: form.phone,
+      email: form.email,
+      room: form.room,
+      checkIn: form.checkIn,
+      checkOut: form.checkOut,
+      adults: form.adults,
+      children: form.children,
+      amount: totalAmount,
+      nights,
+      petCharge,
+      source: form.source,
+      specialRequests: form.specialRequests,
+      hasPet: form.hasPet,
+      petType: form.petType,
+      status: 'confirmed',
+    };
+
+    // Try API first
+    if (apiReady) {
+      try {
+        const flatForm = fromFlat({ ...newBooking, id: `BK-${Date.now()}` });
+        const res = await api.createBooking(flatForm);
+        if (res.data) {
+          const flat = toFlat(res.data);
+          const room = ROOMS.find(r => String(r.id) === String(form.room));
+          if (room) {
+            room.status = 'reserved';
+            room.guest = form.guest;
+            safeWriteJson(ROOMS_STORAGE_KEY, ROOMS);
+          }
+          setBookings(prev => [...prev, flat]);
+          return;
+        }
+      } catch {
+        // Fall through to localStorage
+      }
+    }
+
+    // Fallback: localStorage only
+    const room = ROOMS.find(r => String(r.id) === String(form.room));
     if (room) {
       room.status = 'reserved';
-      room.guest = newBooking.guest;
+      room.guest = form.guest;
       safeWriteJson(ROOMS_STORAGE_KEY, ROOMS);
     }
     setBookings(prev => [...prev, {
+      id: `BK-${1009 + Math.floor(Math.random() * 100)}`,
       ...newBooking,
-      room: room ? `${room.id} – ${room.type}` : newBooking.room,
+      room: room ? `${room.id} – ${room.type}` : form.room,
     }]);
-  };
+  }, [apiReady]);
 
   const stats = [
     { label: 'Total', count: bookings.length, color: 'var(--text2)' },

@@ -420,7 +420,13 @@ const getStoredHotels = () => {
 const saveStoredHotels = (hotels) => {
   try {
     localStorage.setItem('stayos_hotels', JSON.stringify(hotels));
-  } catch (e) {}
+    const saved = JSON.parse(localStorage.getItem('stayos_hotels'));
+    if (!saved || saved.length !== hotels.length) {
+      console.error('Hotel data verification failed — data may not be persisted');
+    }
+  } catch (e) {
+    console.error('Failed to save hotels to localStorage:', e);
+  }
 };
 
 const AdminHotels = () => {
@@ -445,6 +451,13 @@ const AdminHotels = () => {
 
   const handleAdd = (newHotel) => {
     const next = [...hotels, { ...newHotel, receptionists: newHotel.receptionists || [] }];
+    setHotels(next);
+    saveStoredHotels(next);
+  };
+
+  const handleDelete = (hotel) => {
+    if (!confirm(`Delete "${hotel.name}"? This cannot be undone.`)) return;
+    const next = hotels.filter(h => h.id !== hotel.id);
     setHotels(next);
     saveStoredHotels(next);
   };
@@ -559,7 +572,7 @@ const AdminHotels = () => {
               </div>
             </div>
 
-            {/* Action buttons — both now wired up */}
+            {/* Action buttons */}
             <div style={{ display: 'flex', gap: '8px' }}>
               <button
                 onClick={() => setViewHotel(h)}
@@ -588,6 +601,19 @@ const AdminHotels = () => {
                 title="Edit hotel"
               >
                 <Icon name="edit" size={14} color="currentColor" />
+              </button>
+              <button
+                onClick={() => handleDelete(h)}
+                style={{
+                  padding: '8px 12px', background: 'transparent',
+                  border: '1px solid var(--border)', borderRadius: '6px',
+                  color: '#EF4444', cursor: 'pointer', transition: 'all 0.15s',
+                }}
+                onMouseEnter={e => { e.currentTarget.style.borderColor = '#EF4444'; e.currentTarget.style.background = 'rgba(239,68,68,0.08)'; }}
+                onMouseLeave={e => { e.currentTarget.style.borderColor = 'var(--border)'; e.currentTarget.style.background = 'transparent'; }}
+                title="Delete hotel"
+              >
+                <Icon name="trash" size={14} color="#EF4444" />
               </button>
             </div>
           </div>

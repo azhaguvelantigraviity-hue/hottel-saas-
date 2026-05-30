@@ -34,3 +34,11 @@ export const createEmployee  = (body)      => post('/hotel/employees', body);
 export const updateEmployee  = (id, body)  => put(`/hotel/employees/${id}`, body);
 export const markAttendance  = (id, body)  => post(`/hotel/employees/${id}/attendance`, body);
 export const applyLeave      = (id, body)  => post(`/hotel/employees/${id}/leave`, body);
+
+// ── Smart Check-In Process ──────────────────────────────────
+export const getCheckInProcess   = (id)         => get(`/hotel/bookings/${id}/checkin-process`);
+export const generateQRCode      = (id)         => post(`/hotel/bookings/${id}/qr-code`, {});
+export const updateGuestDetails  = (id, body)   => put(`/hotel/bookings/${id}/guest-details`, body);
+export const uploadIdScan        = (id, body)   => post(`/hotel/bookings/${id}/id-scan`, body);
+export const submitFaceVerification = (id, body) => post(`/hotel/bookings/${id}/face-verification`, body);
+export const saveSignature       = (id, body)   => post(`/hotel/bookings/${id}/signature`, body);

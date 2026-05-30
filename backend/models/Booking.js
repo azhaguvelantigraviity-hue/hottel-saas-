@@ -31,6 +31,47 @@ const BookingSchema = new mongoose.Schema({
   checkedOutAt:  Date,
   cancelledAt:   Date,
   cancelReason:  String,
+
+  // ── Smart Check-In Process ─────────────────────────────────
+  checkInProcess: {
+    qrCode:      { type: String, default: '' },
+    qrGeneratedAt: Date,
+
+    guestDetails: {
+      name:    String,
+      phone:   String,
+      email:   String,
+      address: String,
+      updatedAt: Date,
+    },
+
+    idScan: {
+      idType:   { type: String, enum: ['aadhaar','passport','driving_license','voter_id'], default: 'aadhaar' },
+      idNumber: String,
+      documentImage: String,
+      verified: { type: Boolean, default: false },
+      scannedAt: Date,
+    },
+
+    faceVerification: {
+      status:    { type: String, enum: ['idle','capturing','verified','failed'], default: 'idle' },
+      imageData: String,
+      verifiedAt: Date,
+    },
+
+    digitalSignature: {
+      signature: String,
+      signedAt:  Date,
+    },
+
+    stepsCompleted: {
+      qrScanned:    { type: Boolean, default: false },
+      detailsFilled:{ type: Boolean, default: false },
+      idScanned:    { type: Boolean, default: false },
+      faceVerified: { type: Boolean, default: false },
+      signatureDone:{ type: Boolean, default: false },
+    },
+  },
 }, { timestamps: true });
 
 // Auto-generate booking ID

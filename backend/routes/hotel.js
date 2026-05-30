@@ -5,6 +5,8 @@ const {
   updateRoomHousekeeping, checkAvailability,
   getBookings, getBooking, createBooking, updateBooking,
   checkIn, checkOut, cancelBooking,
+  getCheckInProcess, generateQRCode, updateGuestDetails,
+  uploadIdScan, submitFaceVerification, saveSignature,
   getGuests, getGuest, createGuest, updateGuest,
   getEmployees, getEmployee, createEmployee, updateEmployee,
   markAttendance, applyLeave,
@@ -34,6 +36,14 @@ router.post ('/bookings/:id/checkin',              checkIn);
 router.post ('/bookings/:id/checkout',             checkOut);
 router.post ('/bookings/:id/cancel',               cancelBooking);
 
+// ── Smart Check-In Process (all plans) ──────────────────────────────────────
+router.get   ('/bookings/:id/checkin-process',       getCheckInProcess);
+router.post  ('/bookings/:id/qr-code',               generateQRCode);
+router.put   ('/bookings/:id/guest-details',         updateGuestDetails);
+router.post  ('/bookings/:id/id-scan',               uploadIdScan);
+router.post  ('/bookings/:id/face-verification',     submitFaceVerification);
+router.post  ('/bookings/:id/signature',             saveSignature);
+
 // ── Guests / CRM (Professional+) ─────────────────────────────────────────────
 router.use('/guests', requireFeature('guestCRM'));
 router.get  ('/guests',         getGuests);
@@ -41,13 +51,15 @@ router.post ('/guests',         createGuest);
 router.get  ('/guests/:id',     getGuest);
 router.put  ('/guests/:id',     updateGuest);
 
+// ── Attendance — available on all plans ────────────────────────
+router.post  ('/employees/:id/attendance',                markAttendance);
+router.post  ('/employees/:id/leave',                     applyLeave);
+
 // ── Employees (Professional+) ─────────────────────────────────────────────────
 router.use('/employees', requireFeature('employeeManagement'));
 router.get   ('/employees',                               getEmployees);
 router.post  ('/employees', hotelAdmin, enforceLimit('staffAccounts', Employee), createEmployee);
 router.get   ('/employees/:id',                           getEmployee);
 router.put   ('/employees/:id',          hotelAdmin,      updateEmployee);
-router.post  ('/employees/:id/attendance',                markAttendance);
-router.post  ('/employees/:id/leave',                     applyLeave);
 
 module.exports = router;
