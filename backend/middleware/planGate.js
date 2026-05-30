@@ -3,6 +3,7 @@ const { AppError, asyncHandler } = require('../utils/helpers');
 
 // Map feature keys → minimum plan required
 const FEATURE_PLAN_MAP = {
+  // Original keys
   guestCRM:            'professional',
   employeeManagement:  'professional',
   housekeepingModule:  'professional',
@@ -16,6 +17,18 @@ const FEATURE_PLAN_MAP = {
   multiProperty:       'enterprise',
   whiteLabel:          'enterprise',
   apiAccess:           'enterprise',
+
+  // Route aliases
+  guests:              'professional',
+  employees:           'professional',
+  housekeeping:        'professional',
+  maintenance:         'professional',
+  restaurant:          'professional',
+  channel:             'professional',
+  analytics:           'professional',
+  events:              'enterprise',
+  security:            'enterprise',
+  revenue:             'enterprise',
 };
 
 const PLAN_RANK = { starter: 1, professional: 2, enterprise: 3 };
