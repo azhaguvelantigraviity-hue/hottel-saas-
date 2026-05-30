@@ -7,6 +7,8 @@ const {
   checkIn, checkOut, cancelBooking,
   getCheckInProcess, generateQRCode, updateGuestDetails,
   uploadIdScan, submitFaceVerification, saveSignature,
+  getCabBookings, getCabBooking, createCabBooking, updateCabBooking, deleteCabBooking,
+  getTravelPackages,
   getGuests, getGuest, createGuest, updateGuest,
   getEmployees, getEmployee, createEmployee, updateEmployee,
   markAttendance, applyLeave,
@@ -43,6 +45,14 @@ router.put   ('/bookings/:id/guest-details',         updateGuestDetails);
 router.post  ('/bookings/:id/id-scan',               uploadIdScan);
 router.post  ('/bookings/:id/face-verification',     submitFaceVerification);
 router.post  ('/bookings/:id/signature',             saveSignature);
+
+// ── Cab Bookings / Travel Desk (all plans) ────────────────────────────────────
+router.get   ('/cab-bookings',                         getCabBookings);
+router.post  ('/cab-bookings',                         createCabBooking);
+router.get   ('/cab-bookings/:id',                     getCabBooking);
+router.put   ('/cab-bookings/:id',                     updateCabBooking);
+router.delete('/cab-bookings/:id',                     deleteCabBooking);
+router.get   ('/travel-packages',                      getTravelPackages);
 
 // ── Guests / CRM (Professional+) ─────────────────────────────────────────────
 router.use('/guests', requireFeature('guestCRM'));

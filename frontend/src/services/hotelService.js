@@ -42,3 +42,11 @@ export const updateGuestDetails  = (id, body)   => put(`/hotel/bookings/${id}/gu
 export const uploadIdScan        = (id, body)   => post(`/hotel/bookings/${id}/id-scan`, body);
 export const submitFaceVerification = (id, body) => post(`/hotel/bookings/${id}/face-verification`, body);
 export const saveSignature       = (id, body)   => post(`/hotel/bookings/${id}/signature`, body);
+
+// ── Cab Bookings / Travel Desk ──────────────────────────────────
+export const getCabBookings   = (params = {}) => get(`/hotel/cab-bookings?${new URLSearchParams(params)}`);
+export const getCabBooking    = (id)          => get(`/hotel/cab-bookings/${id}`);
+export const createCabBooking = (body)        => post('/hotel/cab-bookings', body);
+export const updateCabBooking = (id, body)    => put(`/hotel/cab-bookings/${id}`, body);
+export const deleteCabBooking = (id)          => del(`/hotel/cab-bookings/${id}`);
+export const getTravelPackages= (params = {}) => get(`/hotel/travel-packages?${new URLSearchParams(params)}`);

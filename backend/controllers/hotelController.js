@@ -3,6 +3,8 @@ const { Employee } = require('../models/Operations');
 const Room    = require('../models/Room');
 const Booking = require('../models/Booking');
 const Guest   = require('../models/Guest');
+const CabBooking = require('../models/CabBooking');
+const TravelPackage = require('../models/TravelPackage');
 const { AppError, sendSuccess } = require('../utils/helpers');
 const catchAsync = require('../utils/helpers').catchAsync || ((fn) => (req, res, next) => {
   Promise.resolve(fn(req, res, next)).catch(next);
@@ -247,6 +249,53 @@ const saveSignature = catchAsync(async (req, res) => {
   sendSuccess(res, { digitalSignature: booking.checkInProcess.digitalSignature });
 });
 
+// ── Cab Bookings / Travel Desk ─────────────────────────────────
+const getCabBookings = catchAsync(async (req, res) => {
+  const { status, type, date } = req.query;
+  const filter = hotelFilter(req);
+  if (status && status !== 'all') filter.status = status;
+  if (type) filter.type = type;
+  if (date) {
+    const d = new Date(date);
+    const next = new Date(d.getTime() + 86400000);
+    filter.date = { $gte: d, $lt: next };
+  }
+  const bookings = await CabBooking.find(filter).sort('-createdAt');
+  sendSuccess(res, bookings);
+});
+
+const getCabBooking = catchAsync(async (req, res) => {
+  const booking = await CabBooking.findOne(oneFilter(req));
+  if (!booking) throw new AppError('Cab booking not found', 404);
+  sendSuccess(res, booking);
+});
+
+const createCabBooking = catchAsync(async (req, res) => {
+  const body = { ...req.body, hotel: req.hotelId || req.body.hotel };
+  const booking = await CabBooking.create(body);
+  res.status(201).json({ success: true, data: booking });
+});
+
+const updateCabBooking = catchAsync(async (req, res) => {
+  const booking = await CabBooking.findOneAndUpdate(oneFilter(req), req.body, { new: true, runValidators: true });
+  if (!booking) throw new AppError('Cab booking not found', 404);
+  sendSuccess(res, booking);
+});
+
+const deleteCabBooking = catchAsync(async (req, res) => {
+  const booking = await CabBooking.findOneAndDelete(oneFilter(req));
+  if (!booking) throw new AppError('Cab booking not found', 404);
+  sendSuccess(res, booking);
+});
+
+// ── Travel Packages ────────────────────────────────────────────
+const getTravelPackages = catchAsync(async (req, res) => {
+  const filter = hotelFilter(req);
+  filter.active = true;
+  const packages = await TravelPackage.find(filter).sort('name');
+  sendSuccess(res, packages);
+});
+
 // ── Guests ─────────────────────────────────────────────────────
 const getGuests = catchAsync(async (req, res) => {
   const guests = await Guest.find(hotelFilter(req)).sort('-createdAt');
@@ -319,6 +368,8 @@ module.exports = {
   checkIn, checkOut, cancelBooking,
   getCheckInProcess, generateQRCode, updateGuestDetails,
   uploadIdScan, submitFaceVerification, saveSignature,
+  getCabBookings, getCabBooking, createCabBooking, updateCabBooking, deleteCabBooking,
+  getTravelPackages,
   getGuests, getGuest, createGuest, updateGuest,
   getEmployees, getEmployee, createEmployee, updateEmployee,
   markAttendance, applyLeave

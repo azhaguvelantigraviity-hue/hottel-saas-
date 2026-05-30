@@ -96,8 +96,8 @@ const HotelApp = ({ onLogout, initialPlan = 'enterprise', role = 'manager', hote
 
   const planFeatures = {
     starter:      ['dashboard','rooms','bookings','billing','notifications','reports','settings','employees','analytics','attendance'],
-    professional: ['dashboard','rooms','bookings','billing','notifications','guests','loyalty','employees','housekeeping','restaurant','laundry','maintenance','channel','analytics','marketing','whatsapp','inventory','reports','settings'],
-    enterprise:   ['dashboard','rooms','bookings','billing','notifications','checkin','guests','loyalty','restaurant','laundry','travel','events','employees','housekeeping','maintenance','channel','revenue','analytics','marketing','whatsapp','inventory','iot','security','reports','settings'],
+    professional: ['dashboard','rooms','bookings','billing','notifications','guests','loyalty','employees','housekeeping','restaurant','laundry','maintenance','channel','analytics','marketing','whatsapp','inventory','reports','settings','attendance'],
+    enterprise:   ['dashboard','rooms','bookings','billing','notifications','checkin','guests','loyalty','restaurant','laundry','travel','events','employees','housekeeping','maintenance','channel','revenue','analytics','marketing','whatsapp','inventory','iot','security','reports','settings','attendance'],
   };
   // allowed = everything the plan unlocks — no role filtering (role only affects sidebar grouping)
   const allowed = planFeatures[plan] || planFeatures.starter;
