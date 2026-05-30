@@ -36,9 +36,10 @@ app.use(helmet({
 app.use(mongoSanitize());
 
 // ── CORS ──────────────────────────────────────────────────────────────────────
-const allowedOrigins = (process.env.ALLOWED_ORIGINS || 'http://localhost:3000').split(',');
-if (!allowedOrigins.includes('https://hottel-saas.vercel.app')) {
-  allowedOrigins.push('https://hottel-saas.vercel.app');
+const allowedOrigins = (process.env.CORS_ORIGIN || 'http://localhost:3000').split(',');
+// Ensure Render domain is allowed (add your Render URL here)
+if (!allowedOrigins.includes('https://hottel-saas.onrender.com')) {
+  allowedOrigins.push('https://hottel-saas.onrender.com');
 }
 app.use(cors({
   origin: (origin, cb) => {
