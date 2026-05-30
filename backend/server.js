@@ -37,6 +37,9 @@ app.use(mongoSanitize());
 
 // ── CORS ──────────────────────────────────────────────────────────────────────
 const allowedOrigins = (process.env.ALLOWED_ORIGINS || 'http://localhost:3000').split(',');
+if (!allowedOrigins.includes('https://hottel-saas.vercel.app')) {
+  allowedOrigins.push('https://hottel-saas.vercel.app');
+}
 app.use(cors({
   origin: (origin, cb) => {
     if (!origin || allowedOrigins.includes(origin)) return cb(null, true);

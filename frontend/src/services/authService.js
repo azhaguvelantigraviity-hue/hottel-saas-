@@ -8,10 +8,11 @@ import { post, get, put, setToken, removeToken, setUser, removeUser } from './ap
  * role: 'platform_admin' | 'hotel_admin' | 'hotel_staff'
  */
 export async function login(email, password) {
-  const data = await post('/auth/login', { email, password });
-  if (data.token) {
+  const res = await post('/auth/login', { email, password });
+  const data = res.data || res;
+  if (data && data.token) {
     setToken(data.token);
-    setUser(data.user || data.data);
+    setUser(data.user);
   }
   return data;
 }

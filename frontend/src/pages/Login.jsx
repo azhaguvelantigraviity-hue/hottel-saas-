@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
+import * as authService from '../services/authService';
 
 const DEMO_ACCOUNTS = {
   admin: [
     {
-      email: 'admin@stayos.com',
-      pass: 'password',
+      email: 'admin@stayos.in',
+      pass: 'Admin@StayOS2025!',
       label: 'Super Admin',
       sublabel: 'Platform Overview & Hotel Mgmt',
       icon: '🛡️',
@@ -38,45 +39,7 @@ const DEMO_ACCOUNTS = {
   ],
 };
 
-const getStoredHotels = () => {
-  try {
-    const data = localStorage.getItem('stayos_hotels');
-    if (!data) {
-      const defaultSeed = [
-        {
-          id: 'default-1',
-          name: 'The Grand Resort',
-          city: 'Mumbai',
-          contact: 'manager@hotel.com',
-          plan: 'enterprise',
-          status: 'active',
-          rooms: 10,
-          staff: 2,
-          avatar: 'GR',
-          adminEmail: 'manager@hotel.com',
-          adminPassword: 'password',
-          receptionists: [
-            {
-              email: 'recep@hotel.com',
-              password: 'password',
-              name: 'John Doe'
-            }
-          ]
-        }
-      ];
-      localStorage.setItem('stayos_hotels', JSON.stringify(defaultSeed));
-      return defaultSeed;
-    }
-    return JSON.parse(data);
-  } catch (e) {
-    return [];
-  }
-};
-
 const Login = ({ type, onSuccess, onBack }) => {
-  // Ensure seed data is initialized
-  const storedHotels = getStoredHotels();
-
   const defaults = DEMO_ACCOUNTS[type][0] || {};
   const [email,        setEmail]        = useState(defaults.email || '');
   const [pass,         setPass]         = useState(defaults.pass || '');
@@ -94,58 +57,48 @@ const Login = ({ type, onSuccess, onBack }) => {
     setSelectedKey(acc.email);
   };
 
-  const handleLogin = () => {
+  const handleLogin = async () => {
     if (!email || !pass) return;
     setLoading(true);
-    setTimeout(() => {
+    
+    try {
+      // Call the real backend API
+      const response = await authService.login(email, pass);
+      
+      // Extract user data from response
+      const user = response.user || response.data;
+      const role = user.role;
+      const hotel = user.hotel;
+      
       setLoading(false);
-      const normalizedEmail = email.toLowerCase().trim();
-
-      // 1. Check Platform Admin
-      if (type === 'admin') {
-        if (normalizedEmail === 'admin@stayos.com' && pass === 'password') {
-          onSuccess('enterprise', 'admin', null);
-          return;
-        }
-        // Fallback for custom entries on Admin screen
+      
+      // Map backend roles to frontend roles
+      if (role === 'platform_admin') {
         onSuccess('enterprise', 'admin', null);
-        return;
-      }
-
-      // 2. Check Hotel users from localStorage
-      const hotelsList = getStoredHotels();
-
-      // Check if manager of any hotel
-      const matchedHotel = hotelsList.find(
-        h => h.adminEmail?.toLowerCase() === normalizedEmail && h.adminPassword === pass
-      );
-      if (matchedHotel) {
-        onSuccess(matchedHotel.plan, 'manager', matchedHotel);
-        return;
-      }
-
-      // Check if receptionist of any hotel
-      for (const h of hotelsList) {
-        const receptionist = h.receptionists?.find(
-          r => r.email?.toLowerCase() === normalizedEmail && r.password === pass
-        );
-        if (receptionist) {
-          onSuccess(h.plan, 'staff', h);
-          return;
-        }
-      }
-
-      // Fallback matching for default test accounts
-      if (normalizedEmail === 'manager@hotel.com' && pass === 'password') {
-        const defHotel = hotelsList.find(h => h.id === 'default-1');
-        onSuccess('enterprise', 'manager', defHotel);
-      } else if (normalizedEmail === 'recep@hotel.com' && pass === 'password') {
-        const defHotel = hotelsList.find(h => h.id === 'default-1');
-        onSuccess('enterprise', 'staff', defHotel);
+      } else if (role === 'hotel_admin') {
+        // Fetch hotel details if available
+        const hotelDetails = hotel ? {
+          id: hotel._id || hotel.id,
+          name: hotel.name,
+          plan: hotel.plan || 'enterprise',
+          ...hotel
+        } : null;
+        onSuccess(hotel?.plan || 'enterprise', 'manager', hotelDetails);
+      } else if (role === 'hotel_staff') {
+        const hotelDetails = hotel ? {
+          id: hotel._id || hotel.id,
+          name: hotel.name,
+          plan: hotel.plan || 'enterprise',
+          ...hotel
+        } : null;
+        onSuccess(hotel?.plan || 'enterprise', 'staff', hotelDetails);
       } else {
-        alert("Invalid email or password!");
+        alert('Unknown user role');
       }
-    }, 900);
+    } catch (error) {
+      setLoading(false);
+      alert(error.message || 'Login failed. Please check your credentials.');
+    }
   };
 
   const inp = {
