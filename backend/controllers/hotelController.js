@@ -342,6 +342,11 @@ const updateEmployee = catchAsync(async (req, res) => {
   if (!employee) throw new AppError('Employee not found', 404);
   res.json({ success: true, data: employee });
 });
+const deleteEmployee = catchAsync(async (req, res) => {
+  const employee = await Employee.findOneAndDelete(oneFilter(req));
+  if (!employee) throw new AppError('Employee not found', 404);
+  res.json({ success: true, data: employee });
+});
 const markAttendance = catchAsync(async (req, res) => {
   const { date, status: attStatus, checkIn: timeIn, checkOut: timeOut, hours } = req.body;
   const employee = await Employee.findOne(oneFilter(req));
@@ -376,6 +381,6 @@ module.exports = {
   getCabBookings, getCabBooking, createCabBooking, updateCabBooking, deleteCabBooking,
   getTravelPackages,
   getGuests, getGuest, createGuest, updateGuest, deleteGuest,
-  getEmployees, getEmployee, createEmployee, updateEmployee,
+  getEmployees, getEmployee, createEmployee, updateEmployee, deleteEmployee,
   markAttendance, applyLeave
 };

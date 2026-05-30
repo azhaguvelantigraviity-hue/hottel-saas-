@@ -1,89 +1,9 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import StatCard from '../components/StatCard';
 import Icon from '../components/Icon';
 import Badge from '../components/Badge';
 
-const INVOICES = [];
-
-const REFUNDS = [];
-
-const ADVANCES = [];
-
-const TABS = ['Invoice Generator', 'Split Payment', 'Advance Payment', 'Refunds', 'Invoice History'];
-
-const InvoiceModal = ({ inv, onClose }) => {
-  const printRef = useRef(null);
-
-  const handleDownloadPdf = () => {
-    if (!printRef.current) return;
-
-    if (!window.html2pdf) {
-      const script = document.createElement('script');
-      script.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js';
-      script.onload = () => generatePdf();
-      document.body.appendChild(script);
-    } else {
-      generatePdf();
-    }
-
-    function generatePdf() {
-      const opt = {
-        margin:       0.5,
-        filename:     `${inv.id}.pdf`,
-        image:        { type: 'jpeg', quality: 0.98 },
-        html2canvas:  { scale: 2, useCORS: true },
-        jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' }
-      };
-      window.html2pdf().set(opt).from(printRef.current).save();
-    }
-  };
-
-  if (!inv) return null;
-  const subtotal = inv.roomCharge + inv.food + inv.laundry + inv.other;
-  const cgst = Math.round(subtotal * 0.09);
-  const sgst = Math.round(subtotal * 0.09);
-  return (
-    <div style={{ position:'fixed', inset:0, background:'rgba(0,0,0,0.7)', display:'flex', alignItems:'center', justifyContent:'center', zIndex:1000 }}>
-      <div style={{ background:'#fff', borderRadius:12, padding:32, width:560, maxHeight:'90vh', overflowY:'auto', color:'#111' }}>
-        <div ref={printRef} style={{ padding: '10px' }}>
-          <div style={{ display:'flex', justifyContent:'space-between', alignItems:'flex-start', marginBottom:24 }}>
-          <div>
-            <div style={{ fontSize:22, fontWeight:800, fontFamily:'Poppins,sans-serif', color:'#C9A84C' }}>Hotel Name</div>
-            <div style={{ fontSize:12, color:'#666' }}>GST details</div>
-          </div>
-          <div style={{ textAlign:'right' }}>
-            <div style={{ fontSize:16, fontWeight:700, color:'#111' }}>TAX INVOICE</div>
-            <div style={{ fontSize:13, color:'#666' }}>{inv.id}</div>
-            <div style={{ fontSize:12, color:'#666' }}>{inv.date}</div>
-          </div>
-        </div>
-        <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:16, marginBottom:20, padding:16, background:'#f9f9f9', borderRadius:8 }}>
-          <div><div style={{ fontSize:11, color:'#888', textTransform:'uppercase', marginBottom:4 }}>Bill To</div><div style={{ fontWeight:600 }}>{inv.guest}</div><div style={{ fontSize:13, color:'#555' }}>Room {inv.room}</div></div>
-          <div><div style={{ fontSize:11, color:'#888', textTransform:'uppercase', marginBottom:4 }}>Stay Details</div><div style={{ fontSize:13 }}>Check-in: {inv.checkIn}</div><div style={{ fontSize:13 }}>Check-out: {inv.checkOut}</div><div style={{ fontSize:13 }}>{inv.nights} nights</div></div>
-        </div>
-        <table style={{ width:'100%', borderCollapse:'collapse', marginBottom:16 }}>
-          <thead><tr style={{ background:'#f0f0f0' }}>{['Description','Amount'].map(h=><th key={h} style={{ padding:'8px 12px', textAlign:h==='Amount'?'right':'left', fontSize:12, fontWeight:600 }}>{h}</th>)}</tr></thead>
-          <tbody>
-            {[['Room Charges',inv.roomCharge],['Food & Beverage',inv.food],['Laundry',inv.laundry],['Other Charges',inv.other]].map(([l,v])=>v>0&&(
-              <tr key={l}><td style={{ padding:'8px 12px', fontSize:13, borderBottom:'1px solid #eee' }}>{l}</td><td style={{ padding:'8px 12px', fontSize:13, textAlign:'right', borderBottom:'1px solid #eee', fontFamily:'DM Mono,monospace' }}>₹{v.toLocaleString()}</td></tr>
-            ))}
-            <tr><td style={{ padding:'8px 12px', fontSize:13, borderBottom:'1px solid #eee' }}>Subtotal</td><td style={{ padding:'8px 12px', fontSize:13, textAlign:'right', borderBottom:'1px solid #eee', fontWeight:600, fontFamily:'DM Mono,monospace' }}>₹{subtotal.toLocaleString()}</td></tr>
-            <tr><td style={{ padding:'8px 12px', fontSize:13, borderBottom:'1px solid #eee', color:'#666' }}>CGST (9%)</td><td style={{ padding:'8px 12px', fontSize:13, textAlign:'right', borderBottom:'1px solid #eee', color:'#666', fontFamily:'DM Mono,monospace' }}>₹{cgst.toLocaleString()}</td></tr>
-            <tr><td style={{ padding:'8px 12px', fontSize:13, borderBottom:'1px solid #eee', color:'#666' }}>SGST (9%)</td><td style={{ padding:'8px 12px', fontSize:13, textAlign:'right', borderBottom:'1px solid #eee', color:'#666', fontFamily:'DM Mono,monospace' }}>₹{sgst.toLocaleString()}</td></tr>
-            <tr style={{ background:'#C9A84C11' }}><td style={{ padding:'10px 12px', fontSize:15, fontWeight:700 }}>Total</td><td style={{ padding:'10px 12px', fontSize:15, textAlign:'right', fontWeight:700, fontFamily:'DM Mono,monospace', color:'#C9A84C' }}>₹{inv.total.toLocaleString()}</td></tr>
-          </tbody>
-        </table>
-        <div style={{ fontSize:12, color:'#888', marginBottom:20 }}>Thank you for your stay!</div>
-        </div>
-        <div style={{ display:'flex', gap:12 }}>
-          <button onClick={onClose} style={{ flex:1, background:'#f0f0f0', border:'none', borderRadius:8, padding:'10px', cursor:'pointer', fontFamily:'Inter, sans-serif', fontWeight:600 }}>Close</button>
-          <button onClick={() => window.print()} style={{ flex:1, background:'#111', border:'none', borderRadius:8, padding:'10px', color:'#fff', cursor:'pointer', fontFamily:'Inter, sans-serif', fontWeight:600 }}>🖨 Print</button>
-          <button onClick={handleDownloadPdf} style={{ flex:1, background:'linear-gradient(135deg,#C9A84C,#8A6F2E)', border:'none', borderRadius:8, padding:'10px', color:'#fff', cursor:'pointer', fontFamily:'Inter, sans-serif', fontWeight:600 }}>⬇ Download PDF</button>
-        </div>
-      </div>
-    </div>
-  );
-};
+const BILL_KEY = 'stayos_billing';
 
 const BillingPage = () => {
   const [tab, setTab] = useState(0);
@@ -91,6 +11,21 @@ const BillingPage = () => {
   const [showModal, setShowModal] = useState(false);
   const [payMethod, setPayMethod] = useState('Card');
   const [splitPayers, setSplitPayers] = useState([{ name:'', amount:'' }, { name:'', amount:'' }]);
+  const [invoices, setInvoices] = useState(() => {
+    try { const d = localStorage.getItem(`${BILL_KEY}_invoices`); return d ? JSON.parse(d) : []; } catch { return []; }
+  });
+  const [refunds, setRefunds] = useState(() => {
+    try { const d = localStorage.getItem(`${BILL_KEY}_refunds`); return d ? JSON.parse(d) : []; } catch { return []; }
+  });
+  const [advances, setAdvances] = useState(() => {
+    try { const d = localStorage.getItem(`${BILL_KEY}_advances`); return d ? JSON.parse(d) : []; } catch { return []; }
+  });
+
+  useEffect(() => { try { localStorage.setItem(`${BILL_KEY}_invoices`, JSON.stringify(invoices)); } catch {} }, [invoices]);
+  useEffect(() => { try { localStorage.setItem(`${BILL_KEY}_refunds`, JSON.stringify(refunds)); } catch {} }, [refunds]);
+  useEffect(() => { try { localStorage.setItem(`${BILL_KEY}_advances`, JSON.stringify(advances)); } catch {} }, [advances]);
+
+  const TABS = ['Invoice Generator', 'Split Payment', 'Advance Payment', 'Refunds', 'Invoice History'];
 
   const thStyle = { padding:'10px 14px', textAlign:'left', fontSize:11, color:'var(--text3)', fontWeight:600, letterSpacing:'0.06em', textTransform:'uppercase', borderBottom:'1px solid var(--border)' };
   const tdStyle = { padding:'12px 14px', fontSize:13, color:'var(--text2)', borderBottom:'1px solid var(--border)' };
@@ -103,7 +38,7 @@ const BillingPage = () => {
         <StatCard title="Invoices Today" value="-" icon="receipt" color="var(--gold)" />
         <StatCard title="Revenue Today" value="-" icon="dollar" color="var(--green)" />
         <StatCard title="Pending" value="-" icon="info" color="var(--amber)" />
-        <StatCard title="Refunds" value={REFUNDS.length} icon="refresh" color="var(--rose)" />
+        <StatCard title="Refunds" value={refunds.length} icon="refresh" color="var(--rose)" />
       </div>
       <div style={{ background:'var(--card)', border:'1px solid var(--border)', borderRadius:'var(--radius-lg)', padding:24 }}>
         <div style={{ display:'flex', gap:4, marginBottom:24, background:'var(--surface)', borderRadius:10, padding:4, flexWrap:'wrap' }}>
@@ -114,7 +49,7 @@ const BillingPage = () => {
           <div style={{ display:'flex', gap:24, flexWrap:'wrap' }}>
             <div style={{ flex:1, minWidth:280 }}>
               <div style={{ fontSize:15, fontWeight:700, color:'var(--text)', marginBottom:16 }}>Select Booking</div>
-              {INVOICES.map(inv => (
+              {invoices.map(inv => (
                 <div key={inv.id} onClick={() => setSelectedInv(inv)} style={{ padding:14, background:selectedInv?.id===inv.id?'rgba(201,168,76,0.12)':'var(--surface)', border:`1px solid ${selectedInv?.id===inv.id?'var(--gold)':'var(--border)'}`, borderRadius:'var(--radius)', marginBottom:8, cursor:'pointer', transition:'all 0.15s' }}>
                   <div style={{ display:'flex', justifyContent:'space-between' }}>
                     <span style={{ fontWeight:600, color:'var(--text)' }}>{inv.guest}</span>
@@ -174,7 +109,7 @@ const BillingPage = () => {
             ))}
             <button style={{ background:'linear-gradient(135deg,#C9A84C,#8A6F2E)', border:'none', borderRadius:8, padding:'12px 32px', color:'#fff', cursor:'pointer', fontFamily:'Inter, sans-serif', fontWeight:600, fontSize:14, marginBottom:24 }}>Record Advance</button>
             <div style={{ fontSize:14, fontWeight:600, color:'var(--text)', marginBottom:12 }}>Recent Advances</div>
-            {ADVANCES.map(a => (
+            {advances.map(a => (
               <div key={a.id} style={{ display:'flex', justifyContent:'space-between', alignItems:'center', padding:14, background:'var(--surface)', border:'1px solid var(--border)', borderRadius:8, marginBottom:8 }}>
                 <div><div style={{ fontSize:14, fontWeight:500, color:'var(--text)' }}>{a.guest}</div><div style={{ fontSize:12, color:'var(--text3)' }}>{a.booking} · {a.date}</div></div>
                 <span style={{ fontFamily:'DM Mono,monospace', fontSize:16, fontWeight:700, color:'var(--green)' }}>₹{a.amount.toLocaleString()}</span>
@@ -185,7 +120,7 @@ const BillingPage = () => {
 
         {tab === 3 && (
           <div style={{ display:'flex', flexDirection:'column', gap:12 }}>
-            {REFUNDS.map(r => (
+            {refunds.map(r => (
               <div key={r.id} style={{ display:'flex', alignItems:'center', gap:16, padding:16, background:'var(--surface)', border:'1px solid var(--border)', borderRadius:'var(--radius)' }}>
                 <div style={{ flex:1 }}>
                   <div style={{ fontSize:14, fontWeight:600, color:'var(--text)' }}>{r.guest}</div>
@@ -208,7 +143,7 @@ const BillingPage = () => {
           <table style={{ width:'100%', borderCollapse:'collapse' }}>
             <thead><tr>{['Invoice ID','Guest','Room','Date','Amount','Method','Status','Action'].map(h=><th key={h} style={thStyle}>{h}</th>)}</tr></thead>
             <tbody>
-              {INVOICES.map(inv => (
+              {invoices.map(inv => (
                 <tr key={inv.id} onMouseEnter={e=>e.currentTarget.style.background='var(--surface)'} onMouseLeave={e=>e.currentTarget.style.background='transparent'}>
                   <td style={{ ...tdStyle, fontFamily:'DM Mono,monospace', color:'var(--gold)' }}>{inv.id}</td>
                   <td style={{ ...tdStyle, color:'var(--text)', fontWeight:500 }}>{inv.guest}</td>

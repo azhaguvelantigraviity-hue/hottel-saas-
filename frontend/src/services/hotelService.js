@@ -33,6 +33,7 @@ export const getEmployees    = ()          => get('/hotel/employees');
 export const getEmployee     = (id)        => get(`/hotel/employees/${id}`);
 export const createEmployee  = (body)      => post('/hotel/employees', body);
 export const updateEmployee  = (id, body)  => put(`/hotel/employees/${id}`, body);
+export const deleteEmployee  = (id)        => del(`/hotel/employees/${id}`);
 export const markAttendance  = (id, body)  => post(`/hotel/employees/${id}/attendance`, body);
 export const applyLeave      = (id, body)  => post(`/hotel/employees/${id}/leave`, body);
 

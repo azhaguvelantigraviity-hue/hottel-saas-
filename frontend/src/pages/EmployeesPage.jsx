@@ -4,7 +4,7 @@ import Badge from '../components/Badge';
 import Avatar from '../components/Avatar';
 import AttendancePage from './AttendancePage';
 import { EMPLOYEES } from '../data/mockData';
-import { getEmployees as apiGetEmployees, createEmployee as apiCreateEmployee, updateEmployee as apiUpdateEmployee } from '../services/hotelService';
+import { getEmployees as apiGetEmployees, createEmployee as apiCreateEmployee, updateEmployee as apiUpdateEmployee, deleteEmployee as apiDeleteEmployee } from '../services/hotelService';
 
 const mapBEtoFE = (be) => ({
   id: be._id,
@@ -195,6 +195,7 @@ const EmployeesPage = ({ role, hotelDetails, plan }) => {
   const [selected, setSelected] = useState(null);
   const [showAdd, setShowAdd] = useState(false);
   const [editEmployee, setEditEmployee] = useState(null);
+  const [deleteConfirm, setDeleteConfirm] = useState(null);
   const [filterDept, setFilterDept] = useState('all');
 
   const depts = ['all', ...new Set(employees.map(e => e.dept))];
@@ -271,11 +272,39 @@ const EmployeesPage = ({ role, hotelDetails, plan }) => {
       });
   };
 
+  const handleDeleteEmployee = (emp) => {
+    apiDeleteEmployee(emp.id)
+      .then(() => {
+        const nextList = employees.filter(e => e.id !== emp.id);
+        setEmployees(nextList);
+        localStorage.setItem(`stayos_employees_${hotelDetails?.id || 'default'}`, JSON.stringify(nextList));
+        setDeleteConfirm(null);
+      })
+      .catch(() => {
+        const nextList = employees.filter(e => e.id !== emp.id);
+        setEmployees(nextList);
+        localStorage.setItem(`stayos_employees_${hotelDetails?.id || 'default'}`, JSON.stringify(nextList));
+        setDeleteConfirm(null);
+      });
+  };
+
   return (
     <div style={{ display: 'flex', flexDirection: 'column', flex: 1, overflow: 'hidden' }}>
       {selected && <EmployeeModal employee={selected} onClose={() => setSelected(null)} />}
       {showAdd && <AddEmployeeModal onClose={() => setShowAdd(false)} onAdd={handleAddEmployee} />}
       {editEmployee && <EditEmployeeModal employee={editEmployee} onClose={() => setEditEmployee(null)} onSave={handleSaveEmployee} />}
+      {deleteConfirm && (
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.7)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
+          <div style={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: 'var(--radius-lg)', width: '100%', maxWidth: '400px', padding: '24px' }}>
+            <h3 style={{ fontFamily: 'Poppins,sans-serif', margin: '0 0 12px' }}>Delete Employee</h3>
+            <p style={{ fontSize: '14px', color: 'var(--text2)', margin: '0 0 20px' }}>Are you sure you want to delete <strong>{deleteConfirm.name}</strong>? This action cannot be undone.</p>
+            <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end' }}>
+              <button onClick={() => setDeleteConfirm(null)} style={{ padding: '10px 20px', background: 'transparent', border: '1px solid var(--border)', borderRadius: '8px', color: 'var(--text2)', cursor: 'pointer', fontFamily: 'Inter, sans-serif', fontSize: '13px' }}>Cancel</button>
+              <button onClick={() => handleDeleteEmployee(deleteConfirm)} style={{ padding: '10px 24px', background: 'var(--rose)', border: 'none', borderRadius: '8px', color: '#fff', cursor: 'pointer', fontWeight: '600', fontSize: '13px', fontFamily: 'Inter, sans-serif' }}>Delete</button>
+            </div>
+          </div>
+        </div>
+      )}
 
       <div style={{ padding: '16px 32px 0', borderBottom: '1px solid var(--border)', display: 'flex', gap: '0' }}>
         {[['staff', 'Staff Directory'], ['attendance', 'Attendance']].map(([id, label]) => (
@@ -385,6 +414,9 @@ const EmployeesPage = ({ role, hotelDetails, plan }) => {
                   <button onClick={() => setSelected(e)} style={{ flex: 1, padding: '7px', background: 'rgba(201,168,76,0.1)', border: '1px solid rgba(201,168,76,0.25)', borderRadius: '6px', color: 'var(--gold)', cursor: 'pointer', fontSize: '12px', fontWeight: '600', fontFamily: 'Inter, sans-serif' }}>View Profile</button>
                   <button onClick={() => setEditEmployee(e)} style={{ padding: '7px 10px', background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: '6px', color: 'var(--text2)', cursor: 'pointer', transition: 'all 0.15s' }} onMouseEnter={ev => { ev.currentTarget.style.borderColor = 'var(--gold)'; ev.currentTarget.style.color = 'var(--gold)'; }} onMouseLeave={ev => { ev.currentTarget.style.borderColor = 'var(--border)'; ev.currentTarget.style.color = 'var(--text2)'; }}>
                     <Icon name="edit" size={13} color="currentColor" />
+                  </button>
+                  <button onClick={() => setDeleteConfirm(e)} style={{ padding: '7px 10px', background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: '6px', color: 'var(--rose)', cursor: 'pointer', transition: 'all 0.15s' }} onMouseEnter={ev => { ev.currentTarget.style.borderColor = 'var(--rose)'; }} onMouseLeave={ev => { ev.currentTarget.style.borderColor = 'var(--border)'; }}>
+                    <Icon name="trash" size={13} color="currentColor" />
                   </button>
                 </div>
               </div>

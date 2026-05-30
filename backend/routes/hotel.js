@@ -10,7 +10,7 @@ const {
   getCabBookings, getCabBooking, createCabBooking, updateCabBooking, deleteCabBooking,
   getTravelPackages,
   getGuests, getGuest, createGuest, updateGuest, deleteGuest,
-  getEmployees, getEmployee, createEmployee, updateEmployee,
+  getEmployees, getEmployee, createEmployee, updateEmployee, deleteEmployee,
   markAttendance, applyLeave,
 } = require('../controllers/hotelController');
 const { protect, authorize, scopeToHotel, hotelAdmin } = require('../middleware/auth');
@@ -67,10 +67,11 @@ router.post  ('/employees/:id/attendance',                markAttendance);
 router.post  ('/employees/:id/leave',                     applyLeave);
 
 // ── Employees (Professional+) ─────────────────────────────────────────────────
-router.use('/employees', requireFeature('employeeManagement'));
+router.use('/employees', requireFeature('employees'));
 router.get   ('/employees',                               getEmployees);
 router.post  ('/employees', hotelAdmin, enforceLimit('staffAccounts', Employee), createEmployee);
 router.get   ('/employees/:id',                           getEmployee);
 router.put   ('/employees/:id',          hotelAdmin,      updateEmployee);
+router.delete('/employees/:id',          hotelAdmin,      deleteEmployee);
 
 module.exports = router;
