@@ -316,6 +316,11 @@ const updateGuest = catchAsync(async (req, res) => {
   if (!guest) throw new AppError('Guest not found', 404);
   sendSuccess(res, guest);
 });
+const deleteGuest = catchAsync(async (req, res) => {
+  const guest = await Guest.findOneAndDelete(oneFilter(req));
+  if (!guest) throw new AppError('Guest not found', 404);
+  sendSuccess(res, guest);
+});
 
 // ── Employees ──────────────────────────────────────────────────
 const getEmployees = catchAsync(async (req, res) => {
@@ -370,7 +375,7 @@ module.exports = {
   uploadIdScan, submitFaceVerification, saveSignature,
   getCabBookings, getCabBooking, createCabBooking, updateCabBooking, deleteCabBooking,
   getTravelPackages,
-  getGuests, getGuest, createGuest, updateGuest,
+  getGuests, getGuest, createGuest, updateGuest, deleteGuest,
   getEmployees, getEmployee, createEmployee, updateEmployee,
   markAttendance, applyLeave
 };

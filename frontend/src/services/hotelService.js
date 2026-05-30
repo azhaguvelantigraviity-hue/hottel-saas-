@@ -26,6 +26,7 @@ export const getGuests   = (params = {}) => get(`/hotel/guests?${new URLSearchPa
 export const getGuest    = (id)          => get(`/hotel/guests/${id}`);
 export const createGuest = (body)        => post('/hotel/guests', body);
 export const updateGuest = (id, body)    => put(`/hotel/guests/${id}`, body);
+export const deleteGuest = (id)          => del(`/hotel/guests/${id}`);
 
 // ── Employees ─────────────────────────────────────────────────
 export const getEmployees    = ()          => get('/hotel/employees');

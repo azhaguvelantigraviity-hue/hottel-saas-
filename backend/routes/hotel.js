@@ -9,7 +9,7 @@ const {
   uploadIdScan, submitFaceVerification, saveSignature,
   getCabBookings, getCabBooking, createCabBooking, updateCabBooking, deleteCabBooking,
   getTravelPackages,
-  getGuests, getGuest, createGuest, updateGuest,
+  getGuests, getGuest, createGuest, updateGuest, deleteGuest,
   getEmployees, getEmployee, createEmployee, updateEmployee,
   markAttendance, applyLeave,
 } = require('../controllers/hotelController');
@@ -55,11 +55,12 @@ router.delete('/cab-bookings/:id',                     deleteCabBooking);
 router.get   ('/travel-packages',                      getTravelPackages);
 
 // ── Guests / CRM (Professional+) ─────────────────────────────────────────────
-router.use('/guests', requireFeature('guestCRM'));
-router.get  ('/guests',         getGuests);
-router.post ('/guests',         createGuest);
-router.get  ('/guests/:id',     getGuest);
-router.put  ('/guests/:id',     updateGuest);
+router.use('/guests', requireFeature('guests'));
+router.get   ('/guests',         getGuests);
+router.post  ('/guests',         createGuest);
+router.get   ('/guests/:id',     getGuest);
+router.put   ('/guests/:id',     updateGuest);
+router.delete('/guests/:id',     deleteGuest);
 
 // ── Attendance — available on all plans ────────────────────────
 router.post  ('/employees/:id/attendance',                markAttendance);
