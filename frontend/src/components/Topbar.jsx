@@ -81,17 +81,18 @@ const Topbar = ({ title, subtitle, role, notifCount = 3, onNav }) => {
           >
             <Icon name="bell" size={17} color="var(--text2)" />
           </button>
-          {notifCount > 0 && (
-            <div style={{
-              position: 'absolute', top: '-4px', right: '-4px',
-              minWidth: '18px', height: '18px', borderRadius: '9px',
-              background: 'var(--rose)', border: '2px solid var(--surface)',
+          {/* Refresh */}
+          <button 
+            onClick={() => window.location.reload()}
+            style={{
+              width: '38px', height: '38px', borderRadius: '10px',
+              background: 'var(--bg)', border: '1px solid var(--border)',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
-              fontSize: '10px', fontWeight: '700', color: '#fff', padding: '0 3px',
-            }}>
-              {notifCount}
-            </div>
-          )}
+              cursor: 'pointer', transition: 'all 0.15s', marginLeft: '8px'
+            }}
+          >
+            <Icon name="refresh" size={17} color="var(--text2)" />
+          </button>
         </div>
 
         {/* Divider */}
