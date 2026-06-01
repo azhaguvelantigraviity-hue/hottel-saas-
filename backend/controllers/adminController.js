@@ -53,7 +53,11 @@ exports.createHotel = asyncHandler(async (req, res) => {
     address,
     plan,
     planStatus,
-    totalRooms: totalRooms || req.body.rooms || 0
+    totalRooms: totalRooms || req.body.rooms || 0,
+    adminCredentials: {
+      email: managerEmail || adminEmail || '',
+      password: managerPassword || adminPassword || ''
+    }
   });
 
   // Extract manager credentials

@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Avatar from '../components/Avatar';
 import Badge from '../components/Badge';
 import Icon from '../components/Icon';
 import { HOTELS, PLANS, getPlan } from '../data/mockData';
+import { createHotel, getHotel } from '../services/adminService';
 
 // ── Shared input style ────────────────────────────────────────
 const inp = {
@@ -26,6 +27,21 @@ const HotelDetailModal = ({ hotel, onClose, onEdit }) => {
     { label: 'Joined',       value: hotel.joined },
     { label: 'Contact',      value: hotel.contact },
   ];
+
+  const [dbCreds, setDbCreds] = useState(null);
+  const [showPassword, setShowPassword] = useState(false);
+
+  useEffect(() => {
+    if (hotel.dbId) {
+      getHotel(hotel.dbId)
+        .then(res => {
+          if (res.data?.adminCredentials?.email) {
+            setDbCreds(res.data.adminCredentials);
+          }
+        })
+        .catch(console.error);
+    }
+  }, [hotel.dbId]);
 
   return (
     <div style={{
@@ -70,6 +86,33 @@ const HotelDetailModal = ({ hotel, onClose, onEdit }) => {
             <div style={{ fontSize: '11px', color: 'var(--text3)', marginBottom: '4px' }}>LOCATION</div>
             <div style={{ fontSize: '14px', fontWeight: '600' }}>{hotel.city}, India</div>
           </div>
+
+          {/* Hotel Login Credentials */}
+          {dbCreds && (
+            <div style={{ background: 'var(--surface)', borderRadius: '10px', padding: '14px' }}>
+              <div style={{ fontSize: '13px', fontWeight: '700', marginBottom: '12px' }}>Hotel Login Credentials</div>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                <div>
+                  <div style={{ fontSize: '11px', color: 'var(--text3)', marginBottom: '4px' }}>LOGIN EMAIL</div>
+                  <div style={{ fontSize: '13px', fontWeight: '600' }}>{dbCreds.email}</div>
+                </div>
+                <div>
+                  <div style={{ fontSize: '11px', color: 'var(--text3)', marginBottom: '4px' }}>PASSWORD</div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                    <div style={{ fontSize: '13px', fontWeight: '600', fontFamily: 'DM Mono,monospace', letterSpacing: showPassword ? 'normal' : '0.2em' }}>
+                      {showPassword ? dbCreds.password : '••••••••'}
+                    </div>
+                    <button 
+                      onClick={() => setShowPassword(!showPassword)}
+                      style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--gold)', fontSize: '12px', fontWeight: '600', padding: 0 }}
+                    >
+                      {showPassword ? 'Hide' : 'Show'}
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
 
           {/* Stats grid */}
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '10px' }}>
@@ -292,7 +335,6 @@ const AddHotelModal = ({ onClose, onAdd }) => {
       joined: new Date().toISOString().slice(0, 10),
       avatar: form.avatar || form.name.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase(),
     });
-    onClose();
   };
 
   return (
@@ -449,10 +491,29 @@ const AdminHotels = () => {
     saveStoredHotels(next);
   };
 
-  const handleAdd = (newHotel) => {
+  const handleAdd = async (newHotel) => {
+    // Save to DB
+    try {
+      const res = await createHotel({
+        name: newHotel.name,
+        address: { city: newHotel.city },
+        adminEmail: newHotel.adminEmail,
+        adminPassword: newHotel.adminPassword,
+        plan: newHotel.plan,
+        planStatus: newHotel.status,
+        rooms: newHotel.rooms,
+      });
+      if (res.data) {
+        newHotel.dbId = res.data._id;
+      }
+    } catch (e) {
+      console.error('Failed to create hotel in DB', e);
+    }
+
     const next = [...hotels, { ...newHotel, receptionists: newHotel.receptionists || [] }];
     setHotels(next);
     saveStoredHotels(next);
+    setShowAdd(false);
   };
 
   const handleDelete = (hotel) => {

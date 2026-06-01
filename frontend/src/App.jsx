@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Routes, Route, useNavigate, Navigate, useLocation } from 'react-router-dom';
 import Landing from './pages/Landing';
 import Login from './pages/Login';
 import AdminDashboard from './pages/AdminDashboard';
@@ -58,7 +59,12 @@ const safeSetStorage = (key, value) => {
 
 // ── ADMIN APP ─────────────────────────────────────────────────────────────────
 const AdminApp = ({ onLogout }) => {
-  const [page, setPage] = useState('dashboard');
+  const navigate = useNavigate();
+  const location = useLocation();
+  const pathParts = location.pathname.split('/');
+  const page = pathParts[2] || 'dashboard';
+
+  const setPage = (newPage) => navigate(`/admin/${newPage}`);
 
   const pages = {
     dashboard: <AdminDashboard onNav={setPage} />,
@@ -92,7 +98,12 @@ const AdminApp = ({ onLogout }) => {
 
 // ── HOTEL APP ─────────────────────────────────────────────────────────────────
 const HotelApp = ({ onLogout, initialPlan = 'enterprise', role = 'manager', hotelDetails = null }) => {
-  const [page, setPage] = useState('dashboard');
+  const navigate = useNavigate();
+  const location = useLocation();
+  const pathParts = location.pathname.split('/');
+  const page = pathParts[2] || 'dashboard';
+
+  const setPage = (newPage) => navigate(`/hotel/${newPage}`);
   const plan = initialPlan;
 
   const planFeatures = {
@@ -151,7 +162,7 @@ const HotelApp = ({ onLogout, initialPlan = 'enterprise', role = 'manager', hote
       case 'billing': return <BillingPage />;
       case 'guests': return <GuestCRMPage />;
       case 'loyalty': return <LoyaltyPage />;
-      case 'restaurant': return <RestaurantPOS />;
+      case 'restaurant': return <RestaurantPOS role={role} hotelDetails={hotelDetails} />;
       case 'laundry': return <LaundryPage />;
       case 'travel': return <TravelDeskPage />;
       case 'events': return <EventsPage />;
@@ -190,7 +201,7 @@ const HotelApp = ({ onLogout, initialPlan = 'enterprise', role = 'manager', hote
 
 // ── ROOT ──────────────────────────────────────────────────────────────────────
 const App = () => {
-  const [screen, setScreen] = useState('landing');
+  const navigate = useNavigate();
   const [loginType, setLoginType] = useState(null);
   const [hotelPlan, setHotelPlan] = useState('enterprise');
   const [hotelRole, setHotelRole] = useState('manager');
@@ -212,24 +223,25 @@ const App = () => {
 
   const handleLogin = (type) => {
     setLoginType(type);
-    setScreen(`login-${type}`);
+    navigate(`/login/${type}`);
   };
 
   const handleHotelSuccess = (plan, role, hotelDetails) => {
     setHotelPlan(plan || 'enterprise');
     setHotelRole(role || 'manager');
     setCurrentHotel(hotelDetails || null);
-    setScreen('hotel');
+    navigate('/hotel/dashboard');
   };
 
   return (
-    <>
-      {screen === 'landing' && <Landing onLogin={handleLogin} theme={theme} setTheme={setTheme} />}
-      {screen === 'login-admin' && <Login type="admin" onSuccess={() => setScreen('admin')} onBack={() => setScreen('landing')} />}
-      {screen === 'login-hotel' && <Login type="hotel" onSuccess={handleHotelSuccess} onBack={() => setScreen('landing')} />}
-      {screen === 'admin' && <AdminApp onLogout={() => setScreen('landing')} theme={theme} setTheme={setTheme} />}
-      {screen === 'hotel' && <HotelApp onLogout={() => setScreen('landing')} initialPlan={hotelPlan} role={hotelRole} hotelDetails={currentHotel} theme={theme} setTheme={setTheme} />}
-    </>
+    <Routes>
+      <Route path="/" element={<Landing onLogin={handleLogin} theme={theme} setTheme={setTheme} />} />
+      <Route path="/login/admin" element={<Login type="admin" onSuccess={() => navigate('/admin/dashboard')} onBack={() => navigate('/')} />} />
+      <Route path="/login/hotel" element={<Login type="hotel" onSuccess={handleHotelSuccess} onBack={() => navigate('/')} />} />
+      <Route path="/admin/*" element={<AdminApp onLogout={() => navigate('/')} theme={theme} setTheme={setTheme} />} />
+      <Route path="/hotel/*" element={<HotelApp onLogout={() => navigate('/')} initialPlan={hotelPlan} role={hotelRole} hotelDetails={currentHotel} theme={theme} setTheme={setTheme} />} />
+      <Route path="*" element={<Navigate to="/" replace />} />
+    </Routes>
   );
 };
 

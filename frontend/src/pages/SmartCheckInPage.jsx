@@ -24,10 +24,10 @@ const StepQR = ({ booking, onNext }) => {
   const [qrCode, setQrCode] = useState(null);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-  const [proceeding, setProceeding] = useState(false);
 
   const lookup = useCallback(async () => {
     setError('');
+    setQrCode(null);
     if (!bookingId.trim()) { setError('Please enter a Booking ID'); return; }
     setLoading(true);
     try {
@@ -35,31 +35,23 @@ const StepQR = ({ booking, onNext }) => {
       const b = res.data;
       if (b.status === 'checked_in' || b.status === 'checked_out' || b.status === 'cancelled') {
         setError(`Booking is already ${b.status.replace('_', ' ')}`);
-      } else {
-        // Generate QR code
-        const qrRes = await api.generateQRCode(b._id);
-        setQrCode(qrRes.data.qrCode);
-        onNext({ booking: b, qrScanned: true });
+        return;
       }
+      // Generate QR code for the found booking
+      let qrDataUrl = null;
+      try {
+        const qrRes = await api.generateQRCode(b._id);
+        qrDataUrl = qrRes.data?.qrCode || qrRes.qrCode;
+      } catch { /* QR generation non-critical */ }
+      setQrCode(qrDataUrl);
+      // Auto-advance to guest details with the booking data
+      onNext({ booking: b, qrScanned: true });
     } catch (err) {
       setError(err.status === 404 ? 'Booking not found. Please check the ID.' : (err.message || 'Failed to look up booking'));
     } finally {
       setLoading(false);
     }
   }, [bookingId, onNext]);
-
-  const handleProceed = () => {
-    if (!proceeding) {
-      setProceeding(true);
-      // Trigger lookup if we have an existing booking
-      if (booking && booking._id) {
-        lookup();
-      } else {
-        setError('Please enter a Booking ID first');
-        setProceeding(false);
-      }
-    }
-  };
 
   return (
     <div style={{ display: 'flex', gap: 32, flexWrap: 'wrap', alignItems: 'center', justifyContent: 'center' }}>
@@ -77,14 +69,10 @@ const StepQR = ({ booking, onNext }) => {
         <div style={{ fontSize: 14, color: 'var(--text2)', marginBottom: 16 }}>Booking ID</div>
         <div style={{ display: 'flex', gap: 8, marginBottom: 16 }}>
           <input value={bookingId} onChange={e => setBookingId(e.target.value)} placeholder="e.g. BK-1003" style={{ flex: 1, background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 8, padding: '10px 14px', color: 'var(--text)', fontFamily: 'DM Mono, monospace', fontSize: 14 }} />
-          <button onClick={lookup} disabled={loading} style={{ background: 'linear-gradient(135deg,#C9A84C,#8A6F2E)', border: 'none', borderRadius: 8, padding: '10px 20px', color: '#fff', cursor: loading ? 'not-allowed' : 'pointer', fontFamily: 'Inter, sans-serif', fontWeight: 600, opacity: loading ? 0.6 : 1 }}>{loading ? '...' : 'Lookup'}</button>
+          <button onClick={lookup} disabled={loading} style={{ background: 'linear-gradient(135deg,#C9A84C,#8A6F2E)', border: 'none', borderRadius: 8, padding: '10px 20px', color: '#fff', cursor: loading ? 'not-allowed' : 'pointer', fontFamily: 'Inter, sans-serif', fontWeight: 600, opacity: loading ? 0.6 : 1 }}>{loading ? 'Looking up...' : 'Lookup'}</button>
         </div>
         {error && <div style={{ padding: 12, background: 'rgba(251,113,133,0.1)', border: '1px solid rgba(251,113,133,0.3)', borderRadius: 8, color: 'var(--rose)', marginBottom: 12, fontSize: 13 }}>{error}</div>}
-        {qrCode && (
-          <button onClick={handleProceed} style={{ width: '100%', padding: '12px', background: 'linear-gradient(135deg,#34D399,#059669)', border: 'none', borderRadius: 8, color: '#fff', cursor: 'pointer', fontFamily: 'Inter, sans-serif', fontWeight: 600, fontSize: 14 }}>
-            Proceed to Check-In
-          </button>
-        )}
+        {loading && <div style={{ textAlign: 'center', fontSize: 12, color: 'var(--text3)' }}>Fetching booking details...</div>}
       </div>
     </div>
   );

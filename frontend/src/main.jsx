@@ -2,6 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import App from './App.jsx';
 import './index.css';
+import { BrowserRouter } from 'react-router-dom';
 
 // ── Global Error Boundary ─────────────────────────────────────
 class ErrorBoundary extends React.Component {
@@ -58,6 +59,8 @@ class ErrorBoundary extends React.Component {
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <ErrorBoundary>
-    <App />
+    <BrowserRouter>
+      <App />
+    </BrowserRouter>
   </ErrorBoundary>
 );

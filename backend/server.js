@@ -24,11 +24,28 @@ const adminRoutes      = require('./routes/admin');
 const hotelRoutes      = require('./routes/hotel');
 const operationsRoutes = require('./routes/operations');
 const billingRoutes    = require('./routes/billing');
+const manualItemsRoutes = require('./routes/manualItems');
 
 // ── Connect DB ────────────────────────────────────────────────────────────────
 connectDB();
 
 const app = express();
+const http = require('http');
+const socketIO = require('socket.io');
+
+const server = http.createServer(app);
+const io = socketIO(server, { 
+  cors: { origin: '*' }
+});
+
+app.set('io', io);
+
+io.on('connection', (socket) => {
+  // Client should emit 'joinHotel' with their hotel ID
+  socket.on('joinHotel', (hotelId) => {
+    socket.join(hotelId);
+  });
+});
 
 // ── Security middleware ───────────────────────────────────────────────────────
 app.use(helmet({
@@ -121,6 +138,7 @@ app.use('/api/v1/admin',      adminRoutes);
 app.use('/api/v1/hotel',      hotelRoutes);
 app.use('/api/v1/operations', operationsRoutes);
 app.use('/api/v1/billing',    billingRoutes);
+app.use('/api/v1/manual-items', manualItemsRoutes);
 
 // ── API info ──────────────────────────────────────────────────────────────────
 app.get('/api/v1', (_req, res) => {
@@ -148,7 +166,7 @@ app.use(errorHandler);
 
 // ── Start server ──────────────────────────────────────────────────────────────
 const PORT = process.env.PORT || 5000;
-const server = app.listen(PORT, () => {
+server.listen(PORT, () => {
   logger.info(`StayOS API running on port ${PORT} [${process.env.NODE_ENV}]`);
   logger.info(`Health: http://localhost:${PORT}/health`);
   logger.info(`API:    http://localhost:${PORT}/api/v1`);

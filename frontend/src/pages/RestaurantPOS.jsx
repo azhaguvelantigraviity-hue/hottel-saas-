@@ -3,11 +3,12 @@ import Badge from '../components/Badge';
 import { useApi, useMutation } from '../hooks/useApi';
 import { getMenuItems, getPOSOrders, createPOSOrder, updatePOSOrder, createMenuItem } from '../services/operationsService';
 import { RESTAURANT_ORDERS, MENU_ITEMS } from '../data/mockData';
+import ManualItemPage from './ManualItemPage';
 
 const statusColor = { pending: 'amber', preparing: 'violet', delivered: 'green', cancelled: 'rose' };
 const categories = ['All', 'Breakfast', 'Starters', 'Main Course', 'Breads', 'Desserts', 'Beverages', 'Snacks', 'Custom'];
 
-const RestaurantPOS = () => {
+const RestaurantPOS = ({ role, hotelDetails }) => {
   const [cart, setCart] = useState([]);
   const [tableNo, setTableNo] = useState('');
   const [orderType, setOrderType] = useState('dine-in');
@@ -117,7 +118,7 @@ const RestaurantPOS = () => {
     <div style={{ display: 'flex', flexDirection: 'column', flex: 1, overflow: 'hidden' }}>
       {/* Tabs */}
       <div style={{ padding: '16px 32px 0', borderBottom: '1px solid var(--border)', display: 'flex', gap: '0' }}>
-        {[['pos', 'New Order'], ['orders', 'Active Orders'], ['history', 'Order History']].map(([id, label]) => (
+        {[['pos', 'New Order'], ['orders', 'Active Orders'], ['history', 'Order History'], ['menu', 'Manage Menu']].map(([id, label]) => (
           <button key={id} onClick={() => setActiveTab(id)} style={{ padding: '10px 20px', background: 'none', border: 'none', borderBottom: `2px solid ${activeTab === id ? 'var(--gold)' : 'transparent'}`, color: activeTab === id ? 'var(--gold)' : 'var(--text3)', cursor: 'pointer', fontSize: '13px', fontWeight: '600', fontFamily: 'Inter, sans-serif', transition: 'all 0.2s' }}>
             {label}
           </button>
@@ -202,7 +203,7 @@ const RestaurantPOS = () => {
                     <span style={{ fontSize: '14px', fontWeight: '700', minWidth: '20px', textAlign: 'center' }}>{item.qty}</span>
                     <button onClick={() => addToCart(item)} style={{ width: '24px', height: '24px', borderRadius: '50%', background: !isItemOut(item) ? 'var(--gold)' : 'var(--border)', border: 'none', cursor: !isItemOut(item) ? 'pointer' : 'not-allowed', color: '#000', fontSize: '14px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>+</button>
                   </div>
-                  <div style={{ fontSize: '13px', fontWeight: '700', fontFamily: 'DM Mono,monospace', minWidth: '60px', textAlign: 'right' }}>₹{(item.price * item.qty).toLocaleString()}</div>
+                  <div style={{ fontSize: '13px', fontWeight: '700', fontFamily: 'DM Mono,monospace', minWidth: '60px', textAlign: 'right' }}>₹{((item.price || 0) * (item.qty || 1)).toLocaleString()}</div>
                 </div>
               ))}
             </div>
@@ -210,13 +211,13 @@ const RestaurantPOS = () => {
             {cart.length > 0 && (
               <div style={{ padding: '16px', borderTop: '1px solid var(--border)' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px', color: 'var(--text2)', marginBottom: '4px' }}>
-                  <span>Subtotal</span><span>₹{cartTotal.toLocaleString()}</span>
+                  <span>Subtotal</span><span>₹{(cartTotal || 0).toLocaleString()}</span>
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px', color: 'var(--text2)', marginBottom: '8px' }}>
-                  <span>GST (5%)</span><span>₹{tax.toLocaleString()}</span>
+                  <span>GST (5%)</span><span>₹{(tax || 0).toLocaleString()}</span>
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '16px', fontWeight: '700', color: 'var(--gold)', marginBottom: '14px' }}>
-                  <span>Total</span><span>₹{(cartTotal + tax).toLocaleString()}</span>
+                  <span>Total</span><span>₹{((cartTotal || 0) + (tax || 0)).toLocaleString()}</span>
                 </div>
                 <button onClick={placeOrder} disabled={!tableNo} style={{ width: '100%', padding: '12px', background: tableNo ? 'linear-gradient(135deg,#C9A84C,#8A6F2E)' : 'var(--border)', border: 'none', borderRadius: '8px', color: tableNo ? '#fff' : 'var(--text3)', cursor: tableNo ? 'pointer' : 'not-allowed', fontWeight: '600', fontSize: '14px', fontFamily: 'Inter, sans-serif' }}>
                   Place Order
@@ -246,12 +247,12 @@ const RestaurantPOS = () => {
                   {order.items.map((item, i) => (
                     <div key={i} style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px', color: 'var(--text2)', marginBottom: '3px' }}>
                       <span>{item.qty}× {item.name}</span>
-                      <span>₹{(item.price * item.qty).toLocaleString()}</span>
+                      <span>₹{((item.price || 0) * (item.qty || 1)).toLocaleString()}</span>
                     </div>
                   ))}
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid var(--border)', paddingTop: '10px' }}>
-                  <span style={{ fontSize: '15px', fontWeight: '700', color: 'var(--gold)', fontFamily: 'DM Mono,monospace' }}>₹{order.total.toLocaleString()}</span>
+                  <span style={{ fontSize: '15px', fontWeight: '700', color: 'var(--gold)', fontFamily: 'DM Mono,monospace' }}>₹{(order.total || 0).toLocaleString()}</span>
                   {order.status === 'pending' && <button onClick={() => updateOrderStatus(orderKey, 'preparing')} style={{ padding: '6px 12px', background: 'rgba(167,139,250,0.15)', border: '1px solid rgba(167,139,250,0.3)', borderRadius: '6px', color: 'var(--violet)', cursor: 'pointer', fontSize: '12px', fontWeight: '600', fontFamily: 'Inter, sans-serif' }}>Start Preparing</button>}
                   {order.status === 'preparing' && <button onClick={() => updateOrderStatus(orderKey, 'delivered')} style={{ padding: '6px 12px', background: 'rgba(52,211,153,0.15)', border: '1px solid rgba(52,211,153,0.3)', borderRadius: '6px', color: 'var(--green)', cursor: 'pointer', fontSize: '12px', fontWeight: '600', fontFamily: 'Inter, sans-serif' }}>Mark Delivered</button>}
                 </div>
@@ -259,6 +260,10 @@ const RestaurantPOS = () => {
             })}
           </div>
         </div>
+      )}
+
+      {activeTab === 'menu' && (
+        <ManualItemPage role={role} hotelDetails={hotelDetails} />
       )}
     </div>
   );
