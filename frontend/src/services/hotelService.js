@@ -52,3 +52,15 @@ export const createCabBooking = (body)        => post('/hotel/cab-bookings', bod
 export const updateCabBooking = (id, body)    => put(`/hotel/cab-bookings/${id}`, body);
 export const deleteCabBooking = (id)          => del(`/hotel/cab-bookings/${id}`);
 export const getTravelPackages= (params = {}) => get(`/hotel/travel-packages?${new URLSearchParams(params)}`);
+
+// ── Billing & Invoices ──────────────────────────────────────────
+export const getInvoices            = (params = {}) => get(`/billing/invoices?${new URLSearchParams(params)}`);
+export const getInvoice             = (id)          => get(`/billing/invoices/${id}`);
+export const createInvoice          = (body)        => post('/billing/invoices', body);
+export const updateInvoice          = (id, body)    => put(`/billing/invoices/${id}`, body);
+export const deleteInvoice          = (id)          => del(`/billing/invoices/${id}`);
+export const generateInvoiceFromBooking = (bookingId) => post(`/billing/invoices/from-booking/${bookingId}`, {});
+export const recordPayment          = (id, body)    => post(`/billing/invoices/${id}/payment`, body);
+export const processRefund          = (id, body)    => post(`/billing/invoices/${id}/refund`, body);
+export const getRevenueDashboard    = ()            => get('/billing/revenue/dashboard');
+export const getRevenueReport       = (params = {}) => get(`/billing/revenue/report?${new URLSearchParams(params)}`);

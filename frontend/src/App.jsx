@@ -27,6 +27,7 @@ import EventsPage from './pages/EventsPage';
 import LaundryPage from './pages/LaundryPage';
 import TravelDeskPage from './pages/TravelDeskPage';
 import BillingPage from './pages/BillingPage';
+
 import AnalyticsDashboard from './pages/AnalyticsDashboard';
 // import ChatbotPage removed
 import SecurityPage from './pages/SecurityPage';

@@ -23,6 +23,7 @@ const authRoutes       = require('./routes/auth');
 const adminRoutes      = require('./routes/admin');
 const hotelRoutes      = require('./routes/hotel');
 const operationsRoutes = require('./routes/operations');
+const billingRoutes    = require('./routes/billing');
 
 // ── Connect DB ────────────────────────────────────────────────────────────────
 connectDB();
@@ -119,6 +120,7 @@ app.use('/api/v1/auth',       authRoutes);
 app.use('/api/v1/admin',      adminRoutes);
 app.use('/api/v1/hotel',      hotelRoutes);
 app.use('/api/v1/operations', operationsRoutes);
+app.use('/api/v1/billing',    billingRoutes);
 
 // ── API info ──────────────────────────────────────────────────────────────────
 app.get('/api/v1', (_req, res) => {
@@ -131,6 +133,7 @@ app.get('/api/v1', (_req, res) => {
       admin:      '/api/v1/admin      [platform_admin only]',
       hotel:      '/api/v1/hotel      [all hotel roles]',
       operations: '/api/v1/operations [plan-gated modules]',
+      billing:    '/api/v1/billing    [admin/manager]',
     },
   });
 });

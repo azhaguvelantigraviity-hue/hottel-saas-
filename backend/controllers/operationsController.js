@@ -88,6 +88,20 @@ const createPOSOrder = asyncHandler(async (req, res) => {
   const subtotal = items.reduce((s, i) => s + i.price * i.qty, 0);
   const tax = Math.round(subtotal * 0.05);
   const total = subtotal + tax;
+
+  for (const item of items) {
+    if (item.menuItem) {
+      const menuItem = await MenuItem.findById(item.menuItem);
+      if (menuItem && menuItem.stock > 0) {
+        const remaining = menuItem.stock - item.qty;
+        if (remaining < 0) {
+          return res.status(400).json({ success: false, message: `Insufficient stock for ${menuItem.name}` });
+        }
+        await MenuItem.findByIdAndUpdate(item.menuItem, { stock: remaining });
+      }
+    }
+  }
+
   const order = await POSOrder.create({
     hotel: req.hotelId,
     table, type,
