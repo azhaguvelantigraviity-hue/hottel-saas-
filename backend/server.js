@@ -36,20 +36,30 @@ app.use(helmet({
 app.use(mongoSanitize());
 
 // ── CORS ──────────────────────────────────────────────────────────────────────
-const allowedOrigins = (process.env.CORS_ORIGIN || 'http://localhost:3000').split(',');
-// Ensure Render domain is allowed (add your Render URL here)
-if (!allowedOrigins.includes('https://hottel-saas.onrender.com')) {
-  allowedOrigins.push('https://hottel-saas.onrender.com');
-}
-app.use(cors({
-  origin: (origin, cb) => {
-    if (!origin || allowedOrigins.includes(origin)) return cb(null, true);
-    cb(new Error(`CORS: Origin ${origin} not allowed`));
-  },
-  credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization'],
-}));
+const allowedOrigins = (process.env.CORS_ORIGIN
+  ? process.env.CORS_ORIGIN.split(',')
+  : [
+      'http://localhost:3000',
+      'http://localhost:5173',
+      'https://hottel-saas.vercel.app',
+      'https://hottel-saas.onrender.com',
+    ]);
+
+['https://hottel-saas.onrender.com', 'https://hottel-saas.vercel.app'].forEach((origin) => {
+  if (!allowedOrigins.includes(origin)) allowedOrigins.push(origin);
+});
+
+app.use(
+  cors({
+    origin: (origin, cb) => {
+      if (!origin || allowedOrigins.includes(origin)) return cb(null, true);
+      cb(new Error(`CORS: Origin ${origin} not allowed`));
+    },
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+  })
+);
 
 // ── Rate limiting ─────────────────────────────────────────────────────────────
 const limiter = rateLimit({
