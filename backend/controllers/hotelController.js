@@ -107,11 +107,13 @@ const getBookings = catchAsync(async (req, res) => {
 });
 const getBooking = catchAsync(async (req, res) => {
   const filter = hotelFilter(req);
-  // Support lookup by both _id and bookingId (e.g. BK-1003)
-  filter.$or = [
-    { _id: req.params.id },
-    { bookingId: req.params.id },
-  ];
+  const idParam = req.params.id;
+  const isObjectId = /^[0-9a-fA-F]{24}$/.test(idParam);
+  if (isObjectId) {
+    filter.$or = [{ _id: idParam }, { bookingId: idParam }];
+  } else {
+    filter.bookingId = idParam;
+  }
   const booking = await populateBooking(Booking.findOne(filter));
   if (!booking) throw new AppError('Booking not found', 404);
   sendSuccess(res, booking);

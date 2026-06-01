@@ -83,6 +83,8 @@ BookingSchema.pre('save', async function (next) {
   next();
 });
 
+BookingSchema.index({ bookingId: 1 }, { unique: true });
+
 BookingSchema.index({ hotel: 1, status: 1 });
 BookingSchema.index({ hotel: 1, checkIn: 1 });
 
