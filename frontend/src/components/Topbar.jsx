@@ -81,18 +81,6 @@ const Topbar = ({ title, subtitle, role, notifCount = 3, onNav }) => {
           >
             <Icon name="bell" size={17} color="var(--text2)" />
           </button>
-          {/* Refresh */}
-          <button 
-            onClick={() => window.location.reload()}
-            style={{
-              width: '38px', height: '38px', borderRadius: '10px',
-              background: 'var(--bg)', border: '1px solid var(--border)',
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              cursor: 'pointer', transition: 'all 0.15s', marginLeft: '8px'
-            }}
-          >
-            <Icon name="refresh" size={17} color="var(--text2)" />
-          </button>
         </div>
 
         {/* Divider */}
