@@ -19,6 +19,7 @@ const FEATURE_PLAN_MAP = {
   apiAccess:           'enterprise',
 
   // Route aliases
+  laundry:             'professional',
   guests:              'professional',
   employees:           'professional',
   housekeeping:        'professional',

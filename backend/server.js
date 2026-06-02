@@ -25,6 +25,7 @@ const hotelRoutes      = require('./routes/hotel');
 const operationsRoutes = require('./routes/operations');
 const billingRoutes    = require('./routes/billing');
 const manualItemsRoutes = require('./routes/manualItems');
+const laundryRoutes     = require('./routes/laundry');
 
 // ── Connect DB ────────────────────────────────────────────────────────────────
 connectDB();
@@ -139,6 +140,7 @@ app.use('/api/v1/hotel',      hotelRoutes);
 app.use('/api/v1/operations', operationsRoutes);
 app.use('/api/v1/billing',    billingRoutes);
 app.use('/api/v1/manual-items', manualItemsRoutes);
+app.use('/api/v1/laundry',      laundryRoutes);
 
 // ── API info ──────────────────────────────────────────────────────────────────
 app.get('/api/v1', (_req, res) => {

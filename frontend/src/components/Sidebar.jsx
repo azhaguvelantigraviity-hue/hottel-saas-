@@ -21,7 +21,7 @@ const Sidebar = ({ role, active, onNav, onLogout, plan }) => {
         { id: 'dashboard', icon: 'dashboard', label: 'Dashboard',      plans: ['starter','professional','enterprise'] },
         { id: 'rooms',     icon: 'bed',       label: 'Rooms',          plans: ['starter','professional','enterprise'] },
         { id: 'bookings',  icon: 'calendar',  label: 'Bookings',       plans: ['starter','professional','enterprise'] },
-        { id: 'checkin',   icon: 'qr',        label: 'Smart Check-In', plans: ['enterprise'] },
+
         { id: 'billing',   icon: 'receipt',   label: 'Billing',        plans: ['starter','professional','enterprise'] },
       ],
     },

@@ -67,11 +67,12 @@ const TravelDeskPage = () => {
     } catch {
       computeStats(cabBookings);
     }
-  }, [computeStats, cabBookings]);
+  }, [computeStats]);
 
   useEffect(() => { loadData(); }, [loadData]);
 
   const handleBookCab = async () => {
+    if (saving) return;
     if (!form.guest || !form.pickup || !form.date || !form.time) return;
     setSaving(true);
     try {
@@ -98,6 +99,7 @@ const TravelDeskPage = () => {
   };
 
   const handleBookAirport = async () => {
+    if (saving) return;
     if (!airForm.guest || !airForm.flight || !airForm.date || !airForm.time) return;
     setSaving(true);
     try {
@@ -125,6 +127,7 @@ const TravelDeskPage = () => {
   };
 
   const handleBookPackage = async (pkg) => {
+    if (saving) return;
     setSaving(true);
     try {
       await api.createCabBooking({
@@ -139,7 +142,7 @@ const TravelDeskPage = () => {
         amount: pkg.price,
         notes: `Travel package: ${pkg.name}`,
       });
-      loadData();
+      await loadData();
     } catch (err) {
       alert(err.message || 'Failed to book package');
     } finally {

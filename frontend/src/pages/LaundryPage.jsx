@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import StatCard from '../components/StatCard';
 import Icon from '../components/Icon';
+import { getLaundryOrders, createLaundryOrder, advanceLaundryOrder } from '../services/laundryService';
 
 // ── Pricing — hardcoded so items always show ──────────────────
 const PRICING = {
@@ -41,18 +42,34 @@ const inp = {
 const EMPTY_ITEMS = Object.fromEntries(Object.keys(PRICING).map(k => [k, 0]));
 
 const LaundryPage = () => {
-  const [tab,    setTab]    = useState(0);
-  const [orders, setOrders] = useState([]);
-  const [form,   setForm]   = useState({ room: '', guest: '', express: false, items: { ...EMPTY_ITEMS } });
-  const [error,  setError]  = useState('');
+  const [tab,     setTab]    = useState(0);
+  const [orders,  setOrders] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [form,    setForm]   = useState({ room: '', guest: '', express: false, items: { ...EMPTY_ITEMS } });
+  const [error,   setError]  = useState('');
+
+  useEffect(() => {
+    const load = async () => {
+      try {
+        const res = await getLaundryOrders();
+        setOrders(res.data || []);
+      } catch {
+        // silently fail
+      } finally {
+        setLoading(false);
+      }
+    };
+    load();
+  }, []);
 
   // ── Advance order status ──────────────────────────────────
-  const advance = (id) => {
-    setOrders(prev => prev.map(o => {
-      if (o.id !== id) return o;
-      const idx = STATUS_FLOW.indexOf(o.status);
-      return { ...o, status: STATUS_FLOW[Math.min(idx + 1, STATUS_FLOW.length - 1)] };
-    }));
+  const advance = async (id) => {
+    try {
+      const res = await advanceLaundryOrder(id);
+      setOrders(prev => prev.map(o => o._id === id ? res.data : o));
+    } catch {
+      // silently fail
+    }
   };
 
   // ── Bill calculation ──────────────────────────────────────
@@ -65,29 +82,29 @@ const LaundryPage = () => {
   const totalItems = Object.values(form.items).reduce((s, q) => s + q, 0);
 
   // ── Create order ──────────────────────────────────────────
-  const addOrder = () => {
+  const addOrder = async () => {
     setError('');
     if (!form.room.trim()) { setError('Please enter a room number.'); return; }
     if (totalItems === 0)  { setError('Please add at least one item.'); return; }
 
     const itemList = Object.entries(form.items)
       .filter(([, q]) => q > 0)
-      .map(([name, qty]) => ({ name, qty }));
+      .map(([name, qty]) => ({ name, qty, price: PRICING[name] || 0 }));
 
-    const newOrder = {
-      id:      `LN-${String(orders.length + 1).padStart(3, '0')}`,
-      room:    form.room.trim(),
-      guest:   form.guest.trim() || 'Guest',
-      items:   itemList,
-      status:  'picked',
-      pickup:  new Date().toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', hour12: false }),
-      express: form.express,
-      amount:  formTotal,
-    };
-
-    setOrders(prev => [newOrder, ...prev]);
-    setForm({ room: '', guest: '', express: false, items: { ...EMPTY_ITEMS } });
-    setTab(0); // switch to Active Orders
+    try {
+      const res = await createLaundryOrder({
+        room:    form.room.trim(),
+        guest:   form.guest.trim() || 'Guest',
+        items:   itemList,
+        express: form.express,
+        amount:  formTotal,
+      });
+      setOrders(prev => [res.data, ...prev]);
+      setForm({ room: '', guest: '', express: false, items: { ...EMPTY_ITEMS } });
+      setTab(0);
+    } catch (err) {
+      setError(err.message || 'Failed to create order');
+    }
   };
 
   // ── Stats ─────────────────────────────────────────────────
@@ -124,7 +141,9 @@ const LaundryPage = () => {
           {/* ── Active Orders ── */}
           {tab === 0 && (
             <div>
-              {orders.length === 0 ? (
+              {loading ? (
+                <div style={{ textAlign: 'center', padding: '60px 20px', color: 'var(--text3)', fontSize: '14px' }}>Loading orders...</div>
+              ) : orders.length === 0 ? (
                 <div style={{ textAlign: 'center', padding: '60px 20px' }}>
                   <div style={{ fontSize: '48px', marginBottom: '12px' }}>🧺</div>
                   <div style={{ fontSize: '16px', fontWeight: '600', color: 'var(--text)', marginBottom: '6px' }}>No laundry orders yet</div>
@@ -135,12 +154,12 @@ const LaundryPage = () => {
                 </div>
               ) : (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                  {orders.map(order => (
-                    <div key={order.id} style={{ background: 'var(--bg)', border: '1px solid var(--border)', borderRadius: '10px', padding: '16px' }}>
+                    {orders.map(order => (
+                    <div key={order._id} style={{ background: 'var(--bg)', border: '1px solid var(--border)', borderRadius: '10px', padding: '16px' }}>
                       <div style={{ display: 'flex', alignItems: 'flex-start', gap: '16px', flexWrap: 'wrap' }}>
                         <div style={{ flex: 1, minWidth: '200px' }}>
                           <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px', flexWrap: 'wrap' }}>
-                            <span style={{ fontFamily: 'DM Mono,monospace', fontSize: '13px', color: 'var(--primary)', fontWeight: '700' }}>{order.id}</span>
+                            <span style={{ fontFamily: 'DM Mono,monospace', fontSize: '13px', color: 'var(--primary)', fontWeight: '700' }}>{order.orderId}</span>
                             <span style={{ fontSize: '13px', fontWeight: '700', color: 'var(--text)' }}>Room {order.room}</span>
                             <span style={{ fontSize: '12px', color: 'var(--text3)' }}>— {order.guest}</span>
                             {order.express && (
@@ -171,7 +190,7 @@ const LaundryPage = () => {
                           </span>
                           {order.status !== 'delivered' && (
                             <button
-                              onClick={() => advance(order.id)}
+                              onClick={() => advance(order._id)}
                               style={{ background: 'linear-gradient(135deg,#C9A84C,#8A6F2E)', border: 'none', borderRadius: '8px', padding: '7px 16px', color: '#fff', cursor: 'pointer', fontSize: '12px', fontWeight: '600' }}
                             >
                               Advance →
