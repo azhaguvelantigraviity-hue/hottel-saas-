@@ -28,9 +28,7 @@ import EventsPage from './pages/EventsPage';
 import LaundryPage from './pages/LaundryPage';
 import TravelDeskPage from './pages/TravelDeskPage';
 import BillingPage from './pages/BillingPage';
-
 import AnalyticsDashboard from './pages/AnalyticsDashboard';
-// import ChatbotPage removed
 import SecurityPage from './pages/SecurityPage';
 import IoTPage from './pages/IoTPage';
 import WhatsAppPage from './pages/WhatsAppPage';
@@ -40,21 +38,18 @@ import AttendancePage from './pages/AttendancePage';
 import MultiBranchPage from './pages/MultiBranchPage';
 import Sidebar from './components/Sidebar';
 import Topbar from './components/Topbar';
+import ProtectedRoute from './components/ProtectedRoute';
+import { getToken, removeToken, removeUser } from './services/api';
+import * as authService from './services/authService';
 
 const safeGetStorage = (key, fallback = null) => {
-  try {
-    return localStorage.getItem(key) ?? fallback;
-  } catch {
-    return fallback;
-  }
+  try { return localStorage.getItem(key) ?? fallback; }
+  catch { return fallback; }
 };
 
 const safeSetStorage = (key, value) => {
-  try {
-    localStorage.setItem(key, value);
-  } catch {
-    // Ignore storage write failures (private mode / disabled storage).
-  }
+  try { localStorage.setItem(key, value); }
+  catch { }
 };
 
 // ── ADMIN APP ─────────────────────────────────────────────────────────────────
@@ -111,7 +106,6 @@ const HotelApp = ({ onLogout, initialPlan = 'enterprise', role = 'manager', hote
     professional: ['dashboard','rooms','bookings','billing','notifications','guests','loyalty','employees','housekeeping','restaurant','laundry','maintenance','channel','analytics','marketing','whatsapp','inventory','reports','settings','attendance'],
     enterprise:   ['dashboard','rooms','bookings','billing','notifications','checkin','guests','loyalty','restaurant','laundry','travel','events','employees','housekeeping','maintenance','channel','revenue','analytics','marketing','whatsapp','inventory','iot','security','reports','settings','attendance'],
   };
-  // allowed = everything the plan unlocks — no role filtering (role only affects sidebar grouping)
   const allowed = planFeatures[plan] || planFeatures.starter;
 
   const titles = {
@@ -124,21 +118,18 @@ const HotelApp = ({ onLogout, initialPlan = 'enterprise', role = 'manager', hote
     marketing: 'Marketing & SEO', whatsapp: 'WhatsApp Integration',
     inventory: 'Inventory Management', iot: 'IoT & Door Locks',
     attendance: 'Attendance',
-    security: 'Security & CCTV', // chatbot: 'AI Chatbot',
+    security: 'Security & CCTV',
     notifications: 'Notifications', reports: 'Reports & Analytics', settings: 'Settings',
   };
 
   const reqPlans = {
-    // starter features — no lock needed
     rooms: 'starter', bookings: 'starter', billing: 'starter',
     notifications: 'starter', reports: 'starter', settings: 'starter',
     employees: 'starter', analytics: 'starter',
-    // professional features
     guests: 'professional', loyalty: 'professional',
     housekeeping: 'professional', restaurant: 'professional', laundry: 'professional',
     attendance: 'starter', channel: 'professional',
     marketing: 'professional', whatsapp: 'professional', inventory: 'professional',
-    // enterprise features
     checkin: 'enterprise', travel: 'enterprise', events: 'enterprise',
     iot: 'enterprise', security: 'enterprise',
     revenue: 'enterprise',
@@ -178,7 +169,6 @@ const HotelApp = ({ onLogout, initialPlan = 'enterprise', role = 'manager', hote
       case 'inventory': return <InventoryPage />;
       case 'iot': return <IoTPage />;
       case 'security': return <SecurityPage />;
-      // case 'chatbot' removed
       case 'notifications': return <NotificationsPage />;
       case 'reports': return <ReportsPage />;
       case 'settings': return <SettingsPage role="hotel" plan={plan} onNav={setPage} />;
@@ -202,14 +192,15 @@ const HotelApp = ({ onLogout, initialPlan = 'enterprise', role = 'manager', hote
 // ── ROOT ──────────────────────────────────────────────────────────────────────
 const App = () => {
   const navigate = useNavigate();
+  const [authReady, setAuthReady] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [loginType, setLoginType] = useState(null);
   const [hotelPlan, setHotelPlan] = useState('enterprise');
   const [hotelRole, setHotelRole] = useState('manager');
   const [currentHotel, setCurrentHotel] = useState(null);
-  const [theme, setTheme] = useState(() => {
-    return safeGetStorage('stayos_theme', 'light');
-  });
+  const [theme, setTheme] = useState(() => safeGetStorage('stayos_theme', 'light'));
 
+  // ── Theme sync ──
   useEffect(() => {
     if (theme === 'dark') {
       document.documentElement.classList.add('dark');
@@ -221,6 +212,46 @@ const App = () => {
     safeSetStorage('stayos_theme', theme);
   }, [theme]);
 
+  // ── Session restore on mount ──
+  useEffect(() => {
+    const token = getToken();
+    if (!token) {
+      setAuthReady(true);
+      return;
+    }
+
+    authService.getMe()
+      .then((user) => {
+        const role = user.role;
+        setIsAuthenticated(true);
+        if (role === 'platform_admin') {
+          setLoginType('admin');
+          setHotelPlan('enterprise');
+          setHotelRole('admin');
+          setCurrentHotel(null);
+        } else {
+          const hotel = user.hotel || {};
+          setLoginType('hotel');
+          setHotelPlan(hotel.plan || 'enterprise');
+          setHotelRole(role === 'hotel_admin' ? 'manager' : 'staff');
+          setCurrentHotel({
+            id: hotel._id || hotel.id,
+            name: hotel.name || '',
+            plan: hotel.plan || 'enterprise',
+            ...hotel,
+          });
+        }
+        setAuthReady(true);
+      })
+      .catch(() => {
+        removeToken();
+        removeUser();
+        setIsAuthenticated(false);
+        setAuthReady(true);
+      });
+  }, []);
+
+  // ── Auth handlers ──
   const handleLogin = (type) => {
     setLoginType(type);
     navigate(`/login/${type}`);
@@ -230,16 +261,35 @@ const App = () => {
     setHotelPlan(plan || 'enterprise');
     setHotelRole(role || 'manager');
     setCurrentHotel(hotelDetails || null);
+    setIsAuthenticated(true);
     navigate('/hotel/dashboard');
+  };
+
+  const handleLogout = () => {
+    authService.logout().catch(() => {});
+    setLoginType(null);
+    setIsAuthenticated(false);
+    setHotelPlan('enterprise');
+    setHotelRole('manager');
+    setCurrentHotel(null);
+    navigate('/');
   };
 
   return (
     <Routes>
       <Route path="/" element={<Landing onLogin={handleLogin} theme={theme} setTheme={setTheme} />} />
-      <Route path="/login/admin" element={<Login type="admin" onSuccess={() => navigate('/admin/dashboard')} onBack={() => navigate('/')} />} />
+      <Route path="/login/admin" element={<Login type="admin" onSuccess={() => { setIsAuthenticated(true); navigate('/admin/dashboard'); }} onBack={() => navigate('/')} />} />
       <Route path="/login/hotel" element={<Login type="hotel" onSuccess={handleHotelSuccess} onBack={() => navigate('/')} />} />
-      <Route path="/admin/*" element={<AdminApp onLogout={() => navigate('/')} theme={theme} setTheme={setTheme} />} />
-      <Route path="/hotel/*" element={<HotelApp onLogout={() => navigate('/')} initialPlan={hotelPlan} role={hotelRole} hotelDetails={currentHotel} theme={theme} setTheme={setTheme} />} />
+      <Route path="/admin/*" element={
+        <ProtectedRoute isAuthenticated={isAuthenticated} authReady={authReady}>
+          <AdminApp onLogout={handleLogout} theme={theme} setTheme={setTheme} />
+        </ProtectedRoute>
+      } />
+      <Route path="/hotel/*" element={
+        <ProtectedRoute isAuthenticated={isAuthenticated} authReady={authReady}>
+          <HotelApp onLogout={handleLogout} initialPlan={hotelPlan} role={hotelRole} hotelDetails={currentHotel} theme={theme} setTheme={setTheme} />
+        </ProtectedRoute>
+      } />
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );
