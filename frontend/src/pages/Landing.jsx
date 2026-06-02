@@ -156,42 +156,6 @@ const Landing = ({ onLogin, theme, setTheme }) => {
         <p style={{ fontSize: '18px', color: 'var(--text2)', maxWidth: '560px', margin: '0 auto 40px', lineHeight: 1.7 }}>
           From room bookings to revenue analytics — every tool your hotel needs, in one beautifully unified platform.
         </p>
-        <div style={{ display: 'flex', gap: '12px', justifyContent: 'center', flexWrap: 'wrap' }}>
-          <button
-            onClick={() => onLogin('hotel')}
-            style={{
-              padding: '14px 32px',
-              background: 'linear-gradient(135deg,#C9A84C,#8A6F2E)',
-              border: 'none',
-              borderRadius: '10px',
-              color: '#fff',
-              cursor: 'pointer',
-              fontSize: '16px',
-              fontWeight: '600',
-              fontFamily: 'DM Sans,sans-serif',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '8px',
-            }}
-          >
-            Start Free Trial <Icon name="arrow" size={16} color="#fff" />
-          </button>
-          <button
-            onClick={() => onLogin('admin')}
-            style={{
-              padding: '14px 32px',
-              background: 'transparent',
-              border: '1px solid var(--border2)',
-              borderRadius: '10px',
-              color: 'var(--text)',
-              cursor: 'pointer',
-              fontSize: '16px',
-              fontFamily: 'DM Sans,sans-serif',
-            }}
-          >
-            View Admin Demo
-          </button>
-        </div>
       </div>
 
       {/* FEATURES STRIP */}
