@@ -212,8 +212,21 @@ const App = () => {
     safeSetStorage('stayos_theme', theme);
   }, [theme]);
 
-  // ── No session restore — user must log in manually every time ──
+  // ── Session restore ──
   useEffect(() => {
+    const token = authService.getToken();
+    const user = authService.getUser();
+    if (token && user) {
+      setIsAuthenticated(true);
+      if (user.role === 'platform_admin') {
+        setLoginType('admin');
+      } else {
+        setLoginType('hotel');
+        setHotelRole(user.role || 'manager');
+        setHotelPlan(user.hotel?.plan || 'enterprise');
+        setCurrentHotel(user.hotel);
+      }
+    }
     setAuthReady(true);
   }, []);
 

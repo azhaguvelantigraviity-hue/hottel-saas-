@@ -1,7 +1,9 @@
 // ─────────────────────────────────────────────────────────────
 //  Auth Service  –  /api/v1/auth
 // ─────────────────────────────────────────────────────────────
-import { post, get, put, setToken, removeToken, setUser, removeUser } from './api.js';
+import { post, get, put, setToken, removeToken, setUser, removeUser, getToken, getUser } from './api.js';
+
+export { getToken, getUser };
 
 /**
  * Login – returns { token, user }

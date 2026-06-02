@@ -65,6 +65,7 @@ const EmployeeModal = ({ employee, onClose }) => (
 
 const AddEmployeeModal = ({ onClose, onAdd }) => {
   const [form, setForm] = useState({ name: '', role: '', dept: 'Front Office', shift: 'Morning', salary: '', phone: '', email: '', avatar: '', loginEmail: '', loginPassword: '' });
+  const [showPassword, setShowPassword] = useState(false);
   const set = (k, v) => setForm(p => ({ ...p, [k]: v }));
   return (
     <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.7)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
@@ -102,7 +103,12 @@ const AddEmployeeModal = ({ onClose, onAdd }) => {
               </div>
               <div>
                 <label style={labelStyle}>LOGIN PASSWORD</label>
-                <input type="password" style={inputStyle} value={form.loginPassword} onChange={e => set('loginPassword', e.target.value)} placeholder="password" />
+                <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
+                  <input type={showPassword ? "text" : "password"} style={{ ...inputStyle, paddingRight: '35px' }} value={form.loginPassword} onChange={e => set('loginPassword', e.target.value)} placeholder="password" />
+                  <button type="button" onClick={() => setShowPassword(!showPassword)} style={{ position: 'absolute', right: '10px', background: 'none', border: 'none', cursor: 'pointer', display: 'flex', padding: 0 }}>
+                    <Icon name={showPassword ? "eye-off" : "eye"} size={16} color="var(--text3)" />
+                  </button>
+                </div>
               </div>
             </div>
           </div>
