@@ -4,6 +4,7 @@ import { useApi, useMutation } from '../hooks/useApi';
 import { getManualItems, createManualItem, updateManualItem, deleteManualItem } from '../services/manualItemService';
 import ManualItemList from '../components/ManualItemList';
 import ManualItemForm from '../components/ManualItemForm';
+import BulkImportModal from '../components/BulkImportModal';
 import Icon from '../components/Icon';
 
 const CATEGORIES = ['All', 'Breakfast', 'Starters', 'Main Course', 'Breads', 'Desserts', 'Beverages', 'Snacks', 'Custom'];
@@ -12,6 +13,7 @@ const ManualItemPage = ({ role, hotelDetails }) => {
   const { data: initialItems, refetch, loading } = useApi(getManualItems);
   const [items, setItems] = useState([]);
   const [showForm, setShowForm] = useState(false);
+  const [showBulkImport, setShowBulkImport] = useState(false);
   const [editItem, setEditItem] = useState(null);
 
   const { mutate: createApi } = useMutation(createManualItem);
@@ -78,18 +80,31 @@ const ManualItemPage = ({ role, hotelDetails }) => {
         </div>
         
         {canManage && (
-          <button 
-            onClick={() => { setEditItem(null); setShowForm(true); }}
-            style={{ 
-              padding: '10px 20px', background: 'linear-gradient(135deg,#C9A84C,#8A6F2E)', 
-              border: 'none', borderRadius: '8px', color: '#fff', cursor: 'pointer',
-              fontWeight: '600', fontSize: '13px', fontFamily: 'Inter, sans-serif',
-              display: 'flex', alignItems: 'center', gap: '8px',
-              boxShadow: '0 4px 12px rgba(201,168,76,0.2)'
-            }}
-          >
-            <Icon name="plus" size={16} color="#fff" /> Add New Item
-          </button>
+          <div style={{ display: 'flex', gap: '10px' }}>
+            <button 
+              onClick={() => setShowBulkImport(true)}
+              style={{ 
+                padding: '10px 20px', background: 'var(--surface)', 
+                border: '1px solid var(--border)', borderRadius: '8px', color: 'var(--text)', cursor: 'pointer',
+                fontWeight: '600', fontSize: '13px', fontFamily: 'Inter, sans-serif',
+                display: 'flex', alignItems: 'center', gap: '8px',
+              }}
+            >
+              <Icon name="upload" size={16} color="var(--gold)" /> Bulk Import
+            </button>
+            <button 
+              onClick={() => { setEditItem(null); setShowForm(true); }}
+              style={{ 
+                padding: '10px 20px', background: 'linear-gradient(135deg,#C9A84C,#8A6F2E)', 
+                border: 'none', borderRadius: '8px', color: '#fff', cursor: 'pointer',
+                fontWeight: '600', fontSize: '13px', fontFamily: 'Inter, sans-serif',
+                display: 'flex', alignItems: 'center', gap: '8px',
+                boxShadow: '0 4px 12px rgba(201,168,76,0.2)'
+              }}
+            >
+              <Icon name="plus" size={16} color="#fff" /> Add New Item
+            </button>
+          </div>
         )}
       </div>
 
@@ -110,6 +125,19 @@ const ManualItemPage = ({ role, hotelDetails }) => {
           item={editItem} 
           onClose={() => { setShowForm(false); setEditItem(null); }} 
           onSave={handleSave} 
+        />
+      )}
+
+      {showBulkImport && (
+        <BulkImportModal
+          onClose={() => setShowBulkImport(false)}
+          onComplete={(result) => {
+            if (result && result.items) {
+              setItems(prev => [...result.items, ...prev].sort((a,b) => a.name.localeCompare(b.name)));
+            } else {
+              refetch();
+            }
+          }}
         />
       )}
     </div>

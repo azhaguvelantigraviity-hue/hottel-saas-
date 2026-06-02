@@ -17,6 +17,41 @@ const getApiUrl = () => {
 
 const BASE_URL = getApiUrl();
 
+// ── Upload helper (multipart/form-data) ────────────────────────
+export async function uploadFile(path, formData, onProgress) {
+  const token = getToken();
+  const headers = {};
+  if (token) headers['Authorization'] = `Bearer ${token}`;
+
+  const xhr = new XMLHttpRequest();
+  return new Promise((resolve, reject) => {
+    xhr.upload.addEventListener('progress', (e) => {
+      if (onProgress && e.lengthComputable) {
+        onProgress(Math.round((e.loaded / e.total) * 100));
+      }
+    });
+    xhr.addEventListener('load', () => {
+      try {
+        const data = JSON.parse(xhr.responseText);
+        if (xhr.status >= 200 && xhr.status < 300) {
+          resolve(data);
+        } else {
+          const err = new Error(data.message || `HTTP ${xhr.status}`);
+          err.status = xhr.status;
+          err.data = data;
+          reject(err);
+        }
+      } catch {
+        reject(new Error('Failed to parse response'));
+      }
+    });
+    xhr.addEventListener('error', () => reject(new Error('Network error')));
+    xhr.open('POST', `${BASE_URL}${path}`);
+    Object.entries(headers).forEach(([k, v]) => xhr.setRequestHeader(k, v));
+    xhr.send(formData);
+  });
+}
+
 const safeGetStorage = (key, fallback = null) => {
   try {
     return localStorage.getItem(key) ?? fallback;

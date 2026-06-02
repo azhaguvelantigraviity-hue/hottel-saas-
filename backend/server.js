@@ -26,6 +26,7 @@ const operationsRoutes = require('./routes/operations');
 const billingRoutes    = require('./routes/billing');
 const manualItemsRoutes = require('./routes/manualItems');
 const laundryRoutes     = require('./routes/laundry');
+const bulkImportRoutes  = require('./routes/bulkImport');
 
 // ── Connect DB ────────────────────────────────────────────────────────────────
 connectDB();
@@ -103,8 +104,8 @@ app.use('/api/v1/auth/login',    authLimiter);
 app.use('/api/v1/auth/register', authLimiter);
 
 // ── Body parsing ──────────────────────────────────────────────────────────────
-app.use(express.json({ limit: '10kb' }));
-app.use(express.urlencoded({ extended: true, limit: '10kb' }));
+app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 app.use(compression());
 
 // ── Logging ───────────────────────────────────────────────────────────────────
@@ -141,6 +142,7 @@ app.use('/api/v1/operations', operationsRoutes);
 app.use('/api/v1/billing',    billingRoutes);
 app.use('/api/v1/manual-items', manualItemsRoutes);
 app.use('/api/v1/laundry',      laundryRoutes);
+app.use('/api/v1/bulk-import',  bulkImportRoutes);
 
 // ── API info ──────────────────────────────────────────────────────────────────
 app.get('/api/v1', (_req, res) => {
