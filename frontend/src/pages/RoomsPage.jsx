@@ -90,34 +90,10 @@ const RoomsPage = ({ onNav, role, hotelDetails }) => {
   const [filterStatus, setFilterStatus] = useState('all');
   const [showAddRoom, setShowAddRoom] = useState(false);
   const [editRoom, setEditRoom] = useState(null);
-  const [rooms, setRooms] = useState(() => safeRead(`${ROOMS_KEY}_${hotelDetails?.id || 'default'}`, ROOMS));
   const [saving, setSaving] = useState(false);
   const [toast, setToast] = useState(null);
 
   const showToast = (message, type = 'info') => setToast({ message, type, key: Date.now() });
-
-  useEffect(() => { safeWrite(`${ROOMS_KEY}_${hotelDetails?.id || 'default'}`, rooms); }, [rooms, hotelDetails?.id]);
-
-  const loadRooms = useCallback(async () => {
-    try {
-      const res = await api.getRooms();
-      if (res.data) {
-        setRooms(res.data);
-        safeWrite(`${ROOMS_KEY}_${hotelDetails?.id || 'default'}`, res.data);
-      }
-    } catch { }
-  }, [hotelDetails?.id]);
-
-  useEffect(() => { loadRooms(); }, [loadRooms]);
-
-  const toApi = (r) => ({
-    roomNumber: r.id.toString().trim(),
-    type: r.type,
-    floor: Number(r.floor) || 1,
-    baseRate: Number(r.rate) || 0,
-    status: r.status || 'available',
-    housekeepingStatus: r.housekeeping || 'clean',
-  });
 
   const fromApi = (r) => ({
     _id: r._id,
@@ -128,6 +104,44 @@ const RoomsPage = ({ onNav, role, hotelDetails }) => {
     status: r.status,
     housekeeping: r.housekeepingStatus || 'clean',
     guest: r.guest || '',
+  });
+
+  const storedKey = `${ROOMS_KEY}_${hotelDetails?.id || 'default'}`;
+
+  const [rooms, setRooms] = useState(() => {
+    const stored = safeRead(storedKey, ROOMS);
+    if (stored.length > 0 && !stored[0].id) {
+      return stored.map(fromApi);
+    }
+    return stored;
+  });
+
+  const saveToStorage = useCallback((data) => {
+    safeWrite(storedKey, data);
+  }, [storedKey]);
+
+  useEffect(() => { saveToStorage(rooms); }, [rooms, saveToStorage]);
+
+  const loadRooms = useCallback(async () => {
+    try {
+      const res = await api.getRooms();
+      if (res.data) {
+        const mapped = res.data.map(fromApi);
+        setRooms(mapped);
+        saveToStorage(mapped);
+      }
+    } catch { }
+  }, [saveToStorage]);
+
+  useEffect(() => { loadRooms(); }, [loadRooms]);
+
+  const toApi = (r) => ({
+    roomNumber: r.id.toString().trim(),
+    type: r.type,
+    floor: Number(r.floor) || 1,
+    baseRate: Number(r.rate) || 0,
+    status: r.status || 'available',
+    housekeepingStatus: r.housekeeping || 'clean',
   });
 
   const handleAddRoom = async (newRoom) => {
