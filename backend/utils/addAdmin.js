@@ -9,20 +9,20 @@ const seedAdmin = async () => {
   await mongoose.connect(MONGO_URI);
   console.log('Connected to MongoDB');
 
-  const adminEmail = 'admin@stayos.com';
+  const adminEmail = process.env.PLATFORM_ADMIN_EMAIL || 'admin@stayos.com';
+  const adminPassword = process.env.PLATFORM_ADMIN_PASSWORD || 'password';
   
   const existingAdmin = await User.findOne({ email: adminEmail });
   if (existingAdmin) {
       console.log('Admin already exists with email:', adminEmail);
-      // Optional: Update password to ensure it is 'password'
-      existingAdmin.password = 'password';
+      existingAdmin.password = adminPassword;
       await existingAdmin.save();
-      console.log('Admin password updated to "password"');
+      console.log('Admin password updated to match .env');
   } else {
       await User.create({
         name: 'Platform Admin',
         email: adminEmail,
-        password: 'password',
+        password: adminPassword,
         role: 'platform_admin',
         isActive: true,
       });
