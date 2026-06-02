@@ -132,11 +132,22 @@ const createBooking = catchAsync(async (req, res) => {
   // Resolve guest and room references
   body.guest = await findOrCreateGuest(body);
   body.room  = await resolveRoom(body);
+  
+  // Calculate missing fields required by Booking schema
+  if (!body.nights && body.checkIn && body.checkOut) {
+    body.nights = Math.max(1, Math.ceil((new Date(body.checkOut) - new Date(body.checkIn)) / 86400000));
+  }
+  if (!body.roomRate) {
+    const roomDoc = await Room.findById(body.room);
+    body.roomRate = roomDoc ? roomDoc.baseRate : 0;
+  }
+
   const booking = await Booking.create(body);
   // Auto-generate QR code
   try {
     const QRCode = require('qrcode');
     const qrData = JSON.stringify({ bookingId: booking.bookingId, hotel: String(booking.hotel), checkIn: booking.checkIn });
+    booking.checkInProcess = booking.checkInProcess || {};
     booking.checkInProcess.qrCode = await QRCode.toDataURL(qrData, { width: 300, margin: 2 });
     booking.checkInProcess.qrGeneratedAt = new Date();
     await booking.save();
