@@ -76,17 +76,16 @@ const safeRemoveStorage = (key) => {
   }
 };
 
-// ── Token helpers ─────────────────────────────────────────────
-export const getToken = () => safeGetStorage('stayos_token', null);
-export const setToken = (t) => safeSetStorage('stayos_token', t);
-export const removeToken = () => safeRemoveStorage('stayos_token');
+// ── In-memory token (no persistence — forces login on every page load) ──
+let _token = null;
+export const getToken = () => _token;
+export const setToken = (t) => { _token = t; };
+export const removeToken = () => { _token = null; };
 
-export const getUser = () => {
-  try { return JSON.parse(safeGetStorage('stayos_user', 'null')); }
-  catch { return null; }
-};
-export const setUser = (u) => safeSetStorage('stayos_user', JSON.stringify(u));
-export const removeUser = () => safeRemoveStorage('stayos_user');
+let _user = null;
+export const getUser = () => _user;
+export const setUser = (u) => { _user = u; };
+export const removeUser = () => { _user = null; };
 
 // ── Core fetch wrapper ────────────────────────────────────────
 async function request(method, path, body = null, options = {}) {

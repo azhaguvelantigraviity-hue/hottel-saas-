@@ -1,82 +1,27 @@
 import React, { useState } from 'react';
 import * as authService from '../services/authService';
 
-const DEMO_ACCOUNTS = {
-  admin: [
-    {
-      email: 'admin@stayos.in',
-      pass: 'Admin@StayOS2025!',
-      label: 'Super Admin',
-      sublabel: 'Platform Overview & Hotel Mgmt',
-      icon: '🛡️',
-      role: 'admin',
-      plan: 'enterprise'
-    }
-  ],
-  hotel: [
-    {
-      email: 'manager@hotel.com',
-      pass: 'password',
-      label: 'Hotel Manager (Grand Resort)',
-      sublabel: 'Monitor hotel & add rooms (limit 10)',
-      icon: '🏨',
-      role: 'manager',
-      plan: 'enterprise',
-      badge: 'Manager',
-      badgeColor: '#D97706'
-    },
-    {
-      email: 'recep@hotel.com',
-      pass: 'password',
-      label: 'Receptionist (Grand Resort)',
-      sublabel: 'Manage bookings & check-ins',
-      icon: '🔑',
-      role: 'staff',
-      plan: 'enterprise',
-      badge: 'Receptionist',
-      badgeColor: '#14B8A6'
-    }
-  ],
-};
-
 const Login = ({ type, onSuccess, onBack }) => {
-  const defaults = DEMO_ACCOUNTS[type][0] || {};
-  const [email,        setEmail]        = useState(defaults.email || '');
-  const [pass,         setPass]         = useState(defaults.pass || '');
-  const [loading,      setLoading]      = useState(false);
-  const [selectedPlan, setSelectedPlan] = useState(defaults.plan || null);
-  const [selectedRole, setSelectedRole] = useState(defaults.role || '');
-  const [selectedKey,  setSelectedKey]  = useState(defaults.email || '');
-  const [showPass,     setShowPass]     = useState(false);
-
-  const handleAccountSelect = (acc) => {
-    setEmail(acc.email);
-    setPass(acc.pass);
-    setSelectedPlan(acc.plan);
-    setSelectedRole(acc.role);
-    setSelectedKey(acc.email);
-  };
+  const [email,   setEmail]   = useState('');
+  const [pass,    setPass]    = useState('');
+  const [loading, setLoading] = useState(false);
+  const [showPass, setShowPass] = useState(false);
 
   const handleLogin = async () => {
     if (!email || !pass) return;
     setLoading(true);
     
     try {
-      // Call the real backend API
       const response = await authService.login(email, pass);
-      
-      // Extract user data from response
       const user = response.user || response.data;
       const role = user.role;
       const hotel = user.hotel;
       
       setLoading(false);
       
-      // Map backend roles to frontend roles
       if (role === 'platform_admin') {
         onSuccess('enterprise', 'admin', null);
       } else if (role === 'hotel_admin') {
-        // Fetch hotel details if available
         const hotelDetails = hotel ? {
           id: hotel._id || hotel.id,
           name: hotel.name,
@@ -132,7 +77,6 @@ const Login = ({ type, onSuccess, onBack }) => {
       background: 'var(--bg)',
       padding: '20px',
     }}>
-      {/* Card */}
       <div style={{
         background: 'var(--surface)',
         border: '1px solid var(--border)',
@@ -143,7 +87,6 @@ const Login = ({ type, onSuccess, onBack }) => {
         boxShadow: 'var(--shadow)',
         position: 'relative',
       }}>
-        {/* Back */}
         <button
           onClick={onBack}
           style={{
@@ -160,7 +103,6 @@ const Login = ({ type, onSuccess, onBack }) => {
           ← Back
         </button>
 
-        {/* Header */}
         <div style={{ textAlign: 'center', marginBottom: '28px', paddingTop: '8px' }}>
           <div style={{
             width: '56px', height: '56px',
@@ -187,96 +129,6 @@ const Login = ({ type, onSuccess, onBack }) => {
           </p>
         </div>
 
-        {/* Demo account selector */}
-        <div style={{ marginBottom: '22px' }}>
-          {DEMO_ACCOUNTS[type].length > 0 && <div style={lbl}>
-            {type === 'admin' ? 'ACCOUNT' : 'DEMO ACCOUNTS'}
-          </div>}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-            {DEMO_ACCOUNTS[type].map(acc => {
-              const isSelected = selectedKey === acc.email;
-              return (
-                <button
-                  key={acc.email}
-                  onClick={() => handleAccountSelect(acc)}
-                  style={{
-                    padding: '11px 14px',
-                    background: isSelected ? 'var(--primary-bg)' : 'var(--bg)',
-                    border: `1.5px solid ${isSelected ? 'var(--primary)' : 'var(--border)'}`,
-                    borderRadius: '10px',
-                    cursor: 'pointer',
-                    textAlign: 'left',
-                    transition: 'all 0.15s',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '12px',
-                  }}
-                  onMouseEnter={e => { if (!isSelected) e.currentTarget.style.borderColor = 'var(--border2)'; }}
-                  onMouseLeave={e => { if (!isSelected) e.currentTarget.style.borderColor = 'var(--border)'; }}
-                >
-                  {/* Icon */}
-                  <div style={{
-                    width: '36px', height: '36px', borderRadius: '8px', flexShrink: 0,
-                    background: isSelected ? 'rgba(99,102,241,0.12)' : 'var(--card2)',
-                    display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    fontSize: '18px',
-                  }}>
-                    {acc.icon}
-                  </div>
-
-                  {/* Text */}
-                  <div style={{ flex: 1, minWidth: 0 }}>
-                    <div style={{
-                      fontSize: '13px', fontWeight: '600',
-                      color: isSelected ? 'var(--primary)' : 'var(--text)',
-                      marginBottom: '1px',
-                    }}>
-                      {acc.label}
-                    </div>
-                    <div style={{ fontSize: '11px', color: 'var(--text3)' }}>
-                      {acc.sublabel}
-                    </div>
-                  </div>
-
-                  {/* Plan badge */}
-                  {acc.badge && (
-                    <span style={{
-                      padding: '2px 8px', borderRadius: '20px', fontSize: '10px',
-                      fontWeight: '700', flexShrink: 0,
-                      background: `${acc.badgeColor}18`,
-                      color: acc.badgeColor,
-                      border: `1px solid ${acc.badgeColor}30`,
-                    }}>
-                      {acc.badge}
-                    </span>
-                  )}
-
-                  {/* Selected indicator */}
-                  {isSelected && (
-                    <div style={{
-                      width: '18px', height: '18px', borderRadius: '50%',
-                      background: 'var(--primary)', flexShrink: 0,
-                      display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    }}>
-                      <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="3">
-                        <polyline points="20,6 9,17 4,12" />
-                      </svg>
-                    </div>
-                  )}
-                </button>
-              );
-            })}
-          </div>
-        </div>
-
-        {/* Divider */}
-        {DEMO_ACCOUNTS[type].length > 0 && <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '20px' }}>
-          <div style={{ flex: 1, height: '1px', background: 'var(--border)' }} />
-          <span style={{ fontSize: '11px', color: 'var(--text4)', fontWeight: '500' }}>OR ENTER MANUALLY</span>
-          <div style={{ flex: 1, height: '1px', background: 'var(--border)' }} />
-        </div>}
-
-        {/* Form */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
           <div>
             <label style={lbl}>EMAIL</label>
@@ -284,6 +136,7 @@ const Login = ({ type, onSuccess, onBack }) => {
               value={email}
               onChange={e => setEmail(e.target.value)}
               placeholder="Enter email address"
+              autoComplete="off"
               style={inp}
               onFocus={e => e.target.style.borderColor = 'var(--primary)'}
               onBlur={e => e.target.style.borderColor = 'var(--border)'}
@@ -298,6 +151,7 @@ const Login = ({ type, onSuccess, onBack }) => {
                 value={pass}
                 onChange={e => setPass(e.target.value)}
                 placeholder="Enter password"
+                autoComplete="new-password"
                 style={{ ...inp, paddingRight: '44px' }}
                 onFocus={e => e.target.style.borderColor = 'var(--primary)'}
                 onBlur={e => e.target.style.borderColor = 'var(--border)'}
@@ -357,7 +211,6 @@ const Login = ({ type, onSuccess, onBack }) => {
           </button>
         </div>
 
-        {/* Footer note */}
         <p style={{
           textAlign: 'center', marginTop: '16px',
           fontSize: '12px', color: 'var(--text4)',
@@ -367,7 +220,6 @@ const Login = ({ type, onSuccess, onBack }) => {
         </p>
       </div>
 
-      {/* Spinner keyframe */}
       <style>{`
         @keyframes spin {
           to { transform: rotate(360deg); }

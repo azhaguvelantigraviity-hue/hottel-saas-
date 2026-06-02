@@ -39,7 +39,7 @@ import MultiBranchPage from './pages/MultiBranchPage';
 import Sidebar from './components/Sidebar';
 import Topbar from './components/Topbar';
 import ProtectedRoute from './components/ProtectedRoute';
-import { getToken, removeToken, removeUser } from './services/api';
+
 import * as authService from './services/authService';
 
 const safeGetStorage = (key, fallback = null) => {
@@ -212,43 +212,9 @@ const App = () => {
     safeSetStorage('stayos_theme', theme);
   }, [theme]);
 
-  // ── Session restore on mount ──
+  // ── No session restore — user must log in manually every time ──
   useEffect(() => {
-    const token = getToken();
-    if (!token) {
-      setAuthReady(true);
-      return;
-    }
-
-    authService.getMe()
-      .then((user) => {
-        const role = user.role;
-        setIsAuthenticated(true);
-        if (role === 'platform_admin') {
-          setLoginType('admin');
-          setHotelPlan('enterprise');
-          setHotelRole('admin');
-          setCurrentHotel(null);
-        } else {
-          const hotel = user.hotel || {};
-          setLoginType('hotel');
-          setHotelPlan(hotel.plan || 'enterprise');
-          setHotelRole(role === 'hotel_admin' ? 'manager' : 'staff');
-          setCurrentHotel({
-            id: hotel._id || hotel.id,
-            name: hotel.name || '',
-            plan: hotel.plan || 'enterprise',
-            ...hotel,
-          });
-        }
-        setAuthReady(true);
-      })
-      .catch(() => {
-        removeToken();
-        removeUser();
-        setIsAuthenticated(false);
-        setAuthReady(true);
-      });
+    setAuthReady(true);
   }, []);
 
   // ── Auth handlers ──
