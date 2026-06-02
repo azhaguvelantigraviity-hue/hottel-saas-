@@ -25,4 +25,9 @@ export const SESSIONS = [];
 export const CHANNEL_DATA = [];
 export const REVENUE_DATA         = [];
 export const ADMIN_REVENUE        = [];
-export const PET_CHARGES = {};
+export const PET_CHARGES = {
+  deposit: 2000,
+  small: { label: 'Small (under 10kg)', perNight: 500 },
+  medium: { label: 'Medium (10-25kg)', perNight: 800 },
+  large: { label: 'Large (over 25kg)', perNight: 1200 },
+};
