@@ -33,6 +33,8 @@ const mapFEtoBE = (fe) => ({
   avatar: fe.avatar,
   status: fe.status === 'on-duty' ? 'active' : fe.status === 'off-duty' ? 'inactive' : fe.status === 'leave' ? 'on_leave' : 'active',
   joinedAt: fe.joined ? new Date(fe.joined) : undefined,
+  loginEmail: fe.loginEmail,
+  loginPassword: fe.loginPassword,
 });
 
 const inputStyle = { width: '100%', padding: '10px 12px', background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: '8px', color: 'var(--text)', fontSize: '13px', outline: 'none', fontFamily: 'Inter, sans-serif' };

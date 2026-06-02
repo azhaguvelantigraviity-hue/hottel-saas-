@@ -1,5 +1,6 @@
 // src/controllers/hotelController.js
 const { Employee } = require('../models/Operations');
+const User    = require('../models/User');
 const Room    = require('../models/Room');
 const Booking = require('../models/Booking');
 const Guest   = require('../models/Guest');
@@ -345,6 +346,21 @@ const getEmployee = catchAsync(async (req, res) => {
 const createEmployee = catchAsync(async (req, res) => {
   const body = { ...req.body, hotel: req.hotelId || req.body.hotel };
   const employee = await Employee.create(body);
+
+  if (req.body.loginEmail && req.body.loginPassword) {
+    const existingUser = await User.findOne({ email: req.body.loginEmail });
+    if (!existingUser) {
+      await User.create({
+        name: body.name,
+        email: req.body.loginEmail,
+        password: req.body.loginPassword,
+        role: 'hotel_staff',
+        hotel: body.hotel,
+        isActive: true
+      });
+    }
+  }
+
   res.status(201).json({ success: true, data: employee });
 });
 const updateEmployee = catchAsync(async (req, res) => {
