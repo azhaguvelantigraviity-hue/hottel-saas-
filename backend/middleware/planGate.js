@@ -21,7 +21,7 @@ const FEATURE_PLAN_MAP = {
   // Route aliases
   laundry:             'professional',
   guests:              'professional',
-  employees:           'professional',
+  employees:           'starter',
   housekeeping:        'professional',
   maintenance:         'professional',
   restaurant:          'professional',
