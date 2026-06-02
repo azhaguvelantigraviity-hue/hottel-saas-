@@ -7,29 +7,61 @@ const Camera = require('../models/Camera');
 const Visitor = require('../models/Visitor');
 const SecurityActivity = require('../models/SecurityActivity');
 const UserSession = require('../models/UserSession');
-const { POSOrder } = require('../models/Operations');
+const { POSOrder, Housekeeping } = require('../models/Operations');
 const { asyncHandler, sendSuccess } = require('../utils/helpers');
 
 // ── Housekeeping ──────────────────────────────────────────────
 
 const getHousekeepingTasks = asyncHandler(async (req, res) => {
-  sendSuccess(res, []);
+  const tasks = await Housekeeping.find({ hotel: req.hotelId }).sort('-createdAt');
+  sendSuccess(res, tasks);
 });
 
 const createHousekeepingTask = asyncHandler(async (req, res) => {
-  sendSuccess(res, {}, 201);
+  const { time, ...rest } = req.body;
+  const body = {
+    ...rest,
+    hotel: req.hotelId,
+    status: 'pending',
+  };
+  if (time) {
+    const [h, m] = time.split(':');
+    const d = new Date();
+    d.setHours(Number(h), Number(m), 0, 0);
+    body.scheduledAt = d;
+  }
+  const task = await Housekeeping.create(body);
+  sendSuccess(res, task, 201);
 });
 
 const updateHousekeepingTask = asyncHandler(async (req, res) => {
-  sendSuccess(res, {});
+  const task = await Housekeeping.findOneAndUpdate(
+    { _id: req.params.id, hotel: req.hotelId },
+    req.body,
+    { new: true, runValidators: true }
+  );
+  if (!task) return res.status(404).json({ success: false, message: 'Housekeeping task not found' });
+  sendSuccess(res, task);
 });
 
 const verifyHousekeepingTask = asyncHandler(async (req, res) => {
-  sendSuccess(res, {});
+  const task = await Housekeeping.findOneAndUpdate(
+    { _id: req.params.id, hotel: req.hotelId },
+    { status: 'verified', completedAt: new Date() },
+    { new: true }
+  );
+  if (!task) return res.status(404).json({ success: false, message: 'Housekeeping task not found' });
+  sendSuccess(res, task);
 });
 
 const getHousekeepingDashboard = asyncHandler(async (req, res) => {
-  sendSuccess(res, {});
+  const [pending, inProgress, completed, verified] = await Promise.all([
+    Housekeeping.countDocuments({ hotel: req.hotelId, status: 'pending' }),
+    Housekeeping.countDocuments({ hotel: req.hotelId, status: 'in-progress' }),
+    Housekeeping.countDocuments({ hotel: req.hotelId, status: 'completed' }),
+    Housekeeping.countDocuments({ hotel: req.hotelId, status: 'verified' }),
+  ]);
+  sendSuccess(res, { counts: { pending, 'in-progress': inProgress, completed, verified } });
 });
 
 // ── Maintenance ──────────────────────────────────────────────

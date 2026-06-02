@@ -1,29 +1,89 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import Icon from '../components/Icon';
 import Badge from '../components/Badge';
-import Avatar from '../components/Avatar';
-import { HOUSEKEEPING_TASKS, ROOMS, EMPLOYEES } from '../data/mockData';
+import * as hkApi from '../services/operationsService';
+import * as hotelApi from '../services/hotelService';
 
 const priorityColor = { high: 'rose', medium: 'amber', low: 'teal' };
-const statusColor = { pending: 'amber', 'in-progress': 'violet', completed: 'green' };
+const statusColor = { pending: 'amber', 'in-progress': 'violet', completed: 'green', verified: 'teal' };
+
+const fromApi = (t) => ({
+  _id: t._id,
+  room: t.roomNumber || '',
+  type: t.type || '',
+  assignedTo: t.assignedTo || '',
+  priority: t.priority || 'medium',
+  status: t.status || 'pending',
+  notes: t.notes || '',
+  time: t.scheduledAt
+    ? new Date(t.scheduledAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false })
+    : '',
+});
 
 const HousekeepingPage = () => {
-  const [tasks, setTasks] = useState(HOUSEKEEPING_TASKS);
+  const [tasks, setTasks] = useState([]);
+  const [rooms, setRooms] = useState([]);
+  const [housekeepers, setHousekeepers] = useState([]);
   const [filter, setFilter] = useState('all');
   const [showAssign, setShowAssign] = useState(false);
   const [newTask, setNewTask] = useState({ room: '', type: 'Full Clean', assignedTo: '', priority: 'medium', notes: '', time: '' });
+  const [loading, setLoading] = useState(true);
+
+  const loadData = useCallback(async () => {
+    setLoading(true);
+    try {
+      const [tasksRes, roomsRes, emplRes] = await Promise.all([
+        hkApi.getHousekeepingTasks(),
+        hotelApi.getRooms(),
+        hotelApi.getEmployees().catch(() => ({ data: [] })),
+      ]);
+      setTasks((tasksRes.data || []).map(fromApi));
+      setRooms(roomsRes.data || []);
+      const allStaff = emplRes.data || [];
+      const hkStaff = allStaff.filter(e =>
+        (e.department || '').toLowerCase().includes('housekeeping') ||
+        (e.department || '').toLowerCase().includes('front office')
+      );
+      setHousekeepers(hkStaff.length > 0 ? hkStaff : allStaff);
+    } catch (err) {
+      console.error('Failed to load housekeeping data', err);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => { loadData(); }, [loadData]);
+
+  const updateStatus = async (id, status) => {
+    try {
+      const res = await hkApi.updateHousekeepingTask(id, { status });
+      setTasks(prev => prev.map(t => t._id === id ? fromApi(res.data) : t));
+    } catch (err) {
+      console.error('Failed to update task', err);
+    }
+  };
+
+  const addTask = async () => {
+    if (!newTask.room || !newTask.assignedTo) return;
+    try {
+      const res = await hkApi.createHousekeepingTask({
+        roomNumber: newTask.room,
+        type: newTask.type,
+        assignedTo: newTask.assignedTo,
+        priority: newTask.priority,
+        notes: newTask.notes,
+        time: newTask.time || undefined,
+      });
+      const created = fromApi(res.data);
+      setTasks(prev => [created, ...prev]);
+      setNewTask({ room: '', type: 'Full Clean', assignedTo: '', priority: 'medium', notes: '', time: '' });
+      setShowAssign(false);
+    } catch (err) {
+      console.error('Failed to create task', err);
+    }
+  };
 
   const filtered = filter === 'all' ? tasks : tasks.filter(t => t.status === filter);
-  const housekeepers = EMPLOYEES.filter(e => e.dept === 'Housekeeping' || e.dept === 'Front Office');
-
-  const updateStatus = (id, status) => setTasks(prev => prev.map(t => t.id === id ? { ...t, status } : t));
-
-  const addTask = () => {
-    if (!newTask.room || !newTask.assignedTo) return;
-    setTasks(prev => [...prev, { ...newTask, id: prev.length + 1, status: 'pending' }]);
-    setNewTask({ room: '', type: 'Full Clean', assignedTo: '', priority: 'medium', notes: '', time: '' });
-    setShowAssign(false);
-  };
 
   const inputStyle = { width: '100%', padding: '10px 12px', background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: '8px', color: 'var(--text)', fontSize: '13px', outline: 'none', fontFamily: 'Inter, sans-serif' };
   const labelStyle = { fontSize: '11px', color: 'var(--text3)', fontWeight: '600', letterSpacing: '0.06em', display: 'block', marginBottom: '5px' };
@@ -34,8 +94,6 @@ const HousekeepingPage = () => {
     { label: 'In Progress', value: tasks.filter(t => t.status === 'in-progress').length, color: 'var(--violet)' },
     { label: 'Completed', value: tasks.filter(t => t.status === 'completed').length, color: 'var(--green)' },
   ];
-
-  const roomStatus = ROOMS.map(r => ({ ...r, hkTask: tasks.find(t => t.room === String(r.id)) }));
 
   return (
     <div style={{ padding: '32px', overflowY: 'auto', flex: 1 }}>
@@ -52,7 +110,7 @@ const HousekeepingPage = () => {
                   <label style={labelStyle}>ROOM</label>
                   <select style={inputStyle} value={newTask.room} onChange={e => setNewTask(p => ({ ...p, room: e.target.value }))}>
                     <option value="">Select room</option>
-                    {ROOMS.map(r => <option key={r.id} value={r.id}>{r.id} – {r.type}</option>)}
+                    {rooms.map(r => <option key={r._id} value={r.roomNumber}>{r.roomNumber} – {r.type}</option>)}
                   </select>
                 </div>
                 <div>
@@ -65,7 +123,7 @@ const HousekeepingPage = () => {
                   <label style={labelStyle}>ASSIGN TO</label>
                   <select style={inputStyle} value={newTask.assignedTo} onChange={e => setNewTask(p => ({ ...p, assignedTo: e.target.value }))}>
                     <option value="">Select staff</option>
-                    {housekeepers.map(e => <option key={e.id} value={e.name}>{e.name}</option>)}
+                    {housekeepers.map(e => <option key={e._id} value={e.name}>{e.name}</option>)}
                   </select>
                 </div>
                 <div>
@@ -102,6 +160,9 @@ const HousekeepingPage = () => {
         ))}
       </div>
 
+      {loading ? (
+        <div style={{ textAlign: 'center', padding: '60px 0', color: 'var(--text3)' }}>Loading housekeeping data…</div>
+      ) : (
       <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '20px' }}>
         {/* Task List */}
         <div>
@@ -119,8 +180,10 @@ const HousekeepingPage = () => {
           </div>
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-            {filtered.map(task => (
-              <div key={task.id} style={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: 'var(--radius)', padding: '16px' }}>
+            {filtered.length === 0 ? (
+              <div style={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: 'var(--radius)', padding: '40px', textAlign: 'center', color: 'var(--text3)' }}>No tasks found.</div>
+            ) : filtered.map(task => (
+              <div key={task._id} style={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: 'var(--radius)', padding: '16px' }}>
                 <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: '10px' }}>
                   <div>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
@@ -138,8 +201,8 @@ const HousekeepingPage = () => {
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                   <div style={{ fontSize: '12px', color: 'var(--text2)' }}>👤 {task.assignedTo}</div>
                   <div style={{ display: 'flex', gap: '6px' }}>
-                    {task.status === 'pending' && <button onClick={() => updateStatus(task.id, 'in-progress')} style={{ padding: '5px 10px', background: 'rgba(167,139,250,0.15)', border: '1px solid rgba(167,139,250,0.3)', borderRadius: '6px', color: 'var(--violet)', cursor: 'pointer', fontSize: '11px', fontWeight: '600', fontFamily: 'Inter, sans-serif' }}>Start</button>}
-                    {task.status === 'in-progress' && <button onClick={() => updateStatus(task.id, 'completed')} style={{ padding: '5px 10px', background: 'rgba(52,211,153,0.15)', border: '1px solid rgba(52,211,153,0.3)', borderRadius: '6px', color: 'var(--green)', cursor: 'pointer', fontSize: '11px', fontWeight: '600', fontFamily: 'Inter, sans-serif' }}>Complete</button>}
+                    {task.status === 'pending' && <button onClick={() => updateStatus(task._id, 'in-progress')} style={{ padding: '5px 10px', background: 'rgba(167,139,250,0.15)', border: '1px solid rgba(167,139,250,0.3)', borderRadius: '6px', color: 'var(--violet)', cursor: 'pointer', fontSize: '11px', fontWeight: '600', fontFamily: 'Inter, sans-serif' }}>Start</button>}
+                    {task.status === 'in-progress' && <button onClick={() => updateStatus(task._id, 'completed')} style={{ padding: '5px 10px', background: 'rgba(52,211,153,0.15)', border: '1px solid rgba(52,211,153,0.3)', borderRadius: '6px', color: 'var(--green)', cursor: 'pointer', fontSize: '11px', fontWeight: '600', fontFamily: 'Inter, sans-serif' }}>Complete</button>}
                     {task.status === 'completed' && <span style={{ fontSize: '11px', color: 'var(--green)' }}>✓ Done</span>}
                   </div>
                 </div>
@@ -151,27 +214,35 @@ const HousekeepingPage = () => {
         {/* Room Status Grid */}
         <div>
           <div style={{ fontSize: '14px', fontWeight: '700', marginBottom: '14px' }}>Room Housekeeping Status</div>
+          {rooms.length === 0 ? (
+            <div style={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: 'var(--radius)', padding: '24px', textAlign: 'center', color: 'var(--text3)' }}>No rooms found.</div>
+          ) : (
+          <>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: '8px' }}>
-            {ROOMS.map(r => {
-              const hkColor = { clean: 'var(--green)', dirty: 'var(--rose)', inspect: 'var(--amber)' };
+            {rooms.map(r => {
+              const hk = r.housekeepingStatus || 'clean';
+              const hkColor = { clean: 'var(--green)', dirty: 'var(--rose)', inspect: 'var(--amber)', 'in-progress': 'var(--violet)' };
               return (
-                <div key={r.id} style={{ background: 'var(--card)', border: `1px solid ${hkColor[r.housekeeping]}30`, borderRadius: '8px', padding: '10px', textAlign: 'center' }}>
-                  <div style={{ fontSize: '16px', fontWeight: '900', fontFamily: 'Poppins,sans-serif', color: hkColor[r.housekeeping] }}>{r.id}</div>
-                  <div style={{ fontSize: '9px', color: 'var(--text3)', textTransform: 'uppercase', marginTop: '2px' }}>{r.housekeeping}</div>
+                <div key={r._id} style={{ background: 'var(--card)', border: `1px solid ${(hkColor[hk] || 'var(--green)')}30`, borderRadius: '8px', padding: '10px', textAlign: 'center' }}>
+                  <div style={{ fontSize: '16px', fontWeight: '900', fontFamily: 'Poppins,sans-serif', color: hkColor[hk] || 'var(--green)' }}>{r.roomNumber}</div>
+                  <div style={{ fontSize: '9px', color: 'var(--text3)', textTransform: 'uppercase', marginTop: '2px' }}>{hk}</div>
                 </div>
               );
             })}
           </div>
           <div style={{ marginTop: '16px', display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-            {[['Clean', 'var(--green)'], ['Dirty', 'var(--rose)'], ['Inspect', 'var(--amber)']].map(([l, c]) => (
+            {[['Clean', 'var(--green)'], ['Dirty', 'var(--rose)'], ['Inspect', 'var(--amber)'], ['In Progress', 'var(--violet)']].map(([l, c]) => (
               <div key={l} style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
                 <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: c }} />
                 <span style={{ fontSize: '11px', color: 'var(--text3)' }}>{l}</span>
               </div>
             ))}
           </div>
+          </>
+          )}
         </div>
       </div>
+      )}
     </div>
   );
 };

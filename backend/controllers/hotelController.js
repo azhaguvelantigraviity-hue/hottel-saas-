@@ -51,7 +51,11 @@ const getRoom = catchAsync(async (req, res) => {
   sendSuccess(res, room);
 });
 const createRoom = catchAsync(async (req, res) => {
-  const body = { ...req.body, hotel: req.hotelId || req.body.hotel };
+  const body = {
+    ...req.body,
+    hotel: req.hotelId || req.body.hotel,
+    baseRate: req.body.baseRate ?? 0,
+  };
   const room = await Room.create(body);
   res.status(201).json({ success: true, data: room });
 });

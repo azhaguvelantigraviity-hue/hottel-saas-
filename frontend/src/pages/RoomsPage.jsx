@@ -139,7 +139,7 @@ const RoomsPage = ({ onNav, role, hotelDetails }) => {
     roomNumber: r.id.toString().trim(),
     type: r.type,
     floor: Number(r.floor) || 1,
-    baseRate: Number(r.rate) || 0,
+    baseRate: r.rate != null ? Number(r.rate) : 0,
     status: r.status || 'available',
     housekeepingStatus: r.housekeeping || 'clean',
   });
