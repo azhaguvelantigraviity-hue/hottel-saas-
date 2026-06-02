@@ -105,6 +105,11 @@ async function request(method, path, body = null, options = {}) {
   const data = await res.json().catch(() => ({}));
 
   if (!res.ok) {
+    if (res.status === 401) {
+      removeToken();
+      removeUser();
+      window.location.href = '/login';
+    }
     const err = new Error(data.message || `HTTP ${res.status}`);
     err.status = res.status;
     err.data = data;

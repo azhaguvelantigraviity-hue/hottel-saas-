@@ -12,6 +12,7 @@ const {
   getGuests, getGuest, createGuest, updateGuest, deleteGuest,
   getEmployees, getEmployee, createEmployee, updateEmployee, deleteEmployee,
   markAttendance, applyLeave,
+  getTodayCheckins, getTodayCheckouts, getPendingPayments, getMaintenanceRooms, updateRoomMaintenance,
 } = require('../controllers/hotelController');
 const { protect, authorize, scopeToHotel, hotelAdmin } = require('../middleware/auth');
 const { requireFeature, enforceLimit } = require('../middleware/planGate');
@@ -22,14 +23,18 @@ router.use(protect, scopeToHotel);
 
 // ── Rooms (all plans) ─────────────────────────────────────────────────────────
 router.get   ('/rooms/availability',              checkAvailability);
+router.get   ('/rooms/maintenance',               getMaintenanceRooms);
 router.get   ('/rooms',                           getRooms);
 router.post  ('/rooms',   hotelAdmin, enforceLimit('rooms', Room), createRoom);
 router.get   ('/rooms/:id',                       getRoom);
 router.put   ('/rooms/:id',             hotelAdmin, updateRoom);
 router.delete('/rooms/:id',             hotelAdmin, deleteRoom);
 router.patch ('/rooms/:id/housekeeping',            updateRoomHousekeeping);
+router.patch ('/rooms/:id/maintenance',             updateRoomMaintenance);
 
 // ── Bookings (all plans) ──────────────────────────────────────────────────────
+router.get  ('/bookings/today/checkins',           getTodayCheckins);
+router.get  ('/bookings/today/checkouts',          getTodayCheckouts);
 router.get  ('/bookings',                          getBookings);
 router.post ('/bookings',                          createBooking);
 router.get  ('/bookings/:id',                      getBooking);
@@ -37,6 +42,9 @@ router.put  ('/bookings/:id',        hotelAdmin,   updateBooking);
 router.post ('/bookings/:id/checkin',              checkIn);
 router.post ('/bookings/:id/checkout',             checkOut);
 router.post ('/bookings/:id/cancel',               cancelBooking);
+
+// ── Dashboard / Payments ──────────────────────────────────────────────────────
+router.get  ('/payments/pending',                  getPendingPayments);
 
 // ── Smart Check-In Process (all plans) ──────────────────────────────────────
 router.get   ('/bookings/:id/checkin-process',       getCheckInProcess);

@@ -64,3 +64,10 @@ export const recordPayment          = (id, body)    => post(`/billing/invoices/$
 export const processRefund          = (id, body)    => post(`/billing/invoices/${id}/refund`, body);
 export const getRevenueDashboard    = ()            => get('/billing/revenue/dashboard');
 export const getRevenueReport       = (params = {}) => get(`/billing/revenue/report?${new URLSearchParams(params)}`);
+
+// ── Dashboard Features ──────────────────────────────────────────
+export const getTodayCheckins      = ()         => get('/hotel/bookings/today/checkins');
+export const getTodayCheckouts     = ()         => get('/hotel/bookings/today/checkouts');
+export const getPendingPayments    = ()         => get('/hotel/payments/pending');
+export const getMaintenanceRooms   = ()         => get('/hotel/rooms/maintenance');
+export const updateRoomMaintenance = (id, body) => patch(`/hotel/rooms/${id}/maintenance`, body);

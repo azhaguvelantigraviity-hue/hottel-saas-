@@ -377,6 +377,42 @@ const applyLeave = catchAsync(async (req, res) => {
   res.json({ success: true, data: employee });
 });
 
+// ── Dashboard Features ─────────────────────────────────────────
+const getTodayCheckins = catchAsync(async (req, res) => {
+  const start = new Date(new Date().setHours(0,0,0,0));
+  const end = new Date(new Date().setHours(23,59,59,999));
+  const filter = { ...hotelFilter(req), checkIn: { $gte: start, $lte: end } };
+  const checkins = await populateBooking(Booking.find(filter).sort('checkIn'));
+  sendSuccess(res, checkins);
+});
+
+const getTodayCheckouts = catchAsync(async (req, res) => {
+  const start = new Date(new Date().setHours(0,0,0,0));
+  const end = new Date(new Date().setHours(23,59,59,999));
+  const filter = { ...hotelFilter(req), checkOut: { $gte: start, $lte: end } };
+  const checkouts = await populateBooking(Booking.find(filter).sort('checkOut'));
+  sendSuccess(res, checkouts);
+});
+
+const getPendingPayments = catchAsync(async (req, res) => {
+  const filter = { ...hotelFilter(req), paymentStatus: { $in: ['pending', 'overdue'] } };
+  const pending = await populateBooking(Booking.find(filter).sort('checkIn'));
+  sendSuccess(res, pending);
+});
+
+const getMaintenanceRooms = catchAsync(async (req, res) => {
+  const filter = { ...hotelFilter(req), status: 'maintenance' };
+  const rooms = await Room.find(filter).sort('roomNumber');
+  sendSuccess(res, rooms);
+});
+
+const updateRoomMaintenance = catchAsync(async (req, res) => {
+  const updates = req.body;
+  const room = await Room.findOneAndUpdate(oneFilter(req), updates, { new: true });
+  if (!room) throw new AppError('Room not found', 404);
+  sendSuccess(res, room);
+});
+
 module.exports = {
   getRooms, getRoom, createRoom, updateRoom, deleteRoom,
   updateRoomHousekeeping, checkAvailability,
@@ -388,5 +424,6 @@ module.exports = {
   getTravelPackages,
   getGuests, getGuest, createGuest, updateGuest, deleteGuest,
   getEmployees, getEmployee, createEmployee, updateEmployee, deleteEmployee,
-  markAttendance, applyLeave
+  markAttendance, applyLeave,
+  getTodayCheckins, getTodayCheckouts, getPendingPayments, getMaintenanceRooms, updateRoomMaintenance
 };
