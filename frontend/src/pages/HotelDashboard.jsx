@@ -57,7 +57,7 @@ const HotelDashboard = ({ plan, onNav }) => {
 
   useEffect(() => {
     fetchAllData();
-    const interval = setInterval(() => fetchAllData(true), 30000); // 30s polling
+    const interval = setInterval(() => fetchAllData(true), 60000); // 60s polling
     return () => clearInterval(interval);
   }, []);
 
