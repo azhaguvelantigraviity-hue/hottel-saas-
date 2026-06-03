@@ -215,19 +215,27 @@ const App = () => {
   // ── Session restore ──
   useEffect(() => {
     const token = authService.getToken();
-    const user = authService.getUser();
-    if (token && user) {
-      setIsAuthenticated(true);
-      if (user.role === 'platform_admin') {
-        setLoginType('admin');
-      } else {
-        setLoginType('hotel');
-        setHotelRole(user.role || 'manager');
-        setHotelPlan(user.hotel?.plan || 'enterprise');
-        setCurrentHotel(user.hotel);
-      }
+    if (token) {
+      authService.getMe()
+        .then((user) => {
+          setIsAuthenticated(true);
+          if (user.role === 'platform_admin') {
+            setLoginType('admin');
+          } else {
+            setLoginType('hotel');
+            setHotelRole(user.role || 'manager');
+            setHotelPlan(user.hotel?.plan || 'enterprise');
+            setCurrentHotel(user.hotel);
+          }
+          setAuthReady(true);
+        })
+        .catch(() => {
+          authService.logout();
+          setAuthReady(true);
+        });
+    } else {
+      setAuthReady(true);
     }
-    setAuthReady(true);
   }, []);
 
   // ── Auth handlers ──

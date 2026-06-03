@@ -253,29 +253,7 @@ const EmployeesPage = ({ role, hotelDetails, plan }) => {
         localStorage.setItem(`stayos_employees_${hotelDetails?.id || 'default'}`, JSON.stringify(nextList));
       });
 
-    // Create credentials if provided (localStorage only, regardless of API)
-    if (newEmp.loginEmail && newEmp.loginPassword && hotelDetails) {
-      try {
-        const storedHotels = JSON.parse(localStorage.getItem('stayos_hotels') || '[]');
-        const updated = storedHotels.map(h => {
-          if (h.id === hotelDetails.id) {
-            const currentReceps = h.receptionists || [];
-            const filteredReceps = currentReceps.filter(r => r.email?.toLowerCase() !== newEmp.loginEmail?.toLowerCase());
-            return {
-              ...h,
-              receptionists: [
-                ...filteredReceps,
-                { email: newEmp.loginEmail, password: newEmp.loginPassword, name: newEmp.name }
-              ]
-            };
-          }
-          return h;
-        });
-        localStorage.setItem('stayos_hotels', JSON.stringify(updated));
-      } catch (err) {
-        console.error(err);
-      }
-    }
+
   };
 
   const handleSaveEmployee = (updatedEmp) => {
