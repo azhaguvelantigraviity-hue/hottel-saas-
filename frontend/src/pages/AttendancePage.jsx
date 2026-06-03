@@ -1,10 +1,27 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Icon from '../components/Icon';
 import Badge from '../components/Badge';
 import Avatar from '../components/Avatar';
 import { ATTENDANCE, EMPLOYEES } from '../data/mockData';
+import { getEmployees as apiGetEmployees } from '../services/hotelService';
 
 const statusColor = { present: 'green', absent: 'rose', leave: 'amber', late: 'violet' };
+
+const mapBEtoFE = (be) => ({
+  id: be._id,
+  name: be.name,
+  role: be.role,
+  dept: be.department,
+  shift: be.shift,
+  salary: be.salary,
+  phone: be.phone || '',
+  email: be.email || '',
+  avatar: be.avatar || be.name.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase(),
+  status: be.status === 'active' ? 'on-duty' : be.status === 'inactive' ? 'off-duty' : be.status === 'on_leave' ? 'leave' : be.status || 'off-duty',
+  joined: be.joinedAt ? new Date(be.joinedAt).toISOString().slice(0, 10) : '',
+  loginEmail: '',
+  loginPassword: '',
+});
 
 const loadAttendance = (hotelId) => {
   try {
@@ -25,7 +42,34 @@ const AttendancePage = ({ employees = [], hotelDetails = null }) => {
   const [selectedDate, setSelectedDate] = useState(new Date().toISOString().slice(0, 10));
   const [activeTab, setActiveTab] = useState('today');
 
-  const employeeList = employees.length > 0 ? employees : EMPLOYEES;
+  const [fetchedEmployees, setFetchedEmployees] = useState(employees);
+
+  useEffect(() => {
+    if (employees.length > 0) {
+      setFetchedEmployees(employees);
+      return;
+    }
+    
+    try {
+      const stored = localStorage.getItem(`stayos_employees_${hotelId}`);
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        if (parsed.length > 0) setFetchedEmployees(parsed);
+      }
+    } catch {}
+
+    apiGetEmployees()
+      .then(res => {
+        const list = (res.data || []).map(mapBEtoFE);
+        if (list.length > 0) {
+          setFetchedEmployees(list);
+          localStorage.setItem(`stayos_employees_${hotelId}`, JSON.stringify(list));
+        }
+      })
+      .catch(() => {});
+  }, [employees, hotelId]);
+
+  const employeeList = fetchedEmployees.length > 0 ? fetchedEmployees : EMPLOYEES;
   const todayRecords = attendance.filter(a => a.date === selectedDate);
   const allDates = [...new Set(attendance.map(a => a.date))].sort().reverse();
 
