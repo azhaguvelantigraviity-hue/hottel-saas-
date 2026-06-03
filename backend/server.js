@@ -97,7 +97,7 @@ const limiter = rateLimit({
   standardHeaders: true,
   legacyHeaders:   false,
 });
-app.use('/api', limiter);
+// app.use('/api', limiter);
 
 // Stricter limiter for auth endpoints
 const authLimiter = rateLimit({
