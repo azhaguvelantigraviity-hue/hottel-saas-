@@ -490,7 +490,7 @@ const AdminHotels = () => {
           id: h._id,
           dbId: h._id,
           name: h.name,
-          city: h.address || 'Unknown',
+          city: h.address?.city || 'Unknown',
           contact: h.email || h.adminCredentials?.email || '',
           plan: h.plan || 'professional',
           status: h.planStatus || 'active',
@@ -518,7 +518,7 @@ const AdminHotels = () => {
     try {
       await updateHotel(updated.dbId || updated.id, {
         name: updated.name,
-        address: updated.city,
+        address: { city: updated.city },
         email: updated.contact,
         plan: updated.plan,
         planStatus: updated.status,
@@ -536,7 +536,7 @@ const AdminHotels = () => {
     try {
       const res = await createHotel({
         name: newHotel.name,
-        address: newHotel.city,
+        address: { city: newHotel.city },
         adminEmail: newHotel.adminEmail,
         adminPassword: newHotel.adminPassword,
         plan: newHotel.plan,
