@@ -370,10 +370,7 @@ const createEmployee = catchAsync(async (req, res) => {
   const body = { ...req.body, hotel: req.hotelId || req.body.hotel };
   const employee = await Employee.create(body);
 
-  const rStr = (body.role || '').toLowerCase();
-  const dStr = (body.department || '').toLowerCase();
-  const isReceptionist = rStr.includes('reception') || rStr.includes('resep') || rStr.includes('front desk') || 
-                         dStr.includes('reception') || dStr.includes('resep') || dStr.includes('front desk');
+  const isReceptionist = (body.role || '').toLowerCase() === 'receptionist' || (body.department || '').toLowerCase() === 'receptionist';
 
   if (isReceptionist && req.body.loginEmail && req.body.loginPassword) {
     const existingUser = await User.findOne({ email: req.body.loginEmail });
