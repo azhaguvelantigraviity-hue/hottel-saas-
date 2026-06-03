@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { PLANS } from '../data/mockData';
+import { getPlan } from '../data/mockData';
 import { updatePassword } from '../services/authService';
 
 const inputStyle = {
@@ -48,15 +48,15 @@ const SettingsPage = ({ role, plan, onNav }) => {
           <div style={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: 'var(--radius)', padding: '24px', gridColumn: 'span 2' }}>
             <div style={{ fontSize: '15px', fontWeight: '700', marginBottom: '16px' }}>Current Subscription</div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '20px', flexWrap: 'wrap' }}>
-              <div style={{ padding: '16px 24px', background: `${PLANS[plan || 'starter'].accent}12`, border: `1px solid ${PLANS[plan || 'starter'].accent}30`, borderRadius: 'var(--radius)' }}>
+              <div style={{ padding: '16px 24px', background: `${getPlan(plan || 'starter').accent}12`, border: `1px solid ${getPlan(plan || 'starter').accent}30`, borderRadius: 'var(--radius)' }}>
                 <div style={{ fontSize: '12px', color: 'var(--text3)', marginBottom: '4px' }}>PLAN</div>
-                <div style={{ fontSize: '22px', fontWeight: '700', fontFamily: 'Poppins,sans-serif', color: PLANS[plan || 'starter'].accent, textTransform: 'capitalize' }}>
+                <div style={{ fontSize: '22px', fontWeight: '700', fontFamily: 'Poppins,sans-serif', color: getPlan(plan || 'starter').accent, textTransform: 'capitalize' }}>
                   {plan}
                 </div>
               </div>
               <div style={{ padding: '16px 24px', background: 'var(--surface)', borderRadius: 'var(--radius)' }}>
                 <div style={{ fontSize: '12px', color: 'var(--text3)', marginBottom: '4px' }}>MONTHLY</div>
-                <div style={{ fontSize: '22px', fontWeight: '700', fontFamily: 'DM Mono,monospace' }}>₹{PLANS[plan || 'starter'].price}</div>
+                <div style={{ fontSize: '22px', fontWeight: '700', fontFamily: 'DM Mono,monospace' }}>₹{getPlan(plan || 'starter').price}</div>
               </div>
               <div style={{ padding: '16px 24px', background: 'var(--surface)', borderRadius: 'var(--radius)' }}>
                 <div style={{ fontSize: '12px', color: 'var(--text3)', marginBottom: '4px' }}>NEXT RENEWAL</div>

@@ -35,8 +35,16 @@ const resolveRoom = async (body) => {
   if (!body.room) return null;
   if (typeof body.room === 'string' && /^[0-9a-fA-F]{24}$/.test(body.room)) return body.room;
   const num = String(body.room).split(' – ')[0].trim();
-  const room = await Room.findOne({ hotel: body.hotel, roomNumber: num });
-  if (!room) throw new AppError(`Room "${num}" not found`, 404);
+  let room = await Room.findOne({ hotel: body.hotel, roomNumber: num });
+  if (!room) {
+    room = await Room.create({
+      hotel: body.hotel,
+      roomNumber: num,
+      type: 'Standard Twin',
+      baseRate: body.roomRate || 0,
+      status: 'available'
+    });
+  }
   return room._id;
 };
 const populateBooking = (q) => q.populate('guest', 'firstName lastName phone email').populate('room', 'roomNumber type');
@@ -358,7 +366,9 @@ const createEmployee = catchAsync(async (req, res) => {
   const body = { ...req.body, hotel: req.hotelId || req.body.hotel };
   const employee = await Employee.create(body);
 
-  if (req.body.loginEmail && req.body.loginPassword) {
+  const isReceptionist = (body.role || '').toLowerCase() === 'receptionist' || (body.department || '').toLowerCase() === 'receptionist';
+
+  if (isReceptionist && req.body.loginEmail && req.body.loginPassword) {
     const existingUser = await User.findOne({ email: req.body.loginEmail });
     if (!existingUser) {
       await User.create({

@@ -96,28 +96,43 @@ const AddEmployeeModal = ({ onClose, onAdd }) => {
             </select>
           </div>
           
-          <div style={{ gridColumn: 'span 2', marginTop: '8px', borderTop: '1px solid var(--border)', paddingTop: '12px' }}>
-            <span style={{ fontSize: '12px', fontWeight: '700', color: 'var(--text2)', display: 'block', marginBottom: '8px' }}>Create Receptionist Login (Optional)</span>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
-              <div>
-                <label style={labelStyle}>LOGIN EMAIL</label>
-                <input type="email" style={inputStyle} value={form.loginEmail} onChange={e => set('loginEmail', e.target.value)} placeholder="recep@hotel.com" />
-              </div>
-              <div>
-                <label style={labelStyle}>LOGIN PASSWORD</label>
-                <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
-                  <input type={showPassword ? "text" : "password"} style={{ ...inputStyle, paddingRight: '35px' }} value={form.loginPassword} onChange={e => set('loginPassword', e.target.value)} placeholder="password" />
-                  <button type="button" onClick={() => setShowPassword(!showPassword)} style={{ position: 'absolute', right: '10px', background: 'none', border: 'none', cursor: 'pointer', display: 'flex', padding: 0 }}>
-                    <Icon name={showPassword ? "eye-off" : "eye"} size={16} color="var(--text3)" />
-                  </button>
+          {((form.role || '').toLowerCase() === 'receptionist' || (form.dept || '').toLowerCase() === 'receptionist') && (
+            <div style={{ gridColumn: 'span 2', marginTop: '8px', borderTop: '1px solid var(--border)', paddingTop: '12px' }}>
+              <span style={{ fontSize: '12px', fontWeight: '700', color: 'var(--text2)', display: 'block', marginBottom: '8px' }}>Create Receptionist Login (Optional)</span>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+                <div>
+                  <label style={labelStyle}>LOGIN EMAIL</label>
+                  <input type="email" style={inputStyle} value={form.loginEmail} onChange={e => set('loginEmail', e.target.value)} placeholder="recep@hotel.com" />
+                </div>
+                <div>
+                  <label style={labelStyle}>LOGIN PASSWORD</label>
+                  <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
+                    <input type={showPassword ? "text" : "password"} style={{ ...inputStyle, paddingRight: '35px' }} value={form.loginPassword} onChange={e => set('loginPassword', e.target.value)} placeholder="password" />
+                    <button type="button" onClick={() => setShowPassword(!showPassword)} style={{ position: 'absolute', right: '10px', background: 'none', border: 'none', cursor: 'pointer', display: 'flex', padding: 0 }}>
+                      <Icon name={showPassword ? "eye-off" : "eye"} size={16} color="var(--text3)" />
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
+          )}
 
           <div style={{ gridColumn: 'span 2', display: 'flex', gap: '10px', justifyContent: 'flex-end', marginTop: '4px' }}>
             <button onClick={onClose} style={{ padding: '10px 20px', background: 'transparent', border: '1px solid var(--border)', borderRadius: '8px', color: 'var(--text2)', cursor: 'pointer', fontFamily: 'Inter, sans-serif', fontSize: '13px' }}>Cancel</button>
-            <button onClick={() => { if (form.name && form.role) { onAdd({ ...form, id: Date.now(), status: 'off-duty', joined: new Date().toISOString().slice(0, 10), avatar: form.name.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase(), salary: +form.salary || 0 }); onClose(); } }} style={{ padding: '10px 24px', background: 'linear-gradient(135deg,#C9A84C,#8A6F2E)', border: 'none', borderRadius: '8px', color: '#fff', cursor: 'pointer', fontWeight: '600', fontSize: '13px', fontFamily: 'Inter, sans-serif' }}>Add Employee</button>
+            <button onClick={() => { if (form.name && form.role) { 
+              const isReceptionist = (form.role || '').toLowerCase() === 'receptionist' || (form.dept || '').toLowerCase() === 'receptionist';
+              onAdd({ 
+                ...form, 
+                loginEmail: isReceptionist ? form.loginEmail : '',
+                loginPassword: isReceptionist ? form.loginPassword : '',
+                id: Date.now(), 
+                status: 'off-duty', 
+                joined: new Date().toISOString().slice(0, 10), 
+                avatar: form.name.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase(), 
+                salary: +form.salary || 0 
+              }); 
+              onClose(); 
+            } }} style={{ padding: '10px 24px', background: 'linear-gradient(135deg,#C9A84C,#8A6F2E)', border: 'none', borderRadius: '8px', color: '#fff', cursor: 'pointer', fontWeight: '600', fontSize: '13px', fontFamily: 'Inter, sans-serif' }}>Add Employee</button>
           </div>
         </div>
       </div>
