@@ -43,7 +43,7 @@ const labelStyle = { fontSize: '11px', color: 'var(--text3)', fontWeight: '600',
 const EmployeeModal = ({ employee, onClose }) => (
   <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.7)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
     <div style={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: 'var(--radius-lg)', width: '100%', maxWidth: '520px' }}>
-      <div style={{ padding: '24px', borderBottom: '1px solid var(--border)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+      <div style={{ padding: 'clamp(12px, 3vw, 24px)', borderBottom: '1px solid var(--border)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
           <Avatar initials={employee.avatar} color={employee.status === 'on-duty' ? 'var(--green)' : employee.status === 'leave' ? 'var(--amber)' : 'var(--text3)'} size={48} />
           <div>
@@ -53,7 +53,7 @@ const EmployeeModal = ({ employee, onClose }) => (
         </div>
         <button onClick={onClose} style={{ background: 'none', border: 'none', cursor: 'pointer' }}><Icon name="x" size={20} color="var(--text3)" /></button>
       </div>
-      <div style={{ padding: '24px', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+      <div style={{ padding: 'clamp(12px, 3vw, 24px)', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 300px), 1fr))', gap: '10px' }}>
         {[['Department', employee.dept], ['Shift', employee.shift + ' Shift'], ['Status', employee.status.replace('-', ' ')], ['Salary', `₹${employee.salary.toLocaleString()}/mo`], ['Joined', employee.joined], ['Phone', employee.phone || '—'], ['Email', employee.email || '—']].map(([k, v]) => (
           <div key={k} style={{ background: 'var(--surface)', borderRadius: '8px', padding: '10px 12px' }}>
             <div style={{ fontSize: '10px', color: 'var(--text3)', letterSpacing: '0.06em', marginBottom: '3px' }}>{k.toUpperCase()}</div>
@@ -72,11 +72,11 @@ const AddEmployeeModal = ({ onClose, onAdd }) => {
   return (
     <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.7)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
       <div style={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: 'var(--radius-lg)', width: '100%', maxWidth: '520px' }}>
-        <div style={{ padding: '24px', borderBottom: '1px solid var(--border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <div style={{ padding: 'clamp(12px, 3vw, 24px)', borderBottom: '1px solid var(--border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <h2 style={{ fontFamily: 'Poppins,sans-serif', fontSize: '20px' }}>Add Employee</h2>
           <button onClick={onClose} style={{ background: 'none', border: 'none', cursor: 'pointer' }}><Icon name="x" size={20} color="var(--text3)" /></button>
         </div>
-        <div style={{ padding: '24px', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+        <div style={{ padding: 'clamp(12px, 3vw, 24px)', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 300px), 1fr))', gap: '12px' }}>
           {[['name', 'FULL NAME', 'text'], ['role', 'ROLE / DESIGNATION', 'text'], ['phone', 'PHONE', 'text'], ['email', 'EMAIL', 'email'], ['salary', 'MONTHLY SALARY (₹)', 'number']].map(([k, l, t]) => (
             <div key={k} style={{ gridColumn: k === 'name' || k === 'role' ? 'span 2' : 'span 1' }}>
               <label style={labelStyle}>{l}</label>
@@ -102,7 +102,7 @@ const AddEmployeeModal = ({ onClose, onAdd }) => {
             return isRecep && (
             <div style={{ gridColumn: 'span 2', marginTop: '8px', borderTop: '1px solid var(--border)', paddingTop: '12px' }}>
               <span style={{ fontSize: '12px', fontWeight: '700', color: 'var(--text2)', display: 'block', marginBottom: '8px' }}>Create Receptionist Login (Optional)</span>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 300px), 1fr))', gap: '10px' }}>
                 <div>
                   <label style={labelStyle}>LOGIN EMAIL</label>
                   <input type="email" style={inputStyle} value={form.loginEmail} onChange={e => set('loginEmail', e.target.value)} placeholder="recep@hotel.com" />
@@ -159,11 +159,11 @@ const EditEmployeeModal = ({ employee, onClose, onSave }) => {
   return (
     <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.7)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
       <div style={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: 'var(--radius-lg)', width: '100%', maxWidth: '520px' }}>
-        <div style={{ padding: '24px', borderBottom: '1px solid var(--border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <div style={{ padding: 'clamp(12px, 3vw, 24px)', borderBottom: '1px solid var(--border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <h2 style={{ fontFamily: 'Poppins,sans-serif', fontSize: '20px' }}>Edit Employee</h2>
           <button onClick={onClose} style={{ background: 'none', border: 'none', cursor: 'pointer' }}><Icon name="x" size={20} color="var(--text3)" /></button>
         </div>
-        <div style={{ padding: '24px', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+        <div style={{ padding: 'clamp(12px, 3vw, 24px)', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 300px), 1fr))', gap: '12px' }}>
           {[['name', 'FULL NAME', 'text'], ['role', 'ROLE / DESIGNATION', 'text'], ['phone', 'PHONE', 'text'], ['email', 'EMAIL', 'email'], ['salary', 'MONTHLY SALARY (₹)', 'number']].map(([k, l, t]) => (
             <div key={k} style={{ gridColumn: k === 'name' || k === 'role' ? 'span 2' : 'span 1' }}>
               <label style={labelStyle}>{l}</label>
@@ -301,7 +301,7 @@ const EmployeesPage = ({ role, hotelDetails, plan }) => {
       {editEmployee && <EditEmployeeModal employee={editEmployee} onClose={() => setEditEmployee(null)} onSave={handleSaveEmployee} />}
       {deleteConfirm && (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.7)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
-          <div style={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: 'var(--radius-lg)', width: '100%', maxWidth: '400px', padding: '24px' }}>
+          <div style={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: 'var(--radius-lg)', width: '100%', maxWidth: '400px', padding: 'clamp(12px, 3vw, 24px)' }}>
             <h3 style={{ fontFamily: 'Poppins,sans-serif', margin: '0 0 12px' }}>Delete Employee</h3>
             <p style={{ fontSize: '14px', color: 'var(--text2)', margin: '0 0 20px' }}>Are you sure you want to delete <strong>{deleteConfirm.name}</strong>? This action cannot be undone.</p>
             <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end' }}>
@@ -323,7 +323,7 @@ const EmployeesPage = ({ role, hotelDetails, plan }) => {
       {activeTab === 'staff' && (
         <div style={{ padding: '24px 32px', overflowY: 'auto', flex: 1 }}>
           {/* Stats */}
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '14px', marginBottom: '24px' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 240px), 1fr))', gap: '14px', marginBottom: '24px' }}>
             {stats.map(s => (
               <div key={s.label} style={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: 'var(--radius)', padding: '16px', textAlign: 'center' }}>
                 <div style={{ fontSize: '26px', fontWeight: '700', fontFamily: 'Poppins,sans-serif', color: s.color, marginBottom: '4px' }}>{s.value}</div>
@@ -365,7 +365,7 @@ const EmployeesPage = ({ role, hotelDetails, plan }) => {
                 <div style={{ fontSize: '18px', fontWeight: '700', fontFamily: 'Poppins, sans-serif', color: 'var(--text)', marginBottom: '6px' }}>
                   No Staff Members Yet
                 </div>
-                <div style={{ fontSize: '13px', color: 'var(--text3)', maxWidth: '400px', lineHeight: '1.6' }}>
+                <div style={{ fontSize: '13px', color: 'var(--text3)', width: '100%', maxWidth: '400px', lineHeight: '1.6' }}>
                   {plan === 'starter'
                     ? 'Your Starter plan includes 1 receptionist account. Add a receptionist to handle bookings and check-ins.'
                     : 'Add employees to manage your hotel staff, shifts, and attendance.'}

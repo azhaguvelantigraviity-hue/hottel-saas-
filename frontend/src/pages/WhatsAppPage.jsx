@@ -33,7 +33,7 @@ const WhatsAppPage = () => {
 
   return (
     <div style={{ flex:1, overflowY:'auto', padding:24 }}>
-      <div style={{ display:'grid', gridTemplateColumns:'repeat(4,1fr)', gap:16, marginBottom:24 }}>
+      <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fit, minmax(min(100%, 240px), 1fr))', gap:16, marginBottom:24 }}>
         <StatCard title="Messages Sent" value="1,245" icon="whatsapp" color="var(--green)" />
         <StatCard title="Delivered" value="98.2%" icon="check" color="var(--teal)" />
         <StatCard title="Read Rate" value="85.4%" icon="eye" color="var(--gold)" />

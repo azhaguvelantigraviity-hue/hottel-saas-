@@ -55,7 +55,7 @@ const HotelDetailModal = ({ hotel, onClose, onEdit }) => {
       }}>
         {/* Header */}
         <div style={{
-          padding: '24px', borderBottom: '1px solid var(--border)',
+          padding: 'clamp(12px, 3vw, 24px)', borderBottom: '1px solid var(--border)',
           display: 'flex', alignItems: 'center', justifyContent: 'space-between',
         }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
@@ -80,7 +80,7 @@ const HotelDetailModal = ({ hotel, onClose, onEdit }) => {
         </div>
 
         {/* Body */}
-        <div style={{ padding: '24px', display: 'flex', flexDirection: 'column', gap: '20px' }}>
+        <div style={{ padding: 'clamp(12px, 3vw, 24px)', display: 'flex', flexDirection: 'column', gap: '20px' }}>
           {/* Location */}
           <div style={{ background: 'var(--surface)', borderRadius: '10px', padding: '14px' }}>
             <div style={{ fontSize: '11px', color: 'var(--text3)', marginBottom: '4px' }}>LOCATION</div>
@@ -91,7 +91,7 @@ const HotelDetailModal = ({ hotel, onClose, onEdit }) => {
           {dbCreds && (
             <div style={{ background: 'var(--surface)', borderRadius: '10px', padding: '14px' }}>
               <div style={{ fontSize: '13px', fontWeight: '700', marginBottom: '12px' }}>Hotel Login Credentials</div>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 300px), 1fr))', gap: '12px' }}>
                 <div>
                   <div style={{ fontSize: '11px', color: 'var(--text3)', marginBottom: '4px' }}>LOGIN EMAIL</div>
                   <div style={{ fontSize: '13px', fontWeight: '600' }}>{dbCreds.email}</div>
@@ -115,7 +115,7 @@ const HotelDetailModal = ({ hotel, onClose, onEdit }) => {
           )}
 
           {/* Stats grid */}
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '10px' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 280px), 1fr))', gap: '10px' }}>
             {stats.map(s => (
               <div key={s.label} style={{ background: 'var(--surface)', borderRadius: '8px', padding: '12px' }}>
                 <div style={{ fontSize: '10px', color: 'var(--text3)', letterSpacing: '0.06em', marginBottom: '4px' }}>
@@ -225,7 +225,7 @@ const EditHotelModal = ({ hotel, onClose, onSave }) => {
         maxHeight: '90vh', overflow: 'auto',
       }}>
         <div style={{
-          padding: '24px', borderBottom: '1px solid var(--border)',
+          padding: 'clamp(12px, 3vw, 24px)', borderBottom: '1px solid var(--border)',
           display: 'flex', alignItems: 'center', justifyContent: 'space-between',
         }}>
           <h2 style={{ fontFamily: 'Poppins,sans-serif', fontSize: '20px' }}>Edit Hotel</h2>
@@ -234,8 +234,8 @@ const EditHotelModal = ({ hotel, onClose, onSave }) => {
           </button>
         </div>
 
-        <div style={{ padding: '24px', display: 'flex', flexDirection: 'column', gap: '14px' }}>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+        <div style={{ padding: 'clamp(12px, 3vw, 24px)', display: 'flex', flexDirection: 'column', gap: '14px' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 300px), 1fr))', gap: '12px' }}>
             <div style={{ gridColumn: 'span 2' }}>
               <label style={lbl}>HOTEL NAME</label>
               <input style={inp} value={form.name} onChange={e => set('name', e.target.value)} />
@@ -347,7 +347,7 @@ const AddHotelModal = ({ onClose, onAdd }) => {
         borderRadius: 'var(--radius-lg)', width: '100%', maxWidth: '520px',
       }}>
         <div style={{
-          padding: '24px', borderBottom: '1px solid var(--border)',
+          padding: 'clamp(12px, 3vw, 24px)', borderBottom: '1px solid var(--border)',
           display: 'flex', alignItems: 'center', justifyContent: 'space-between',
         }}>
           <h2 style={{ fontFamily: 'Poppins,sans-serif', fontSize: '20px' }}>Add New Hotel</h2>
@@ -355,8 +355,8 @@ const AddHotelModal = ({ onClose, onAdd }) => {
             <Icon name="x" size={20} color="var(--text3)" />
           </button>
         </div>
-        <div style={{ padding: '24px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+        <div style={{ padding: 'clamp(12px, 3vw, 24px)', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 300px), 1fr))', gap: '12px' }}>
             <div style={{ gridColumn: 'span 2' }}>
               <label style={lbl}>HOTEL NAME *</label>
               <input style={inp} value={form.name} onChange={e => set('name', e.target.value)} placeholder="e.g. The Royal Palace" />
@@ -397,7 +397,7 @@ const AddHotelModal = ({ onClose, onAdd }) => {
 
           <div style={{ marginTop: '8px', borderTop: '1px solid var(--border)', paddingTop: '16px' }}>
             <div style={{ fontSize: '13px', fontWeight: '600', marginBottom: '12px', color: 'var(--text)' }}>Manager Login Credentials</div>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 300px), 1fr))', gap: '12px' }}>
               <div>
                 <label style={lbl}>MANAGER EMAIL *</label>
                 <input type="email" style={inp} value={form.adminEmail} onChange={e => set('adminEmail', e.target.value)} placeholder="manager@hotel.com" />
@@ -570,7 +570,7 @@ const AdminHotels = () => {
   };
 
   return (
-    <div style={{ padding: '32px', overflowY: 'auto', flex: 1 }}>
+    <div style={{ padding: 'clamp(16px, 4vw, 32px)', overflowY: 'auto', flex: 1 }}>
       {viewHotel && (
         <HotelDetailModal
           hotel={viewHotel}
@@ -661,7 +661,7 @@ const AdminHotels = () => {
             </div>
 
             {/* Stats */}
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', marginBottom: '16px' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 300px), 1fr))', gap: '10px', marginBottom: '16px' }}>
               <div style={{ background: 'var(--surface)', borderRadius: '8px', padding: '10px' }}>
                 <div style={{ fontSize: '11px', color: 'var(--text3)', marginBottom: '3px' }}>OCCUPANCY</div>
                 <div style={{

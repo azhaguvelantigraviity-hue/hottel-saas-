@@ -3,9 +3,9 @@ import Icon from '../components/Icon';
 import { REVENUE_DATA } from '../data/mockData';
 
 const ReportsPage = () => (
-  <div style={{ padding: '32px', overflowY: 'auto', flex: 1 }}>
+  <div style={{ padding: 'clamp(16px, 4vw, 32px)', overflowY: 'auto', flex: 1 }}>
     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '20px', marginBottom: '24px' }}>
-      <div style={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: 'var(--radius)', padding: '24px' }}>
+      <div style={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: 'var(--radius)', padding: 'clamp(12px, 3vw, 24px)' }}>
         <div style={{ fontSize: '15px', fontWeight: '700', marginBottom: '4px' }}>Revenue vs Expenses</div>
         <div style={{ fontSize: '12px', color: 'var(--text3)', marginBottom: '20px' }}>Last 7 months</div>
         <div style={{ height: '180px', display: 'flex', alignItems: 'flex-end', gap: '10px' }}>
@@ -34,7 +34,7 @@ const ReportsPage = () => (
         </div>
       </div>
 
-      <div style={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: 'var(--radius)', padding: '24px' }}>
+      <div style={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: 'var(--radius)', padding: 'clamp(12px, 3vw, 24px)' }}>
         <div style={{ fontSize: '15px', fontWeight: '700', marginBottom: '4px' }}>Booking Sources</div>
         <div style={{ fontSize: '12px', color: 'var(--text3)', marginBottom: '20px' }}>Current period</div>
         {[].map((s) => (

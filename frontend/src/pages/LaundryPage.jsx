@@ -113,9 +113,9 @@ const LaundryPage = () => {
   const delivered  = orders.filter(o => o.status === 'delivered').length;
 
   return (
-    <div style={{ flex: 1, overflowY: 'auto', padding: '24px' }}>
+    <div style={{ flex: 1, overflowY: 'auto', padding: 'clamp(12px, 3vw, 24px)' }}>
       {/* Stats */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: '16px', marginBottom: '24px' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 240px), 1fr))', gap: '16px', marginBottom: '24px' }}>
         <StatCard title="Total Orders" value={orders.length} icon="laundry" color="var(--teal)" />
         <StatCard title="In Progress"  value={inProgress}    icon="refresh" color="var(--amber)" />
         <StatCard title="Ready"        value={ready}         icon="check"   color="var(--green)" />
@@ -137,7 +137,7 @@ const LaundryPage = () => {
           ))}
         </div>
 
-        <div style={{ padding: '24px' }}>
+        <div style={{ padding: 'clamp(12px, 3vw, 24px)' }}>
           {/* ── Active Orders ── */}
           {tab === 0 && (
             <div>
@@ -225,7 +225,7 @@ const LaundryPage = () => {
               <div style={{ fontSize: '15px', fontWeight: '700', color: 'var(--text)', marginBottom: '20px' }}>Create Laundry Order</div>
 
               {/* Room + Guest */}
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '14px', marginBottom: '20px' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 300px), 1fr))', gap: '14px', marginBottom: '20px' }}>
                 <div>
                   <label style={{ fontSize: '11px', color: 'var(--text3)', display: 'block', marginBottom: '5px', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Room Number *</label>
                   <input value={form.room} onChange={e => setForm(f => ({ ...f, room: e.target.value }))} style={inp} placeholder="e.g. 101" />
@@ -241,7 +241,7 @@ const LaundryPage = () => {
                 <label style={{ fontSize: '11px', color: 'var(--text3)', display: 'block', marginBottom: '10px', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
                   Select Items *
                 </label>
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: '10px' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 280px), 1fr))', gap: '10px' }}>
                   {Object.entries(PRICING).map(([item, price]) => {
                     const qty = form.items[item] || 0;
                     return (
@@ -329,7 +329,7 @@ const LaundryPage = () => {
 
           {/* ── Price List ── */}
           {tab === 2 && (
-            <div style={{ maxWidth: '400px' }}>
+            <div style={{ width: '100%', maxWidth: '400px' }}>
               <div style={{ fontSize: '15px', fontWeight: '700', color: 'var(--text)', marginBottom: '16px' }}>Laundry Price List</div>
               {Object.entries(PRICING).map(([item, price]) => (
                 <div key={item} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '12px 0', borderBottom: '1px solid var(--border)' }}>

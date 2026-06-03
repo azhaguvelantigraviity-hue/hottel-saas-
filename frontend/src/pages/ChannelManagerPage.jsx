@@ -34,7 +34,7 @@ const ChannelManagerPage = () => {
         {activeTab === 'overview' && (
           <>
             {/* Summary Stats */}
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: '16px', marginBottom: '28px' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 280px), 1fr))', gap: '16px', marginBottom: '28px' }}>
               {[
                 { label: 'Total Bookings', value: totalBookings, color: 'var(--gold)', sub: 'All channels' },
                 { label: 'Gross Revenue', value: `₹${(totalRevenue / 1000).toFixed(0)}K`, color: 'var(--green)', sub: 'Before commission' },
@@ -64,7 +64,7 @@ const ChannelManagerPage = () => {
                       <div style={{ position: 'absolute', top: '3px', width: '18px', height: '18px', borderRadius: '50%', background: '#fff', transition: 'left 0.2s', left: ch.connected ? '23px' : '3px' }} />
                     </div>
                   </div>
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 300px), 1fr))', gap: '8px' }}>
                     {[['Bookings', ch.bookings], ['Revenue', `₹${(ch.revenue / 1000).toFixed(0)}K`], ['Commission', `${ch.commission}%`], ['Share', `${ch.pct}%`]].map(([k, v]) => (
                       <div key={k} style={{ background: 'var(--surface)', borderRadius: '6px', padding: '8px' }}>
                         <div style={{ fontSize: '10px', color: 'var(--text3)', marginBottom: '2px' }}>{k.toUpperCase()}</div>
@@ -80,7 +80,7 @@ const ChannelManagerPage = () => {
             </div>
 
             {/* Revenue Chart */}
-            <div style={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: 'var(--radius)', padding: '24px' }}>
+            <div style={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: 'var(--radius)', padding: 'clamp(12px, 3vw, 24px)' }}>
               <div style={{ fontSize: '15px', fontWeight: '700', marginBottom: '20px' }}>Monthly Booking Trend</div>
               <div style={{ height: '160px', display: 'flex', alignItems: 'flex-end', gap: '12px' }}>
                 {REVENUE_DATA.map((d, i) => {
@@ -144,7 +144,7 @@ const ChannelManagerPage = () => {
         {activeTab === 'availability' && (
           <div>
             <div style={{ fontSize: '15px', fontWeight: '700', marginBottom: '20px' }}>Availability Calendar</div>
-            <div style={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: 'var(--radius)', padding: '24px' }}>
+            <div style={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: 'var(--radius)', padding: 'clamp(12px, 3vw, 24px)' }}>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7,1fr)', gap: '4px', marginBottom: '8px' }}>
                 {['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].map(d => (
                   <div key={d} style={{ textAlign: 'center', fontSize: '11px', color: 'var(--text3)', fontWeight: '600', padding: '6px' }}>{d}</div>

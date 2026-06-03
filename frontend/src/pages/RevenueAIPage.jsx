@@ -34,7 +34,7 @@ const RevenueAIPage = () => {
       <div style={{ padding: '24px 32px', overflowY: 'auto', flex: 1 }}>
         {activeTab === 'insights' && (
           <>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: '14px', marginBottom: '28px' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 240px), 1fr))', gap: '14px', marginBottom: '28px' }}>
               {[
                 { label: 'RevPAR', value: '-', trend: '-', color: 'var(--gold)' },
                 { label: 'ADR', value: '-', trend: '-', color: 'var(--teal)' },
@@ -69,7 +69,7 @@ const RevenueAIPage = () => {
 
         {activeTab === 'forecast' && (
           <>
-            <div style={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: 'var(--radius)', padding: '24px', marginBottom: '20px' }}>
+            <div style={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: 'var(--radius)', padding: 'clamp(12px, 3vw, 24px)', marginBottom: '20px' }}>
               <div style={{ fontSize: '15px', fontWeight: '700', marginBottom: '20px' }}>4-Week Revenue Forecast</div>
               <div style={{ height: '180px', display: 'flex', alignItems: 'flex-end', gap: '16px' }}>
                 {forecast.map((f, i) => {
@@ -102,7 +102,7 @@ const RevenueAIPage = () => {
 
         {activeTab === 'pricing' && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-            <div style={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: 'var(--radius)', padding: '24px' }}>
+            <div style={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: 'var(--radius)', padding: 'clamp(12px, 3vw, 24px)' }}>
               <div style={{ fontSize: '15px', fontWeight: '700', marginBottom: '16px' }}>Dynamic Pricing Settings</div>
               {[
                 { label: 'Dynamic Pricing Engine', desc: 'Automatically adjust rates based on demand, occupancy, and market data', value: dynamicPricing, onChange: () => setDynamicPricing(p => !p) },
@@ -118,7 +118,7 @@ const RevenueAIPage = () => {
               ))}
             </div>
 
-            <div style={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: 'var(--radius)', padding: '24px' }}>
+            <div style={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: 'var(--radius)', padding: 'clamp(12px, 3vw, 24px)' }}>
               <div style={{ fontSize: '15px', fontWeight: '700', marginBottom: '16px' }}>AI Rate Recommendations</div>
               {[].map(r => (
                 <div key={r.room} style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px 0', borderBottom: '1px solid var(--border)' }}>
@@ -139,7 +139,7 @@ const RevenueAIPage = () => {
 
         {activeTab === 'competitors' && (
           <div>
-            <div style={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: 'var(--radius)', padding: '24px', marginBottom: '20px' }}>
+            <div style={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: 'var(--radius)', padding: 'clamp(12px, 3vw, 24px)', marginBottom: '20px' }}>
               <div style={{ fontSize: '15px', fontWeight: '700', marginBottom: '4px' }}>Competitor Rate Intelligence</div>
               <div style={{ fontSize: '12px', color: 'var(--text3)', marginBottom: '20px' }}>Market data</div>
               <table style={{ width: '100%', borderCollapse: 'collapse' }}>

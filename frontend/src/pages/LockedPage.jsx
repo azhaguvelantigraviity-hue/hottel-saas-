@@ -1,8 +1,8 @@
 import React from 'react';
 
 const LockedPage = ({ feature, requiredPlan, onNav }) => (
-  <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '32px' }}>
-    <div style={{ textAlign: 'center', maxWidth: '400px' }}>
+  <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 'clamp(16px, 4vw, 32px)' }}>
+    <div style={{ textAlign: 'center', width: '100%', maxWidth: '400px' }}>
       <div
         style={{
           width: '64px',

@@ -15,7 +15,7 @@ const AuditLogs = () => {
     : LOGS.filter(log => log.status === filter);
 
   return (
-    <div style={{ padding: '32px', overflowY: 'auto', flex: 1 }}>
+    <div style={{ padding: 'clamp(16px, 4vw, 32px)', overflowY: 'auto', flex: 1 }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px', flexWrap: 'wrap', gap: '16px' }}>
         <div>
           <h2 style={{ fontSize: '20px', fontWeight: '700', color: 'var(--text)', marginBottom: '4px', fontFamily: 'Poppins, sans-serif' }}>System Audit Logs</h2>

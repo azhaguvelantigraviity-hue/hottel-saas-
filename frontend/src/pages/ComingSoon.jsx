@@ -2,7 +2,7 @@ import React from 'react';
 import Icon from '../components/Icon';
 
 const ComingSoon = ({ title, icon, color = 'var(--gold)' }) => (
-  <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '32px' }}>
+  <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 'clamp(16px, 4vw, 32px)' }}>
     <div style={{ textAlign: 'center', maxWidth: '360px' }}>
       <div
         style={{

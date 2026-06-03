@@ -11,8 +11,8 @@ const AdminDashboard = ({ onNav }) => {
   const planBreakdown = { starter: 0, professional: 0, enterprise: 0 };
 
   return (
-    <div style={{ padding: '32px', overflowY: 'auto', flex: 1 }}>
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '16px', marginBottom: '28px' }}>
+    <div style={{ padding: 'clamp(16px, 4vw, 32px)', overflowY: 'auto', flex: 1 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 240px), 1fr))', gap: '16px', marginBottom: '28px' }}>
         <StatCard icon="hotel" iconColor="#C9A84C" label="Total Hotels" value={totalHotels} sub="-" trend={0} />
         <StatCard icon="dollar" iconColor="#2DD4BF" label="Monthly Revenue" value={`₹${(totalMRR / 1000).toFixed(0)}K`} sub="Platform MRR" trend={0} />
         <StatCard icon="trending" iconColor="#A78BFA" label="Active Subs" value="-" sub="-" trend={0} />
@@ -21,7 +21,7 @@ const AdminDashboard = ({ onNav }) => {
 
       {/* Charts Row */}
       <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '20px', marginBottom: '28px' }}>
-        <div style={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: 'var(--radius)', padding: '24px' }}>
+        <div style={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: 'var(--radius)', padding: 'clamp(12px, 3vw, 24px)' }}>
           <div style={{ display: 'flex', alignItems: 'center', justifySpace: 'space-between', justifyContent: 'space-between', marginBottom: '20px' }}>
             <div>
               <div style={{ fontSize: '15px', fontWeight: '700', marginBottom: '3px' }}>Platform Revenue Growth</div>
@@ -52,7 +52,7 @@ const AdminDashboard = ({ onNav }) => {
           </div>
         </div>
 
-        <div style={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: 'var(--radius)', padding: '24px' }}>
+        <div style={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: 'var(--radius)', padding: 'clamp(12px, 3vw, 24px)' }}>
           <div style={{ fontSize: '15px', fontWeight: '700', marginBottom: '4px' }}>Plan Distribution</div>
           <div style={{ fontSize: '12px', color: 'var(--text3)', marginBottom: '20px' }}>Active subscriptions</div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
@@ -81,7 +81,7 @@ const AdminDashboard = ({ onNav }) => {
       </div>
 
       {/* Recent Hotels */}
-      <div style={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: 'var(--radius)', padding: '24px' }}>
+      <div style={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: 'var(--radius)', padding: 'clamp(12px, 3vw, 24px)' }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '20px' }}>
           <div style={{ fontSize: '15px', fontWeight: '700' }}>Managed Hotels</div>
           <button

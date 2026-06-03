@@ -167,3 +167,47 @@ table { border-collapse: collapse; }
   from { opacity: 0; transform: translateY(20px); }
   to   { opacity: 1; transform: translateY(0); }
 }
+
+/* ══════════════════════════════════════════════
+   RESPONSIVE UTILITIES & OVERRIDES
+══════════════════════════════════════════════ */
+.table-responsive-wrapper {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+@media (max-width: 768px) {
+  table {
+    display: block;
+    overflow-x: auto;
+    white-space: nowrap;
+    -webkit-overflow-scrolling: touch;
+  }
+}
+
+@media (max-width: 768px) {
+  .mobile-hidden { display: none !important; }
+  .mobile-block { display: block !important; }
+  .mobile-flex { display: flex !important; }
+  
+  .page-container { padding: 16px !important; }
+  .force-wrap { grid-template-columns: 1fr !important; }
+
+  /* Sidebar Drawer */
+  .sidebar-closed {
+    position: fixed !important;
+    transform: translateX(-100%);
+  }
+  .sidebar-open {
+    position: fixed !important;
+    transform: translateX(0);
+    box-shadow: 0 0 40px rgba(0,0,0,0.5);
+  }
+}
+

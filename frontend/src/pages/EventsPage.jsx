@@ -35,7 +35,7 @@ const Modal = ({ title, onClose, children }) => (
           <Icon name="x" size={20} color="var(--text3)" />
         </button>
       </div>
-      <div style={{ padding: '24px' }}>{children}</div>
+      <div style={{ padding: 'clamp(12px, 3vw, 24px)' }}>{children}</div>
     </div>
   </div>
 );
@@ -154,7 +154,7 @@ const BookingDetailModal = ({ booking, onClose, onAction, onRecordPayment, setSh
   const balanceDue = total - deposit;
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 300px), 1fr))', gap: '10px' }}>
         {[['Booking ID', booking.id || booking.bookingId], ['Event', booking.event || booking.eventName],
           ['Hall', booking.hall], ['Date', booking.date],
           ['Client', booking.client || booking.clientName], ['Phone', booking.phone || booking.clientPhone || '—'],
@@ -410,7 +410,7 @@ const EventsPage = () => {
       {showAddCatering && <Modal title={editCatering ? 'Edit Package' : 'Add Catering Package'} onClose={() => { setShowAddCatering(false); setEditCatering(null); }}><AddCateringModal onClose={() => { setShowAddCatering(false); setEditCatering(null); }} onSave={addCateringPkg} editPkg={editCatering} /></Modal>}
 
       {/* Stats */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 16, marginBottom: 24 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 240px), 1fr))', gap: 16, marginBottom: 24 }}>
         {stats.map(s => <StatCard key={s.label} label={s.label} value={s.value} icon={s.icon} iconColor={s.iconColor} />)}
       </div>
 
@@ -548,7 +548,7 @@ const EventsPage = () => {
         {tab === 3 && (
           <div style={{ maxWidth: 600 }}>
             <div style={{ fontSize: 16, fontWeight: 700, color: 'var(--text)', marginBottom: 20 }}>New Event Booking</div>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '14px' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 300px), 1fr))', gap: '14px' }}>
               {[['event','Event Name *','text'],['client','Client Name *','text'],['phone','Phone','text'],['email','Email','email']].map(([f, lbl, t]) => (
                 <div key={f}>
                   <label style={labelStyle}>{lbl}</label>
@@ -590,7 +590,7 @@ const EventsPage = () => {
             {/* Payment Fields */}
             <div style={{ marginTop: 20, marginBottom: 4 }}>
               <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--text)', marginBottom: 12 }}>Payment Details</div>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '14px' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 300px), 1fr))', gap: '14px' }}>
                 <div>
                   <label style={labelStyle}>Deposit Amount (₹)</label>
                   <input type="number" value={form.deposit} onChange={e => setFormField('deposit', e.target.value)} placeholder="Advance payment" style={inputStyle} />

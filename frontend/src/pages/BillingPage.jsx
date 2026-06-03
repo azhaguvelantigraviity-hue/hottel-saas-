@@ -108,7 +108,7 @@ const BillingPage = () => {
   return (
     <div style={{ flex:1, overflowY:'auto', padding:24 }}>
       {showModal && selectedInv && <InvoiceModal inv={selectedInv} onClose={() => setShowModal(false)} />}
-      <div style={{ display:'grid', gridTemplateColumns:'repeat(4,1fr)', gap:16, marginBottom:24 }}>
+      <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fit, minmax(min(100%, 240px), 1fr))', gap:16, marginBottom:24 }}>
         <StatCard title="Today's Invoices" value={dashLoad ? '-' : dash.today?.count || 0} icon="receipt" iconColor="var(--gold)" sub={`₹${(dash.today?.revenue || 0).toLocaleString()}`} />
         <StatCard title="Monthly Revenue" value={dashLoad ? '-' : `₹${(dash.month?.revenue || 0).toLocaleString()}`} icon="dollar" iconColor="var(--green)" sub={`Year: ₹${(dash.year?.revenue || 0).toLocaleString()}`} />
         <StatCard title="Total Revenue" value={dashLoad ? '-' : `₹${(dash.total?.revenue || 0).toLocaleString()}`} icon="trending" iconColor="#818CF8" sub={`${dash.total?.count || 0} invoices`} />
@@ -122,7 +122,7 @@ const BillingPage = () => {
         {tab === 0 && (
           <div>
             <div style={{ fontSize:15, fontWeight:700, marginBottom:16 }}>Revenue Overview</div>
-            <div style={{ display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:16, marginBottom:24 }}>
+            <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fit, minmax(min(100%, 280px), 1fr))', gap:16, marginBottom:24 }}>
               <div style={{ padding:16, background:'var(--surface)', borderRadius:8, border:'1px solid var(--border)' }}>
                 <div style={{ fontSize:11, color:'var(--text3)', textTransform:'uppercase', letterSpacing:'0.06em' }}>Today</div>
                 <div style={{ fontSize:22, fontWeight:700, fontFamily:'DM Mono,monospace', color:'var(--gold)', marginTop:4 }}>₹{(dash.today?.revenue || 0).toLocaleString()}</div>
@@ -139,7 +139,7 @@ const BillingPage = () => {
                 <div style={{ fontSize:12, color:'var(--text2)', marginTop:2 }}>{dash.total?.count || 0} invoices</div>
               </div>
             </div>
-            <div style={{ display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:16 }}>
+            <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fit, minmax(min(100%, 280px), 1fr))', gap:16 }}>
               {['pending','partial','paid','cancelled','refunded'].map(s => (
                 <div key={s} style={{ padding:'12px 16px', background:'var(--surface)', borderRadius:8, border:'1px solid var(--border)', display:'flex', justifyContent:'space-between', alignItems:'center' }}>
                   <span style={{ fontSize:13, textTransform:'capitalize', color:'var(--text2)' }}>{s}</span>
@@ -151,10 +151,10 @@ const BillingPage = () => {
         )}
 
         {tab === 1 && (
-          <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:24, flexWrap:'wrap' }}>
+          <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fit, minmax(min(100%, 300px), 1fr))', gap:24, flexWrap:'wrap' }}>
             <div>
               <div style={{ fontSize:15, fontWeight:700, marginBottom:16, display:'flex', alignItems:'center', gap:8 }}>Create Invoice</div>
-              <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:12 }}>
+              <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fit, minmax(min(100%, 300px), 1fr))', gap:12 }}>
                 {['guestName','guestEmail','guestPhone'].map(f => (
                   <div key={f} style={{ gridColumn: f==='guestEmail'?'span 2':'span 1' }}><label style={labelStyle}>{f.replace('guest','Guest ')}</label><input value={invForm[f]} onChange={e => setInvForm(p => ({...p,[f]:e.target.value}))} style={inputStyle} placeholder={f==='guestEmail'?'guest@example.com':''} /></div>
                 ))}
@@ -163,13 +163,13 @@ const BillingPage = () => {
               </div>
               <div style={{ marginTop:12 }}>
                 <div style={{ fontSize:13, fontWeight:600, color:'var(--text2)', marginBottom:8 }}>Charges (₹)</div>
-                <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:10 }}>
+                <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fit, minmax(min(100%, 300px), 1fr))', gap:10 }}>
                   {[{k:'roomCharges',l:'Room'},{k:'foodCharges',l:'Food'},{k:'laundryCharges',l:'Laundry'},{k:'spaCharges',l:'Spa'},{k:'otherCharges',l:'Other'}].map(({k,l}) => (
                     <div key={k}><label style={labelStyle}>{l}</label><input type="number" value={invForm[k]} onChange={e => setInvForm(p => ({...p,[k]:e.target.value}))} style={inputStyle} /></div>
                   ))}
                 </div>
               </div>
-              <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr 1fr', gap:10, marginTop:12 }}>
+              <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fit, minmax(min(100%, 280px), 1fr))', gap:10, marginTop:12 }}>
                 <div><label style={labelStyle}>Tax Rate (%)</label><input type="number" value={invForm.taxRate} onChange={e => setInvForm(p => ({...p,taxRate:e.target.value}))} style={inputStyle} /></div>
                 <div><label style={labelStyle}>Discount Type</label><select value={invForm.discountType} onChange={e => setInvForm(p => ({...p,discountType:e.target.value}))} style={inputStyle}><option value="fixed">Fixed (₹)</option><option value="percentage">Percentage (%)</option></select></div>
                 <div><label style={labelStyle}>{invForm.discountType === 'percentage' ? 'Discount %' : 'Discount ₹'}</label><input type="number" value={invForm.discountValue} onChange={e => setInvForm(p => ({...p,discountValue:e.target.value}))} style={inputStyle} /></div>
@@ -258,7 +258,7 @@ const BillingPage = () => {
 
         {tab === 3 && (
           <div>
-            <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:24 }}>
+            <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fit, minmax(min(100%, 300px), 1fr))', gap:24 }}>
               <div>
                 <div style={{ fontSize:15, fontWeight:700, marginBottom:16 }}>Record Payment</div>
                 <div style={{ padding:16, background:'var(--surface)', borderRadius:8, border:'1px solid var(--border)' }}>
@@ -291,7 +291,7 @@ const BillingPage = () => {
                     <>
                       <div style={{ fontSize:13, color:'var(--text2)', marginBottom:12 }}>Due: <strong style={{ fontFamily:'DM Mono,monospace', color:'var(--gold)' }}>₹{(selectedInv.dueAmount || selectedInv.totalAmount || 0).toLocaleString()}</strong></div>
                       {splitPayers.map((p,i) => (
-                        <div key={i} style={{ display:'grid', gridTemplateColumns:'1fr 1fr 1fr', gap:8, marginBottom:10 }}>
+                        <div key={i} style={{ display:'grid', gridTemplateColumns:'repeat(auto-fit, minmax(min(100%, 280px), 1fr))', gap:8, marginBottom:10 }}>
                           <input value={p.name} onChange={e => setSplitPayers(prev => prev.map((x,j) => j===i?{...x,name:e.target.value}:x))} style={inputStyle} placeholder={`Payer ${i+1} name`} />
                           <input type="number" value={p.amount} onChange={e => setSplitPayers(prev => prev.map((x,j) => j===i?{...x,amount:e.target.value}:x))} style={inputStyle} placeholder="Amount" />
                           <select value={p.method} onChange={e => setSplitPayers(prev => prev.map((x,j) => j===i?{...x,method:e.target.value}:x))} style={inputStyle}><option value="Cash">Cash</option><option value="Card">Card</option><option value="UPI">UPI</option></select>

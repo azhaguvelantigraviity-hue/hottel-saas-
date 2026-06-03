@@ -36,7 +36,7 @@ const InventoryPage = () => {
 
   return (
     <div style={{ flex: 1, overflowY: 'auto', padding: 24 }}>
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 16, marginBottom: 24 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 240px), 1fr))', gap: 16, marginBottom: 24 }}>
         <StatCard title="Total Items" value={INVENTORY.length} icon="inventory" color="var(--teal)" />
         <StatCard title="Low Stock" value={lowItems.length} icon="info" color="var(--amber)" />
         <StatCard title="Critical" value={critical.length} icon="x" color="var(--rose)" />

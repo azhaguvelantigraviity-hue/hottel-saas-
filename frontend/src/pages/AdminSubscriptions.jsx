@@ -106,7 +106,7 @@ const EditPlanModal = ({ plan, onClose, onSave }) => {
             <Icon name="x" size={20} color="var(--text3)" />
           </button>
         </div>
-        <div style={{ padding: '24px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
+        <div style={{ padding: 'clamp(12px, 3vw, 24px)', display: 'flex', flexDirection: 'column', gap: '16px' }}>
           <div>
             <label style={lbl}>MONTHLY PRICE (₹)</label>
             <input
@@ -174,7 +174,7 @@ const ManageSubModal = ({ hotel, plans, onClose, onSave }) => {
             <Icon name="x" size={20} color="var(--text3)" />
           </button>
         </div>
-        <div style={{ padding: '24px', display: 'flex', flexDirection: 'column', gap: '14px' }}>
+        <div style={{ padding: 'clamp(12px, 3vw, 24px)', display: 'flex', flexDirection: 'column', gap: '14px' }}>
           <div>
             <label style={lbl}>SUBSCRIPTION PLAN</label>
             <select style={inp} value={form.plan} onChange={e => setForm(p => ({ ...p, plan: e.target.value }))}>
@@ -290,7 +290,7 @@ const AdminSubscriptions = () => {
       </div>
 
       {/* Plan Cards — admin editable */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '16px', marginBottom: '32px' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 280px), 1fr))', gap: '16px', marginBottom: '32px' }}>
         {PLAN_KEYS.map(k => {
           const plan = plans[k];
           return (

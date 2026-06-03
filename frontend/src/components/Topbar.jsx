@@ -26,25 +26,44 @@ const Topbar = ({ title, subtitle, role, notifCount = 3, onNav }) => {
       flexShrink: 0,
       gap: '16px',
     }}>
-      {/* Left — Page title */}
-      <div style={{ minWidth: 0 }}>
-        <h1 style={{
-          fontSize: '20px', fontWeight: '700', color: 'var(--text)',
-          letterSpacing: '-0.02em', lineHeight: 1.2, whiteSpace: 'nowrap',
-        }}>
-          {title}
-        </h1>
-        {subtitle && (
-          <p style={{ fontSize: '12px', color: 'var(--primary)', fontWeight: '500', marginTop: '1px' }}>
-            {subtitle}
-          </p>
+      {/* Left — Hamburger + Page title */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: '12px', minWidth: 0 }}>
+        {toggleSidebar && (
+          <button 
+            className="mobile-block"
+            onClick={toggleSidebar}
+            style={{
+              display: 'none',
+              background: 'transparent', border: 'none', cursor: 'pointer',
+              padding: '4px', color: 'var(--text)',
+            }}
+          >
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <line x1="3" y1="12" x2="21" y2="12"></line>
+              <line x1="3" y1="6" x2="21" y2="6"></line>
+              <line x1="3" y1="18" x2="21" y2="18"></line>
+            </svg>
+          </button>
         )}
+        <div>
+          <h1 style={{
+            fontSize: '20px', fontWeight: '700', color: 'var(--text)',
+            letterSpacing: '-0.02em', lineHeight: 1.2, whiteSpace: 'nowrap',
+          }}>
+            {title}
+          </h1>
+          {subtitle && (
+            <p className="mobile-hidden" style={{ fontSize: '12px', color: 'var(--primary)', fontWeight: '500', marginTop: '1px' }}>
+              {subtitle}
+            </p>
+          )}
+        </div>
       </div>
 
       {/* Right — Search + actions + user */}
       <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexShrink: 0 }}>
         {/* Search */}
-        <div style={{ position: 'relative' }}>
+        <div className="mobile-hidden" style={{ position: 'relative' }}>
           <div style={{
             position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)',
             pointerEvents: 'none',

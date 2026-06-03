@@ -72,11 +72,11 @@ const HotelDashboard = ({ plan, onNav }) => {
   };
 
   if (loading) {
-    return <div style={{ padding: '32px' }}>Loading dashboard...</div>;
+    return <div style={{ padding: 'clamp(16px, 4vw, 32px)' }}>Loading dashboard...</div>;
   }
 
   if (error) {
-    return <div style={{ padding: '32px', color: 'red' }}>Error: {error}</div>;
+    return <div style={{ padding: 'clamp(16px, 4vw, 32px)', color: 'red' }}>Error: {error}</div>;
   }
 
   const occupied = rooms.filter((r) => r.status === 'occupied').length;
@@ -84,20 +84,20 @@ const HotelDashboard = ({ plan, onNav }) => {
   const occupancyPct = rooms.length > 0 ? Math.round((occupied / rooms.length) * 100) : 0;
 
   return (
-    <div style={{ padding: '32px', overflowY: 'auto', flex: 1 }}>
+    <div style={{ padding: 'clamp(16px, 4vw, 32px)', overflowY: 'auto', flex: 1 }}>
       {toast && <Toast type={toast.type} message={toast.message} onClose={() => setToast(null)} />}
       
       {/* Top Stat Cards */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '16px', marginBottom: '28px' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 240px), 1fr))', gap: '16px', marginBottom: '28px' }}>
         <StatCard icon="bed" iconColor="#2DD4BF" label="Total Rooms" value={rooms.length} sub={`${occupied} occupied`} trend={0} />
         <StatCard icon="calendar" iconColor="#A78BFA" label="Today's Check-ins" value={checkins.length} sub={`${checkouts.length} check-outs`} trend={0} />
         <StatCard icon="dollar" iconColor="#C9A84C" label="Today's Revenue" value={`₹${revenueData?.today?.revenue?.toLocaleString() || 0}`} sub={`${revenueData?.month?.revenue ? `₹${revenueData.month.revenue.toLocaleString()} this month` : '-'}`} trend={0} />
         <StatCard icon="users" iconColor="#34D399" label="Pending Payments" value={pendingPayments.length} sub="Requires attention" />
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '20px', marginBottom: '28px' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 280px), 1fr))', gap: '20px', marginBottom: '28px' }}>
         {/* Occupancy */}
-        <div style={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: 'var(--radius)', padding: '24px', gridColumn: 'span 1' }}>
+        <div style={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: 'var(--radius)', padding: 'clamp(12px, 3vw, 24px)', gridColumn: 'span 1' }}>
           <div style={{ fontSize: '15px', fontWeight: '700', marginBottom: '20px' }}>Occupancy Rate</div>
           <div style={{ display: 'flex', gap: '8px', marginBottom: '16px' }}>
             <div style={{ flex: 1, background: 'var(--surface)', borderRadius: '8px', padding: '10px 8px', textAlign: 'center' }}>
@@ -116,7 +116,7 @@ const HotelDashboard = ({ plan, onNav }) => {
         </div>
 
         {/* Housekeeping */}
-        <div style={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: 'var(--radius)', padding: '24px' }}>
+        <div style={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: 'var(--radius)', padding: 'clamp(12px, 3vw, 24px)' }}>
           <div style={{ fontSize: '15px', fontWeight: '700', marginBottom: '16px' }}>Housekeeping Status</div>
           <div style={{ maxHeight: '150px', overflowY: 'auto' }}>
             <table style={{ width: '100%', borderCollapse: 'collapse' }}>
@@ -144,7 +144,7 @@ const HotelDashboard = ({ plan, onNav }) => {
         </div>
 
         {/* Pending Payments Alert */}
-        <div style={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: 'var(--radius)', padding: '24px' }}>
+        <div style={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: 'var(--radius)', padding: 'clamp(12px, 3vw, 24px)' }}>
           <div style={{ fontSize: '15px', fontWeight: '700', marginBottom: '16px', color: 'var(--rose)' }}>Payment Alerts</div>
           <div style={{ maxHeight: '150px', overflowY: 'auto' }}>
             {pendingPayments.length === 0 ? (
@@ -163,9 +163,9 @@ const HotelDashboard = ({ plan, onNav }) => {
         </div>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', marginBottom: '28px' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 300px), 1fr))', gap: '20px', marginBottom: '28px' }}>
          {/* Today's Check-ins */}
-        <div style={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: 'var(--radius)', padding: '24px' }}>
+        <div style={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: 'var(--radius)', padding: 'clamp(12px, 3vw, 24px)' }}>
           <div style={{ fontSize: '15px', fontWeight: '700', marginBottom: '16px' }}>Today's Check-ins</div>
           <table style={{ width: '100%', borderCollapse: 'collapse' }}>
             <thead>
@@ -192,7 +192,7 @@ const HotelDashboard = ({ plan, onNav }) => {
         </div>
 
         {/* Today's Check-outs */}
-        <div style={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: 'var(--radius)', padding: '24px' }}>
+        <div style={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: 'var(--radius)', padding: 'clamp(12px, 3vw, 24px)' }}>
           <div style={{ fontSize: '15px', fontWeight: '700', marginBottom: '16px' }}>Today's Check-outs</div>
           <table style={{ width: '100%', borderCollapse: 'collapse' }}>
             <thead>
@@ -222,7 +222,7 @@ const HotelDashboard = ({ plan, onNav }) => {
       <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '20px' }}>
         {/* Room Maintenance */}
         {maintenance.length > 0 && (
-          <div style={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: 'var(--radius)', padding: '24px' }}>
+          <div style={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: 'var(--radius)', padding: 'clamp(12px, 3vw, 24px)' }}>
             <div style={{ fontSize: '15px', fontWeight: '700', marginBottom: '16px', color: 'var(--amber)' }}>Maintenance Tracking</div>
             <table style={{ width: '100%', borderCollapse: 'collapse' }}>
               <thead>
@@ -248,7 +248,7 @@ const HotelDashboard = ({ plan, onNav }) => {
         )}
 
         {/* Recent Bookings */}
-        <div style={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: 'var(--radius)', padding: '24px' }}>
+        <div style={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: 'var(--radius)', padding: 'clamp(12px, 3vw, 24px)' }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '20px' }}>
             <div style={{ fontSize: '15px', fontWeight: '700' }}>Recent Bookings</div>
             <button onClick={() => onNav && onNav('bookings')} style={{ fontSize: '13px', color: 'var(--gold)', background: 'none', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px', fontFamily: 'Inter, sans-serif' }}>

@@ -58,6 +58,7 @@ const AdminApp = ({ onLogout }) => {
   const location = useLocation();
   const pathParts = location.pathname.split('/');
   const page = pathParts[2] || 'dashboard';
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   const setPage = (newPage) => navigate(`/admin/${newPage}`);
 
@@ -80,9 +81,9 @@ const AdminApp = ({ onLogout }) => {
 
   return (
     <div style={{ display: 'flex', height: '100vh', background: 'var(--bg)' }}>
-      <Sidebar role="admin" active={page} onNav={setPage} onLogout={onLogout} />
+      <Sidebar role="admin" active={page} onNav={setPage} onLogout={onLogout} isOpen={isSidebarOpen} setIsOpen={setIsSidebarOpen} />
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
-        <Topbar title={titles[page] || 'Admin'} subtitle="StayOS Platform Administration" role="admin" onNav={setPage} />
+        <Topbar title={titles[page] || 'Admin'} subtitle="StayOS Platform Administration" role="admin" onNav={setPage} toggleSidebar={() => setIsSidebarOpen(true)} />
         <div style={{ flex: 1, overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
           {pages[page] || pages.dashboard}
         </div>
@@ -97,6 +98,7 @@ const HotelApp = ({ onLogout, initialPlan = 'enterprise', role = 'manager', hote
   const location = useLocation();
   const pathParts = location.pathname.split('/');
   const page = pathParts[2] || 'dashboard';
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   const setPage = (newPage) => navigate(`/hotel/${newPage}`);
   const plan = initialPlan;
@@ -178,9 +180,16 @@ const HotelApp = ({ onLogout, initialPlan = 'enterprise', role = 'manager', hote
 
   return (
     <div style={{ display: 'flex', height: '100vh', background: 'var(--bg)' }}>
-      <Sidebar role={role} active={page} onNav={setPage} onLogout={onLogout} plan={plan} />
+      <Sidebar role={role} active={page} onNav={setPage} onLogout={onLogout} plan={plan} isOpen={isSidebarOpen} setIsOpen={setIsSidebarOpen} />
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
-        <Topbar title={titles[page] || 'Hotel'} subtitle={subtitles[plan]} role={role} onNav={setPage} />
+        <Topbar 
+          title={titles[page] || 'Dashboard'} 
+          subtitle={subtitles[plan] || 'StayOS Platform'} 
+          role={role} 
+          onNav={setPage} 
+          hotelDetails={hotelDetails}
+          toggleSidebar={() => setIsSidebarOpen(true)}
+        />
         <div style={{ flex: 1, overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
           {getPage()}
         </div>

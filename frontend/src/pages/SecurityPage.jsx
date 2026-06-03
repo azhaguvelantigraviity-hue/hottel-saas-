@@ -151,7 +151,7 @@ const SecurityPage = () => {
 
   return (
     <div style={{ flex: 1, overflowY: 'auto', padding: 24 }}>
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 16, marginBottom: 24 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 240px), 1fr))', gap: 16, marginBottom: 24 }}>
         {stats.map(s => <StatCard key={s.label} {...s} />)}
       </div>
 
@@ -381,7 +381,7 @@ const SecurityPage = () => {
                 <div style={{ padding: 20, background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 'var(--radius)' }}>
                   <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--text)', marginBottom: 8 }}>Recovery Codes</div>
                   <div style={{ fontSize: 12, color: 'var(--text3)', marginBottom: 12 }}>Keep these somewhere safe — each code can be used once.</div>
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 300px), 1fr))', gap: 8 }}>
                     {['A1B2-C3D4', 'E5F6-G7H8', 'I9J0-K1L2', 'M3N4-O5P6', 'Q7R8-S9T0', 'U1V2-W3X4'].map(code => (
                       <div key={code} style={{
                         fontFamily: 'DM Mono,monospace', fontSize: 12, color: 'var(--text2)',

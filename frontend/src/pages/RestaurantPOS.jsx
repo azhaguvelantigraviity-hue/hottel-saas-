@@ -136,7 +136,7 @@ const RestaurantPOS = ({ role, hotelDetails }) => {
       {activeTab === 'pos' && (
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 340px', flex: 1, overflow: 'hidden' }}>
           {/* Menu */}
-          <div style={{ padding: '24px', overflowY: 'auto' }}>
+          <div style={{ padding: 'clamp(12px, 3vw, 24px)', overflowY: 'auto' }}>
             <div style={{ display: 'flex', gap: '8px', marginBottom: '20px', flexWrap: 'wrap' }}>
               {categories.map(c => (
                 <button key={c} onClick={() => setCatFilter(c)} style={{ padding: '6px 14px', borderRadius: '20px', border: '1px solid', fontSize: '12px', fontWeight: '600', cursor: 'pointer', fontFamily: 'Inter, sans-serif', background: catFilter === c ? 'var(--gold)' : 'transparent', borderColor: catFilter === c ? 'var(--gold)' : 'var(--border)', color: catFilter === c ? '#000' : 'var(--text2)' }}>{c}</button>
@@ -237,7 +237,7 @@ const RestaurantPOS = ({ role, hotelDetails }) => {
       )}
 
       {(activeTab === 'orders' || activeTab === 'history') && (
-        <div style={{ padding: '24px', overflowY: 'auto', flex: 1 }}>
+        <div style={{ padding: 'clamp(12px, 3vw, 24px)', overflowY: 'auto', flex: 1 }}>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(300px,1fr))', gap: '14px' }}>
              {orders.filter(o => activeTab === 'orders' ? ['pending', 'preparing'].includes(o.status) : ['delivered', 'cancelled'].includes(o.status)).map(order => {
               const orderKey = order.id || order.orderId || order._id;

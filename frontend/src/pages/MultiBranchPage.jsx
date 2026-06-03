@@ -38,7 +38,7 @@ const MultiBranchPage = () => {
 
   return (
     <div style={{ flex:1, overflowY:'auto', padding:24 }}>
-      <div style={{ display:'grid', gridTemplateColumns:'repeat(4,1fr)', gap:16, marginBottom:24 }}>
+      <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fit, minmax(min(100%, 240px), 1fr))', gap:16, marginBottom:24 }}>
         <StatCard title="Total Branches" value={BRANCHES.length} icon="branch" color="var(--gold)" />
         <StatCard title="Total Revenue" value={`₹${(totalRevenue/100000).toFixed(1)}L`} icon="dollar" color="var(--green)" />
         <StatCard title="Avg Occupancy" value={`${avgOccupancy}%`} icon="trending" color="var(--teal)" />
@@ -65,7 +65,7 @@ const MultiBranchPage = () => {
                       <span style={{ fontSize:10, fontWeight:700, color:'var(--green)', background:'rgba(52,211,153,0.12)', padding:'3px 8px', borderRadius:20, textTransform:'uppercase' }}>{branch.status}</span>
                     </div>
                   </div>
-                  <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:10, marginBottom:16 }}>
+                  <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fit, minmax(min(100%, 300px), 1fr))', gap:10, marginBottom:16 }}>
                     {[['Occupancy', `${branch.occupancy}%`, colors[i]], ['Revenue', `₹${(branch.revenue/1000).toFixed(0)}K`, 'var(--green)'], ['Staff', branch.staff, 'var(--teal)'], ['Plan', branch.plan, 'var(--gold)']].map(([l,v,c]) => (
                       <div key={l} style={{ background:'var(--card)', borderRadius:8, padding:'10px 12px' }}>
                         <div style={{ fontSize:14, fontWeight:700, color:c, fontFamily:'DM Mono,monospace', textTransform:'capitalize' }}>{v}</div>
@@ -96,7 +96,7 @@ const MultiBranchPage = () => {
                 ))}
               </div>
             </div>
-            <div style={{ display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:12 }}>
+            <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fit, minmax(min(100%, 280px), 1fr))', gap:12 }}>
               {[['Total Revenue', `₹${totalRevenue.toLocaleString()}`, 'var(--gold)'], ['Total Rooms', totalRooms, 'var(--teal)'], ['Avg Occupancy', `${avgOccupancy}%`, 'var(--green)']].map(([l,v,c]) => (
                 <div key={l} style={{ background:'var(--surface)', border:'1px solid var(--border)', borderRadius:'var(--radius)', padding:16, textAlign:'center' }}>
                   <div style={{ fontSize:22, fontWeight:700, color:c, fontFamily:'DM Mono,monospace', marginBottom:4 }}>{v}</div>

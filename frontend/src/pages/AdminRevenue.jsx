@@ -66,7 +66,7 @@ const AdminRevenue = () => {
   const maxPlanVal = Math.max(...PLAN_DATA.map(d => d.value));
 
   return (
-    <div style={{ padding: '32px', overflowY: 'auto', flex: 1 }}>
+    <div style={{ padding: 'clamp(16px, 4vw, 32px)', overflowY: 'auto', flex: 1 }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px', flexWrap: 'wrap', gap: '16px' }}>
         <div>
           <h2 style={{ fontSize: '20px', fontWeight: '700', color: 'var(--text)', marginBottom: '4px', fontFamily: 'Poppins, sans-serif' }}>Revenue Management</h2>
@@ -93,7 +93,7 @@ const AdminRevenue = () => {
       </div>
 
       {/* KPI Cards */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '16px', marginBottom: '24px' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 240px), 1fr))', gap: '16px', marginBottom: '24px' }}>
         <StatCard title="Total MRR" value="-" icon="dollar" color="var(--teal)" />
         <StatCard title="Subscription Revenue" value="-" icon="crown" color="var(--gold)" />
         <StatCard title="Commission Revenue" value="-" icon="chart" color="var(--violet)" />
@@ -103,7 +103,7 @@ const AdminRevenue = () => {
       {/* Charts Row */}
       <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '24px', marginBottom: '24px' }}>
         {/* Revenue Growth Chart */}
-        <div style={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: 'var(--radius-lg)', padding: '24px' }}>
+        <div style={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: 'var(--radius-lg)', padding: 'clamp(12px, 3vw, 24px)' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
             <div style={{ fontSize: '15px', fontWeight: '600', color: 'var(--text)', fontFamily: 'Poppins, sans-serif' }}>Revenue Growth Overview</div>
             <div style={{ display: 'flex', gap: '16px' }}>
@@ -121,7 +121,7 @@ const AdminRevenue = () => {
         </div>
 
         {/* Revenue by Plan */}
-        <div style={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: 'var(--radius-lg)', padding: '24px' }}>
+        <div style={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: 'var(--radius-lg)', padding: 'clamp(12px, 3vw, 24px)' }}>
           <div style={{ fontSize: '15px', fontWeight: '600', color: 'var(--text)', marginBottom: '24px', fontFamily: 'Poppins, sans-serif' }}>Revenue by Plan Type</div>
           {PLAN_DATA.map(p => (
             <HorizontalBar key={p.name} label={p.name} value={p.value} maxValue={maxPlanVal} color={p.color} />

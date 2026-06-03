@@ -107,10 +107,10 @@ const SettingsPage = ({ role, plan, onNav }) => {
   };
 
   return (
-    <div style={{ padding: '32px', overflowY: 'auto', flex: 1, position: 'relative' }}>
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
+    <div style={{ padding: 'clamp(16px, 4vw, 32px)', overflowY: 'auto', flex: 1, position: 'relative' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 300px), 1fr))', gap: '20px' }}>
         {role === 'hotel' && (
-          <div style={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: 'var(--radius)', padding: '24px', gridColumn: 'span 2' }}>
+          <div style={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: 'var(--radius)', padding: 'clamp(12px, 3vw, 24px)', gridColumn: 'span 2' }}>
             <div style={{ fontSize: '15px', fontWeight: '700', marginBottom: '16px' }}>Current Subscription</div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '20px', flexWrap: 'wrap' }}>
               <div style={{ padding: '16px 24px', background: `${getPlan(plan || 'starter').accent}12`, border: `1px solid ${getPlan(plan || 'starter').accent}30`, borderRadius: 'var(--radius)' }}>
@@ -139,7 +139,7 @@ const SettingsPage = ({ role, plan, onNav }) => {
         )}
         
         {/* ... Rest of the settings page layout */}
-        <div style={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: 'var(--radius)', padding: '24px' }}>
+        <div style={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: 'var(--radius)', padding: 'clamp(12px, 3vw, 24px)' }}>
           <div style={{ fontSize: '15px', fontWeight: '700', marginBottom: '16px' }}>Property Settings</div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
             {['Hotel Name', 'Address', 'City', 'Country', 'Phone', 'Email', 'Website'].map((f) => (
@@ -153,7 +153,7 @@ const SettingsPage = ({ role, plan, onNav }) => {
             </button>
           </div>
         </div>
-        <div style={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: 'var(--radius)', padding: '24px' }}>
+        <div style={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: 'var(--radius)', padding: 'clamp(12px, 3vw, 24px)' }}>
           <div style={{ fontSize: '15px', fontWeight: '700', marginBottom: '16px' }}>Account Security</div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
             <div>
@@ -182,7 +182,7 @@ const SettingsPage = ({ role, plan, onNav }) => {
 
       {showUpgradeModal && (
         <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.6)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
-          <div style={{ background: 'var(--card)', padding: '24px', borderRadius: '12px', width: '400px', border: '1px solid var(--border)' }}>
+          <div style={{ background: 'var(--card)', padding: 'clamp(12px, 3vw, 24px)', borderRadius: '12px', width: '400px', border: '1px solid var(--border)' }}>
             <h2 style={{ margin: '0 0 16px', fontSize: '18px', color: 'var(--text)' }}>Upgrade Subscription</h2>
             <p style={{ fontSize: '13px', color: 'var(--text3)', marginBottom: '24px' }}>Select a plan to upgrade to. Payment will be processed securely via Razorpay.</p>
             

@@ -89,7 +89,7 @@ const NotificationsPage = ({ plan }) => {
 
   return (
     <div style={{ flex:1, overflowY:'auto', padding:24 }}>
-      <div style={{ display:'grid', gridTemplateColumns:'repeat(4,1fr)', gap:16, marginBottom:24 }}>
+      <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fit, minmax(min(100%, 240px), 1fr))', gap:16, marginBottom:24 }}>
         <StatCard title="Total" value={notifs.length} icon="notification" color="var(--teal)" />
         <StatCard title="Unread" value={unread} icon="bell" color="var(--amber)" />
         <StatCard title="Today" value={notifs.filter(n=>n.time.includes('min')||n.time.includes('hr')).length} icon="calendar" color="var(--gold)" />

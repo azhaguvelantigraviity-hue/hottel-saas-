@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import Icon from './Icon';
 
-const Sidebar = ({ role, active, onNav, onLogout, plan }) => {
+const Sidebar = ({ role, active, onNav, onLogout, plan, isOpen, setIsOpen }) => {
 
   const adminNav = [
     { id: 'dashboard', icon: 'dashboard', label: 'Dashboard' },
@@ -55,7 +55,7 @@ const Sidebar = ({ role, active, onNav, onLogout, plan }) => {
     const isActive = active === item.id;
     return (
       <button
-        onClick={() => !locked && onNav(item.id)}
+        onClick={() => { if(!locked) { onNav(item.id); if(setIsOpen) setIsOpen(false); } }}
         title={locked ? `Requires ${item.plans?.[0]} plan` : item.label}
         style={{
           display: 'flex', alignItems: 'center', gap: '10px',
@@ -84,13 +84,26 @@ const Sidebar = ({ role, active, onNav, onLogout, plan }) => {
   };
 
   return (
-    <aside style={{
-      width: '220px', flexShrink: 0,
-      background: 'var(--sidebar-bg)',
-      display: 'flex', flexDirection: 'column',
-      height: '100vh', position: 'sticky', top: 0,
-      borderRight: '1px solid var(--sidebar-border)',
-    }}>
+    <>
+      {isOpen && (
+        <div 
+          className="mobile-block"
+          style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 9998, display: 'none' }}
+          onClick={() => setIsOpen && setIsOpen(false)}
+        />
+      )}
+      <aside 
+        className={isOpen ? 'sidebar-open' : 'sidebar-closed'}
+        style={{
+          width: '220px', flexShrink: 0,
+          background: 'var(--sidebar-bg)',
+          display: 'flex', flexDirection: 'column',
+          height: '100vh', position: 'sticky', top: 0,
+          borderRight: '1px solid var(--sidebar-border)',
+          zIndex: 9999,
+          transition: 'transform 0.3s ease',
+        }}
+      >
       {/* Logo */}
       <div style={{
         padding: '20px 20px 16px',
@@ -207,6 +220,7 @@ const Sidebar = ({ role, active, onNav, onLogout, plan }) => {
         </button>
       </div>
     </aside>
+    </>
   );
 };
 

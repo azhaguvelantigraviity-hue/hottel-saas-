@@ -168,7 +168,7 @@ const Landing = ({ onLogin, theme, setTheme }) => {
         </div>
         <div style={{
           display: 'grid',
-          gridTemplateColumns: 'repeat(3, 1fr)',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 280px), 1fr))',
           gap: '14px',
         }}>
           {[
@@ -224,7 +224,7 @@ const Landing = ({ onLogin, theme, setTheme }) => {
           </h2>
           <p style={{ color: 'var(--text2)', fontSize: '16px' }}>Scale your subscription as your hotel grows</p>
         </div>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: '20px' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 280px), 1fr))', gap: '20px' }}>
           {Object.values(PLANS).map((plan) => {
             const isHov = hoveredPlan === plan.id;
             return (
@@ -236,7 +236,7 @@ const Landing = ({ onLogin, theme, setTheme }) => {
                   background: isHov ? `linear-gradient(160deg, ${plan.accent}12, var(--card))` : 'var(--card)',
                   border: `1px solid ${isHov ? plan.accent : 'var(--border)'}`,
                   borderRadius: 'var(--radius-lg)',
-                  padding: '32px',
+                  padding: 'clamp(16px, 4vw, 32px)',
                   transition: 'all 0.3s',
                   transform: isHov ? 'translateY(-4px)' : 'none',
                   cursor: 'pointer',

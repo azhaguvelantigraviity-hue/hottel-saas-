@@ -329,7 +329,7 @@ const StepComplete = ({ booking }) => {
         <div style={{ fontSize: 14, color: 'var(--text2)' }}>Welcome to StayOS. Enjoy your stay.</div>
       </div>
       <div style={{ background: 'var(--surface)', borderRadius: 12, padding: '20px 32px', border: '1px solid var(--border)', width: '100%', maxWidth: 400 }}>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 300px), 1fr))', gap: '12px' }}>
           {[
             ['Booking ID', booking?.bookingId],
             ['Guest', booking?.guest ? `${booking.guest.firstName || ''} ${booking.guest.lastName || ''}`.trim() : '—'],
@@ -423,7 +423,7 @@ const SmartCheckInPage = () => {
   return (
     <div style={{ flex: 1, overflowY: 'auto', padding: 24 }}>
       {/* Stats */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 16, marginBottom: 24 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 240px), 1fr))', gap: 16, marginBottom: 24 }}>
         <StatCard title="Today's Check-ins" value={stats.today} icon="check" color="var(--green)" />
         <StatCard title="Pending" value={stats.pending} icon="calendar" color="var(--amber)" />
         <StatCard title="QR Used" value={stats.qrUsed} icon="qr" color="var(--teal)" />

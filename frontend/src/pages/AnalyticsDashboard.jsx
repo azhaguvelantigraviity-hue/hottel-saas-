@@ -88,7 +88,7 @@ const AnalyticsDashboard = () => {
 
   return (
     <div style={{ flex:1, overflowY:'auto', padding:24 }}>
-      <div style={{ display:'grid', gridTemplateColumns:'repeat(4,1fr)', gap:16, marginBottom:24 }}>
+      <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fit, minmax(min(100%, 240px), 1fr))', gap:16, marginBottom:24 }}>
         <StatCard title="RevPAR" value="-" icon="dollar" color="var(--gold)" />
         <StatCard title="ADR" value="-" icon="trending" color="var(--teal)" />
         <StatCard title="GOPPAR" value="-" icon="chart" color="var(--violet)" />
@@ -99,7 +99,7 @@ const AnalyticsDashboard = () => {
       </div>
 
       {tab === 0 && (
-        <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:16 }}>
+        <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fit, minmax(min(100%, 300px), 1fr))', gap:16 }}>
           <div style={{ background:'var(--card)', border:'1px solid var(--border)', borderRadius:'var(--radius-lg)', padding:20 }}>
             <div style={{ fontSize:14, fontWeight:700, color:'var(--text)', marginBottom:4 }}>Monthly Revenue vs Expenses</div>
             <div style={{ display:'flex', gap:16, marginBottom:16 }}>

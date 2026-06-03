@@ -41,7 +41,7 @@ const IoTPage = () => {
 
   return (
     <div style={{ flex:1, overflowY:'auto', padding:24 }}>
-      <div style={{ display:'grid', gridTemplateColumns:'repeat(4,1fr)', gap:16, marginBottom:24 }}>
+      <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fit, minmax(min(100%, 240px), 1fr))', gap:16, marginBottom:24 }}>
         <StatCard title="Connected Rooms" value={rooms.length} icon="iot" color="var(--teal)" />
         <StatCard title="Locked" value={rooms.filter(r=>r.locked).length} icon="lock" color="var(--green)" />
         <StatCard title="DND Active" value={rooms.filter(r=>r.dnd).length} icon="bell" color="var(--amber)" />

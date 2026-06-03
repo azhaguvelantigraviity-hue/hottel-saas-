@@ -78,13 +78,13 @@ const fromFlat = (f) => ({
 const Modal = ({ title, onClose, children }) => (
   <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.7)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
     <div style={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: 'var(--radius-lg)', width: '100%', maxWidth: '640px', maxHeight: '90vh', overflow: 'auto' }}>
-      <div style={{ padding: '24px', borderBottom: '1px solid var(--border)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+      <div style={{ padding: 'clamp(12px, 3vw, 24px)', borderBottom: '1px solid var(--border)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <h2 style={{ fontFamily: 'Playfair Display,serif', fontSize: '20px' }}>{title}</h2>
         <button onClick={onClose} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text3)', padding: '4px' }}>
           <Icon name="x" size={20} color="var(--text3)" />
         </button>
       </div>
-      <div style={{ padding: '24px' }}>{children}</div>
+      <div style={{ padding: 'clamp(12px, 3vw, 24px)' }}>{children}</div>
     </div>
   </div>
 );
@@ -114,7 +114,7 @@ const NewBookingForm = ({ onClose, onSave }) => {
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 300px), 1fr))', gap: '12px' }}>
         <div>
           <label style={labelStyle}>GUEST NAME *</label>
           <input style={inputStyle} value={form.guest} onChange={e => set('guest', e.target.value)} placeholder="Full name" />
@@ -189,7 +189,7 @@ const NewBookingForm = ({ onClose, onSave }) => {
           </label>
         </div>
         {form.hasPet && (
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 300px), 1fr))', gap: '12px' }}>
             <div>
               <label style={labelStyle}>PET SIZE</label>
               <select style={inputStyle} value={form.petSize} onChange={e => set('petSize', e.target.value)}>
@@ -258,7 +258,7 @@ const NewBookingForm = ({ onClose, onSave }) => {
 
 const BookingDetail = ({ booking, onClose, onAction }) => (
   <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 300px), 1fr))', gap: '12px' }}>
       {[
         ['Booking ID', booking.id], ['Guest', booking.guest], ['Phone', booking.phone || '—'],
         ['Email', booking.email || '—'], ['Room', booking.room], ['Source', booking.source],
@@ -455,7 +455,7 @@ const BookingsPage = () => {
   ];
 
   return (
-    <div style={{ padding: '32px', overflowY: 'auto', flex: 1 }}>
+    <div style={{ padding: 'clamp(16px, 4vw, 32px)', overflowY: 'auto', flex: 1 }}>
       {showNew && <Modal title="New Booking" onClose={() => setShowNew(false)}><NewBookingForm onClose={() => setShowNew(false)} onSave={handleSave} /></Modal>}
       {selected && <Modal title={`Booking ${selected.id}`} onClose={() => setSelected(null)}><BookingDetail booking={selected} onClose={() => setSelected(null)} onAction={handleAction} /></Modal>}
 

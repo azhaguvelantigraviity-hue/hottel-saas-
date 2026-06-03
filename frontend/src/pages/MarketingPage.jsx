@@ -60,7 +60,7 @@ const MarketingPage = () => {
           </div>
         </div>
       )}
-      <div style={{ display:'grid', gridTemplateColumns:'repeat(4,1fr)', gap:16, marginBottom:24 }}>
+      <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fit, minmax(min(100%, 240px), 1fr))', gap:16, marginBottom:24 }}>
         <StatCard title="Active Coupons" value={COUPONS.filter(c=>c.status==='active').length} icon="marketing" color="var(--gold)" />
         <StatCard title="Campaigns" value={CAMPAIGNS.length} icon="trending" color="var(--teal)" />
         <StatCard title="Avg Rating" value="4.7" icon="star" color="var(--amber)" />
@@ -106,7 +106,7 @@ const MarketingPage = () => {
                   </div>
                   <span style={{ fontSize:11, fontWeight:600, color:c.status==='active'?'var(--green)':'var(--amber)', textTransform:'uppercase', padding:'4px 10px', background:c.status==='active'?'rgba(52,211,153,0.12)':'rgba(252,211,77,0.12)', borderRadius:20 }}>{c.status}</span>
                 </div>
-                <div style={{ display:'grid', gridTemplateColumns:'repeat(4,1fr)', gap:12 }}>
+                <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fit, minmax(min(100%, 240px), 1fr))', gap:12 }}>
                   {[['Reach', c.reach.toLocaleString()], ['Conversions', c.conversions], ['Revenue', c.revenue > 0 ? `₹${c.revenue.toLocaleString()}` : '-'], ['ROI', c.roi]].map(([l,v]) => (
                     <div key={l} style={{ textAlign:'center', background:'var(--card)', borderRadius:8, padding:'10px 4px' }}>
                       <div style={{ fontSize:16, fontWeight:700, color:'var(--text)', fontFamily:'DM Mono,monospace' }}>{v}</div>

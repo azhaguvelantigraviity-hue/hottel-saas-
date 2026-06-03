@@ -22,7 +22,7 @@ const LoyaltyPage = () => {
 
   return (
     <div style={{ flex: 1, overflowY: 'auto', padding: 24 }}>
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 16, marginBottom: 24 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 240px), 1fr))', gap: 16, marginBottom: 24 }}>
         <StatCard title="Total Members" value={MEMBERS.length} icon="loyalty" color="var(--gold)" />
         <StatCard title="Platinum Members" value={MEMBERS.filter(m=>m.tier==='Platinum').length} icon="crown" color="var(--violet)" />
         <StatCard title="Points Issued" value="-" icon="star" color="var(--teal)" />
@@ -46,7 +46,7 @@ const LoyaltyPage = () => {
                     <div style={{ fontSize: 12, color: tierColor[m.tier], fontWeight: 600 }}>{m.tier}</div>
                   </div>
                 </div>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 8, marginBottom: 16 }}>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 280px), 1fr))', gap: 8, marginBottom: 16 }}>
                   {[['Points', m.points.toLocaleString()], ['Stays', m.stays], ['Referrals', m.referrals]].map(([l, v]) => (
                     <div key={l} style={{ textAlign: 'center', background: 'var(--card)', borderRadius: 8, padding: '8px 4px' }}>
                       <div style={{ fontSize: 16, fontWeight: 700, color: 'var(--text)', fontFamily: 'DM Mono, monospace' }}>{v}</div>

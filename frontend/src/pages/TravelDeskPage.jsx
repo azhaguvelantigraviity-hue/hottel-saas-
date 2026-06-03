@@ -152,7 +152,7 @@ const TravelDeskPage = () => {
 
   return (
     <div style={{ flex: 1, overflowY: 'auto', padding: 24 }}>
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 16, marginBottom: 24 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 240px), 1fr))', gap: 16, marginBottom: 24 }}>
         <StatCard title="Today's Cabs" value={stats.todayCabs} icon="taxi" color="var(--gold)" />
         <StatCard title="Airport Transfers" value={stats.airportTransfers} icon="map" color="var(--teal)" />
         <StatCard title="Packages Booked" value={stats.packagesBooked} icon="star" color="var(--violet)" />
@@ -169,7 +169,7 @@ const TravelDeskPage = () => {
           <div style={{ display: 'flex', gap: 24, flexWrap: 'wrap' }}>
             <div style={{ flex: 1, minWidth: 300 }}>
               <div style={{ fontSize: 15, fontWeight: 700, color: 'var(--text)', marginBottom: 16 }}>Book a Cab</div>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 12 }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 300px), 1fr))', gap: 12, marginBottom: 12 }}>
                 {[['Guest Name','guest'],['Room','room']].map(([l,f]) => (
                   <div key={f}><label style={{ fontSize: 11, color: 'var(--text3)', display: 'block', marginBottom: 5, textTransform: 'uppercase', letterSpacing: '0.06em' }}>{l}</label><input value={form[f]} onChange={e=>setForm(p=>({...p,[f]:e.target.value}))} style={inputStyle} /></div>
                 ))}
@@ -177,7 +177,7 @@ const TravelDeskPage = () => {
               {[['Pickup Location','pickup'],['Destination','destination']].map(([l,f]) => (
                 <div key={f} style={{ marginBottom: 12 }}><label style={{ fontSize: 11, color: 'var(--text3)', display: 'block', marginBottom: 5, textTransform: 'uppercase', letterSpacing: '0.06em' }}>{l}</label><input value={form[f]} onChange={e=>setForm(p=>({...p,[f]:e.target.value}))} style={inputStyle} /></div>
               ))}
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 12 }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 300px), 1fr))', gap: 12, marginBottom: 12 }}>
                 <div><label style={{ fontSize: 11, color: 'var(--text3)', display: 'block', marginBottom: 5, textTransform: 'uppercase', letterSpacing: '0.06em' }}>Date</label><input type="date" value={form.date} onChange={e=>setForm(p=>({...p,date:e.target.value}))} style={inputStyle} /></div>
                 <div><label style={{ fontSize: 11, color: 'var(--text3)', display: 'block', marginBottom: 5, textTransform: 'uppercase', letterSpacing: '0.06em' }}>Time</label><input type="time" value={form.time} onChange={e=>setForm(p=>({...p,time:e.target.value}))} style={inputStyle} /></div>
               </div>
@@ -195,7 +195,7 @@ const TravelDeskPage = () => {
                 <thead><tr>{['ID','Guest','Route','Date','Vehicle','Status','Fare'].map(h=><th key={h} style={thStyle}>{h}</th>)}</tr></thead>
                 <tbody>
                   {cabBookings.filter(b => b.type !== 'package').length === 0 ? (
-                    <tr><td colSpan={7} style={{ padding: '32px', textAlign: 'center', color: 'var(--text3)', fontSize: 14 }}>No cab bookings yet</td></tr>
+                    <tr><td colSpan={7} style={{ padding: 'clamp(16px, 4vw, 32px)', textAlign: 'center', color: 'var(--text3)', fontSize: 14 }}>No cab bookings yet</td></tr>
                   ) : cabBookings.filter(b => b.type !== 'package').map(b => (
                     <tr key={b._id} onMouseEnter={e=>e.currentTarget.style.background='var(--surface)'} onMouseLeave={e=>e.currentTarget.style.background='transparent'}>
                       <td style={{ ...tdStyle, fontFamily:'DM Mono,monospace', color:'var(--gold)' }}>{b.bookingId}</td>
@@ -222,7 +222,7 @@ const TravelDeskPage = () => {
             {[['Guest Name','guest'],['Room Number','room'],['Flight Number','flight']].map(([l,f]) => (
               <div key={f} style={{ marginBottom: 12 }}><label style={{ fontSize:11, color:'var(--text3)', display:'block', marginBottom:5, textTransform:'uppercase', letterSpacing:'0.06em' }}>{l}</label><input value={airForm[f]} onChange={e=>setAirForm(p=>({...p,[f]:e.target.value}))} style={inputStyle} placeholder={f==='flight'?'e.g. AI-202':''} /></div>
             ))}
-            <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:12, marginBottom:16 }}>
+            <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fit, minmax(min(100%, 300px), 1fr))', gap:12, marginBottom:16 }}>
               <div><label style={{ fontSize:11, color:'var(--text3)', display:'block', marginBottom:5, textTransform:'uppercase', letterSpacing:'0.06em' }}>Date</label><input type="date" value={airForm.date} onChange={e=>setAirForm(p=>({...p,date:e.target.value}))} style={inputStyle} /></div>
               <div><label style={{ fontSize:11, color:'var(--text3)', display:'block', marginBottom:5, textTransform:'uppercase', letterSpacing:'0.06em' }}>Time</label><input type="time" value={airForm.time} onChange={e=>setAirForm(p=>({...p,time:e.target.value}))} style={inputStyle} /></div>
             </div>

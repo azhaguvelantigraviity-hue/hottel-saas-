@@ -53,7 +53,7 @@ const RoomFormModal = ({ title, room, onClose, onSave }) => {
           <h2 style={{ fontFamily: 'Poppins,sans-serif', fontSize: '18px', margin: 0 }}>{title}</h2>
           <button onClick={onClose} style={{ background: 'none', border: 'none', cursor: 'pointer' }}><Icon name="x" size={20} color="var(--text3)" /></button>
         </div>
-        <div style={{ padding: '24px', display: 'flex', flexDirection: 'column', gap: '14px' }}>
+        <div style={{ padding: 'clamp(12px, 3vw, 24px)', display: 'flex', flexDirection: 'column', gap: '14px' }}>
           {error && <div style={{ padding: '8px 12px', background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.2)', borderRadius: '6px', color: 'var(--rose)', fontSize: '12px', fontWeight: '500' }}>{error}</div>}
           <div>
             <label style={lbl}>ROOM NUMBER *</label>
@@ -217,7 +217,7 @@ const RoomsPage = ({ onNav, role, hotelDetails }) => {
   const hkColor = { clean: 'var(--green)', dirty: 'var(--rose)', inspect: 'var(--amber)' };
 
   return (
-    <div style={{ padding: '32px', overflowY: 'auto', flex: 1 }}>
+    <div style={{ padding: 'clamp(16px, 4vw, 32px)', overflowY: 'auto', flex: 1 }}>
       {toast && <Toast key={toast.key} message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
       {showAddRoom && <RoomFormModal title="Add Room" onClose={() => setShowAddRoom(false)} onSave={handleAddRoom} />}
       {editRoom && <RoomFormModal title="Edit Room" room={editRoom} onClose={() => setEditRoom(null)} onSave={handleEditRoom} />}
