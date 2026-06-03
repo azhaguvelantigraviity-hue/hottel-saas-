@@ -96,7 +96,10 @@ const AddEmployeeModal = ({ onClose, onAdd }) => {
             </select>
           </div>
           
-          {((form.role || '').toLowerCase() === 'receptionist' || (form.dept || '').toLowerCase() === 'receptionist') && (
+          {(() => {
+            const rStr = (form.role || '').toLowerCase();
+            const isRecep = form.dept === 'Front Office' || rStr.includes('reception') || rStr.includes('front desk');
+            return isRecep && (
             <div style={{ gridColumn: 'span 2', marginTop: '8px', borderTop: '1px solid var(--border)', paddingTop: '12px' }}>
               <span style={{ fontSize: '12px', fontWeight: '700', color: 'var(--text2)', display: 'block', marginBottom: '8px' }}>Create Receptionist Login (Optional)</span>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
@@ -115,12 +118,14 @@ const AddEmployeeModal = ({ onClose, onAdd }) => {
                 </div>
               </div>
             </div>
-          )}
+            );
+          })()}
 
           <div style={{ gridColumn: 'span 2', display: 'flex', gap: '10px', justifyContent: 'flex-end', marginTop: '4px' }}>
             <button onClick={onClose} style={{ padding: '10px 20px', background: 'transparent', border: '1px solid var(--border)', borderRadius: '8px', color: 'var(--text2)', cursor: 'pointer', fontFamily: 'Inter, sans-serif', fontSize: '13px' }}>Cancel</button>
             <button onClick={() => { if (form.name && form.role) { 
-              const isReceptionist = (form.role || '').toLowerCase() === 'receptionist' || (form.dept || '').toLowerCase() === 'receptionist';
+              const rStr = (form.role || '').toLowerCase();
+              const isReceptionist = form.dept === 'Front Office' || rStr.includes('reception') || rStr.includes('front desk');
               onAdd({ 
                 ...form, 
                 loginEmail: isReceptionist ? form.loginEmail : '',
