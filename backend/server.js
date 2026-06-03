@@ -35,7 +35,7 @@ const app = express();
 
 // Trust proxy is required when hosting on platforms like Render, Vercel, Heroku, etc.
 // It ensures that express-rate-limit uses the actual client IP instead of the load balancer's IP.
-app.set('trust proxy', 1);
+app.set('trust proxy', true);
 
 const http = require('http');
 const socketIO = require('socket.io');
@@ -91,8 +91,8 @@ app.use(
 
 // ── Rate limiting ─────────────────────────────────────────────────────────────
 const limiter = rateLimit({
-  windowMs: Number(process.env.RATE_LIMIT_WINDOW_MS) || 15 * 60 * 1000,
-  max:      Number(process.env.RATE_LIMIT_MAX)        || 1000,
+  windowMs: 15 * 60 * 1000,
+  max: 10000, // Hardcoded to 10000 to prevent dashboard 429 errors
   message:  { success: false, message: 'Too many requests. Please try again later.' },
   standardHeaders: true,
   legacyHeaders:   false,
