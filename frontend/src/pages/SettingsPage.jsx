@@ -15,6 +15,7 @@ const SettingsPage = ({ role, plan, onNav }) => {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [msg, setMsg] = useState(null); // { type: 'success'|'error', text }
+  const [showUpgradeModal, setShowUpgradeModal] = useState(false);
 
   const handleSavePassword = async () => {
     setMsg(null);
@@ -41,8 +42,72 @@ const SettingsPage = ({ role, plan, onNav }) => {
     }
   };
 
+  const loadRazorpay = () => {
+    return new Promise((resolve) => {
+      const script = document.createElement('script');
+      script.src = 'https://checkout.razorpay.com/v1/checkout.js';
+      script.onload = () => resolve(true);
+      script.onerror = () => resolve(false);
+      document.body.appendChild(script);
+    });
+  };
+
+  const initiateCheckout = async (selectedPlan) => {
+    setLoading(true);
+    const res = await loadRazorpay();
+    if (!res) {
+      alert('Razorpay SDK failed to load. Are you online?');
+      setLoading(false);
+      return;
+    }
+
+    try {
+      const api = await import('../services/api').then(m => m.default || m);
+      const orderRes = await api.post('/hotel/subscription/create-order', { plan: selectedPlan });
+      const orderData = orderRes.data?.data || orderRes.data;
+
+      const options = {
+        key: import.meta.env.VITE_RAZORPAY_KEY_ID || 'rzp_test_dummy_key',
+        amount: orderData.amount,
+        currency: orderData.currency,
+        name: 'StayOS',
+        description: `Upgrade to ${selectedPlan} plan`,
+        order_id: orderData.id,
+        handler: async function (response) {
+          try {
+            await api.post('/hotel/subscription/verify', {
+              razorpay_order_id: response.razorpay_order_id,
+              razorpay_payment_id: response.razorpay_payment_id,
+              razorpay_signature: response.razorpay_signature,
+              plan: selectedPlan
+            });
+            alert('Payment successful! Your plan has been upgraded.');
+            setShowUpgradeModal(false);
+            window.location.reload();
+          } catch (err) {
+            console.error(err);
+            alert('Payment verification failed');
+          }
+        },
+        prefill: {
+          name: 'Hotel Administrator',
+          email: 'admin@hotel.com',
+        },
+        theme: { color: '#C9A84C' }
+      };
+
+      const paymentObject = new window.Razorpay(options);
+      paymentObject.open();
+    } catch (err) {
+      console.error(err);
+      alert('Failed to initiate checkout. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
-    <div style={{ padding: '32px', overflowY: 'auto', flex: 1 }}>
+    <div style={{ padding: '32px', overflowY: 'auto', flex: 1, position: 'relative' }}>
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
         {role === 'hotel' && (
           <div style={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: 'var(--radius)', padding: '24px', gridColumn: 'span 2' }}>
@@ -60,16 +125,20 @@ const SettingsPage = ({ role, plan, onNav }) => {
               </div>
               <div style={{ padding: '16px 24px', background: 'var(--surface)', borderRadius: 'var(--radius)' }}>
                 <div style={{ fontSize: '12px', color: 'var(--text3)', marginBottom: '4px' }}>NEXT RENEWAL</div>
-                <div style={{ fontSize: '16px', fontWeight: '600' }}>-</div>
+                <div style={{ fontSize: '16px', fontWeight: '600' }}>30 Days</div>
               </div>
               {plan !== 'enterprise' && (
-                <button style={{ padding: '14px 24px', background: 'linear-gradient(135deg,#C9A84C,#8A6F2E)', border: 'none', borderRadius: '8px', color: '#fff', cursor: 'pointer', fontWeight: '600', fontSize: '14px', fontFamily: 'Inter, sans-serif' }}>
+                <button 
+                  onClick={() => setShowUpgradeModal(true)}
+                  style={{ padding: '14px 24px', background: 'linear-gradient(135deg,#C9A84C,#8A6F2E)', border: 'none', borderRadius: '8px', color: '#fff', cursor: 'pointer', fontWeight: '600', fontSize: '14px', fontFamily: 'Inter, sans-serif' }}>
                   Upgrade Plan ↗
                 </button>
               )}
             </div>
           </div>
         )}
+        
+        {/* ... Rest of the settings page layout */}
         <div style={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: 'var(--radius)', padding: '24px' }}>
           <div style={{ fontSize: '15px', fontWeight: '700', marginBottom: '16px' }}>Property Settings</div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
@@ -110,6 +179,41 @@ const SettingsPage = ({ role, plan, onNav }) => {
           </div>
         </div>
       </div>
+
+      {showUpgradeModal && (
+        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.6)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
+          <div style={{ background: 'var(--card)', padding: '24px', borderRadius: '12px', width: '400px', border: '1px solid var(--border)' }}>
+            <h2 style={{ margin: '0 0 16px', fontSize: '18px', color: 'var(--text)' }}>Upgrade Subscription</h2>
+            <p style={{ fontSize: '13px', color: 'var(--text3)', marginBottom: '24px' }}>Select a plan to upgrade to. Payment will be processed securely via Razorpay.</p>
+            
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+              {(plan === 'starter' ? ['professional', 'enterprise'] : ['enterprise']).map(p => (
+                <div key={p} style={{ border: '1px solid var(--border)', borderRadius: '8px', padding: '16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'var(--surface)' }}>
+                  <div>
+                    <div style={{ fontSize: '15px', fontWeight: '600', textTransform: 'capitalize', color: getPlan(p).accent }}>{p}</div>
+                    <div style={{ fontSize: '12px', color: 'var(--text3)' }}>₹{getPlan(p).price} / month</div>
+                  </div>
+                  <button 
+                    onClick={() => initiateCheckout(p)}
+                    disabled={loading}
+                    style={{ padding: '8px 16px', background: 'var(--card)', border: `1px solid ${getPlan(p).accent}`, color: getPlan(p).accent, borderRadius: '6px', cursor: loading ? 'not-allowed' : 'pointer', fontWeight: '600', fontSize: '13px' }}>
+                    {loading ? 'Processing...' : 'Select'}
+                  </button>
+                </div>
+              ))}
+            </div>
+
+            <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '24px' }}>
+              <button 
+                onClick={() => setShowUpgradeModal(false)}
+                disabled={loading}
+                style={{ padding: '8px 16px', background: 'transparent', border: 'none', color: 'var(--text2)', cursor: 'pointer', fontSize: '13px', fontWeight: '500' }}>
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

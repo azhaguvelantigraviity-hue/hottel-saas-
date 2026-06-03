@@ -6,6 +6,10 @@ const Booking = require('../models/Booking');
 const Guest   = require('../models/Guest');
 const CabBooking = require('../models/CabBooking');
 const TravelPackage = require('../models/TravelPackage');
+const Hotel = require('../models/Hotel');
+const SubscriptionPayment = require('../models/SubscriptionPayment');
+const Razorpay = require('razorpay');
+const crypto = require('crypto');
 const { AppError, sendSuccess } = require('../utils/helpers');
 const catchAsync = require('../utils/helpers').catchAsync || ((fn) => (req, res, next) => {
   Promise.resolve(fn(req, res, next)).catch(next);
@@ -454,6 +458,93 @@ const updateRoomMaintenance = catchAsync(async (req, res) => {
   sendSuccess(res, room);
 });
 
+// ── Subscriptions / Razorpay ───────────────────────────────────
+const createSubscriptionOrder = catchAsync(async (req, res) => {
+  const { plan } = req.body;
+  const hotelId = req.hotelId;
+  
+  if (!hotelId) throw new AppError('Hotel not found', 404);
+  
+  let amount = 0;
+  if (plan === 'starter') amount = 49;
+  else if (plan === 'professional') amount = 12999;
+  else if (plan === 'enterprise') amount = 24999;
+  else throw new AppError('Invalid plan selected', 400);
+
+  const razorpay = new Razorpay({
+    key_id: process.env.RAZORPAY_KEY_ID || 'dummy_key',
+    key_secret: process.env.RAZORPAY_KEY_SECRET || 'dummy_secret',
+  });
+
+  const options = {
+    amount: amount * 100, // amount in smallest currency unit (paise)
+    currency: 'INR',
+    receipt: `receipt_sub_${hotelId}_${Date.now()}`
+  };
+
+  const order = await razorpay.orders.create(options);
+
+  if (!order) {
+    throw new AppError('Some error occurred while creating Razorpay order', 500);
+  }
+
+  // Save pending payment to DB
+  await SubscriptionPayment.create({
+    hotelId,
+    plan,
+    amount,
+    currency: 'INR',
+    razorpayOrderId: order.id,
+    status: 'pending'
+  });
+
+  res.status(200).json({ success: true, data: order });
+});
+
+const verifySubscriptionPayment = catchAsync(async (req, res) => {
+  const { razorpay_order_id, razorpay_payment_id, razorpay_signature, plan } = req.body;
+  const hotelId = req.hotelId;
+
+  const key_secret = process.env.RAZORPAY_KEY_SECRET || 'dummy_secret';
+
+  // Verify signature
+  const hmac = crypto.createHmac('sha256', key_secret);
+  hmac.update(razorpay_order_id + "|" + razorpay_payment_id);
+  const generated_signature = hmac.digest('hex');
+
+  if (generated_signature !== razorpay_signature) {
+    // Payment failed verification
+    await SubscriptionPayment.findOneAndUpdate(
+      { razorpayOrderId: razorpay_order_id },
+      { status: 'failed', razorpayPaymentId: razorpay_payment_id, razorpaySignature: razorpay_signature }
+    );
+    throw new AppError('Payment verification failed', 400);
+  }
+
+  // Payment successful
+  await SubscriptionPayment.findOneAndUpdate(
+    { razorpayOrderId: razorpay_order_id },
+    { status: 'success', razorpayPaymentId: razorpay_payment_id, razorpaySignature: razorpay_signature }
+  );
+
+  // Update Hotel
+  const nextPaymentDate = new Date();
+  nextPaymentDate.setDate(nextPaymentDate.getDate() + 30); // 30 days from now
+
+  const updatedHotel = await Hotel.findByIdAndUpdate(
+    hotelId,
+    {
+      plan,
+      planStatus: 'active',
+      subscriptionStart: new Date(),
+      nextPaymentAt: nextPaymentDate
+    },
+    { new: true }
+  );
+
+  res.status(200).json({ success: true, data: updatedHotel });
+});
+
 module.exports = {
   getRooms, getRoom, createRoom, updateRoom, deleteRoom,
   updateRoomHousekeeping, checkAvailability,
@@ -466,5 +557,6 @@ module.exports = {
   getGuests, getGuest, createGuest, updateGuest, deleteGuest,
   getEmployees, getEmployee, createEmployee, updateEmployee, deleteEmployee,
   markAttendance, applyLeave,
-  getTodayCheckins, getTodayCheckouts, getPendingPayments, getMaintenanceRooms, updateRoomMaintenance
+  getTodayCheckins, getTodayCheckouts, getPendingPayments, getMaintenanceRooms, updateRoomMaintenance,
+  createSubscriptionOrder, verifySubscriptionPayment
 };

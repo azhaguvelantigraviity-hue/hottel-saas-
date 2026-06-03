@@ -13,6 +13,7 @@ const {
   getEmployees, getEmployee, createEmployee, updateEmployee, deleteEmployee,
   markAttendance, applyLeave,
   getTodayCheckins, getTodayCheckouts, getPendingPayments, getMaintenanceRooms, updateRoomMaintenance,
+  createSubscriptionOrder, verifySubscriptionPayment
 } = require('../controllers/hotelController');
 const { protect, authorize, scopeToHotel, hotelAdmin } = require('../middleware/auth');
 const { requireFeature, enforceLimit } = require('../middleware/planGate');
@@ -81,5 +82,9 @@ router.post  ('/employees', hotelAdmin, enforceLimit('staffAccounts', Employee),
 router.get   ('/employees/:id',                           getEmployee);
 router.put   ('/employees/:id',          hotelAdmin,      updateEmployee);
 router.delete('/employees/:id',          hotelAdmin,      deleteEmployee);
+
+// ── Subscriptions / Razorpay ──────────────────────────────────────────────────
+router.post('/subscription/create-order', createSubscriptionOrder);
+router.post('/subscription/verify', verifySubscriptionPayment);
 
 module.exports = router;

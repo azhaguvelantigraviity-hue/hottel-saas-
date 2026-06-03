@@ -169,7 +169,7 @@ const HotelApp = ({ onLogout, initialPlan = 'enterprise', role = 'manager', hote
       case 'inventory': return <InventoryPage />;
       case 'iot': return <IoTPage />;
       case 'security': return <SecurityPage />;
-      case 'notifications': return <NotificationsPage />;
+      case 'notifications': return <NotificationsPage plan={plan} />;
       case 'reports': return <ReportsPage />;
       case 'settings': return <SettingsPage role="hotel" plan={plan} onNav={setPage} />;
       default: return <ComingSoon title={titles[page] || page} icon="hotel" color="var(--gold)" />;

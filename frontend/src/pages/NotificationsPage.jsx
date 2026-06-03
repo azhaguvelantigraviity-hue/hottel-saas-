@@ -9,11 +9,12 @@ const NOTIF_SETTINGS = [];
 
 const TABS = ['Live Feed', 'Settings', 'Subscription Alerts'];
 
-const NotificationsPage = () => {
+const NotificationsPage = ({ plan }) => {
   const [tab, setTab] = useState(0);
   const [notifs, setNotifs] = useState(NOTIFS_INIT);
   const [settings, setSettings] = useState(NOTIF_SETTINGS);
   const [filter, setFilter] = useState('all');
+  const [loading, setLoading] = useState(false);
 
   const markRead = (id) => setNotifs(prev => prev.map(n => n.id === id ? { ...n, read:true } : n));
   const markAllRead = () => setNotifs(prev => prev.map(n => ({ ...n, read:true })));
@@ -21,6 +22,70 @@ const NotificationsPage = () => {
 
   const filtered = filter === 'all' ? notifs : filter === 'unread' ? notifs.filter(n=>!n.read) : notifs.filter(n=>n.type===filter);
   const unread = notifs.filter(n=>!n.read).length;
+
+  const loadRazorpay = () => {
+    return new Promise((resolve) => {
+      const script = document.createElement('script');
+      script.src = 'https://checkout.razorpay.com/v1/checkout.js';
+      script.onload = () => resolve(true);
+      script.onerror = () => resolve(false);
+      document.body.appendChild(script);
+    });
+  };
+
+  const handleRenew = async () => {
+    const currentPlan = plan || 'starter';
+    setLoading(true);
+    const res = await loadRazorpay();
+    if (!res) {
+      alert('Razorpay SDK failed to load. Are you online?');
+      setLoading(false);
+      return;
+    }
+
+    try {
+      const api = await import('../services/api').then(m => m.default || m);
+      const orderRes = await api.post('/hotel/subscription/create-order', { plan: currentPlan });
+      const orderData = orderRes.data?.data || orderRes.data;
+
+      const options = {
+        key: import.meta.env.VITE_RAZORPAY_KEY_ID || 'rzp_test_dummy_key',
+        amount: orderData.amount,
+        currency: orderData.currency,
+        name: 'StayOS',
+        description: `Renew ${currentPlan} plan`,
+        order_id: orderData.id,
+        handler: async function (response) {
+          try {
+            await api.post('/hotel/subscription/verify', {
+              razorpay_order_id: response.razorpay_order_id,
+              razorpay_payment_id: response.razorpay_payment_id,
+              razorpay_signature: response.razorpay_signature,
+              plan: currentPlan
+            });
+            alert('Payment successful! Your plan has been renewed.');
+            window.location.reload();
+          } catch (err) {
+            console.error(err);
+            alert('Payment verification failed');
+          }
+        },
+        prefill: {
+          name: 'Hotel Administrator',
+          email: 'admin@hotel.com',
+        },
+        theme: { color: '#C9A84C' }
+      };
+
+      const paymentObject = new window.Razorpay(options);
+      paymentObject.open();
+    } catch (err) {
+      console.error(err);
+      alert('Failed to initiate checkout. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <div style={{ flex:1, overflowY:'auto', padding:24 }}>
@@ -101,7 +166,12 @@ const NotificationsPage = () => {
                 <div style={{ fontSize:16, fontWeight:700, color:'var(--amber)' }}>Subscription Expiry Warning</div>
               </div>
               <div style={{ fontSize:14, color:'var(--text2)', marginBottom:12 }}>Your plan expires soon. Renew now to avoid service interruption.</div>
-              <button style={{ background:'linear-gradient(135deg,#C9A84C,#8A6F2E)', border:'none', borderRadius:8, padding:'10px 24px', color:'#fff', cursor:'pointer', fontFamily:'Inter, sans-serif', fontWeight:600, fontSize:14 }}>Renew Plan</button>
+              <button 
+                onClick={handleRenew}
+                disabled={loading}
+                style={{ background:'linear-gradient(135deg,#C9A84C,#8A6F2E)', border:'none', borderRadius:8, padding:'10px 24px', color:'#fff', cursor: loading ? 'not-allowed' : 'pointer', fontFamily:'Inter, sans-serif', fontWeight:600, fontSize:14 }}>
+                {loading ? 'Processing...' : 'Renew Plan'}
+              </button>
             </div>
             <div style={{ padding:20, background:'rgba(52,211,153,0.08)', border:'1px solid rgba(52,211,153,0.2)', borderRadius:'var(--radius)' }}>
               <div style={{ display:'flex', alignItems:'center', gap:12, marginBottom:4 }}>
