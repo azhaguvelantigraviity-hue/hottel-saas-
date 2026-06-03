@@ -18,7 +18,7 @@ exports.register = asyncHandler(async (req, res, next) => {
 exports.login = asyncHandler(async (req, res, next) => {
   const { email, password } = req.body;
   if (!email || !password) return next(new AppError('Email and password required', 400));
-  const user = await User.findOne({ email }).select('+password').populate('hotel', 'name plan planStatus');
+  const user = await User.findOne({ email: email.toLowerCase() }).select('+password').populate('hotel', 'name plan planStatus');
   if (!user || !(await user.matchPassword(password))) {
     return next(new AppError('Invalid credentials', 401));
   }
@@ -47,7 +47,7 @@ exports.updatePassword = asyncHandler(async (req, res, next) => {
 });
 
 exports.forgotPassword = asyncHandler(async (req, res, next) => {
-  const user = await User.findOne({ email: req.body.email });
+  const user = await User.findOne({ email: (req.body.email || '').toLowerCase() });
   if (!user) return next(new AppError('No user with that email', 404));
   // TODO: generate reset token and send email
   sendSuccess(res, { message: 'Password reset email sent' });
