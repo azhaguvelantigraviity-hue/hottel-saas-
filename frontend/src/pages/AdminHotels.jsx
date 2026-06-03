@@ -3,7 +3,7 @@ import Avatar from '../components/Avatar';
 import Badge from '../components/Badge';
 import Icon from '../components/Icon';
 import { HOTELS, PLANS, getPlan } from '../data/mockData';
-import { createHotel, getHotel } from '../services/adminService';
+import { createHotel, getHotel, getAllHotels, updateHotel, deleteHotel } from '../services/adminService';
 
 // ── Shared input style ────────────────────────────────────────
 const inp = {
@@ -472,38 +472,79 @@ const saveStoredHotels = (hotels) => {
 };
 
 const AdminHotels = () => {
-  const [hotels, setHotels] = useState(() => {
-    const stored = getStoredHotels();
-    return stored.length > 0 ? stored : HOTELS;
-  });
+  const [hotels, setHotels] = useState([]);
   const [filter, setFilter] = useState('all');
   const [viewHotel, setViewHotel] = useState(null);
   const [editHotel, setEditHotel] = useState(null);
   const [showAdd, setShowAdd] = useState(false);
 
+  useEffect(() => {
+    fetchHotels();
+  }, []);
+
+  const fetchHotels = async () => {
+    try {
+      const res = await getAllHotels();
+      if (res.data) {
+        const mapped = res.data.map(h => ({
+          id: h._id,
+          dbId: h._id,
+          name: h.name,
+          city: h.address || 'Unknown',
+          contact: h.email || h.adminCredentials?.email || '',
+          plan: h.plan || 'professional',
+          status: h.planStatus || 'active',
+          rooms: h.totalRooms || 0,
+          staff: h.staffCount || 0,
+          occupancy: h.occupancyRate || 0,
+          revenue: h.revenue || 0,
+          avatar: h.name ? h.name.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase() : 'H',
+          joined: h.createdAt ? new Date(h.createdAt).toISOString().slice(0, 10) : new Date().toISOString().slice(0, 10),
+        }));
+        setHotels(mapped);
+      }
+    } catch (e) {
+      console.error('Failed to fetch hotels from DB', e);
+      const stored = getStoredHotels();
+      setHotels(stored.length > 0 ? stored : HOTELS);
+    }
+  };
+
   const filtered = filter === 'all'
     ? hotels
     : hotels.filter(h => h.plan === filter || h.status === filter);
 
-  const handleSave = (updated) => {
-    const next = hotels.map(h => h.id === updated.id ? updated : h);
-    setHotels(next);
-    saveStoredHotels(next);
+  const handleSave = async (updated) => {
+    try {
+      await updateHotel(updated.dbId || updated.id, {
+        name: updated.name,
+        address: updated.city,
+        email: updated.contact,
+        plan: updated.plan,
+        planStatus: updated.status,
+        totalRooms: updated.rooms,
+      });
+      const next = hotels.map(h => h.id === updated.id ? updated : h);
+      setHotels(next);
+      saveStoredHotels(next);
+    } catch(e) {
+      console.error('Failed to update hotel in DB', e);
+    }
   };
 
   const handleAdd = async (newHotel) => {
-    // Save to DB
     try {
       const res = await createHotel({
         name: newHotel.name,
-        address: { city: newHotel.city },
+        address: newHotel.city,
         adminEmail: newHotel.adminEmail,
         adminPassword: newHotel.adminPassword,
         plan: newHotel.plan,
         planStatus: newHotel.status,
-        rooms: newHotel.rooms,
+        totalRooms: newHotel.rooms,
       });
       if (res.data) {
+        newHotel.id = res.data._id;
         newHotel.dbId = res.data._id;
       }
     } catch (e) {
@@ -516,8 +557,13 @@ const AdminHotels = () => {
     setShowAdd(false);
   };
 
-  const handleDelete = (hotel) => {
+  const handleDelete = async (hotel) => {
     if (!confirm(`Delete "${hotel.name}"? This cannot be undone.`)) return;
+    try {
+      await deleteHotel(hotel.dbId || hotel.id);
+    } catch (e) {
+      console.error('Failed to delete hotel from DB', e);
+    }
     const next = hotels.filter(h => h.id !== hotel.id);
     setHotels(next);
     saveStoredHotels(next);
