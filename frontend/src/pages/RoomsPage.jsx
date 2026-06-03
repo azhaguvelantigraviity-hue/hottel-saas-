@@ -154,7 +154,7 @@ const RoomsPage = ({ onNav, role, hotelDetails }) => {
       showToast(`Room ${newRoom.id} added successfully!`, 'success');
     } catch (err) {
       const msg = err.data?.message || err.message || 'Failed to add room';
-      if (msg.includes('duplicate') || msg.includes('E11000')) {
+      if (msg.includes('duplicate') || msg.includes('E11000') || msg.includes('already exists')) {
         showToast(`Room ${newRoom.id} already exists in the database.`, 'error');
       } else {
         showToast(msg, 'error');
@@ -173,7 +173,7 @@ const RoomsPage = ({ onNav, role, hotelDetails }) => {
       showToast(`Room ${updatedRoom.id} updated successfully!`, 'success');
     } catch (err) {
       const msg = err.data?.message || err.message || 'Failed to update room';
-      if (msg.includes('duplicate') || msg.includes('E11000')) {
+      if (msg.includes('duplicate') || msg.includes('E11000') || msg.includes('already exists')) {
         showToast('Another room with this number already exists.', 'error');
       } else {
         showToast(msg, 'error');

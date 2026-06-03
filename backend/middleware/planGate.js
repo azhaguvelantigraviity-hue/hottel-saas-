@@ -72,9 +72,6 @@ exports.enforceLimit = (limitKey, Model) => asyncHandler(async (req, _res, next)
   if (!hotel) return next(new AppError('Hotel not found', 404));
 
   let limit = PLAN_LIMITS[hotel.plan]?.[limitKey];
-  if (limitKey === 'rooms' && hotel.totalRooms !== undefined && hotel.totalRooms !== null) {
-    limit = hotel.totalRooms;
-  }
   if (!limit || limit === Infinity) return next();
 
   const count = await Model.countDocuments({ hotel: hotelId });
