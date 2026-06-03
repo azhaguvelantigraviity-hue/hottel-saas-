@@ -26,10 +26,19 @@ const RestaurantPOS = ({ role, hotelDetails }) => {
   const { mutate: updateOrderApi } = useMutation(updatePOSOrder);
   const { mutate: createMenuItemApi } = useMutation(createMenuItem);
 
-  const menuItems = Array.isArray(apiMenu) ? apiMenu : MENU_ITEMS;
-  const orders = Array.isArray(apiOrders) ? apiOrders : localOrders;
+  const [localMenu, setLocalMenu] = useState([]);
+  
+  React.useEffect(() => {
+    if (Array.isArray(apiMenu)) {
+      setLocalMenu(apiMenu.length > 0 ? apiMenu : []);
+    } else {
+      setLocalMenu(MENU_ITEMS);
+    }
+  }, [apiMenu]);
 
-  const menuFiltered = catFilter === 'All' ? menuItems.filter(m => m.available) : menuItems.filter(m => m.category === catFilter && m.available);
+  const menuItems = localMenu.length > 0 ? localMenu : (Array.isArray(apiMenu) ? [] : MENU_ITEMS);
+  const orders = Array.isArray(apiOrders) ? apiOrders : localOrders;
+  const menuFiltered = catFilter === 'All' ? menuItems.filter(m => m.available !== false) : menuItems.filter(m => m.category === catFilter && m.available !== false);
 
   const addToCart = (item) => {
     if (item.stock > 0 && item.stock - (cart.find(c => (c._id || c.id) === (item._id || item.id))?.qty || 0) <= 0) return;
@@ -48,17 +57,16 @@ const RestaurantPOS = ({ role, hotelDetails }) => {
     const price = parseFloat(manualPrice);
     if (!name || !price || price <= 0) return;
     const stockLimit = parseInt(manualStock) || 0;
+    let newItem = null;
     try {
       const saved = await createMenuItemApi({ name, price, category: 'Custom', stock: stockLimit });
-      if (saved && saved._id) {
-        addToCart(saved);
-      } else {
-        addToCart({ _id: `custom-${Date.now()}`, name, price, category: 'Custom', stock: stockLimit, available: true });
-      }
+      newItem = (saved && saved._id) ? saved : { _id: `custom-${Date.now()}`, name, price, category: 'Custom', stock: stockLimit, available: true };
       refetchMenu();
     } catch {
-      addToCart({ _id: `custom-${Date.now()}`, name, price, category: 'Custom', stock: stockLimit, available: true });
+      newItem = { _id: `custom-${Date.now()}`, name, price, category: 'Custom', stock: stockLimit, available: true };
     }
+    addToCart(newItem);
+    setLocalMenu(prev => [newItem, ...prev]);
     setManualName('');
     setManualPrice('');
     setManualStock('');
