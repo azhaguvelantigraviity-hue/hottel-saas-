@@ -23,16 +23,17 @@ const mapBEtoFE = (be) => ({
   loginPassword: '',
 });
 
-const AttendancePage = ({ employees = [], hotelDetails = null }) => {
+const AttendancePage = ({ employees, hotelDetails }) => {
   const hotelId = hotelDetails?.id || 'default';
   const [attendance, setAttendance] = useState([]);
   const [selectedDate, setSelectedDate] = useState(new Date().toISOString().slice(0, 10));
   const [activeTab, setActiveTab] = useState('today');
 
-  const [fetchedEmployees, setFetchedEmployees] = useState(employees);
+  const [fetchedEmployees, setFetchedEmployees] = useState(employees || []);
+  const empLength = employees?.length || 0;
 
   useEffect(() => {
-    if (employees.length > 0) {
+    if (employees && employees.length > 0) {
       setFetchedEmployees(employees);
       return;
     }
@@ -54,7 +55,7 @@ const AttendancePage = ({ employees = [], hotelDetails = null }) => {
         }
       })
       .catch(() => {});
-  }, [employees, hotelId]);
+  }, [empLength, hotelId]);
 
   const loadAttendanceData = () => {
     apiGetAttendance().then(res => {
