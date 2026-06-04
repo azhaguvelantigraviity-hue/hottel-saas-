@@ -156,7 +156,7 @@ const AdminDashboard = ({ onNav }) => {
                     <span style={{ fontSize: '13px', fontWeight: '600' }}>{h.name}</span>
                   </div>
                 </td>
-                <td style={{ padding: '12px', fontSize: '13px', color: 'var(--text2)' }}>{h.address || h.city || '—'}</td>
+                <td style={{ padding: '12px', fontSize: '13px', color: 'var(--text2)' }}>{h.address?.city || h.city || '—'}</td>
                 <td style={{ padding: '12px' }}>
                   <Badge color={h.plan === 'enterprise' ? 'gold' : h.plan === 'professional' ? 'teal' : 'gray'}>{h.plan}</Badge>
                 </td>
