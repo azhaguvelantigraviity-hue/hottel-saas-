@@ -105,8 +105,8 @@ const HotelApp = ({ onLogout, initialPlan = 'enterprise', role = 'manager', hote
 
   const planFeatures = {
     starter:      ['dashboard','rooms','bookings','billing','notifications','reports','settings','employees','analytics','attendance'],
-    professional: ['dashboard','rooms','bookings','billing','notifications','guests','loyalty','employees','housekeeping','restaurant','laundry','maintenance','channel','analytics','marketing','whatsapp','inventory','reports','settings','attendance'],
-    enterprise:   ['dashboard','rooms','bookings','billing','notifications','checkin','guests','loyalty','restaurant','laundry','travel','events','employees','housekeeping','maintenance','channel','revenue','analytics','marketing','whatsapp','inventory','iot','security','reports','settings','attendance'],
+    professional: ['dashboard','rooms','bookings','billing','notifications','guests','loyalty','employees','housekeeping','restaurant','laundry','maintenance','channel','analytics','marketing','whatsapp','inventory','reports','settings','attendance','payroll'],
+    enterprise:   ['dashboard','rooms','bookings','billing','notifications','checkin','guests','loyalty','restaurant','laundry','travel','events','employees','housekeeping','maintenance','channel','revenue','analytics','marketing','whatsapp','inventory','iot','security','reports','settings','attendance','payroll'],
   };
   const allowed = planFeatures[plan] || planFeatures.starter;
 
@@ -119,7 +119,7 @@ const HotelApp = ({ onLogout, initialPlan = 'enterprise', role = 'manager', hote
     channel: 'Channel Manager', revenue: 'Revenue AI', analytics: 'Analytics Dashboard',
     marketing: 'Marketing & SEO', whatsapp: 'WhatsApp Integration',
     inventory: 'Inventory Management', iot: 'IoT & Door Locks',
-    attendance: 'Attendance',
+    attendance: 'Attendance', payroll: 'Payroll Management',
     security: 'Security & CCTV',
     notifications: 'Notifications', reports: 'Reports & Analytics', settings: 'Settings',
   };
@@ -130,7 +130,7 @@ const HotelApp = ({ onLogout, initialPlan = 'enterprise', role = 'manager', hote
     employees: 'starter', analytics: 'starter',
     guests: 'professional', loyalty: 'professional',
     housekeeping: 'professional', restaurant: 'professional', laundry: 'professional',
-    attendance: 'starter', channel: 'professional',
+    attendance: 'starter', payroll: 'professional', channel: 'professional',
     marketing: 'professional', whatsapp: 'professional', inventory: 'professional',
     checkin: 'enterprise', travel: 'enterprise', events: 'enterprise',
     iot: 'enterprise', security: 'enterprise',
