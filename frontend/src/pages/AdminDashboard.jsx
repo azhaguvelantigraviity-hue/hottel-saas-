@@ -1,22 +1,51 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import StatCard from '../components/StatCard';
 import Badge from '../components/Badge';
 import Avatar from '../components/Avatar';
 import Icon from '../components/Icon';
 import { HOTELS, PLANS, ADMIN_REVENUE } from '../data/mockData';
+import * as adminApi from '../services/adminService';
 
 const AdminDashboard = ({ onNav }) => {
-  const totalMRR = 0;
-  const totalHotels = 0;
-  const planBreakdown = { starter: 0, professional: 0, enterprise: 0 };
+  const [dashboard, setDashboard] = useState({
+    totalHotels: 0,
+    activeHotels: 0,
+    totalRooms: 0,
+    totalUsers: 0,
+    mrr: 0,
+    planBreakdown: { starter: 0, professional: 0, enterprise: 0 }
+  });
+  const [hotels, setHotels] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const loadData = async () => {
+      setLoading(true);
+      try {
+        const [dashRes, hotelsRes] = await Promise.all([
+          adminApi.getDashboard(),
+          adminApi.getAllHotels()
+        ]);
+        if (dashRes.data) setDashboard(dashRes.data);
+        if (hotelsRes.data) setHotels(hotelsRes.data);
+      } catch (err) {
+        console.error('Failed to load admin dashboard data', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    loadData();
+  }, []);
+
+  const { totalHotels, activeHotels, totalRooms, mrr, planBreakdown } = dashboard;
 
   return (
-    <div style={{ padding: 'clamp(16px, 4vw, 32px)', overflowY: 'auto', flex: 1 }}>
+    <div style={{ padding: 'clamp(16px, 4vw, 32px)', overflowY: 'auto', flex: 1, opacity: loading ? 0.6 : 1, pointerEvents: loading ? 'none' : 'auto' }}>
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 240px), 1fr))', gap: '16px', marginBottom: '28px' }}>
-        <StatCard icon="hotel" iconColor="#C9A84C" label="Total Hotels" value={totalHotels} sub="-" trend={0} />
-        <StatCard icon="dollar" iconColor="#2DD4BF" label="Monthly Revenue" value={`₹${(totalMRR / 1000).toFixed(0)}K`} sub="Platform MRR" trend={0} />
-        <StatCard icon="trending" iconColor="#A78BFA" label="Active Subs" value="-" sub="-" trend={0} />
-        <StatCard icon="users" iconColor="#FB7185" label="Total Rooms" value="-" sub="-" trend={0} />
+        <StatCard icon="hotel" iconColor="#C9A84C" label="Total Hotels" value={totalHotels} sub="Registered Hotels" trend={0} />
+        <StatCard icon="dollar" iconColor="#2DD4BF" label="Monthly Revenue" value={`₹${(mrr / 1000).toFixed(0)}K`} sub="Platform MRR" trend={0} />
+        <StatCard icon="trending" iconColor="#A78BFA" label="Active Subs" value={activeHotels} sub="Active Subscriptions" trend={0} />
+        <StatCard icon="users" iconColor="#FB7185" label="Total Rooms" value={totalRooms} sub="Across All Hotels" trend={0} />
       </div>
 
       {/* Charts Row */}
@@ -112,44 +141,46 @@ const AdminDashboard = ({ onNav }) => {
             </tr>
           </thead>
           <tbody>
-            {HOTELS.slice(0, 5).map((h) => (
+            {hotels.length === 0 ? (
+              <tr><td colSpan={7} style={{ padding: '24px', textAlign: 'center', color: 'var(--text3)' }}>No managed hotels found.</td></tr>
+            ) : hotels.slice(0, 5).map((h) => (
               <tr
-                key={h.id}
+                key={h._id || h.id}
                 style={{ borderBottom: '1px solid var(--border)', transition: 'background 0.15s' }}
                 onMouseEnter={(e) => (e.currentTarget.style.background = 'var(--surface)')}
                 onMouseLeave={(e) => (e.currentTarget.style.background = 'transparent')}
               >
                 <td style={{ padding: '12px 12px' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                    <Avatar initials={h.avatar} color={PLANS[h.plan].accent} size={30} />
+                    <Avatar initials={h.name?.substring(0, 2).toUpperCase() || 'H'} color={PLANS[h.plan]?.accent || 'var(--gold)'} size={30} />
                     <span style={{ fontSize: '13px', fontWeight: '600' }}>{h.name}</span>
                   </div>
                 </td>
-                <td style={{ padding: '12px', fontSize: '13px', color: 'var(--text2)' }}>{h.city}</td>
+                <td style={{ padding: '12px', fontSize: '13px', color: 'var(--text2)' }}>{h.address || h.city || '—'}</td>
                 <td style={{ padding: '12px' }}>
                   <Badge color={h.plan === 'enterprise' ? 'gold' : h.plan === 'professional' ? 'teal' : 'gray'}>{h.plan}</Badge>
                 </td>
-                <td style={{ padding: '12px', fontSize: '13px', color: 'var(--text2)' }}>{h.rooms}</td>
+                <td style={{ padding: '12px', fontSize: '13px', color: 'var(--text2)' }}>{h.totalRooms || h.rooms || 0}</td>
                 <td style={{ padding: '12px' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                     <div style={{ width: '50px', height: '4px', background: 'var(--surface)', borderRadius: '2px', overflow: 'hidden' }}>
                       <div
                         style={{
                           height: '100%',
-                          width: `${h.occupancy}%`,
-                          background: h.occupancy > 80 ? 'var(--green)' : h.occupancy > 60 ? 'var(--gold)' : 'var(--rose)',
+                          width: `${h.occupancy || 0}%`,
+                          background: (h.occupancy || 0) > 80 ? 'var(--green)' : (h.occupancy || 0) > 60 ? 'var(--gold)' : 'var(--rose)',
                           borderRadius: '2px',
                         }}
                       />
                     </div>
-                    <span style={{ fontSize: '12px', color: 'var(--text2)' }}>{h.occupancy}%</span>
+                    <span style={{ fontSize: '12px', color: 'var(--text2)' }}>{h.occupancy || 0}%</span>
                   </div>
                 </td>
                 <td style={{ padding: '12px', fontSize: '13px', fontFamily: 'DM Mono,monospace', color: 'var(--text)' }}>
-                  ₹{h.revenue.toLocaleString()}
+                  ₹{(h.revenue || 0).toLocaleString()}
                 </td>
                 <td style={{ padding: '12px' }}>
-                  <Badge color={h.status === 'active' ? 'green' : h.status === 'trial' ? 'amber' : 'rose'}>{h.status}</Badge>
+                  <Badge color={h.planStatus === 'active' || h.status === 'active' ? 'green' : h.planStatus === 'trial' || h.status === 'trial' ? 'amber' : 'rose'}>{h.planStatus || h.status}</Badge>
                 </td>
               </tr>
             ))}

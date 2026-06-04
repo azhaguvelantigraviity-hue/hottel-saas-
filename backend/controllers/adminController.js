@@ -1,21 +1,30 @@
 const Hotel   = require('../models/Hotel');
 const User    = require('../models/User');
 const Booking = require('../models/Booking');
+const Room    = require('../models/Room');
 const { asyncHandler, sendSuccess } = require('../utils/helpers');
 
 exports.getDashboard = asyncHandler(async (_req, res) => {
-  const [totalHotels, activeHotels, totalUsers] = await Promise.all([
+  const [totalHotels, activeHotels, totalUsers, totalRooms] = await Promise.all([
     Hotel.countDocuments(),
     Hotel.countDocuments({ planStatus: 'active' }),
     User.countDocuments({ role: { $ne: 'platform_admin' } }),
+    Room.countDocuments()
   ]);
+
+  const hotels = await Hotel.find().select('plan planStatus');
+  const mrr = hotels.reduce((sum, h) => {
+    const prices = { starter: 49, professional: 149, enterprise: 399 };
+    return h.planStatus === 'active' ? sum + (prices[h.plan] || 0) : sum;
+  }, 0);
+
   const planBreakdown = await Hotel.aggregate([
     { $group: { _id: '$plan', count: { $sum: 1 } } }
   ]);
   const breakdown = { starter: 0, professional: 0, enterprise: 0 };
   planBreakdown.forEach(p => { breakdown[p._id] = p.count; });
 
-  sendSuccess(res, { totalHotels, activeHotels, totalUsers, planBreakdown: breakdown });
+  sendSuccess(res, { totalHotels, activeHotels, totalUsers, totalRooms, mrr, planBreakdown: breakdown });
 });
 
 exports.getPlatformStats = asyncHandler(async (_req, res) => {
