@@ -1,5 +1,5 @@
 // src/controllers/hotelController.js
-const { Employee } = require('../models/Operations');
+const { Employee, Attendance } = require('../models/Operations');
 const User    = require('../models/User');
 const Room    = require('../models/Room');
 const Booking = require('../models/Booking');
@@ -401,18 +401,35 @@ const deleteEmployee = catchAsync(async (req, res) => {
 });
 const markAttendance = catchAsync(async (req, res) => {
   const { date, status: attStatus, checkIn: timeIn, checkOut: timeOut, hours } = req.body;
-  const employee = await Employee.findOne(oneFilter(req));
+  const employeeId = req.params.id; // From route parameter
+  
+  const employee = await Employee.findOne({ _id: employeeId, hotel: req.hotelId });
   if (!employee) throw new AppError('Employee not found', 404);
-  if (!employee.attendance) employee.attendance = [];
-  const existing = employee.attendance.find(a => a.date && date && new Date(a.date).toDateString() === new Date(date).toDateString());
-  if (existing) {
-    Object.assign(existing, { status: attStatus || existing.status, checkIn: timeIn || existing.checkIn, checkOut: timeOut || existing.checkOut, hours: hours || existing.hours });
-  } else {
-    employee.attendance.push({ date, status: attStatus, checkIn: timeIn, checkOut: timeOut, hours });
-  }
-  await employee.save();
-  res.json({ success: true, data: employee });
+
+  const parsedDate = new Date(date);
+  parsedDate.setHours(0, 0, 0, 0);
+
+  const attendanceRecord = await Attendance.findOneAndUpdate(
+    { hotel: req.hotelId, employee: employeeId, date: parsedDate },
+    {
+      $set: {
+        status: attStatus,
+        checkIn: timeIn,
+        checkOut: timeOut,
+        hours: hours
+      }
+    },
+    { new: true, upsert: true }
+  );
+
+  res.json({ success: true, data: attendanceRecord });
 });
+
+const getAttendance = catchAsync(async (req, res) => {
+  const records = await Attendance.find({ hotel: req.hotelId }).populate('employee', 'name avatar');
+  res.json({ success: true, data: records });
+});
+
 const applyLeave = catchAsync(async (req, res) => {
   const employee = await Employee.findOne(oneFilter(req));
   if (!employee) throw new AppError('Employee not found', 404);
@@ -557,7 +574,7 @@ module.exports = {
   getTravelPackages,
   getGuests, getGuest, createGuest, updateGuest, deleteGuest,
   getEmployees, getEmployee, createEmployee, updateEmployee, deleteEmployee,
-  markAttendance, applyLeave,
+  markAttendance, applyLeave, getAttendance,
   getTodayCheckins, getTodayCheckouts, getPendingPayments, getMaintenanceRooms, updateRoomMaintenance,
   createSubscriptionOrder, verifySubscriptionPayment
 };

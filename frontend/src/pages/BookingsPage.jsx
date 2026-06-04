@@ -100,12 +100,33 @@ const NewBookingForm = ({ onClose, onSave }) => {
     guest: '', phone: '', email: '', room: '', checkIn: '', checkOut: '', adults: 1, children: 0,
     source: 'direct', specialRequests: '', hasPet: false, petSize: 'small', petType: '',
   });
+  const [availableRooms, setAvailableRooms] = useState([]);
+
+  useEffect(() => {
+    const loadRooms = async () => {
+      try {
+        const res = await api.getRooms();
+        if (res.data) {
+          const mapped = res.data.map(r => ({
+            id: r.roomNumber || r._id,
+            type: r.type,
+            rate: r.baseRate || 0,
+            status: r.status
+          }));
+          setAvailableRooms(mapped);
+        }
+      } catch (err) {
+        setAvailableRooms(ROOMS);
+      }
+    };
+    loadRooms();
+  }, []);
 
   const nights = form.checkIn && form.checkOut
     ? Math.max(0, Math.ceil((new Date(form.checkOut) - new Date(form.checkIn)) / 86400000))
     : 0;
 
-  const selectedRoom = ROOMS.find(r => String(r.id) === String(form.room));
+  const selectedRoom = availableRooms.find(r => String(r.id) === String(form.room));
   const roomRate = selectedRoom ? selectedRoom.rate : 0;
   const petCharge = form.hasPet ? PET_CHARGES[form.petSize].perNight * nights + PET_CHARGES.deposit : 0;
   const totalAmount = roomRate * nights + petCharge;
@@ -131,7 +152,7 @@ const NewBookingForm = ({ onClose, onSave }) => {
           <label style={labelStyle}>ROOM *</label>
           <select style={inputStyle} value={form.room} onChange={e => set('room', e.target.value)}>
             <option value="">Select room</option>
-            {ROOMS.filter(r => r.status === 'available').map(r => (
+            {availableRooms.filter(r => r.status === 'available').map(r => (
               <option key={r.id} value={r.id}>{r.id} – {r.type} (₹{r.rate}/night)</option>
             ))}
           </select>
@@ -418,12 +439,8 @@ const BookingsPage = () => {
         const res = await api.createBooking(flatForm);
         if (res.data) {
           const flat = toFlat(res.data);
-          const room = ROOMS.find(r => String(r.id) === String(form.room));
-          if (room) {
-            room.status = 'reserved';
-            room.guest = form.guest;
-            safeWriteJson(ROOMS_STORAGE_KEY, ROOMS);
-          }
+          // Backend should update room status automatically, 
+          // we don't need to manually update ROOMS mock data.
           setBookings(prev => [...prev, flat]);
           return;
         }

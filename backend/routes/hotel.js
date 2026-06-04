@@ -13,7 +13,7 @@ const {
   getEmployees, getEmployee, createEmployee, updateEmployee, deleteEmployee,
   markAttendance, applyLeave,
   getTodayCheckins, getTodayCheckouts, getPendingPayments, getMaintenanceRooms, updateRoomMaintenance,
-  createSubscriptionOrder, verifySubscriptionPayment
+  createSubscriptionOrder, verifySubscriptionPayment, getAttendance
 } = require('../controllers/hotelController');
 const { protect, authorize, scopeToHotel, hotelAdmin } = require('../middleware/auth');
 const { requireFeature, enforceLimit } = require('../middleware/planGate');
@@ -72,6 +72,7 @@ router.put   ('/guests/:id',     updateGuest);
 router.delete('/guests/:id',     deleteGuest);
 
 // ── Attendance — available on all plans ────────────────────────
+router.get   ('/attendance',                              getAttendance);
 router.post  ('/employees/:id/attendance',                markAttendance);
 router.post  ('/employees/:id/leave',                     applyLeave);
 

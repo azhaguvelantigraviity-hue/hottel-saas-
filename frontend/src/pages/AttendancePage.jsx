@@ -3,7 +3,7 @@ import Icon from '../components/Icon';
 import Badge from '../components/Badge';
 import Avatar from '../components/Avatar';
 import { ATTENDANCE, EMPLOYEES } from '../data/mockData';
-import { getEmployees as apiGetEmployees } from '../services/hotelService';
+import { getEmployees as apiGetEmployees, getAttendance as apiGetAttendance, markAttendance as apiMarkAttendance } from '../services/hotelService';
 
 const statusColor = { present: 'green', absent: 'rose', leave: 'amber', late: 'violet' };
 
@@ -23,22 +23,9 @@ const mapBEtoFE = (be) => ({
   loginPassword: '',
 });
 
-const loadAttendance = (hotelId) => {
-  try {
-    const data = localStorage.getItem(`stayos_attendance_${hotelId || 'default'}`);
-    return data ? JSON.parse(data) : ATTENDANCE;
-  } catch { return ATTENDANCE; }
-};
-
-const saveAttendance = (records, hotelId) => {
-  try {
-    localStorage.setItem(`stayos_attendance_${hotelId || 'default'}`, JSON.stringify(records));
-  } catch (e) { console.error('Failed to save attendance:', e); }
-};
-
 const AttendancePage = ({ employees = [], hotelDetails = null }) => {
   const hotelId = hotelDetails?.id || 'default';
-  const [attendance, setAttendance] = useState(() => loadAttendance(hotelId));
+  const [attendance, setAttendance] = useState([]);
   const [selectedDate, setSelectedDate] = useState(new Date().toISOString().slice(0, 10));
   const [activeTab, setActiveTab] = useState('today');
 
@@ -69,6 +56,29 @@ const AttendancePage = ({ employees = [], hotelDetails = null }) => {
       .catch(() => {});
   }, [employees, hotelId]);
 
+  const loadAttendanceData = () => {
+    apiGetAttendance().then(res => {
+      if (res.data) {
+        const formatted = res.data.map(a => ({
+          id: a._id,
+          employeeId: a.employee?._id || a.employee,
+          name: a.employee?.name || 'Unknown',
+          date: new Date(a.date).toISOString().slice(0, 10),
+          checkIn: a.checkIn,
+          checkOut: a.checkOut,
+          status: a.status,
+          hours: a.hours,
+          overtime: a.overtime || 0
+        }));
+        setAttendance(formatted);
+      }
+    }).catch(err => console.error("Failed to fetch attendance", err));
+  };
+
+  useEffect(() => {
+    loadAttendanceData();
+  }, [hotelId]);
+
   const employeeList = fetchedEmployees.length > 0 ? fetchedEmployees : EMPLOYEES;
   const todayRecords = attendance.filter(a => a.date === selectedDate);
   const allDates = [...new Set(attendance.map(a => a.date))].sort().reverse();
@@ -80,48 +90,65 @@ const AttendancePage = ({ employees = [], hotelDetails = null }) => {
     { label: 'Total Hours', count: todayRecords.reduce((s, a) => s + (a.hours || 0), 0).toFixed(1) + 'h', color: 'var(--teal)' },
   ];
 
-  const persist = (records) => {
-    setAttendance(records);
-    saveAttendance(records, hotelId);
-  };
-
-  const markAttendance = (empId, status) => {
+  const markAttendance = async (empId, status) => {
     const now = new Date();
     const timeStr = now.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', hour12: false });
+    
+    // Optimistic update
     setAttendance(prev => {
       const existing = prev.find(a => a.employeeId === empId && a.date === selectedDate);
-      let next;
       if (existing) {
-        next = prev.map(a => a.employeeId === empId && a.date === selectedDate
+        return prev.map(a => a.employeeId === empId && a.date === selectedDate
           ? { ...a, status, checkIn: status === 'present' ? (a.checkIn || timeStr) : null }
           : a
         );
       } else {
         const emp = employeeList.find(e => e.id === empId);
-        next = [...prev, { id: Date.now(), employeeId: empId, name: emp?.name || '', date: selectedDate, checkIn: status === 'present' ? timeStr : null, checkOut: null, status, hours: null, overtime: 0 }];
+        return [...prev, { id: Date.now(), employeeId: empId, name: emp?.name || '', date: selectedDate, checkIn: status === 'present' ? timeStr : null, checkOut: null, status, hours: null, overtime: 0 }];
       }
-      saveAttendance(next, hotelId);
-      return next;
     });
+
+    try {
+      const existing = attendance.find(a => a.employeeId === empId && a.date === selectedDate);
+      await apiMarkAttendance(empId, {
+        date: selectedDate,
+        status,
+        checkIn: status === 'present' ? (existing?.checkIn || timeStr) : null
+      });
+      loadAttendanceData();
+    } catch (err) {
+      console.error('Failed to mark attendance', err);
+      loadAttendanceData(); // Revert optimistic update on failure
+    }
   };
 
-  const checkOut = (empId) => {
+  const checkOut = async (empId) => {
     const now = new Date();
     const timeStr = now.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', hour12: false });
-    setAttendance(prev => {
-      const next = prev.map(a => {
-        if (a.employeeId === empId && a.date === selectedDate && a.checkIn && !a.checkOut) {
-          const [inH, inM] = a.checkIn.split(':').map(Number);
-          const [outH, outM] = timeStr.split(':').map(Number);
-          const hours = Math.round(((outH * 60 + outM) - (inH * 60 + inM)) / 60 * 10) / 10;
-          const overtime = Math.max(0, hours - 8);
-          return { ...a, checkOut: timeStr, hours, overtime };
-        }
-        return a;
+    
+    const existing = attendance.find(a => a.employeeId === empId && a.date === selectedDate);
+    if (!existing || !existing.checkIn) return;
+
+    const [inH, inM] = existing.checkIn.split(':').map(Number);
+    const [outH, outM] = timeStr.split(':').map(Number);
+    const hours = Math.round(((outH * 60 + outM) - (inH * 60 + inM)) / 60 * 10) / 10;
+
+    // Optimistic update
+    setAttendance(prev => prev.map(a => a.employeeId === empId && a.date === selectedDate ? { ...a, checkOut: timeStr, hours } : a));
+
+    try {
+      await apiMarkAttendance(empId, {
+        date: selectedDate,
+        status: existing.status,
+        checkIn: existing.checkIn,
+        checkOut: timeStr,
+        hours
       });
-      saveAttendance(next, hotelId);
-      return next;
-    });
+      loadAttendanceData();
+    } catch (err) {
+      console.error('Failed to checkout', err);
+      loadAttendanceData();
+    }
   };
 
   // Monthly summary per employee
