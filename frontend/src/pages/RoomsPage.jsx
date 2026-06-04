@@ -136,6 +136,7 @@ const RoomsPage = ({ onNav, role, hotelDetails }) => {
   useEffect(() => { loadRooms(); }, [loadRooms]);
 
   const toApi = (r) => ({
+    hotel: hotelDetails?._id || hotelDetails?.id,
     roomNumber: r.id.toString().trim(),
     type: r.type,
     floor: Number(r.floor) || 1,

@@ -38,7 +38,7 @@ exports.requireFeature = (featureKey) => asyncHandler(async (req, _res, next) =>
   const requiredPlan = FEATURE_PLAN_MAP[featureKey];
   if (!requiredPlan) return next();
 
-  const hotelId = req.hotelId || req.user.hotel;
+  const hotelId = req.hotelId || req.user.hotel || req.body?.hotel || req.query?.hotel;
   if (!hotelId) return next(new AppError('Hotel not found', 404));
 
   const hotel = await Hotel.findById(hotelId).select('plan planStatus');
@@ -67,7 +67,7 @@ const PLAN_LIMITS = {
 };
 
 exports.enforceLimit = (limitKey, Model) => asyncHandler(async (req, _res, next) => {
-  const hotelId = req.hotelId || req.user.hotel;
+  const hotelId = req.hotelId || req.user.hotel || req.body?.hotel || req.query?.hotel;
   const hotel   = await Hotel.findById(hotelId).select('plan totalRooms');
   if (!hotel) return next(new AppError('Hotel not found', 404));
 
