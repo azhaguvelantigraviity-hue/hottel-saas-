@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import Icon from './Icon';
 
-const Topbar = ({ title, subtitle, role, notifCount = 3, onNav }) => {
+const Topbar = ({ title, subtitle, role, notifCount = 3, onNav, toggleSidebar }) => {
   const [search, setSearch] = useState('');
 
   const greeting = () => {
