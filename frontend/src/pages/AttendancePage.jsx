@@ -49,10 +49,8 @@ const AttendancePage = ({ employees, hotelDetails }) => {
     apiGetEmployees()
       .then(res => {
         const list = (res.data || []).map(mapBEtoFE);
-        if (list.length > 0) {
-          setFetchedEmployees(list);
-          localStorage.setItem(`stayos_employees_${hotelId}`, JSON.stringify(list));
-        }
+        setFetchedEmployees(list);
+        localStorage.setItem(`stayos_employees_${hotelId}`, JSON.stringify(list));
       })
       .catch(() => {});
   }, [empLength, hotelId]);
@@ -80,7 +78,8 @@ const AttendancePage = ({ employees, hotelDetails }) => {
     loadAttendanceData();
   }, [hotelId]);
 
-  const employeeList = fetchedEmployees.length > 0 ? fetchedEmployees : EMPLOYEES;
+  const rawEmployees = fetchedEmployees.length > 0 ? fetchedEmployees : EMPLOYEES;
+  const employeeList = rawEmployees.filter(e => e.status !== 'off-duty');
   const todayRecords = attendance.filter(a => a.date === selectedDate);
   const allDates = [...new Set(attendance.map(a => a.date))].sort().reverse();
 
