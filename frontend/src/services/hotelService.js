@@ -20,6 +20,7 @@ export const updateBooking = (id, body)    => put(`/hotel/bookings/${id}`, body)
 export const checkIn       = (id)          => post(`/hotel/bookings/${id}/checkin`, {});
 export const checkOut      = (id)          => post(`/hotel/bookings/${id}/checkout`, {});
 export const cancelBooking = (id, reason)  => post(`/hotel/bookings/${id}/cancel`, { reason });
+export const deleteBooking = (id)          => del('/hotel/bookings/' + id);
 
 // ── Guests / CRM ──────────────────────────────────────────────
 export const getGuests   = (params = {}) => get(`/hotel/guests?${new URLSearchParams(params)}`);

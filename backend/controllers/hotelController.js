@@ -213,6 +213,18 @@ const cancelBooking = catchAsync(async (req, res) => {
   sendSuccess(res, booking);
 });
 
+const deleteBooking = catchAsync(async (req, res) => {
+  const booking = await Booking.findOne(oneFilter(req));
+  if (!booking) throw new AppError('Booking not found', 404);
+  
+  if (booking.room && (booking.status === 'checked-in' || booking.status === 'confirmed')) {
+    await Room.findByIdAndUpdate(booking.room, { status: 'available' });
+  }
+  
+  await booking.deleteOne();
+  sendSuccess(res, null, 204);
+});
+
 // ── Smart Check-In Process ──────────────────────────────────────
 const getCheckInProcess = catchAsync(async (req, res) => {
   const booking = await Booking.findOne(oneFilter(req)).populate('room', 'roomNumber type');
@@ -567,7 +579,7 @@ module.exports = {
   getRooms, getRoom, createRoom, updateRoom, deleteRoom,
   updateRoomHousekeeping, checkAvailability,
   getBookings, getBooking, createBooking, updateBooking,
-  checkIn, checkOut, cancelBooking,
+  checkIn, checkOut, cancelBooking, deleteBooking,
   getCheckInProcess, generateQRCode, updateGuestDetails,
   uploadIdScan, submitFaceVerification, saveSignature,
   getCabBookings, getCabBooking, createCabBooking, updateCabBooking, deleteCabBooking,

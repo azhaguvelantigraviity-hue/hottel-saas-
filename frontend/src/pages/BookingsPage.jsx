@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import Icon from '../components/Icon';
 import Badge from '../components/Badge';
 import Avatar from '../components/Avatar';
-import { BOOKINGS, ROOMS, PET_CHARGES } from '../data/mockData';
+import { ROOMS, PET_CHARGES } from '../data/mockData';
 import * as api from '../services/hotelService';
 
 const statusColor = { 'checked-in': 'green', confirmed: 'teal', pending: 'amber', 'checked-out': 'gray', cancelled: 'rose' };
@@ -329,24 +329,26 @@ const BookingDetail = ({ booking, onClose, onAction }) => (
           Cancel
         </button>
       )}
+      <button onClick={() => { onAction(booking, 'deleted'); onClose(); }} style={{ padding: '10px 16px', background: 'transparent', border: '1px solid var(--rose)', borderRadius: '8px', color: 'var(--rose)', cursor: 'pointer', fontWeight: '600', fontSize: '13px', fontFamily: 'DM Sans,sans-serif' }}>
+        Delete
+      </button>
     </div>
   </div>
 );
 
 const BookingsPage = () => {
-  const [bookings, setBookings] = useState(() => safeReadJson(BOOKINGS_STORAGE_KEY, BOOKINGS));
+  const [bookings, setBookings] = useState(() => safeReadJson(BOOKINGS_STORAGE_KEY, []));
   const [filter, setFilter] = useState('all');
   const [search, setSearch] = useState('');
   const [showNew, setShowNew] = useState(false);
   const [selected, setSelected] = useState(null);
   const [apiReady, setApiReady] = useState(false);
 
-  // Try to load bookings from API on mount
   useEffect(() => {
     const loadFromApi = async () => {
       try {
         const res = await api.getBookings();
-        if (res.data && res.data.length > 0) {
+        if (res.data) {
           const flat = res.data.map(toFlat);
           setBookings(flat);
           safeWriteJson(BOOKINGS_STORAGE_KEY, flat);
@@ -378,6 +380,20 @@ const BookingsPage = () => {
   });
 
   const handleAction = useCallback(async (booking, newStatus) => {
+    if (newStatus === 'deleted') {
+      if (!window.confirm(`Are you sure you want to permanently delete Booking ${booking.id}?`)) return;
+      if (apiReady && booking._id) {
+        try { await api.deleteBooking(booking._id); }
+        catch (err) { console.error('Failed to delete booking', err); return; }
+      }
+      setBookings(prev => {
+        const next = prev.filter(b => b.id !== booking.id);
+        safeWriteJson(BOOKINGS_STORAGE_KEY, next);
+        return next;
+      });
+      return;
+    }
+
     const apiStatus = newStatus.replace(/-/g, '_');
     // Try API first
     if (apiReady && booking._id) {

@@ -4,7 +4,7 @@ const {
   getRooms, getRoom, createRoom, updateRoom, deleteRoom,
   updateRoomHousekeeping, checkAvailability,
   getBookings, getBooking, createBooking, updateBooking,
-  checkIn, checkOut, cancelBooking,
+  checkIn, checkOut, cancelBooking, deleteBooking,
   getCheckInProcess, generateQRCode, updateGuestDetails,
   uploadIdScan, submitFaceVerification, saveSignature,
   getCabBookings, getCabBooking, createCabBooking, updateCabBooking, deleteCabBooking,
@@ -43,6 +43,7 @@ router.put  ('/bookings/:id',        hotelAdmin,   updateBooking);
 router.post ('/bookings/:id/checkin',              checkIn);
 router.post ('/bookings/:id/checkout',             checkOut);
 router.post ('/bookings/:id/cancel',               cancelBooking);
+router.delete('/bookings/:id',                     deleteBooking);
 
 // ── Dashboard / Payments ──────────────────────────────────────────────────────
 router.get  ('/payments/pending',                  getPendingPayments);
