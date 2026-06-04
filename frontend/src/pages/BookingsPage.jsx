@@ -67,6 +67,7 @@ const fromFlat = (f) => ({
   children: f.children,
   amount: f.amount,
   totalAmount: f.amount,
+  id: f.id,
   source: f.source,
   status: (f.status || 'confirmed').replace(/-/g, '_'),
   hasPet: f.hasPet,
