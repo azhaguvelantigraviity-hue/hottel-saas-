@@ -80,10 +80,10 @@ router.post  ('/employees/:id/leave',                     applyLeave);
 // ── Employees (Professional+) ─────────────────────────────────────────────────
 router.use('/employees', requireFeature('employees'));
 router.get   ('/employees',                               getEmployees);
-router.post  ('/employees', authorize('hotel_admin', 'platform_admin', 'manager'), enforceLimit('staffAccounts', Employee), createEmployee);
+router.post  ('/employees', authorize('hotel_admin', 'platform_admin', 'manager', 'hotel_staff'), enforceLimit('staffAccounts', Employee), createEmployee);
 router.get   ('/employees/:id',                           getEmployee);
-router.put   ('/employees/:id', authorize('hotel_admin', 'platform_admin', 'manager'), updateEmployee);
-router.delete('/employees/:id', authorize('hotel_admin', 'platform_admin', 'manager'), deleteEmployee);
+router.put   ('/employees/:id', authorize('hotel_admin', 'platform_admin', 'manager', 'hotel_staff'), updateEmployee);
+router.delete('/employees/:id', authorize('hotel_admin', 'platform_admin', 'manager', 'hotel_staff'), deleteEmployee);
 
 // ── Subscriptions / Razorpay ──────────────────────────────────────────────────
 router.post('/subscription/create-order', createSubscriptionOrder);
