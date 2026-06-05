@@ -30,7 +30,7 @@ export const updateGuest = (id, body)    => put(`/hotel/guests/${id}`, body);
 export const deleteGuest = (id)          => del(`/hotel/guests/${id}`);
 
 // ── Employees ─────────────────────────────────────────────────
-export const getEmployees    = ()          => get('/hotel/employees');
+export const getEmployees    = (params = {}) => get(`/hotel/employees?${new URLSearchParams(params)}`);
 export const getAttendance   = ()          => get('/hotel/attendance');
 export const getEmployee     = (id)        => get(`/hotel/employees/${id}`);
 export const createEmployee  = (body)      => post('/hotel/employees', body);

@@ -35,16 +35,11 @@ const HousekeepingPage = () => {
       const [tasksRes, roomsRes, emplRes] = await Promise.all([
         hkApi.getHousekeepingTasks(),
         hotelApi.getRooms(),
-        hotelApi.getEmployees().catch(() => ({ data: [] })),
+        hotelApi.getEmployees({ department: 'Housekeeping', status: 'active' }).catch(() => ({ data: [] })),
       ]);
       setTasks((tasksRes.data || []).map(fromApi));
       setRooms(roomsRes.data || []);
-      const allStaff = emplRes.data || [];
-      const hkStaff = allStaff.filter(e =>
-        (e.department || '').toLowerCase().includes('housekeeping') ||
-        (e.department || '').toLowerCase().includes('front office')
-      );
-      setHousekeepers(hkStaff.length > 0 ? hkStaff : allStaff);
+      setHousekeepers(emplRes.data || []);
     } catch (err) {
       console.error('Failed to load housekeeping data', err);
     } finally {

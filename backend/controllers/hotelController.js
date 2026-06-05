@@ -372,7 +372,18 @@ const deleteGuest = catchAsync(async (req, res) => {
 
 // ── Employees ──────────────────────────────────────────────────
 const getEmployees = catchAsync(async (req, res) => {
-  const employees = await Employee.find(hotelFilter(req)).sort('-createdAt');
+  const filter = hotelFilter(req);
+  if (req.query.department) {
+    const deptRegex = new RegExp(req.query.department, 'i');
+    filter.$or = [
+      { department: deptRegex },
+      { role: deptRegex }
+    ];
+  }
+  if (req.query.status) {
+    filter.status = req.query.status;
+  }
+  const employees = await Employee.find(filter).sort('-createdAt');
   res.json({ success: true, data: employees });
 });
 const getEmployee = catchAsync(async (req, res) => {
