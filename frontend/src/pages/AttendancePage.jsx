@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import Icon from '../components/Icon';
 import Badge from '../components/Badge';
 import Avatar from '../components/Avatar';
-import { ATTENDANCE, EMPLOYEES } from '../data/mockData';
 import { getEmployees as apiGetEmployees, getAttendance as apiGetAttendance, markAttendance as apiMarkAttendance } from '../services/hotelService';
 
 const statusColor = { present: 'green', absent: 'rose', leave: 'amber', late: 'violet' };
@@ -78,8 +77,7 @@ const AttendancePage = ({ employees, hotelDetails }) => {
     loadAttendanceData();
   }, [hotelId]);
 
-  const rawEmployees = fetchedEmployees.length > 0 ? fetchedEmployees : EMPLOYEES;
-  const employeeList = rawEmployees.filter(e => e.status !== 'off-duty');
+  const employeeList = fetchedEmployees;
   const todayRecords = attendance.filter(a => a.date === selectedDate);
   const allDates = [...new Set(attendance.map(a => a.date))].sort().reverse();
 

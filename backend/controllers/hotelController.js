@@ -19,7 +19,7 @@ const catchAsync = require('../utils/helpers').catchAsync || ((fn) => (req, res,
 const hotelFilter = (req) => req.hotelId ? { hotel: req.hotelId } : {};
 const oneFilter   = (req)  => req.hotelId ? { hotel: req.hotelId, _id: req.params.id } : { _id: req.params.id };
 const findOrCreateGuest = async (body) => {
-  if (!body.guest) return null;
+  if (!body.guest && !body.guestName) return null;
   // guest is already an ObjectId
   if (typeof body.guest === 'string' && /^[0-9a-fA-F]{24}$/.test(body.guest)) return body.guest;
   const name = (body.guestName || body.guest || '').trim();

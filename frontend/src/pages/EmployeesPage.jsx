@@ -131,7 +131,7 @@ const AddEmployeeModal = ({ onClose, onAdd }) => {
                 loginEmail: isReceptionist ? form.loginEmail : '',
                 loginPassword: isReceptionist ? form.loginPassword : '',
                 id: Date.now(), 
-                status: 'off-duty', 
+                status: 'on-duty', 
                 joined: new Date().toISOString().slice(0, 10), 
                 avatar: form.name.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase(), 
                 salary: +form.salary || 0 
@@ -196,10 +196,9 @@ const EmployeesPage = ({ role, hotelDetails, plan }) => {
   const [employees, setEmployees] = useState(() => {
     try {
       const stored = localStorage.getItem(`stayos_employees_${hotelDetails?.id || 'default'}`);
-      const parsed = stored ? JSON.parse(stored) : EMPLOYEES;
-      return parsed.length > 0 ? parsed : EMPLOYEES;
+      return stored ? JSON.parse(stored) : [];
     } catch {
-      return EMPLOYEES;
+      return [];
     }
   });
   const [apiSynced, setApiSynced] = useState(false);
@@ -209,10 +208,8 @@ const EmployeesPage = ({ role, hotelDetails, plan }) => {
     apiGetEmployees()
       .then(res => {
         const list = (res.data || []).map(mapBEtoFE);
-        if (list.length > 0) {
-          setEmployees(list);
-          localStorage.setItem(`stayos_employees_${hotelDetails?.id || 'default'}`, JSON.stringify(list));
-        }
+        setEmployees(list);
+        localStorage.setItem(`stayos_employees_${hotelDetails?.id || 'default'}`, JSON.stringify(list));
       })
       .catch(() => {
         // API unavailable — keep localStorage data
@@ -251,8 +248,7 @@ const EmployeesPage = ({ role, hotelDetails, plan }) => {
         localStorage.setItem(`stayos_employees_${hotelDetails?.id || 'default'}`, JSON.stringify(nextList));
       })
       .catch(() => {
-        // API unavailable — save to localStorage only
-        const localEmp = { ...newEmp, id: Date.now(), status: 'off-duty', joined: new Date().toISOString().slice(0, 10), avatar: newEmp.avatar || newEmp.name.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase(), salary: +newEmp.salary || 0 };
+        const localEmp = { ...newEmp, id: Date.now(), status: 'on-duty', joined: new Date().toISOString().slice(0, 10), avatar: newEmp.avatar || newEmp.name.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase(), salary: +newEmp.salary || 0 };
         const nextList = [...employees, localEmp];
         setEmployees(nextList);
         localStorage.setItem(`stayos_employees_${hotelDetails?.id || 'default'}`, JSON.stringify(nextList));
