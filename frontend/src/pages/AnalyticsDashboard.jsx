@@ -28,7 +28,7 @@ const BarChart = () => (
     {MONTHLY.map((m, i) => (
       <div key={i} style={{ flex:1, display:'flex', flexDirection:'column', alignItems:'center', gap:4 }}>
         <div style={{ width:'100%', display:'flex', gap:2, alignItems:'flex-end', height:140 }}>
-          <div style={{ flex:1, background:'linear-gradient(180deg,var(--gold),var(--gold-dim))', borderRadius:'4px 4px 0 0', height:`${(m.revenue/maxRev)*100}%`, transition:'height 0.5s', minHeight:4 }} title={`Revenue: ₹${m.revenue.toLocaleString()}`} />
+          <div style={{ flex:1, background:'var(--gold)', borderRadius:'4px 4px 0 0', height:`${(m.revenue/maxRev)*100}%`, transition:'height 0.5s', minHeight:4 }} title={`Revenue: ₹${m.revenue.toLocaleString()}`} />
           <div style={{ flex:1, background:'rgba(251,113,133,0.5)', borderRadius:'4px 4px 0 0', height:`${(m.expenses/maxRev)*100}%`, transition:'height 0.5s', minHeight:4 }} title={`Expenses: ₹${m.expenses.toLocaleString()}`} />
         </div>
         <div style={{ fontSize:10, color:'var(--text3)' }}>{m.month}</div>
@@ -101,10 +101,10 @@ const AnalyticsDashboard = () => {
   return (
     <div style={{ flex:1, overflowY:'auto', padding:24 }}>
       <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fit, minmax(min(100%, 240px), 1fr))', gap:16, marginBottom:24 }}>
-        <StatCard title="RevPAR" value="-" icon="dollar" color="var(--gold)" />
-        <StatCard title="ADR" value="-" icon="trending" color="var(--teal)" />
-        <StatCard title="GOPPAR" value="-" icon="chart" color="var(--violet)" />
-        <StatCard title="NPS Score" value="-" icon="star" color="var(--green)" />
+        <StatCard label="RevPAR" value="-" icon="dollar" iconColor="var(--gold)" />
+        <StatCard label="ADR" value="-" icon="trending" iconColor="var(--teal)" />
+        <StatCard label="GOPPAR" value="-" icon="chart" iconColor="var(--violet)" />
+        <StatCard label="NPS Score" value="-" icon="star" iconColor="var(--green)" />
       </div>
       <div style={{ display:'flex', gap:4, marginBottom:20, background:'var(--card)', borderRadius:10, padding:4, border:'1px solid var(--border)' }}>
         {TABS.map((t,i) => <button key={i} onClick={() => setTab(i)} style={{ flex:1, padding:'9px 8px', borderRadius:8, border:'none', cursor:'pointer', fontFamily:'Inter, sans-serif', fontSize:12, fontWeight:500, background:tab===i?'var(--surface)':'transparent', color:tab===i?'var(--gold)':'var(--text2)' }}>{t}</button>)}
