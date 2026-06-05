@@ -25,7 +25,9 @@ const findOrCreateGuest = async (body) => {
   const name = (body.guestName || body.guest || '').trim();
   const parts = name.split(/\s+/);
   const firstName = parts[0] || 'Unknown';
-  const lastName  = parts.slice(1).join(' ') || '';
+  let lastName  = parts.slice(1).join(' ').trim();
+  if (!lastName) lastName = 'Guest'; // Provide default to pass validation
+
   let guest = await Guest.findOne({ hotel: body.hotel, firstName, lastName });
   if (!guest) {
     guest = await Guest.create({

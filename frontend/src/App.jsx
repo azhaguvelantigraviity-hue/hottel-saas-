@@ -278,12 +278,12 @@ const App = () => {
       <Route path="/login/hotel" element={<Login type="hotel" onSuccess={handleHotelSuccess} onBack={() => navigate('/')} />} />
       <Route path="/admin/*" element={
         <ProtectedRoute isAuthenticated={isAuthenticated} authReady={authReady}>
-          <AdminApp onLogout={handleLogout} theme={theme} setTheme={setTheme} />
+          {loginType === 'admin' ? <AdminApp onLogout={handleLogout} theme={theme} setTheme={setTheme} /> : <Navigate to="/hotel/dashboard" replace />}
         </ProtectedRoute>
       } />
       <Route path="/hotel/*" element={
         <ProtectedRoute isAuthenticated={isAuthenticated} authReady={authReady}>
-          <HotelApp onLogout={handleLogout} initialPlan={hotelPlan} role={hotelRole} hotelDetails={currentHotel} theme={theme} setTheme={setTheme} />
+          {loginType === 'hotel' ? <HotelApp onLogout={handleLogout} initialPlan={hotelPlan} role={hotelRole} hotelDetails={currentHotel} theme={theme} setTheme={setTheme} /> : <Navigate to="/admin/dashboard" replace />}
         </ProtectedRoute>
       } />
       <Route path="*" element={<Navigate to="/" replace />} />

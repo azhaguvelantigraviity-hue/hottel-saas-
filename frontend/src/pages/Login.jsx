@@ -16,7 +16,18 @@ const Login = ({ type, onSuccess, onBack }) => {
       const user = response.user || response.data;
       const role = user.role;
       const hotel = user.hotel;
+      if (type === 'admin' && role !== 'platform_admin') {
+        setLoading(false);
+        alert('This portal is restricted to Platform Administrators. Please use the Hotel Login page.');
+        return;
+      }
       
+      if (type === 'hotel' && role === 'platform_admin') {
+        setLoading(false);
+        alert('Platform administrators must use the Admin Portal to log in.');
+        return;
+      }
+
       setLoading(false);
       
       if (role === 'platform_admin') {

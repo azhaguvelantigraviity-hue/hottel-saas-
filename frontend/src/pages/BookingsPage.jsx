@@ -355,7 +355,8 @@ const BookingsPage = () => {
           safeWriteJson(BOOKINGS_STORAGE_KEY, flat);
           setApiReady(true);
         }
-      } catch {
+      } catch (err) {
+        console.error("loadFromApi failed:", err);
         // API not available, use localStorage (already set via useState)
       }
     };
@@ -461,7 +462,8 @@ const BookingsPage = () => {
           setBookings(prev => [...prev, flat]);
           return;
         }
-      } catch {
+      } catch (err) {
+        console.error("createBooking failed:", err);
         // Fall through to localStorage
       }
     }

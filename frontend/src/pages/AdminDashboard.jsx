@@ -37,7 +37,7 @@ const AdminDashboard = ({ onNav }) => {
     loadData();
   }, []);
 
-  const { totalHotels, activeHotels, totalRooms, mrr, planBreakdown } = dashboard;
+  const { totalHotels, activeHotels, totalRooms, totalUsers, mrr, planBreakdown } = dashboard;
 
   return (
     <div style={{ padding: 'clamp(16px, 4vw, 32px)', overflowY: 'auto', flex: 1, opacity: loading ? 0.6 : 1, pointerEvents: loading ? 'none' : 'auto' }}>
@@ -45,7 +45,7 @@ const AdminDashboard = ({ onNav }) => {
         <StatCard icon="hotel" iconColor="#C9A84C" label="Total Hotels" value={totalHotels} sub="Registered Hotels" trend={0} />
         <StatCard icon="dollar" iconColor="#2DD4BF" label="Monthly Revenue" value={`₹${(mrr / 1000).toFixed(0)}K`} sub="Platform MRR" trend={0} />
         <StatCard icon="trending" iconColor="#A78BFA" label="Active Subs" value={activeHotels} sub="Active Subscriptions" trend={0} />
-        <StatCard icon="users" iconColor="#FB7185" label="Total Rooms" value={totalRooms} sub="Across All Hotels" trend={0} />
+        <StatCard icon="users" iconColor="#FB7185" label="Total Staffs" value={totalUsers} sub="Across All Hotels" trend={0} />
       </div>
 
       {/* Charts Row */}
