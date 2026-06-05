@@ -256,6 +256,7 @@ const App = () => {
   };
 
   const handleHotelSuccess = (plan, role, hotelDetails) => {
+    setLoginType('hotel');
     setHotelPlan(plan || 'enterprise');
     setHotelRole(role || 'manager');
     setCurrentHotel(hotelDetails || null);
@@ -276,7 +277,7 @@ const App = () => {
   return (
     <Routes>
       <Route path="/" element={<Landing onLogin={handleLogin} theme={theme} setTheme={setTheme} />} />
-      <Route path="/login/admin" element={<Login type="admin" onSuccess={() => { setIsAuthenticated(true); navigate('/admin/dashboard'); }} onBack={() => navigate('/')} />} />
+      <Route path="/login/admin" element={<Login type="admin" onSuccess={() => { setLoginType('admin'); setIsAuthenticated(true); navigate('/admin/dashboard'); }} onBack={() => navigate('/')} />} />
       <Route path="/login/hotel" element={<Login type="hotel" onSuccess={handleHotelSuccess} onBack={() => navigate('/')} />} />
       <Route path="/admin/*" element={
         <ProtectedRoute isAuthenticated={isAuthenticated} authReady={authReady}>
