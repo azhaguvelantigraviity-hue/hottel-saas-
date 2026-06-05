@@ -2,11 +2,23 @@ import React, { useState } from 'react';
 import StatCard from '../components/StatCard';
 import Icon from '../components/Icon';
 
-const MONTHLY = [];
+const MONTHLY = [
+  { month: 'Jan', revenue: 450000, expenses: 280000, guests: 420 },
+  { month: 'Feb', revenue: 520000, expenses: 290000, guests: 480 },
+  { month: 'Mar', revenue: 610000, expenses: 310000, guests: 550 },
+  { month: 'Apr', revenue: 580000, expenses: 305000, guests: 510 },
+  { month: 'May', revenue: 720000, expenses: 340000, guests: 680 },
+  { month: 'Jun', revenue: 850000, expenses: 380000, guests: 820 },
+];
 
-const OCCUPANCY = [];
+const OCCUPANCY = [62, 65, 68, 70, 75, 82, 85, 88, 86, 80, 78, 75, 72, 70, 68, 75, 80, 85, 90, 92, 88, 85, 82, 78, 75, 72, 70, 75, 80, 85, 88];
 
-const DEPT_PROFIT = [];
+const DEPT_PROFIT = [
+  { name: 'Rooms', pct: 65, color: 'var(--gold)' },
+  { name: 'F&B', pct: 20, color: 'var(--teal)' },
+  { name: 'Events', pct: 10, color: 'var(--violet)' },
+  { name: 'Spa/Other', pct: 5, color: 'var(--rose)' }
+];
 
 const maxRev = MONTHLY.length > 0 ? Math.max(...MONTHLY.map(m => m.revenue)) : 1;
 const maxOcc = 100;

@@ -2,11 +2,27 @@ import React, { useState } from 'react';
 import StatCard from '../components/StatCard';
 import Badge from '../components/Badge';
 
-const REVENUE_DATA = [];
+const REVENUE_DATA = [
+  { name: 'Jan', subscriptions: 120000, commissions: 35000 },
+  { name: 'Feb', subscriptions: 140000, commissions: 42000 },
+  { name: 'Mar', subscriptions: 165000, commissions: 55000 },
+  { name: 'Apr', subscriptions: 180000, commissions: 60000 },
+  { name: 'May', subscriptions: 210000, commissions: 75000 },
+  { name: 'Jun', subscriptions: 245000, commissions: 90000 }
+];
 
-const PLAN_DATA = [];
+const PLAN_DATA = [
+  { name: 'Enterprise', value: 450000, color: 'var(--gold)' },
+  { name: 'Professional', value: 280000, color: 'var(--teal)' },
+  { name: 'Starter', value: 95000, color: 'var(--rose)' }
+];
 
-const TRANSACTIONS = [];
+const TRANSACTIONS = [
+  { id: 'TXN-9092', hotel: 'The Grand Resort', type: 'Subscription (Enterprise)', amount: 39900, date: '2025-10-15', status: 'completed' },
+  { id: 'TXN-9091', hotel: 'Seaside Villas', type: 'Commission (Sep)', amount: 12500, date: '2025-10-14', status: 'completed' },
+  { id: 'TXN-9090', hotel: 'Mountain Retreat', type: 'Subscription (Pro)', amount: 14900, date: '2025-10-12', status: 'pending' },
+  { id: 'TXN-9089', hotel: 'City Center Inn', type: 'Commission (Sep)', amount: 8400, date: '2025-10-10', status: 'completed' }
+];
 
 const thStyle = { padding: '14px 20px', textAlign: 'left', fontSize: '11px', color: 'var(--text3)', fontWeight: '600', letterSpacing: '0.06em', textTransform: 'uppercase', borderBottom: '1px solid var(--border)', background: 'var(--surface)' };
 const tdStyle = { padding: '14px 20px', fontSize: '13px', color: 'var(--text2)', borderBottom: '1px solid var(--border)' };
