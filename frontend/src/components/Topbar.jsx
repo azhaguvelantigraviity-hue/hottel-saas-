@@ -68,7 +68,7 @@ const Topbar = ({ title, subtitle, role, notifCount = 3, onNav, toggleSidebar })
             position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)',
             pointerEvents: 'none',
           }}>
-            <Icon name="eye" size={15} color="var(--text4)" />
+            <Icon name="search" size={15} color="var(--text4)" />
           </div>
           <input
             value={search}
