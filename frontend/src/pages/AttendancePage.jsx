@@ -33,26 +33,19 @@ const AttendancePage = ({ employees, hotelDetails }) => {
 
   useEffect(() => {
     if (employees && employees.length > 0) {
-      setFetchedEmployees(employees);
+      setFetchedEmployees(employees.filter(e => e.status !== 'off-duty'));
       return;
     }
     
-    try {
-      const stored = localStorage.getItem(`stayos_employees_${hotelId}`);
-      if (stored) {
-        const parsed = JSON.parse(stored);
-        if (parsed.length > 0) setFetchedEmployees(parsed);
-      }
-    } catch {}
-
     apiGetEmployees()
       .then(res => {
         const list = (res.data || []).map(mapBEtoFE);
-        setFetchedEmployees(list);
-        localStorage.setItem(`stayos_employees_${hotelId}`, JSON.stringify(list));
+        setFetchedEmployees(list.filter(e => e.status !== 'off-duty'));
       })
-      .catch(() => {});
-  }, [empLength, hotelId]);
+      .catch((err) => {
+        console.error("Failed to fetch employees:", err);
+      });
+  }, [empLength, hotelId, employees]);
 
   const loadAttendanceData = () => {
     apiGetAttendance().then(res => {

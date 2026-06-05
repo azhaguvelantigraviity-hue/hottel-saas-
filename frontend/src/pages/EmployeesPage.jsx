@@ -197,26 +197,18 @@ const EditEmployeeModal = ({ employee, onClose, onSave }) => {
 };
 
 const EmployeesPage = ({ role, hotelDetails, plan }) => {
-  const [employees, setEmployees] = useState(() => {
-    try {
-      const stored = localStorage.getItem(`stayos_employees_${hotelDetails?.id || 'default'}`);
-      return stored ? JSON.parse(stored) : [];
-    } catch {
-      return [];
-    }
-  });
+  const [employees, setEmployees] = useState([]);
   const [apiSynced, setApiSynced] = useState(false);
 
-  // Load from backend API on mount; fall back to localStorage
+  // Load from backend API on mount
   useEffect(() => {
     apiGetEmployees()
       .then(res => {
         const list = (res.data || []).map(mapBEtoFE);
         setEmployees(list);
-        localStorage.setItem(`stayos_employees_${hotelDetails?.id || 'default'}`, JSON.stringify(list));
       })
-      .catch(() => {
-        // API unavailable — keep localStorage data
+      .catch((err) => {
+        console.error("Failed to fetch employees:", err);
       })
       .finally(() => setApiSynced(true));
   }, [hotelDetails?.id]);
@@ -247,18 +239,11 @@ const EmployeesPage = ({ role, hotelDetails, plan }) => {
     apiCreateEmployee(mapFEtoBE(newEmp))
       .then(res => {
         const created = mapBEtoFE(res.data);
-        const nextList = [...employees, created];
-        setEmployees(nextList);
-        localStorage.setItem(`stayos_employees_${hotelDetails?.id || 'default'}`, JSON.stringify(nextList));
+        setEmployees(prev => [...prev, created]);
       })
-      .catch(() => {
-        const localEmp = { ...newEmp, id: Date.now(), status: 'on-duty', joined: new Date().toISOString().slice(0, 10), avatar: newEmp.avatar || newEmp.name.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase(), salary: +newEmp.salary || 0 };
-        const nextList = [...employees, localEmp];
-        setEmployees(nextList);
-        localStorage.setItem(`stayos_employees_${hotelDetails?.id || 'default'}`, JSON.stringify(nextList));
+      .catch((err) => {
+        alert("Failed to add employee: " + (err.data?.message || err.message));
       });
-
-
   };
 
   const handleSaveEmployee = (updatedEmp) => {
@@ -266,30 +251,21 @@ const EmployeesPage = ({ role, hotelDetails, plan }) => {
     apiUpdateEmployee(updatedEmp.id, mapFEtoBE(updatedEmp))
       .then(res => {
         const saved = mapBEtoFE(res.data);
-        const nextList = employees.map(e => e.id === updatedEmp.id ? saved : e);
-        setEmployees(nextList);
-        localStorage.setItem(`stayos_employees_${hotelDetails?.id || 'default'}`, JSON.stringify(nextList));
+        setEmployees(prev => prev.map(e => e.id === updatedEmp.id ? saved : e));
       })
-      .catch(() => {
-        // API unavailable — save to localStorage only
-        const nextList = employees.map(e => e.id === updatedEmp.id ? updatedEmp : e);
-        setEmployees(nextList);
-        localStorage.setItem(`stayos_employees_${hotelDetails?.id || 'default'}`, JSON.stringify(nextList));
+      .catch((err) => {
+        alert("Failed to update employee: " + (err.data?.message || err.message));
       });
   };
 
   const handleDeleteEmployee = (emp) => {
     apiDeleteEmployee(emp.id)
       .then(() => {
-        const nextList = employees.filter(e => e.id !== emp.id);
-        setEmployees(nextList);
-        localStorage.setItem(`stayos_employees_${hotelDetails?.id || 'default'}`, JSON.stringify(nextList));
+        setEmployees(prev => prev.filter(e => e.id !== emp.id));
         setDeleteConfirm(null);
       })
-      .catch(() => {
-        const nextList = employees.filter(e => e.id !== emp.id);
-        setEmployees(nextList);
-        localStorage.setItem(`stayos_employees_${hotelDetails?.id || 'default'}`, JSON.stringify(nextList));
+      .catch((err) => {
+        alert("Failed to delete employee: " + (err.data?.message || err.message));
         setDeleteConfirm(null);
       });
   };
