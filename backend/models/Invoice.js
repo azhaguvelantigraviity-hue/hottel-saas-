@@ -14,7 +14,13 @@ const InvoiceSchema = new mongoose.Schema({
   guest:      { type: mongoose.Schema.Types.ObjectId, ref: 'Guest' },
   guestName:  { type: String, required: true },
   guestEmail: String,
-  guestPhone: String,
+  guestPhone: {
+    type: String,
+    validate: {
+      validator: function(v) { return !v || /^\d{10}$/.test(v); },
+      message: props => `${props.value} is not a valid 10-digit phone number!`
+    }
+  },
 
   booking:    { type: mongoose.Schema.Types.ObjectId, ref: 'Booking' },
   roomNumber: String,

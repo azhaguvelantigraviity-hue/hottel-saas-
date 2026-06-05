@@ -7,7 +7,13 @@ const EventBookingSchema = new mongoose.Schema({
   hall:             { type: mongoose.Schema.Types.ObjectId, ref: 'Hall', required: true },
   hallName:         String,
   clientName:       { type: String, required: true },
-  clientPhone:      String,
+  clientPhone:      {
+    type: String,
+    validate: {
+      validator: function(v) { return !v || /^\d{10}$/.test(v); },
+      message: props => `${props.value} is not a valid 10-digit phone number!`
+    }
+  },
   clientEmail:      String,
   date:             { type: Date, required: true },
   startTime:        String,

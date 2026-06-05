@@ -213,7 +213,11 @@ const GuestCRMPage = () => {
               {[['name', 'FULL NAME'], ['email', 'EMAIL'], ['phone', 'PHONE'], ['city', 'CITY / ADDRESS']].map(([k, l]) => (
                 <div key={k}>
                   <label style={labelStyle}>{l}</label>
-                  <input style={inputStyle} value={newGuest[k]} onChange={e => setNewGuest(p => ({ ...p, [k]: e.target.value }))} />
+                  <input style={inputStyle} value={newGuest[k]} onChange={e => {
+                    let val = e.target.value;
+                    if (k === 'phone') val = val.replace(/\D/g, '').slice(0, 10);
+                    setNewGuest(p => ({ ...p, [k]: val }));
+                  }} />
                 </div>
               ))}
               <div>

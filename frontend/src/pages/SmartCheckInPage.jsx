@@ -122,6 +122,8 @@ const StepDetails = ({ booking, onNext }) => {
           </label>
           {f === 'address' ? (
             <textarea value={form[f]} onChange={e => setForm(p => ({ ...p, [f]: e.target.value }))} rows={3} style={{ width: '100%', background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 8, padding: '10px 14px', color: 'var(--text)', fontFamily: 'Inter, sans-serif', fontSize: 14, boxSizing: 'border-box', resize: 'vertical' }} />
+          ) : f === 'phone' ? (
+            <input value={form[f]} onChange={e => setForm(p => ({ ...p, [f]: e.target.value.replace(/\D/g, '').slice(0, 10) }))} placeholder="10 digits" type="text" style={{ width: '100%', background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 8, padding: '10px 14px', color: 'var(--text)', fontFamily: 'Inter, sans-serif', fontSize: 14, boxSizing: 'border-box' }} />
           ) : (
             <input value={form[f]} onChange={e => setForm(p => ({ ...p, [f]: e.target.value }))} type={f === 'email' ? 'email' : 'text'} style={{ width: '100%', background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 8, padding: '10px 14px', color: 'var(--text)', fontFamily: 'Inter, sans-serif', fontSize: 14, boxSizing: 'border-box' }} />
           )}

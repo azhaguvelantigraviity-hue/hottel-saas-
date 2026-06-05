@@ -3,7 +3,13 @@ const mongoose = require('mongoose');
 const HotelSchema = new mongoose.Schema({
   name:       { type: String, required: true, trim: true },
   email:      { type: String, required: true, unique: true, lowercase: true },
-  phone:      String,
+  phone:      {
+    type: String,
+    validate: {
+      validator: function(v) { return !v || /^\d{10}$/.test(v); },
+      message: props => `${props.value} is not a valid 10-digit phone number!`
+    }
+  },
   website:    String,
   owner:      { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
   address: {

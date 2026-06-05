@@ -8,12 +8,17 @@ const VALID_CATEGORIES = ['Breakfast','Starters','Main Course','Breads','Dessert
 
 function parseRows(rows) {
   return rows.map((row, i) => {
-    const name = (row.name || row.Name || row.NAME || row.item || row.Item || '').toString().trim();
-    const price = parseFloat(row.price || row.Price || row.PRICE || row.rate || row.Rate || 0);
-    const rawCat = (row.category || row.Category || row.CATEGORY || row.cat || row.Cat || '').toString().trim();
-    const desc = (row.description || row.Description || row.DESCRIPTION || row.desc || row.Desc || '').toString().trim();
-    const available = row.available !== undefined ? [true, 1, 'true', 'yes', 'Yes', 'TRUE', 'available'].includes(row.available) : true;
-    const stock = parseInt(row.stock || row.Stock || row.STOCK || row.qty || row.Qty || 0) || 0;
+    const name = (row['Item Name'] || row.name || row.Name || row.NAME || row.item || row.Item || '').toString().trim();
+    const price = parseFloat(row.Price || row.price || row.PRICE || row.rate || row.Rate || 0);
+    const rawCat = (row.Category || row.category || row.CATEGORY || row.cat || row.Cat || '').toString().trim();
+    const desc = (row.Description || row.description || row.DESCRIPTION || row.desc || row.Desc || '').toString().trim();
+    
+    // Status can be Available/Unavailable, Active/Inactive, or boolean
+    let rawStatus = row.Status || row.status || row.available;
+    const available = rawStatus !== undefined ? [true, 1, 'true', 'yes', 'Yes', 'TRUE', 'available', 'Available', 'Active'].includes(rawStatus) : true;
+    
+    const stock = parseInt(row.Stock || row.stock || row.STOCK || row.qty || row.Qty || 0) || 0;
+    const imageUrl = (row['Image URL'] || row.image || row.Image || row.imageUrl || '').toString().trim();
 
     const errors = [];
     if (!name) errors.push('Item name is required');
@@ -33,7 +38,7 @@ function parseRows(rows) {
       available,
       stock,
       errors,
-      image: null,
+      image: imageUrl || null,
     };
   });
 }
@@ -61,11 +66,13 @@ const parseBulkImport = asyncHandler(async (req, res) => {
   const invalidItems = items.filter(i => i.errors.length > 0);
 
   for (const item of validItems) {
-    try {
-      const searchQuery = encodeURIComponent(item.name + ' food recipe');
-      item.image = `https://source.unsplash.com/400x300/?${searchQuery}`;
-    } catch {
-      item.image = null;
+    if (!item.image) {
+      try {
+        const searchQuery = encodeURIComponent(item.name + ' food recipe');
+        item.image = `https://source.unsplash.com/400x300/?${searchQuery}`;
+      } catch {
+        item.image = null;
+      }
     }
   }
 

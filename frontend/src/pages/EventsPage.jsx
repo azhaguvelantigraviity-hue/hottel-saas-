@@ -552,7 +552,11 @@ const EventsPage = () => {
               {[['event','Event Name *','text'],['client','Client Name *','text'],['phone','Phone','text'],['email','Email','email']].map(([f, lbl, t]) => (
                 <div key={f}>
                   <label style={labelStyle}>{lbl}</label>
-                  <input type={t} value={form[f] || ''} onChange={e => setFormField(f, e.target.value)} style={inputStyle} />
+                  <input type={t} value={form[f] || ''} onChange={e => {
+                    let val = e.target.value;
+                    if (f === 'phone') val = val.replace(/\D/g, '').slice(0, 10);
+                    setFormField(f, val);
+                  }} style={inputStyle} />
                 </div>
               ))}
               <div>

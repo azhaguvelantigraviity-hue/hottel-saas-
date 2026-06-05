@@ -143,7 +143,10 @@ const NewBookingForm = ({ onClose, onSave }) => {
         </div>
         <div>
           <label style={labelStyle}>PHONE</label>
-          <input style={inputStyle} value={form.phone} onChange={e => set('phone', e.target.value)} placeholder="Mobile number" />
+          <input style={inputStyle} value={form.phone} onChange={e => {
+            const val = e.target.value.replace(/\D/g, '').slice(0, 10);
+            set('phone', val);
+          }} placeholder="Mobile number (10 digits)" />
         </div>
         <div>
           <label style={labelStyle}>EMAIL</label>

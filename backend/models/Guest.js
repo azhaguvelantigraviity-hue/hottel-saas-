@@ -5,7 +5,13 @@ const GuestSchema = new mongoose.Schema({
   firstName:    { type: String, required: true, trim: true },
   lastName:     { type: String, required: true, trim: true },
   email:        { type: String, lowercase: true, trim: true },
-  phone:        String,
+  phone:        {
+    type: String,
+    validate: {
+      validator: function(v) { return !v || /^\d{10}$/.test(v); },
+      message: props => `${props.value} is not a valid 10-digit phone number!`
+    }
+  },
   nationality:  { type: String, default: 'Indian' },
   idType:       { type: String, enum: ['aadhaar','passport','driving_license','voter_id'], default: 'aadhaar' },
   idNumber:     String,

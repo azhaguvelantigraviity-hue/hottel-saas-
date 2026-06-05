@@ -80,7 +80,11 @@ const AddEmployeeModal = ({ onClose, onAdd }) => {
           {[['name', 'FULL NAME', 'text'], ['role', 'ROLE / DESIGNATION', 'text'], ['phone', 'PHONE', 'text'], ['email', 'EMAIL', 'email'], ['salary', 'MONTHLY SALARY (₹)', 'number']].map(([k, l, t]) => (
             <div key={k} style={{ gridColumn: k === 'name' || k === 'role' ? 'span 2' : 'span 1' }}>
               <label style={labelStyle}>{l}</label>
-              <input type={t} style={inputStyle} value={form[k] || ''} onChange={e => set(k, e.target.value)} />
+              <input type={t} style={inputStyle} value={form[k] || ''} onChange={e => {
+                let val = e.target.value;
+                if (k === 'phone') val = val.replace(/\D/g, '').slice(0, 10);
+                set(k, val);
+              }} />
             </div>
           ))}
           <div>

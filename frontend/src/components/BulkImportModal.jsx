@@ -1,5 +1,6 @@
 import React, { useState, useRef, useCallback } from 'react';
 import { parseBulkImportFile, saveBulkImportItems, uploadItemImage } from '../services/bulkImportService';
+import * as XLSX from 'xlsx';
 import Icon from './Icon';
 
 const CATEGORY_COLORS = {
@@ -152,14 +153,24 @@ const BulkImportModal = ({ onClose, onComplete }) => {
     fontFamily: 'Inter, sans-serif',
   };
 
+  const downloadSample = () => {
+    const ws = XLSX.utils.json_to_sheet([
+      { 'Item Name': 'Masala Dosa', Category: 'Breakfast', Price: 120, Stock: 50, Description: 'Crispy dosa with potato filling', 'Image URL': 'https://images.unsplash.com/photo-1610192244261-3f33de3f55e4', Status: 'Available' },
+      { 'Item Name': 'Paneer Tikka', Category: 'Starters', Price: 250, Stock: 20, Description: 'Grilled cottage cheese', 'Image URL': '', Status: 'Available' }
+    ]);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'Menu Items');
+    XLSX.writeFile(wb, 'Sample_Menu_Upload.xlsx');
+  };
+
   return (
     <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.75)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
       <div style={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: 'var(--radius-lg)', width: '100%', maxWidth: '900px', maxHeight: '90vh', display: 'flex', flexDirection: 'column' }}>
         <div style={{ padding: '24px', borderBottom: '1px solid var(--border)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexShrink: 0 }}>
           <div>
-            <h2 style={{ fontFamily: 'Poppins,sans-serif', fontSize: '20px', marginBottom: '4px' }}>Bulk Import Food Items</h2>
+            <h2 style={{ fontFamily: 'Poppins,sans-serif', fontSize: '20px', marginBottom: '4px' }}>Upload Food Items via Excel</h2>
             <p style={{ fontSize: '13px', color: 'var(--text3)' }}>
-              {step === 'upload' ? 'Upload an Excel or CSV file with your menu items' :
+              {step === 'upload' ? 'Upload an Excel (.xlsx) file with your menu items' :
                step === 'parsing' ? 'Parsing file...' :
                `Review ${parsedData?.valid || 0} items before saving`}
             </p>
@@ -171,39 +182,49 @@ const BulkImportModal = ({ onClose, onComplete }) => {
 
         <div style={{ padding: '24px', overflowY: 'auto', flex: 1 }}>
           {step === 'upload' && (
-            <div
-              onDrop={handleDrop}
-              onDragOver={handleDragOver}
-              onClick={() => fileInputRef.current?.click()}
-              style={{
-                border: '2px dashed var(--border)',
-                borderRadius: '12px',
-                padding: '60px 40px',
-                textAlign: 'center',
-                cursor: 'pointer',
-                transition: 'all 0.2s',
-                background: 'var(--surface)',
-              }}
-              onMouseEnter={e => e.currentTarget.style.borderColor = 'var(--gold)'}
-              onMouseLeave={e => e.currentTarget.style.borderColor = 'var(--border)'}
-            >
-              <div style={{ fontSize: '48px', marginBottom: '16px', opacity: 0.5 }}>📄</div>
-              <div style={{ fontSize: '15px', fontWeight: '600', marginBottom: '8px' }}>
-                Drag & drop your Excel or CSV file here
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+              <div
+                onDrop={handleDrop}
+                onDragOver={handleDragOver}
+                onClick={() => fileInputRef.current?.click()}
+                style={{
+                  border: '2px dashed var(--border)',
+                  borderRadius: '12px',
+                  padding: '60px 40px',
+                  textAlign: 'center',
+                  cursor: 'pointer',
+                  transition: 'all 0.2s',
+                  background: 'var(--surface)',
+                }}
+                onMouseEnter={e => e.currentTarget.style.borderColor = 'var(--gold)'}
+                onMouseLeave={e => e.currentTarget.style.borderColor = 'var(--border)'}
+              >
+                <div style={{ fontSize: '48px', marginBottom: '16px', opacity: 0.5 }}>📄</div>
+                <div style={{ fontSize: '15px', fontWeight: '600', marginBottom: '8px' }}>
+                  Drag & drop your Excel file here
+                </div>
+                <div style={{ fontSize: '13px', color: 'var(--text3)', marginBottom: '16px' }}>
+                  or click to browse files
+                </div>
+                <div style={{ fontSize: '11px', color: 'var(--text3)', background: 'var(--void)', display: 'inline-block', padding: '6px 14px', borderRadius: '6px' }}>
+                  Supported: .xlsx, .xls, .csv (max 5MB)
+                </div>
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept=".xlsx,.xls,.csv"
+                  style={{ display: 'none' }}
+                  onChange={e => e.target.files[0] && handleFileSelect(e.target.files[0])}
+                />
               </div>
-              <div style={{ fontSize: '13px', color: 'var(--text3)', marginBottom: '16px' }}>
-                or click to browse files
+              <div style={{ textAlign: 'center' }}>
+                <button 
+                  onClick={downloadSample}
+                  style={{ padding: '10px 20px', background: 'transparent', border: '1px solid var(--border)', borderRadius: '8px', color: 'var(--text2)', cursor: 'pointer', fontSize: '13px', fontFamily: 'Inter, sans-serif' }}
+                >
+                  Download Sample Excel
+                </button>
               </div>
-              <div style={{ fontSize: '11px', color: 'var(--text3)', background: 'var(--void)', display: 'inline-block', padding: '6px 14px', borderRadius: '6px' }}>
-                Supported: .xlsx, .xls, .csv (max 5MB)
-              </div>
-              <input
-                ref={fileInputRef}
-                type="file"
-                accept=".xlsx,.xls,.csv"
-                style={{ display: 'none' }}
-                onChange={e => e.target.files[0] && handleFileSelect(e.target.files[0])}
-              />
             </div>
           )}
 

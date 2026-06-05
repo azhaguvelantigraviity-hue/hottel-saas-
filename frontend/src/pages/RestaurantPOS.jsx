@@ -36,6 +36,12 @@ const RestaurantPOS = ({ role, hotelDetails }) => {
     }
   }, [apiMenu]);
 
+  React.useEffect(() => {
+    if (activeTab === 'pos') {
+      refetchMenu();
+    }
+  }, [activeTab, refetchMenu]);
+
   const menuItems = localMenu.length > 0 ? localMenu : (Array.isArray(apiMenu) ? [] : MENU_ITEMS);
   const orders = Array.isArray(apiOrders) ? apiOrders : localOrders;
   const menuFiltered = catFilter === 'All' ? menuItems.filter(m => m.available !== false) : menuItems.filter(m => m.category === catFilter && m.available !== false);

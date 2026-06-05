@@ -501,7 +501,11 @@ const SecurityPage = () => {
               ].map(f => (
                 <div key={f.key}>
                   <div style={{ fontSize: 12, color: 'var(--text3)', fontWeight: 500, marginBottom: 4 }}>{f.label}</div>
-                  <input value={newVisitor[f.key]} onChange={e => setNewVisitor(p => ({ ...p, [f.key]: e.target.value }))}
+                  <input value={newVisitor[f.key]} onChange={e => {
+                    let val = e.target.value;
+                    if (f.key === 'phone') val = val.replace(/\D/g, '').slice(0, 10);
+                    setNewVisitor(p => ({ ...p, [f.key]: val }));
+                  }}
                     placeholder={f.placeholder}
                     style={{ width: '100%', padding: '10px 12px', borderRadius: 8, border: '1px solid var(--border)', background: 'var(--surface)', color: 'var(--text)', fontSize: 13, fontFamily: 'Inter, sans-serif', outline: 'none', boxSizing: 'border-box' }} />
                 </div>

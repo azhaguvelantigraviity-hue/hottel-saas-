@@ -9,7 +9,13 @@ const VisitorSchema = new mongoose.Schema({
   checkIn:    { type: String, required: true },
   checkOut:   { type: String, default: '' },
   idVerified: { type: Boolean, default: false },
-  phone:      String,
+  phone:      {
+    type: String,
+    validate: {
+      validator: function(v) { return !v || /^\d{10}$/.test(v); },
+      message: props => `${props.value} is not a valid 10-digit phone number!`
+    }
+  },
   vehicle:    { type: String, default: '' },
   notes:      String,
 }, { timestamps: true });

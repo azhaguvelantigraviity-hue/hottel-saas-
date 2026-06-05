@@ -90,7 +90,7 @@ const ManualItemPage = ({ role, hotelDetails }) => {
                 display: 'flex', alignItems: 'center', gap: '8px',
               }}
             >
-              <Icon name="upload" size={16} color="var(--gold)" /> Bulk Import
+              <Icon name="upload" size={16} color="var(--gold)" /> Upload Excel
             </button>
             <button 
               onClick={() => { setEditItem(null); setShowForm(true); }}

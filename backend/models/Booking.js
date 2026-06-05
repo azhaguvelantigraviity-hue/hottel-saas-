@@ -39,7 +39,13 @@ const BookingSchema = new mongoose.Schema({
 
     guestDetails: {
       name:    String,
-      phone:   String,
+      phone:   {
+      type: String,
+      validate: {
+        validator: function(v) { return !v || /^\d{10}$/.test(v); },
+        message: props => `${props.value} is not a valid 10-digit phone number!`
+      }
+    },
       email:   String,
       address: String,
       updatedAt: Date,

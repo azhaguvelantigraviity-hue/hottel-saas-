@@ -5,7 +5,13 @@ const EmployeeSchema = new mongoose.Schema({
   hotel:      { type: mongoose.Schema.Types.ObjectId, ref: 'Hotel', required: true },
   name:       { type: String, required: true },
   email:      String,
-  phone:      String,
+  phone:      {
+    type: String,
+    validate: {
+      validator: function(v) { return !v || /^\d{10}$/.test(v); },
+      message: props => `${props.value} is not a valid 10-digit phone number!`
+    }
+  },
   department: { type: String, required: true },
   role:       { type: String, required: true },
   shift:      { type: String, enum: ['Morning','Evening','Night'], default: 'Morning' },
