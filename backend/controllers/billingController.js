@@ -34,6 +34,10 @@ const getInvoice = asyncHandler(async (req, res) => {
 // ── Create Invoice ───────────────────────────────────────────
 const createInvoice = asyncHandler(async (req, res) => {
   const body = { ...req.body };
+  if (body.invoiceType) {
+    const typeMap = { booking: 'room', restaurant: 'pos', events: 'event' };
+    body.type = typeMap[body.invoiceType] || 'other';
+  }
   body.subtotal = (body.roomCharges || 0) + (body.foodCharges || 0) + (body.laundryCharges || 0) + (body.spaCharges || 0) + (body.otherCharges || 0) + (body.posCharges || 0);
   body.discountAmount = body.discountType === 'percentage' ? Math.round(body.subtotal * (body.discountValue || 0) / 100) : body.discountType === 'fixed' ? (body.discountValue || 0) : 0;
   const taxable = body.subtotal - body.discountAmount;
@@ -80,8 +84,14 @@ const deleteInvoice = asyncHandler(async (req, res) => {
 
 // ── Generate Invoice from Booking ────────────────────────────
 const generateFromBooking = asyncHandler(async (req, res) => {
-  const booking = await Booking.findOne({ _id: req.params.bookingId, hotel: req.hotelId })
-    .populate('guest').populate('room');
+  const isObjectId = /^[0-9a-fA-F]{24}$/.test(req.params.bookingId);
+  const filter = { hotel: req.hotelId };
+  if (isObjectId) {
+    filter.$or = [{ _id: req.params.bookingId }, { bookingId: req.params.bookingId }];
+  } else {
+    filter.bookingId = req.params.bookingId;
+  }
+  const booking = await Booking.findOne(filter).populate('guest').populate('room');
   if (!booking) return res.status(404).json({ success: false, message: 'Booking not found' });
 
   const posOrders = await POSOrder.find({ booking: booking._id, addedToRoom: true });
