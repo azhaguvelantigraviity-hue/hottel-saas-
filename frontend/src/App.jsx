@@ -36,6 +36,7 @@ import NotificationsPage from './pages/NotificationsPage';
 import MarketingPage from './pages/MarketingPage';
 import AttendancePage from './pages/AttendancePage';
 import MultiBranchPage from './pages/MultiBranchPage';
+import PayrollPage from './pages/PayrollPage';
 import Sidebar from './components/Sidebar';
 import Topbar from './components/Topbar';
 import ProtectedRoute from './components/ProtectedRoute';
@@ -163,6 +164,7 @@ const HotelApp = ({ onLogout, initialPlan = 'enterprise', role = 'manager', hote
       case 'attendance': return <AttendancePage />;
       case 'housekeeping': return <HousekeepingPage />;
       case 'maintenance': return <MaintenancePage />;
+      case 'payroll': return <PayrollPage />;
       case 'channel': return <ChannelManagerPage />;
       case 'revenue': return <RevenueAIPage />;
       case 'analytics': return <AnalyticsDashboard />;
