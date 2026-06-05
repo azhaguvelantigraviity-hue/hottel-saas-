@@ -2,8 +2,8 @@ import React, { useState } from 'react';
 import * as authService from '../services/authService';
 
 const Login = ({ type, onSuccess, onBack }) => {
-  const [email,   setEmail]   = useState(type === 'admin' ? 'admin@stayos.in' : 'manager@hotel.com');
-  const [pass,    setPass]    = useState(type === 'admin' ? 'Admin@StayOS2025!' : 'password');
+  const [email,   setEmail]   = useState('');
+  const [pass,    setPass]    = useState('');
   const [loading, setLoading] = useState(false);
   const [showPass, setShowPass] = useState(false);
 

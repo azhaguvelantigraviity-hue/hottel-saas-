@@ -40,7 +40,7 @@ const seed = async () => {
       country: 'India',
       pincode: '400001',
     },
-    phone: '9876543210',
+    phone: '+91 9876543210',
     email: 'contact@grandresort.com',
     plan: 'enterprise',
     planStatus: 'active',
