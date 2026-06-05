@@ -146,7 +146,7 @@ const GuestCRMPage = () => {
     try {
       const nameParts = newGuest.name.trim().split(/\s+/);
       const firstName = nameParts[0];
-      const lastName = nameParts.slice(1).join(' ') || '';
+      const lastName = nameParts.slice(1).join(' ') || 'Guest';
       const payload = {
         firstName,
         lastName,
