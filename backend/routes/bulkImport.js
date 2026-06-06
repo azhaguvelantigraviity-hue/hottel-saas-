@@ -1,13 +1,16 @@
 const router = require('express').Router();
 const multer = require('multer');
 const path = require('path');
+const fs = require('fs');
 const { parseBulkImport, saveBulkImport, uploadItemImage } = require('../controllers/bulkImportController');
 const { protect, scopeToHotel } = require('../middleware/auth');
 const { requireFeature } = require('../middleware/planGate');
 
 const tempStorage = multer.diskStorage({
   destination: (req, file, cb) => {
-    cb(null, path.join(__dirname, '../../uploads/temp'));
+    const dir = path.join(__dirname, '../../uploads/temp');
+    if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
+    cb(null, dir);
   },
   filename: (req, file, cb) => {
     const ext = path.extname(file.originalname);
@@ -24,7 +27,9 @@ const excelFilter = (req, file, cb) => {
 
 const imageStorage = multer.diskStorage({
   destination: (req, file, cb) => {
-    cb(null, path.join(__dirname, '../../uploads'));
+    const dir = path.join(__dirname, '../../uploads');
+    if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
+    cb(null, dir);
   },
   filename: (req, file, cb) => {
     const ext = path.extname(file.originalname);
