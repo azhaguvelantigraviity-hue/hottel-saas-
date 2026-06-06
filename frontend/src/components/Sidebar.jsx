@@ -30,7 +30,6 @@ const Sidebar = ({ role, active, onNav, onLogout, plan, isOpen, setIsOpen }) => 
       items: [
         { id: 'guests',     icon: 'crm',        label: 'Guest CRM',      plans: ['professional','enterprise'] },
         { id: 'restaurant', icon: 'food',        label: 'Restaurant POS', plans: ['professional','enterprise'] },
-        { id: 'complaints', icon: 'bell',        label: 'Complaints',     plans: ['starter','professional','enterprise'] },
         { id: 'laundry',    icon: 'laundry',     label: 'Laundry',        plans: ['professional','enterprise'] },
         { id: 'travel',     icon: 'taxi',        label: 'Travel Desk',    plans: ['enterprise'] },
         { id: 'events',     icon: 'events',      label: 'Events & Halls', plans: ['enterprise'] },
@@ -139,7 +138,7 @@ const Sidebar = ({ role, active, onNav, onLogout, plan, isOpen, setIsOpen }) => 
                 const managerPages = [
                   'dashboard', 'checkin', 'rooms', 'bookings', 
                   'housekeeping', 'attendance', 'restaurant', 
-                  'complaints', 'maintenance', 'revenue', 
+                  'maintenance', 'revenue', 
                   'employees', 'analytics', 'reports', 'settings'
                 ];
                 return managerPages.includes(itemId);
