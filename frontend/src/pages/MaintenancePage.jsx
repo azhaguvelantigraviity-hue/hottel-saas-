@@ -14,10 +14,10 @@ const MaintenancePage = () => {
   const [tickets, setTickets] = useState(MAINTENANCE_TICKETS);
   const [filter, setFilter] = useState('all');
   const [showNew, setShowNew] = useState(false);
-  const [form, setForm] = useState({ room: '', issue: '', category: 'HVAC', priority: 'medium', notes: '' });
+  const [form, setForm] = useState({ room: '', issue: '', category: 'HVAC', priority: 'medium', notes: '', assignedTo: '' });
 
   const filtered = filter === 'all' ? tickets : tickets.filter(t => t.status === filter || t.priority === filter);
-  const staff = EMPLOYEES.filter(e => ['Security', 'Housekeeping', 'Front Office'].includes(e.dept));
+  const staff = EMPLOYEES.filter(e => ['Security', 'Housekeeping', 'Front Office', 'Management', 'Admin', 'Manager'].includes(e.dept) || e.role === 'admin' || e.role === 'manager');
 
   const updateTicket = (id, updates) => setTickets(prev => prev.map(t => t.id === id ? { ...t, ...updates } : t));
 
@@ -27,10 +27,10 @@ const MaintenancePage = () => {
       ...form,
       id: `MT-${String(prev.length + 1).padStart(3, '0')}`,
       status: 'open',
-      assignedTo: null,
+      assignedTo: form.assignedTo || null,
       reported: new Date().toISOString().slice(0, 10),
     }]);
-    setForm({ room: '', issue: '', category: 'HVAC', priority: 'medium', notes: '' });
+    setForm({ room: '', issue: '', category: 'HVAC', priority: 'medium', notes: '', assignedTo: '' });
     setShowNew(false);
   };
 
@@ -70,6 +70,13 @@ const MaintenancePage = () => {
                   <label style={labelStyle}>PRIORITY</label>
                   <select style={inputStyle} value={form.priority} onChange={e => setForm(p => ({ ...p, priority: e.target.value }))}>
                     {['high', 'medium', 'low'].map(p => <option key={p} value={p}>{p.charAt(0).toUpperCase() + p.slice(1)}</option>)}
+                  </select>
+                </div>
+                <div>
+                  <label style={labelStyle}>ASSIGN TO</label>
+                  <select style={inputStyle} value={form.assignedTo} onChange={e => setForm(p => ({ ...p, assignedTo: e.target.value }))}>
+                    <option value="">Unassigned</option>
+                    {staff.map(s => <option key={s.id} value={s.name}>{s.name} ({s.dept})</option>)}
                   </select>
                 </div>
               </div>
