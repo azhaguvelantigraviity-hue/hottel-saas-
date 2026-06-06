@@ -234,6 +234,15 @@ const App = () => {
     safeSetStorage('stayos_theme', theme);
   }, [theme]);
 
+  // ── Clear legacy mock data ──
+  useEffect(() => {
+    Object.keys(localStorage).forEach(key => {
+      if (key.startsWith('stayos_') && !['stayos_theme', 'stayos_token', 'stayos_user'].includes(key)) {
+        localStorage.removeItem(key);
+      }
+    });
+  }, []);
+
   // ── Session restore ──
   useEffect(() => {
     const token = authService.getToken();

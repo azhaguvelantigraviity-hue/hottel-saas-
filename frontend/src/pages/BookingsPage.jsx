@@ -28,7 +28,7 @@ const safeReadJson = (key, fallback) => {
 };
 
 const safeWriteJson = (key, value) => {
-  try { localStorage.setItem(key, JSON.stringify(value)); } catch { }
+  try { ); } catch { }
 };
 
 const formatDate = (d) => {

@@ -18,7 +18,7 @@ const safeRead = (key, fallback) => {
   try { const r = localStorage.getItem(key); return r ? JSON.parse(r) : fallback; } catch { return fallback; }
 };
 const safeWrite = (key, val) => {
-  try { localStorage.setItem(key, JSON.stringify(val)); } catch { }
+  try { ); } catch { }
 };
 
 const formatDate = (d) => {

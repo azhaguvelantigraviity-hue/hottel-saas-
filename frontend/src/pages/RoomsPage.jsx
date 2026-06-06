@@ -5,7 +5,7 @@ import * as api from '../services/hotelService';
 
 const ROOMS_KEY = 'stayos_rooms';
 const safeRead = (key, fallback) => { try { const r = localStorage.getItem(key); return r ? JSON.parse(r) : fallback; } catch { return fallback; } };
-const safeWrite = (key, val) => { try { localStorage.setItem(key, JSON.stringify(val)); } catch { } };
+const safeWrite = (key, val) => { try { ); } catch { } };
 
 const inp = (slim) => ({
   width: '100%', padding: slim ? '8px 10px' : '10px 12px', background: 'var(--surface)',

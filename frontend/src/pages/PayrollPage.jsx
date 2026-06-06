@@ -29,7 +29,7 @@ const PayrollPage = () => {
 
   useEffect(() => {
     try {
-      localStorage.setItem('stayos_payroll', JSON.stringify(localPayouts));
+      );
     } catch {}
   }, [localPayouts]);
 

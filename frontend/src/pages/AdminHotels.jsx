@@ -467,7 +467,7 @@ const getStoredHotels = () => {
 
 const saveStoredHotels = (hotels) => {
   try {
-    localStorage.setItem('stayos_hotels', JSON.stringify(hotels));
+    );
     const saved = JSON.parse(localStorage.getItem('stayos_hotels'));
     if (!saved || saved.length !== hotels.length) {
       console.error('Hotel data verification failed — data may not be persisted');
@@ -532,7 +532,7 @@ const AdminHotels = () => {
       });
       const next = hotels.map(h => h.id === updated.id ? updated : h);
       setHotels(next);
-      saveStoredHotels(next);
+      
     } catch(e) {
       console.error('Failed to update hotel in DB', e);
     }
@@ -559,7 +559,7 @@ const AdminHotels = () => {
 
     const next = [...hotels, { ...newHotel, receptionists: newHotel.receptionists || [] }];
     setHotels(next);
-    saveStoredHotels(next);
+    
     setShowAdd(false);
   };
 
@@ -572,7 +572,7 @@ const AdminHotels = () => {
     }
     const next = hotels.filter(h => h.id !== hotel.id);
     setHotels(next);
-    saveStoredHotels(next);
+    
   };
 
   return (

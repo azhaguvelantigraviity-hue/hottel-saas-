@@ -47,11 +47,7 @@ const loadPlans = () => {
 
 const savePlanPrices = (plans) => {
   try {
-    localStorage.setItem('stayos_plan_prices', JSON.stringify({
-      starter:      plans.starter.price,
-      professional: plans.professional.price,
-      enterprise:   plans.enterprise.price,
-    }));
+    );
   } catch (_) {}
 };
 
@@ -64,7 +60,7 @@ const loadHotels = () => {
 
 const saveHotels = (hotels) => {
   try {
-    localStorage.setItem('stayos_hotels', JSON.stringify(hotels));
+    );
     const saved = JSON.parse(localStorage.getItem('stayos_hotels'));
     if (!saved || saved.length !== hotels.length) {
       console.error('Hotel data verification failed in AdminSubscriptions');
@@ -264,7 +260,7 @@ const AdminSubscriptions = () => {
       }
     } catch (e) {
       console.error('Failed to fetch hotels in Subscriptions', e);
-      setHotels(loadHotels());
+      setHotels([]);
     }
   };
 
@@ -291,7 +287,7 @@ const AdminSubscriptions = () => {
     }
     const next = hotels.map(h => h.id === updated.id ? updated : h);
     setHotels(next);
-    saveHotels(next);
+    
   };
 
   const filteredHotels = filterPlan === 'all' ? hotels : hotels.filter(h => h.plan === filterPlan || h.status === filterPlan);
