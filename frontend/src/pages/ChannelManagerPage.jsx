@@ -1,12 +1,21 @@
 import React, { useState } from 'react';
 import Icon from '../components/Icon';
 import Badge from '../components/Badge';
-import { CHANNEL_DATA, REVENUE_DATA } from '../data/mockData';
-
+import * as api from '../services/operationsService';
 const ChannelManagerPage = () => {
-  const [channels, setChannels] = useState(CHANNEL_DATA.map(c => ({ ...c, connected: true, lastSync: '2 min ago' })));
+  const [channels, setChannels] = useState([]);
   const [rates, setRates] = useState([]);
+  const [revenueData, setRevenueData] = useState([]);
   const [activeTab, setActiveTab] = useState('overview');
+
+  React.useEffect(() => {
+    api.getChannelStatus().then(res => {
+      if (res.data) setChannels(res.data.map(c => ({ ...c, connected: true, lastSync: '2 min ago' })));
+    }).catch(console.error);
+    api.getRevenueReport().then(res => {
+      if (res.data) setRevenueData(res.data);
+    }).catch(console.error);
+  }, []);
 
   const totalRevenue = channels.reduce((s, c) => s + c.revenue, 0);
   const totalBookings = channels.reduce((s, c) => s + c.bookings, 0);
@@ -83,12 +92,12 @@ const ChannelManagerPage = () => {
             <div style={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: 'var(--radius)', padding: 'clamp(12px, 3vw, 24px)' }}>
               <div style={{ fontSize: '15px', fontWeight: '700', marginBottom: '20px' }}>Monthly Booking Trend</div>
               <div style={{ height: '160px', display: 'flex', alignItems: 'flex-end', gap: '12px' }}>
-                {REVENUE_DATA.map((d, i) => {
-                  const max = Math.max(...REVENUE_DATA.map(d => d.bookings), 1);
+                {revenueData.map((d, i) => {
+                  const max = Math.max(...revenueData.map(d => d.bookings), 1);
                   return (
                     <div key={i} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px' }}>
                       <div style={{ fontSize: '10px', color: 'var(--text3)' }}>{d.bookings}</div>
-                      <div style={{ width: '100%', borderRadius: '4px 4px 0 0', height: `${(d.bookings / max) * 120}px`, background: i === REVENUE_DATA.length - 1 ? 'linear-gradient(180deg,#C9A84C,#8A6F2E)' : 'rgba(201,168,76,0.3)' }} />
+                      <div style={{ width: '100%', borderRadius: '4px 4px 0 0', height: `${(d.bookings / max) * 120}px`, background: i === revenueData.length - 1 ? 'linear-gradient(180deg,#C9A84C,#8A6F2E)' : 'rgba(201,168,76,0.3)' }} />
                       <div style={{ fontSize: '11px', color: 'var(--text3)' }}>{d.month}</div>
                     </div>
                   );

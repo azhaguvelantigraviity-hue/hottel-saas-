@@ -2,8 +2,14 @@ import React, { useState, useEffect } from 'react';
 import Avatar from '../components/Avatar';
 import Badge from '../components/Badge';
 import Icon from '../components/Icon';
-import { HOTELS, PLANS, getPlan } from '../data/mockData';
 import { createHotel, getHotel, getAllHotels, updateHotel, deleteHotel } from '../services/adminService';
+
+const PLANS = {
+  starter: { id: 'starter', name: 'Starter', accent: '#6B7280', features: ['Dashboard', 'Room Management', 'Bookings', 'Billing'] },
+  professional: { id: 'professional', name: 'Professional', accent: '#14B8A6', features: ['Starter Features', 'Guest CRM', 'Restaurant POS', 'Housekeeping'] },
+  enterprise: { id: 'enterprise', name: 'Enterprise', accent: '#D97706', features: ['Professional Features', 'Multi-Branch', 'API Access', 'Revenue AI'] }
+};
+const getPlan = (key) => PLANS[key] || PLANS.starter;
 
 // ── Shared input style ────────────────────────────────────────
 const inp = {
@@ -506,7 +512,7 @@ const AdminHotels = () => {
     } catch (e) {
       console.error('Failed to fetch hotels from DB', e);
       const stored = getStoredHotels();
-      setHotels(stored.length > 0 ? stored : HOTELS);
+      setHotels(stored.length > 0 ? stored : []);
     }
   };
 

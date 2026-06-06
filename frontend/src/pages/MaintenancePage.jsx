@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import Icon from '../components/Icon';
 import Badge from '../components/Badge';
-import { MAINTENANCE_TICKETS, EMPLOYEES } from '../data/mockData';
+import * as opApi from '../services/operationsService';
+import * as hotelApi from '../services/hotelService';
 
 const priorityColor = { high: 'rose', medium: 'amber', low: 'teal' };
 const statusColor = { open: 'rose', 'in-progress': 'violet', resolved: 'green' };
@@ -11,25 +12,73 @@ const inputStyle = { width: '100%', padding: '10px 12px', background: 'var(--sur
 const labelStyle = { fontSize: '11px', color: 'var(--text3)', fontWeight: '600', letterSpacing: '0.06em', display: 'block', marginBottom: '5px' };
 
 const MaintenancePage = () => {
-  const [tickets, setTickets] = useState(MAINTENANCE_TICKETS);
+  const [tickets, setTickets] = useState([]);
+  const [employees, setEmployees] = useState([]);
+
+  React.useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const [ticketsRes, employeesRes] = await Promise.all([
+          opApi.getMaintenanceRequests(),
+          hotelApi.getEmployees()
+        ]);
+        if (ticketsRes.data) setTickets(ticketsRes.data);
+        if (employeesRes.data) setEmployees(employeesRes.data);
+      } catch (err) {
+        console.error('Failed to fetch maintenance data', err);
+      }
+    };
+    fetchData();
+  }, []);
   const [filter, setFilter] = useState('all');
   const [showNew, setShowNew] = useState(false);
   const [form, setForm] = useState({ room: '', issue: '', category: 'HVAC', priority: 'medium', notes: '', assignedTo: '' });
 
   const filtered = filter === 'all' ? tickets : tickets.filter(t => t.status === filter || t.priority === filter);
-  const staff = EMPLOYEES.filter(e => ['Security', 'Housekeeping', 'Front Office', 'Management', 'Admin', 'Manager'].includes(e.dept) || e.role === 'admin' || e.role === 'manager');
+  const staff = employees.filter(e => ['Security', 'Housekeeping', 'Front Office', 'Management', 'Admin', 'Manager'].includes(e.dept) || e.role === 'admin' || e.role === 'manager');
 
-  const updateTicket = (id, updates) => setTickets(prev => prev.map(t => t.id === id ? { ...t, ...updates } : t));
+  const updateTicket = async (id, updates) => {
+    try {
+      const res = await opApi.updateMaintenanceRequest(id, updates);
+      if (res.data) {
+        setTickets(prev => prev.map(t => t._id === id ? res.data : t));
+      }
+    } catch (err) {
+      console.error('Failed to update ticket', err);
+      // fallback
+      setTickets(prev => prev.map(t => t._id === id || t.id === id ? { ...t, ...updates } : t));
+    }
+  };
 
-  const addTicket = () => {
+  const addTicket = async () => {
     if (!form.room || !form.issue) return;
-    setTickets(prev => [...prev, {
-      ...form,
-      id: `MT-${String(prev.length + 1).padStart(3, '0')}`,
-      status: 'open',
+    const payload = {
+      roomNumber: form.room,
+      maintenanceIssue: form.issue,
+      category: form.category,
+      priority: form.priority,
+      notes: form.notes,
       assignedTo: form.assignedTo || null,
-      reported: new Date().toISOString().slice(0, 10),
-    }]);
+      status: 'open',
+    };
+    try {
+      const res = await opApi.createMaintenanceRequest(payload);
+      if (res.data) {
+        setTickets(prev => [...prev, res.data]);
+      }
+    } catch (err) {
+      console.error('Failed to add ticket', err);
+      // Fallback for UI if API fails
+      setTickets(prev => [...prev, {
+        ...form,
+        _id: `MT-${String(prev.length + 1).padStart(3, '0')}`,
+        id: `MT-${String(prev.length + 1).padStart(3, '0')}`,
+        roomNumber: form.room,
+        maintenanceIssue: form.issue,
+        status: 'open',
+        reported: new Date().toISOString().slice(0, 10),
+      }]);
+    }
     setForm({ room: '', issue: '', category: 'HVAC', priority: 'medium', notes: '', assignedTo: '' });
     setShowNew(false);
   };
@@ -120,35 +169,35 @@ const MaintenancePage = () => {
       {/* Tickets */}
       <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
         {filtered.map(ticket => (
-          <div key={ticket.id} style={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: 'var(--radius)', padding: '18px' }}>
+          <div key={ticket._id || ticket.id} style={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: 'var(--radius)', padding: '18px' }}>
             <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: '10px' }}>
               <div style={{ flex: 1 }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '4px' }}>
-                  <span style={{ fontSize: '13px', fontFamily: 'DM Mono,monospace', color: 'var(--gold)' }}>{ticket.id}</span>
+                  <span style={{ fontSize: '13px', fontFamily: 'DM Mono,monospace', color: 'var(--gold)' }}>{ticket.id || ticket.roomNumber}</span>
                   <Badge color={priorityColor[ticket.priority]}>{ticket.priority}</Badge>
-                  <Badge color="gray">{ticket.category}</Badge>
+                  <Badge color="gray">{ticket.category || 'Other'}</Badge>
                 </div>
-                <div style={{ fontSize: '15px', fontWeight: '700', marginBottom: '2px' }}>{ticket.issue}</div>
-                <div style={{ fontSize: '12px', color: 'var(--text3)' }}>📍 {ticket.room} · Reported: {ticket.reported}</div>
+                <div style={{ fontSize: '15px', fontWeight: '700', marginBottom: '2px' }}>{ticket.issue || ticket.maintenanceIssue}</div>
+                <div style={{ fontSize: '12px', color: 'var(--text3)' }}>📍 {ticket.room || ticket.roomNumber} · Reported: {ticket.reported || new Date(ticket.createdAt).toLocaleDateString()}</div>
                 {ticket.notes && <div style={{ fontSize: '12px', color: 'var(--text2)', marginTop: '4px' }}>📝 {ticket.notes}</div>}
               </div>
               <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '8px' }}>
-                <Badge color={statusColor[ticket.status]}>{ticket.status.replace('-', ' ')}</Badge>
-                {ticket.assignedTo && <span style={{ fontSize: '12px', color: 'var(--text3)' }}>👤 {ticket.assignedTo}</span>}
+                <Badge color={statusColor[ticket.status] || 'rose'}>{(ticket.status || 'open').replace('-', ' ')}</Badge>
+                {ticket.assignedTo && <span style={{ fontSize: '12px', color: 'var(--text3)' }}>👤 {ticket.assignedTo?.firstName || ticket.assignedTo}</span>}
               </div>
             </div>
             <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-              {ticket.status === 'open' && (
+              {(!ticket.status || ticket.status === 'open') && (
                 <>
-                  <select onChange={e => { if (e.target.value) updateTicket(ticket.id, { assignedTo: e.target.value }); }} defaultValue="" style={{ ...inputStyle, width: 'auto', fontSize: '12px', padding: '6px 10px' }}>
+                  <select onChange={e => { if (e.target.value) updateTicket(ticket._id || ticket.id, { assignedTo: e.target.value }); }} defaultValue="" style={{ ...inputStyle, width: 'auto', fontSize: '12px', padding: '6px 10px' }}>
                     <option value="">Assign to…</option>
-                    {staff.map(s => <option key={s.id} value={s.name}>{s.name}</option>)}
+                    {staff.map(s => <option key={s._id || s.id} value={s._id || s.name}>{s.firstName || s.name}</option>)}
                   </select>
-                  <button onClick={() => updateTicket(ticket.id, { status: 'in-progress' })} style={{ padding: '6px 12px', background: 'rgba(167,139,250,0.15)', border: '1px solid rgba(167,139,250,0.3)', borderRadius: '6px', color: 'var(--violet)', cursor: 'pointer', fontSize: '12px', fontWeight: '600', fontFamily: 'Inter, sans-serif' }}>Start Work</button>
+                  <button onClick={() => updateTicket(ticket._id || ticket.id, { status: 'in-progress' })} style={{ padding: '6px 12px', background: 'rgba(167,139,250,0.15)', border: '1px solid rgba(167,139,250,0.3)', borderRadius: '6px', color: 'var(--violet)', cursor: 'pointer', fontSize: '12px', fontWeight: '600', fontFamily: 'Inter, sans-serif' }}>Start Work</button>
                 </>
               )}
               {ticket.status === 'in-progress' && (
-                <button onClick={() => updateTicket(ticket.id, { status: 'resolved' })} style={{ padding: '6px 12px', background: 'rgba(52,211,153,0.15)', border: '1px solid rgba(52,211,153,0.3)', borderRadius: '6px', color: 'var(--green)', cursor: 'pointer', fontSize: '12px', fontWeight: '600', fontFamily: 'Inter, sans-serif' }}>Mark Resolved</button>
+                <button onClick={() => updateTicket(ticket._id || ticket.id, { status: 'resolved' })} style={{ padding: '6px 12px', background: 'rgba(52,211,153,0.15)', border: '1px solid rgba(52,211,153,0.3)', borderRadius: '6px', color: 'var(--green)', cursor: 'pointer', fontSize: '12px', fontWeight: '600', fontFamily: 'Inter, sans-serif' }}>Mark Resolved</button>
               )}
               {ticket.status === 'resolved' && <span style={{ fontSize: '12px', color: 'var(--green)' }}>✓ Issue Resolved</span>}
             </div>

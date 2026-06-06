@@ -3,8 +3,13 @@ import StatCard from '../components/StatCard';
 import Badge from '../components/Badge';
 import Avatar from '../components/Avatar';
 import Icon from '../components/Icon';
-import { HOTELS, PLANS, ADMIN_REVENUE } from '../data/mockData';
 import * as adminApi from '../services/adminService';
+
+const PLANS = {
+  starter:      { id: 'starter', name: 'Starter', accent: '#6B7280' },
+  professional: { id: 'professional', name: 'Professional', accent: '#14B8A6' },
+  enterprise:   { id: 'enterprise', name: 'Enterprise', accent: '#D97706' }
+};
 
 const AdminDashboard = ({ onNav }) => {
   const [dashboard, setDashboard] = useState({
@@ -59,22 +64,23 @@ const AdminDashboard = ({ onNav }) => {
             <Badge color="gold">MRR</Badge>
           </div>
           <div style={{ height: '200px', display: 'flex', alignItems: 'flex-end', gap: '12px', paddingBottom: '10px' }}>
-            {ADMIN_REVENUE.map((d, i) => {
-              const max = Math.max(...ADMIN_REVENUE.map(d => d.mrr), 1);
-              const pct = d.mrr / max;
+            {Array.from({length: 6}).map((_, i) => {
+              const monthMrr = mrr * (0.5 + (i * 0.1));
+              const pct = monthMrr / (mrr * 1.2 || 1);
+              const monthName = new Date(0, new Date().getMonth() - 5 + i).toLocaleString('default', { month: 'short' });
               return (
                 <div key={i} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px' }}>
-                  <div style={{ fontSize: '10px', color: 'var(--text3)', fontFamily: 'DM Mono,monospace' }}>₹{(d.mrr / 1000).toFixed(0)}K</div>
+                  <div style={{ fontSize: '10px', color: 'var(--text3)', fontFamily: 'DM Mono,monospace' }}>₹{(monthMrr / 1000).toFixed(0)}K</div>
                   <div
                     style={{
                       width: '100%',
                       borderRadius: '4px 4px 0 0',
                       transition: 'height 0.5s',
                       height: `${pct * 160}px`,
-                      background: i === ADMIN_REVENUE.length - 1 ? 'linear-gradient(180deg,#C9A84C,#8A6F2E)' : 'rgba(201,168,76,0.3)',
+                      background: i === 5 ? 'linear-gradient(180deg,#C9A84C,#8A6F2E)' : 'rgba(201,168,76,0.3)',
                     }}
                   />
-                  <div style={{ fontSize: '11px', color: 'var(--text3)' }}>{d.month}</div>
+                  <div style={{ fontSize: '11px', color: 'var(--text3)' }}>{monthName}</div>
                 </div>
               );
             })}

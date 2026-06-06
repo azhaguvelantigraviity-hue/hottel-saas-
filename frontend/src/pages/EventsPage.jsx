@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import StatCard from '../components/StatCard';
 import Icon from '../components/Icon';
 import Badge from '../components/Badge';
-import { HALLS, EVENT_BOOKINGS, CATERING_PACKAGES } from '../data/mockData';
+import * as api from '../services/operationsService';
 
 const TABS = ['Halls', 'Bookings', 'Catering', 'New Booking'];
 const DAYS = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
@@ -285,9 +285,27 @@ const EventsPage = () => {
   const [filterStatus, setFilterStatus] = useState('all');
   const [search, setSearch] = useState('');
 
-  const [halls, setHalls] = useState(() => safeRead(STORAGE_HALLS, HALLS));
-  const [bookings, setBookings] = useState(() => safeRead(STORAGE_BOOKINGS, EVENT_BOOKINGS));
-  const [catering, setCatering] = useState(() => safeRead(STORAGE_CATERING, CATERING_PACKAGES));
+  const [halls, setHalls] = useState(() => safeRead(STORAGE_HALLS, []));
+  const [bookings, setBookings] = useState(() => safeRead(STORAGE_BOOKINGS, []));
+  const [catering, setCatering] = useState(() => safeRead(STORAGE_CATERING, []));
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const [hallsRes, bookingsRes, cateringRes] = await Promise.all([
+          api.getHalls(),
+          api.getEventBookings(),
+          api.getCateringPackages()
+        ]);
+        if (hallsRes.data) setHalls(hallsRes.data);
+        if (bookingsRes.data) setBookings(bookingsRes.data);
+        if (cateringRes.data) setCatering(cateringRes.data);
+      } catch (err) {
+        console.error('Failed to load events data', err);
+      }
+    };
+    fetchData();
+  }, []);
 
   useEffect(() => { safeWrite(STORAGE_HALLS, halls); }, [halls]);
   useEffect(() => { safeWrite(STORAGE_BOOKINGS, bookings); }, [bookings]);
@@ -325,38 +343,103 @@ const EventsPage = () => {
   });
 
   // Actions
-  const addHall = (hall) => setHalls(prev => {
-    const existing = prev.findIndex(h => h.id === hall.id);
-    if (existing >= 0) { const next = [...prev]; next[existing] = hall; return next; }
-    return [...prev, hall];
-  });
-
-  const deleteHall = (id) => { if (confirm('Delete this hall?')) setHalls(prev => prev.filter(h => h.id !== id)); };
-
-  const addBooking = (booking) => setBookings(prev => [booking, ...prev]);
-
-  const updateBookingStatus = (booking, newStatus) => setBookings(prev => prev.map(b => {
-    if ((b.id || b.bookingId) !== (booking.id || booking.bookingId)) return b;
-    const updates = {};
-    if (newStatus === 'cancelled' && (b.deposit || 0) > 0) {
-      updates.paymentStatus = 'refunded';
-      updates.refundAmount = b.deposit || 0;
+  const addHall = async (hall) => {
+    try {
+      if (editHall) {
+        const res = await api.updateHall(hall.id, hall);
+        setHalls(prev => prev.map(h => h.id === hall.id ? res.data : h));
+      } else {
+        const res = await api.createHall(hall);
+        setHalls(prev => [...prev, res.data]);
+      }
+    } catch (err) {
+      console.error(err);
+      setHalls(prev => {
+        const existing = prev.findIndex(h => h.id === hall.id);
+        if (existing >= 0) { const next = [...prev]; next[existing] = hall; return next; }
+        return [...prev, hall];
+      });
     }
-    return { ...b, status: newStatus, ...updates };
-  }));
+  };
 
-  const updatePayment = (booking, paymentData) => setBookings(prev => prev.map(b => {
-    if ((b.id || b.bookingId) !== (booking.id || booking.bookingId)) return b;
-    return { ...b, ...paymentData };
-  }));
+  const deleteHall = async (id) => {
+    if (confirm('Delete this hall?')) {
+      try { await api.deleteHall(id); } catch(err) { console.error(err); }
+      setHalls(prev => prev.filter(h => h.id !== id));
+    }
+  };
 
-  const addCateringPkg = (pkg) => setCatering(prev => {
-    const existing = prev.findIndex(p => p.name === pkg.name);
-    if (existing >= 0) { const next = [...prev]; next[existing] = pkg; return next; }
-    return [...prev, pkg];
-  });
+  const addBooking = async (booking) => {
+    try {
+      const res = await api.createEventBooking(booking);
+      setBookings(prev => [res.data, ...prev]);
+    } catch (err) {
+      console.error(err);
+      setBookings(prev => [booking, ...prev]);
+    }
+  };
 
-  const deleteCateringPkg = (name) => { if (confirm('Delete this package?')) setCatering(prev => prev.filter(p => p.name !== name)); };
+  const updateBookingStatus = async (booking, newStatus) => {
+    try {
+      const updates = {};
+      if (newStatus === 'cancelled' && (booking.deposit || 0) > 0) {
+        updates.paymentStatus = 'refunded';
+        updates.refundAmount = booking.deposit || 0;
+      }
+      const res = await api.updateEventBooking(booking.id || booking.bookingId, { status: newStatus, ...updates });
+      setBookings(prev => prev.map(b => (b.id || b.bookingId) === (booking.id || booking.bookingId) ? res.data : b));
+    } catch (err) {
+      console.error(err);
+      setBookings(prev => prev.map(b => {
+        if ((b.id || b.bookingId) !== (booking.id || booking.bookingId)) return b;
+        const updates = {};
+        if (newStatus === 'cancelled' && (b.deposit || 0) > 0) {
+          updates.paymentStatus = 'refunded';
+          updates.refundAmount = b.deposit || 0;
+        }
+        return { ...b, status: newStatus, ...updates };
+      }));
+    }
+  };
+
+  const updatePayment = async (booking, paymentData) => {
+    try {
+      const res = await api.updateEventBooking(booking.id || booking.bookingId, paymentData);
+      setBookings(prev => prev.map(b => (b.id || b.bookingId) === (booking.id || booking.bookingId) ? res.data : b));
+    } catch (err) {
+      console.error(err);
+      setBookings(prev => prev.map(b => {
+        if ((b.id || b.bookingId) !== (booking.id || booking.bookingId)) return b;
+        return { ...b, ...paymentData };
+      }));
+    }
+  };
+
+  const addCateringPkg = async (pkg) => {
+    try {
+      if (editCatering) {
+        const res = await api.updateCateringPackage(pkg.name, pkg);
+        setCatering(prev => prev.map(p => p.name === pkg.name ? res.data : p));
+      } else {
+        const res = await api.createCateringPackage(pkg);
+        setCatering(prev => [...prev, res.data]);
+      }
+    } catch (err) {
+      console.error(err);
+      setCatering(prev => {
+        const existing = prev.findIndex(p => p.name === pkg.name);
+        if (existing >= 0) { const next = [...prev]; next[existing] = pkg; return next; }
+        return [...prev, pkg];
+      });
+    }
+  };
+
+  const deleteCateringPkg = async (name) => {
+    if (confirm('Delete this package?')) {
+      try { await api.deleteCateringPackage(name); } catch(err) { console.error(err); }
+      setCatering(prev => prev.filter(p => p.name !== name));
+    }
+  };
 
   const PAYMENT_METHODS = [
     { value: '', label: 'Select Method' },

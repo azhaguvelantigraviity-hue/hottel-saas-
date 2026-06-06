@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { getPlan } from '../data/mockData';
+
 import { updatePassword } from '../services/authService';
 
 const inputStyle = {
@@ -8,6 +8,8 @@ const inputStyle = {
   fontSize: '13px', outline: 'none', fontFamily: 'Inter, sans-serif', boxSizing: 'border-box',
 };
 const labelStyle = { fontSize: '11px', color: 'var(--text3)', fontWeight: '600', letterSpacing: '0.06em', display: 'block', marginBottom: '5px' };
+
+const getPlan = (planKey) => ({ id: planKey, name: planKey, price: 0, accent: '#6B7280', features: [], missing: [] });
 
 const SettingsPage = ({ role, plan, onNav }) => {
   const [currentPassword, setCurrentPassword] = useState('');

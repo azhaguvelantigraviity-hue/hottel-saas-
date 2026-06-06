@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import Icon from '../components/Icon';
 import Badge from '../components/Badge';
-import { ROOMS } from '../data/mockData';
 import * as api from '../services/hotelService';
 
 const ROOMS_KEY = 'stayos_rooms';
@@ -109,7 +108,7 @@ const RoomsPage = ({ onNav, role, hotelDetails }) => {
   const storedKey = `${ROOMS_KEY}_${hotelDetails?.id || 'default'}`;
 
   const [rooms, setRooms] = useState(() => {
-    const stored = safeRead(storedKey, ROOMS);
+    const stored = safeRead(storedKey, []);
     if (stored.length > 0 && !stored[0].id) {
       return stored.map(fromApi);
     }

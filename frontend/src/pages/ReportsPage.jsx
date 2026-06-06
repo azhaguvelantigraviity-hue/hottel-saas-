@@ -1,16 +1,25 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import Icon from '../components/Icon';
-import { REVENUE_DATA } from '../data/mockData';
+import * as api from '../services/operationsService';
 
-const ReportsPage = () => (
+const ReportsPage = () => {
+  const [revenueData, setRevenueData] = useState([]);
+
+  useEffect(() => {
+    api.getRevenueReport().then(res => {
+      if (res.data) setRevenueData(res.data);
+    }).catch(console.error);
+  }, []);
+
+  return (
   <div style={{ padding: 'clamp(16px, 4vw, 32px)', overflowY: 'auto', flex: 1 }}>
     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '20px', marginBottom: '24px' }}>
       <div style={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: 'var(--radius)', padding: 'clamp(12px, 3vw, 24px)' }}>
         <div style={{ fontSize: '15px', fontWeight: '700', marginBottom: '4px' }}>Revenue vs Expenses</div>
         <div style={{ fontSize: '12px', color: 'var(--text3)', marginBottom: '20px' }}>Last 7 months</div>
         <div style={{ height: '180px', display: 'flex', alignItems: 'flex-end', gap: '10px' }}>
-          {REVENUE_DATA.map((d, i) => {
-            const max = Math.max(...REVENUE_DATA.map(d => Math.max(d.revenue, d.expenses)), 1);
+          {revenueData.map((d, i) => {
+            const max = Math.max(...revenueData.map(d => Math.max(d.revenue, d.expenses)), 1);
             return (
               <div key={i} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px' }}>
                 <div style={{ width: '100%', display: 'flex', alignItems: 'flex-end', gap: '3px', height: '160px' }}>
@@ -104,6 +113,7 @@ const ReportsPage = () => (
       ))}
     </div>
   </div>
-);
+  );
+};
 
 export default ReportsPage;

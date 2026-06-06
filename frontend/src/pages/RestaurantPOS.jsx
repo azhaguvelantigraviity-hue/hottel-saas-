@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import Badge from '../components/Badge';
 import { useApi, useMutation } from '../hooks/useApi';
 import { getMenuItems, getPOSOrders, createPOSOrder, updatePOSOrder, createMenuItem } from '../services/operationsService';
-import { RESTAURANT_ORDERS, MENU_ITEMS } from '../data/mockData';
 import ManualItemPage from './ManualItemPage';
 
 const statusColor = { pending: 'amber', preparing: 'violet', delivered: 'green', cancelled: 'rose' };
@@ -14,7 +13,7 @@ const RestaurantPOS = ({ role, hotelDetails }) => {
   const [orderType, setOrderType] = useState('dine-in');
   const [catFilter, setCatFilter] = useState('All');
   const [activeTab, setActiveTab] = useState('pos');
-  const [localOrders, setLocalOrders] = useState(RESTAURANT_ORDERS);
+  const [localOrders, setLocalOrders] = useState([]);
   const [manualName, setManualName] = useState('');
   const [manualPrice, setManualPrice] = useState('');
   const [manualStock, setManualStock] = useState('');
@@ -32,7 +31,7 @@ const RestaurantPOS = ({ role, hotelDetails }) => {
     if (Array.isArray(apiMenu)) {
       setLocalMenu(apiMenu.length > 0 ? apiMenu : []);
     } else {
-      setLocalMenu(MENU_ITEMS);
+      setLocalMenu([]);
     }
   }, [apiMenu]);
 
@@ -42,7 +41,7 @@ const RestaurantPOS = ({ role, hotelDetails }) => {
     }
   }, [activeTab, refetchMenu]);
 
-  const menuItems = localMenu.length > 0 ? localMenu : (Array.isArray(apiMenu) ? [] : MENU_ITEMS);
+  const menuItems = localMenu.length > 0 ? localMenu : [];
   const orders = Array.isArray(apiOrders) ? apiOrders : localOrders;
   const menuFiltered = catFilter === 'All' ? menuItems.filter(m => m.available !== false) : menuItems.filter(m => m.category === catFilter && m.available !== false);
 

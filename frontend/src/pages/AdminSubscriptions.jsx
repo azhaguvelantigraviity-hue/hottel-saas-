@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import Avatar from '../components/Avatar';
 import Badge from '../components/Badge';
 import Icon from '../components/Icon';
-import { getPlan } from '../data/mockData';
 import { getAllHotels, updateHotel } from '../services/adminService';
 
 // ── Helpers ───────────────────────────────────────────────────
@@ -28,6 +27,8 @@ const DEFAULT_PLANS = {
     missing: [],
   },
 };
+
+const getPlan = (key) => DEFAULT_PLANS[key] || DEFAULT_PLANS.starter;
 
 const loadPlans = () => {
   try {

@@ -2,8 +2,14 @@ import React, { useState, useEffect, useCallback } from 'react';
 import Icon from '../components/Icon';
 import Badge from '../components/Badge';
 import Avatar from '../components/Avatar';
-import { ROOMS, PET_CHARGES } from '../data/mockData';
 import * as api from '../services/hotelService';
+
+const PET_CHARGES = {
+  small: { label: 'Small (up to 10kg)', perNight: 500 },
+  medium: { label: 'Medium (10kg - 25kg)', perNight: 800 },
+  large: { label: 'Large (over 25kg)', perNight: 1200 },
+  deposit: 2000
+};
 
 const statusColor = { 'checked-in': 'green', confirmed: 'teal', pending: 'amber', 'checked-out': 'gray', cancelled: 'rose' };
 const sourceColor = { direct: 'gold', 'booking.com': 'teal', expedia: 'violet', agoda: 'rose' };
@@ -117,7 +123,7 @@ const NewBookingForm = ({ onClose, onSave }) => {
           setAvailableRooms(mapped);
         }
       } catch (err) {
-        setAvailableRooms(ROOMS);
+        setAvailableRooms([]);
       }
     };
     loadRooms();
@@ -366,13 +372,7 @@ const BookingsPage = () => {
     loadFromApi();
   }, []);
 
-  useEffect(() => {
-    // Hydrate shared in-memory room list from persisted room states.
-    const persistedRooms = safeReadJson(ROOMS_STORAGE_KEY, null);
-    if (persistedRooms) {
-      ROOMS.splice(0, ROOMS.length, ...persistedRooms);
-    }
-  }, []);
+    // Hydrate shared in-memory room list from persisted room states is no longer needed since ROOMS mockData is removed.
 
   useEffect(() => {
     safeWriteJson(BOOKINGS_STORAGE_KEY, bookings);
@@ -417,18 +417,10 @@ const BookingsPage = () => {
     // Update localStorage booking state
     setBookings(prev => prev.map(b => {
       if (b.id !== booking.id) return b;
+      // removed local ROOMS mutation since we don't use ROOMS anymore
+      // We still update BOOKINGS_STORAGE_KEY
       const roomId = String(booking.room).split(' – ')[0];
-      const room = ROOMS.find(r => String(r.id) === roomId);
-      if (room) {
-        if (newStatus === 'checked-in') {
-          room.status = 'occupied';
-          room.guest = booking.guest;
-        } else if (newStatus === 'checked-out' || newStatus === 'cancelled') {
-          room.status = 'available';
-          room.guest = '';
-        }
-        safeWriteJson(ROOMS_STORAGE_KEY, ROOMS);
-      }
+      // The room status will be updated next time RoomsPage loads from API or localStorage
       return { ...b, status: newStatus };
     }));
   }, [apiReady]);
@@ -472,16 +464,11 @@ const BookingsPage = () => {
     }
 
     // Fallback: localStorage only
-    const room = ROOMS.find(r => String(r.id) === String(form.room));
-    if (room) {
-      room.status = 'reserved';
-      room.guest = form.guest;
-      safeWriteJson(ROOMS_STORAGE_KEY, ROOMS);
-    }
+    // Note: We don't have ROOMS anymore to mutate, we just create the booking.
     setBookings(prev => [...prev, {
       id: `BK-${1009 + Math.floor(Math.random() * 100)}`,
       ...newBooking,
-      room: room ? `${room.id} – ${room.type}` : form.room,
+      room: form.room,
     }]);
   }, [apiReady]);
 

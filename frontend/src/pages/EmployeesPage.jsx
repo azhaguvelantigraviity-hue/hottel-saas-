@@ -3,7 +3,7 @@ import Icon from '../components/Icon';
 import Badge from '../components/Badge';
 import Avatar from '../components/Avatar';
 import AttendancePage from './AttendancePage';
-import { EMPLOYEES } from '../data/mockData';
+
 import { getEmployees as apiGetEmployees, createEmployee as apiCreateEmployee, updateEmployee as apiUpdateEmployee, deleteEmployee as apiDeleteEmployee } from '../services/hotelService';
 
 const mapBEtoFE = (be) => ({

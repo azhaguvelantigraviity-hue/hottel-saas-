@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import Icon from '../components/Icon';
 import Badge from '../components/Badge';
-import { REVENUE_DATA } from '../data/mockData';
+
 
 const RevenueAIPage = () => {
   const [activeTab, setActiveTab] = useState('insights');

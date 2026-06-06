@@ -1,7 +1,11 @@
 import React, { useState } from 'react';
 import Icon from '../components/Icon';
 import Badge from '../components/Badge';
-import { PLANS } from '../data/mockData';
+const PLANS = {
+  starter: { id: 'starter', name: 'Starter', price: 2999, accent: '#6B7280', features: ['Up to 20 Rooms', 'Basic Bookings', 'Standard Support'], missing: ['POS System', 'Channel Manager', 'Advanced Analytics'] },
+  professional: { id: 'professional', name: 'Professional', price: 5999, accent: '#0D9488', features: ['Up to 100 Rooms', 'POS System', 'Channel Manager', 'Priority Support'], missing: ['Advanced Analytics'] },
+  enterprise: { id: 'enterprise', name: 'Enterprise', price: 9999, accent: '#C9A84C', features: ['Unlimited Rooms', 'All Features', '24/7 Support', 'Dedicated Account Manager'], missing: [] }
+};
 
 const Landing = ({ onLogin, theme, setTheme }) => {
   const [hoveredPlan, setHoveredPlan] = useState('professional');
