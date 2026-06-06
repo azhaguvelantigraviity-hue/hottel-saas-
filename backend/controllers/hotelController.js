@@ -180,11 +180,12 @@ const updateBooking = catchAsync(async (req, res) => {
 const checkIn = catchAsync(async (req, res) => {
   const filter = oneFilter(req);
   filter.status = { $in: ['confirmed', 'pending'] };
-  const booking = await Booking.findOne(filter);
+  const booking = await Booking.findOneAndUpdate(
+    filter, 
+    { status: 'checked_in', checkedInAt: new Date() },
+    { new: true }
+  );
   if (!booking) throw new AppError('Booking not found or already checked in', 404);
-  booking.status = 'checked_in';
-  booking.checkedInAt = new Date();
-  await booking.save();
   // Update room status
   await Room.findByIdAndUpdate(booking.room, { status: 'occupied' });
   const populated = await populateBooking(Booking.findById(booking._id));
@@ -208,11 +209,12 @@ const checkIn = catchAsync(async (req, res) => {
 const checkOut = catchAsync(async (req, res) => {
   const filter = oneFilter(req);
   filter.status = 'checked_in';
-  const booking = await Booking.findOne(filter);
+  const booking = await Booking.findOneAndUpdate(
+    filter, 
+    { status: 'checked_out', checkedOutAt: new Date() },
+    { new: true }
+  );
   if (!booking) throw new AppError('Booking not found or not checked in', 404);
-  booking.status = 'checked_out';
-  booking.checkedOutAt = new Date();
-  await booking.save();
   // Update room status
   const room = await Room.findByIdAndUpdate(booking.room, { status: 'cleaning', housekeepingStatus: 'dirty' });
   
