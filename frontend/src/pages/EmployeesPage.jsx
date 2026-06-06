@@ -65,10 +65,14 @@ const EmployeeModal = ({ employee, onClose }) => (
   </div>
 );
 
-const AddEmployeeModal = ({ onClose, onAdd }) => {
-  const [form, setForm] = useState({ name: '', role: '', dept: 'Front Office', shift: 'Morning', salary: '', phone: '', email: '', avatar: '', loginEmail: '', loginPassword: '' });
+const AddEmployeeModal = ({ onClose, onAdd, userRole }) => {
+  const [form, setForm] = useState({ name: '', role: '', dept: userRole === 'staff' ? 'Housekeeping' : 'Front Office', shift: 'Morning', salary: '', phone: '', email: '', avatar: '', loginEmail: '', loginPassword: '' });
   const [showPassword, setShowPassword] = useState(false);
   const set = (k, v) => setForm(p => ({ ...p, [k]: v }));
+  
+  const availableDepts = userRole === 'staff' 
+    ? ['Housekeeping', 'Security', 'Cleaning']
+    : ['Front Office', 'Housekeeping', 'F&B', 'Security', 'Wellness', 'Maintenance', 'Cleaning'];
   return (
     <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.7)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
       <div style={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: 'var(--radius-lg)', width: '100%', maxWidth: '520px' }}>
@@ -90,7 +94,7 @@ const AddEmployeeModal = ({ onClose, onAdd }) => {
           <div>
             <label style={labelStyle}>DEPARTMENT</label>
             <select style={inputStyle} value={form.dept} onChange={e => set('dept', e.target.value)}>
-              {['Front Office', 'Housekeeping', 'F&B', 'Security', 'Wellness', 'Maintenance'].map(d => <option key={d}>{d}</option>)}
+              {availableDepts.map(d => <option key={d}>{d}</option>)}
             </select>
           </div>
           <div>
@@ -273,7 +277,7 @@ const EmployeesPage = ({ role, hotelDetails, plan }) => {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', flex: 1, overflow: 'hidden' }}>
       {selected && <EmployeeModal employee={selected} onClose={() => setSelected(null)} />}
-      {showAdd && <AddEmployeeModal onClose={() => setShowAdd(false)} onAdd={handleAddEmployee} />}
+      {showAdd && <AddEmployeeModal onClose={() => setShowAdd(false)} onAdd={handleAddEmployee} userRole={role} />}
       {editEmployee && <EditEmployeeModal employee={editEmployee} onClose={() => setEditEmployee(null)} onSave={handleSaveEmployee} />}
       {deleteConfirm && (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.7)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
