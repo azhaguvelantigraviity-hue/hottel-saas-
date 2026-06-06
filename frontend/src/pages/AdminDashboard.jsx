@@ -119,22 +119,43 @@ const AdminDashboard = ({ onNav }) => {
       <div style={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: 'var(--radius)', padding: 'clamp(12px, 3vw, 24px)' }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '20px' }}>
           <div style={{ fontSize: '15px', fontWeight: '700' }}>Managed Hotels</div>
-          <button
-            onClick={() => onNav('hotels')}
-            style={{
-              fontSize: '13px',
-              color: 'var(--gold)',
-              background: 'none',
-              border: 'none',
-              cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '4px',
-              fontFamily: 'Inter, sans-serif',
-            }}
-          >
-            View All <Icon name="arrow" size={14} color="var(--gold)" />
-          </button>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+            <button
+              onClick={() => onNav('hotels')}
+              style={{
+                fontSize: '12px',
+                color: '#000',
+                background: 'var(--gold)',
+                border: 'none',
+                borderRadius: '6px',
+                padding: '6px 12px',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '4px',
+                fontWeight: '600',
+                fontFamily: 'Inter, sans-serif',
+              }}
+            >
+              <Icon name="plus" size={12} color="#000" /> Add Hotel
+            </button>
+            <button
+              onClick={() => onNav('hotels')}
+              style={{
+                fontSize: '13px',
+                color: 'var(--gold)',
+                background: 'none',
+                border: 'none',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '4px',
+                fontFamily: 'Inter, sans-serif',
+              }}
+            >
+              View All <Icon name="arrow" size={14} color="var(--gold)" />
+            </button>
+          </div>
         </div>
         <table style={{ width: '100%', borderCollapse: 'collapse' }}>
           <thead>
