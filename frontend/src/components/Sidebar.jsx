@@ -10,7 +10,6 @@ const Sidebar = ({ role, active, onNav, onLogout, plan, isOpen, setIsOpen }) => 
     { id: 'revenue',   icon: 'dollar',    label: 'Revenue' },
     { id: 'analytics', icon: 'chart',     label: 'Analytics' },
     { id: 'multibranch', icon: 'branch',  label: 'Multi-Branch' },
-    { id: 'audit',     icon: 'shield',    label: 'Audit Logs' },
     { id: 'settings',  icon: 'settings',  label: 'Settings' },
   ];
 
