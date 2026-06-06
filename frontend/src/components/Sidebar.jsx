@@ -29,7 +29,6 @@ const Sidebar = ({ role, active, onNav, onLogout, plan, isOpen, setIsOpen }) => 
       label: 'GUEST SERVICES',
       items: [
         { id: 'guests',     icon: 'crm',        label: 'Guest CRM',      plans: ['professional','enterprise'] },
-        { id: 'loyalty',    icon: 'loyalty',     label: 'Loyalty Program',plans: ['professional','enterprise'] },
         { id: 'restaurant', icon: 'food',        label: 'Restaurant POS', plans: ['professional','enterprise'] },
         { id: 'complaints', icon: 'bell',        label: 'Complaints',     plans: ['starter','professional','enterprise'] },
         { id: 'laundry',    icon: 'laundry',     label: 'Laundry',        plans: ['professional','enterprise'] },
@@ -147,7 +146,7 @@ const Sidebar = ({ role, active, onNav, onLogout, plan, isOpen, setIsOpen }) => 
               }
               if (role === 'staff') {
                 const staffPages = [
-                  'dashboard', 'rooms', 'bookings', 'checkin', 'billing', 'guests', 'loyalty', 
+                  'dashboard', 'rooms', 'bookings', 'checkin', 'billing', 'guests', 
                   'restaurant', 'laundry', 'travel', 'events', 'housekeeping', 'attendance',
                   'channel', 'revenue', 'analytics', 'marketing', 'whatsapp', 'inventory', 
                   'iot', 'security', 'notifications', 'chatbot', 'reports', 'settings'
