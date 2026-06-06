@@ -3,6 +3,7 @@ import Avatar from '../components/Avatar';
 import Badge from '../components/Badge';
 import Icon from '../components/Icon';
 import { getPlan } from '../data/mockData';
+import { getAllHotels, updateHotel } from '../services/adminService';
 
 // ── Helpers ───────────────────────────────────────────────────
 const PLAN_KEYS = ['starter', 'professional', 'enterprise'];
@@ -232,11 +233,39 @@ const ManageSubModal = ({ hotel, plans, onClose, onSave }) => {
 // ── Main Component ────────────────────────────────────────────
 const AdminSubscriptions = () => {
   const [plans, setPlans]       = useState(loadPlans);
-  const [hotels, setHotels]     = useState(loadHotels);
+  const [hotels, setHotels]     = useState([]);
   const [editPlan, setEditPlan] = useState(null);
   const [manageSub, setManageSub] = useState(null);
   const [filterPlan, setFilterPlan] = useState('all');
   const [saved, setSaved]       = useState(false);
+
+  React.useEffect(() => {
+    fetchHotels();
+  }, []);
+
+  const fetchHotels = async () => {
+    try {
+      const res = await getAllHotels();
+      if (res.data) {
+        const mapped = res.data.map(h => ({
+          id: h._id,
+          dbId: h._id,
+          name: h.name,
+          city: h.address?.city || 'Unknown',
+          plan: h.plan || 'professional',
+          status: h.planStatus || 'active',
+          avatar: h.name ? h.name.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase() : 'HT',
+          joined: h.createdAt ? new Date(h.createdAt).toISOString().slice(0, 10) : new Date().toISOString().slice(0, 10),
+          renewal: h.planRenewalDate ? new Date(h.planRenewalDate).toISOString().slice(0, 10) : '',
+          notes: h.adminNotes || ''
+        }));
+        setHotels(mapped);
+      }
+    } catch (e) {
+      console.error('Failed to fetch hotels in Subscriptions', e);
+      setHotels(loadHotels());
+    }
+  };
 
   const handleSavePlan = (updated) => {
     const next = { ...plans, [updated.id]: updated };
@@ -246,7 +275,19 @@ const AdminSubscriptions = () => {
     setTimeout(() => setSaved(false), 2500);
   };
 
-  const handleUpdateSub = (updated) => {
+  const handleUpdateSub = async (updated) => {
+    try {
+      if (updated.dbId) {
+        await updateHotel(updated.dbId, {
+          plan: updated.plan,
+          planStatus: updated.status,
+          planRenewalDate: updated.renewal || undefined,
+          adminNotes: updated.notes || undefined
+        });
+      }
+    } catch(e) {
+      console.error('Failed to update hotel subscription in DB', e);
+    }
     const next = hotels.map(h => h.id === updated.id ? updated : h);
     setHotels(next);
     saveHotels(next);
