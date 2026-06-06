@@ -457,24 +457,11 @@ const AddHotelModal = ({ onClose, onAdd }) => {
 
 // ── Main Component ────────────────────────────────────────────
 const getStoredHotels = () => {
-  try {
-    const data = localStorage.getItem('stayos_hotels');
-    return data ? JSON.parse(data) : [];
-  } catch (e) {
-    return [];
-  }
+  return [];
 };
 
 const saveStoredHotels = (hotels) => {
-  try {
-    );
-    const saved = JSON.parse(localStorage.getItem('stayos_hotels'));
-    if (!saved || saved.length !== hotels.length) {
-      console.error('Hotel data verification failed — data may not be persisted');
-    }
-  } catch (e) {
-    console.error('Failed to save hotels to localStorage:', e);
-  }
+  // Mock data removed
 };
 
 const AdminHotels = () => {

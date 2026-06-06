@@ -11,19 +11,19 @@ const DEFAULT_PLANS = {
   starter: {
     id: 'starter', name: 'Starter', accent: '#6B7280',
     price: 4999,
-    features: ['Dashboard','Room Management','Bookings','Billing','Notifications','Reports','Settings'],
-    missing: ['Guest CRM','Loyalty Program','Restaurant POS','Revenue AI','Smart Check-In','IoT & Door Locks'],
+    features: ['Dashboard', 'Room Management', 'Bookings', 'Billing', 'Notifications', 'Reports', 'Settings'],
+    missing: ['Guest CRM', 'Loyalty Program', 'Restaurant POS', 'Revenue AI', 'Smart Check-In', 'IoT & Door Locks'],
   },
   professional: {
     id: 'professional', name: 'Professional', accent: '#14B8A6',
     price: 12999,
-    features: ['Everything in Starter','Guest CRM','Loyalty Program','Restaurant POS','Housekeeping','Employee Management','Channel Manager','Analytics Dashboard'],
-    missing: ['Revenue AI','Smart Check-In','Events & Halls','IoT & Door Locks'],
+    features: ['Everything in Starter', 'Guest CRM', 'Loyalty Program', 'Restaurant POS', 'Housekeeping', 'Employee Management', 'Channel Manager', 'Analytics Dashboard'],
+    missing: ['Revenue AI', 'Smart Check-In', 'Events & Halls', 'IoT & Door Locks'],
   },
   enterprise: {
     id: 'enterprise', name: 'Enterprise', accent: '#D97706',
     price: 24999,
-    features: ['Everything in Professional','Revenue AI','Smart Check-In','Travel Desk','Events & Halls','IoT & Door Locks','Security & CCTV','AI Chatbot'],
+    features: ['Everything in Professional', 'Revenue AI', 'Smart Check-In', 'Travel Desk', 'Events & Halls', 'IoT & Door Locks', 'Security & CCTV', 'AI Chatbot'],
     missing: [],
   },
 };
@@ -36,19 +36,23 @@ const loadPlans = () => {
     if (saved) {
       const prices = JSON.parse(saved);
       return {
-        starter:      { ...DEFAULT_PLANS.starter,      price: prices.starter      ?? DEFAULT_PLANS.starter.price },
+        starter: { ...DEFAULT_PLANS.starter, price: prices.starter ?? DEFAULT_PLANS.starter.price },
         professional: { ...DEFAULT_PLANS.professional, price: prices.professional ?? DEFAULT_PLANS.professional.price },
-        enterprise:   { ...DEFAULT_PLANS.enterprise,   price: prices.enterprise   ?? DEFAULT_PLANS.enterprise.price },
+        enterprise: { ...DEFAULT_PLANS.enterprise, price: prices.enterprise ?? DEFAULT_PLANS.enterprise.price },
       };
     }
-  } catch (_) {}
+  } catch (_) { }
   return DEFAULT_PLANS;
 };
 
 const savePlanPrices = (plans) => {
   try {
-    );
-  } catch (_) {}
+    localStorage.setItem('stayos_plan_prices', JSON.stringify({
+      starter: plans.starter.price,
+      professional: plans.professional.price,
+      enterprise: plans.enterprise.price,
+    }));
+  } catch (_) { }
 };
 
 const loadHotels = () => {
@@ -59,15 +63,7 @@ const loadHotels = () => {
 };
 
 const saveHotels = (hotels) => {
-  try {
-    );
-    const saved = JSON.parse(localStorage.getItem('stayos_hotels'));
-    if (!saved || saved.length !== hotels.length) {
-      console.error('Hotel data verification failed in AdminSubscriptions');
-    }
-  } catch (e) {
-    console.error('Failed to save hotels in AdminSubscriptions:', e);
-  }
+  // Mock data removed
 };
 
 const inp = {
@@ -147,7 +143,7 @@ const EditPlanModal = ({ plan, onClose, onSave }) => {
 // ── Manage Hotel Subscription Modal ──────────────────────────
 const ManageSubModal = ({ hotel, plans, onClose, onSave }) => {
   const [form, setForm] = useState({
-    plan:   hotel.plan   || 'starter',
+    plan: hotel.plan || 'starter',
     status: hotel.status || 'active',
     renewal: hotel.renewal || '',
     notes: hotel.notes || '',
@@ -229,12 +225,12 @@ const ManageSubModal = ({ hotel, plans, onClose, onSave }) => {
 
 // ── Main Component ────────────────────────────────────────────
 const AdminSubscriptions = () => {
-  const [plans, setPlans]       = useState(loadPlans);
-  const [hotels, setHotels]     = useState([]);
+  const [plans, setPlans] = useState(loadPlans);
+  const [hotels, setHotels] = useState([]);
   const [editPlan, setEditPlan] = useState(null);
   const [manageSub, setManageSub] = useState(null);
   const [filterPlan, setFilterPlan] = useState('all');
-  const [saved, setSaved]       = useState(false);
+  const [saved, setSaved] = useState(false);
 
   React.useEffect(() => {
     fetchHotels();
@@ -282,12 +278,12 @@ const AdminSubscriptions = () => {
           adminNotes: updated.notes || undefined
         });
       }
-    } catch(e) {
+    } catch (e) {
       console.error('Failed to update hotel subscription in DB', e);
     }
     const next = hotels.map(h => h.id === updated.id ? updated : h);
     setHotels(next);
-    
+
   };
 
   const filteredHotels = filterPlan === 'all' ? hotels : hotels.filter(h => h.plan === filterPlan || h.status === filterPlan);
@@ -303,8 +299,8 @@ const AdminSubscriptions = () => {
 
   return (
     <div style={{ padding: '28px 32px', overflowY: 'auto', flex: 1, background: 'var(--bg)' }}>
-      {editPlan  && <EditPlanModal   plan={editPlan}  onClose={() => setEditPlan(null)}  onSave={handleSavePlan} />}
-      {manageSub && <ManageSubModal  hotel={manageSub} plans={plans} onClose={() => setManageSub(null)} onSave={handleUpdateSub} />}
+      {editPlan && <EditPlanModal plan={editPlan} onClose={() => setEditPlan(null)} onSave={handleSavePlan} />}
+      {manageSub && <ManageSubModal hotel={manageSub} plans={plans} onClose={() => setManageSub(null)} onSave={handleUpdateSub} />}
 
       {/* Save toast */}
       {saved && (

@@ -28,9 +28,7 @@ const PayrollPage = () => {
   });
 
   useEffect(() => {
-    try {
-      );
-    } catch {}
+    try { } catch {}
   }, [localPayouts]);
 
   useEffect(() => {

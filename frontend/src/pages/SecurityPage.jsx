@@ -73,7 +73,7 @@ const SecurityPage = () => {
   const [actFilter, setActFilter] = useState('all');
 
   useEffect(() => {
-    );
+    // Save data to localStorage if needed, or leave empty
   }, [data]);
 
   const persist = (key, arr) => {

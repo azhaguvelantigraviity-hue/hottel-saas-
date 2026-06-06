@@ -10,7 +10,7 @@ const safeRead = (key, fallback) => {
   try { const r = localStorage.getItem(key); return r ? JSON.parse(r) : fallback; } catch { return fallback; }
 };
 const safeWrite = (key, val) => {
-  try { ); } catch { }
+  try { } catch { }
 };
 
 const deriveStatus = (g) => {
