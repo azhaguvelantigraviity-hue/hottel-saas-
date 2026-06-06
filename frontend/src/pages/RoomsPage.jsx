@@ -3,9 +3,7 @@ import Icon from '../components/Icon';
 import Badge from '../components/Badge';
 import * as api from '../services/hotelService';
 
-const ROOMS_KEY = 'stayos_rooms';
-const safeRead = (key, fallback) => { try { const r = localStorage.getItem(key); return r ? JSON.parse(r) : fallback; } catch { return fallback; } };
-const safeWrite = (key, val) => { try { ); } catch { } };
+
 
 const inp = (slim) => ({
   width: '100%', padding: slim ? '8px 10px' : '10px 12px', background: 'var(--surface)',
@@ -105,21 +103,7 @@ const RoomsPage = ({ onNav, role, hotelDetails }) => {
     guest: r.guest || '',
   });
 
-  const storedKey = `${ROOMS_KEY}_${hotelDetails?.id || 'default'}`;
-
-  const [rooms, setRooms] = useState(() => {
-    const stored = safeRead(storedKey, []);
-    if (stored.length > 0 && !stored[0].id) {
-      return stored.map(fromApi);
-    }
-    return stored;
-  });
-
-  const saveToStorage = useCallback((data) => {
-    safeWrite(storedKey, data);
-  }, [storedKey]);
-
-  useEffect(() => { saveToStorage(rooms); }, [rooms, saveToStorage]);
+  const [rooms, setRooms] = useState([]);
 
   const loadRooms = useCallback(async () => {
     try {
@@ -127,10 +111,9 @@ const RoomsPage = ({ onNav, role, hotelDetails }) => {
       if (res.data) {
         const mapped = res.data.map(fromApi);
         setRooms(mapped);
-        saveToStorage(mapped);
       }
     } catch { }
-  }, [saveToStorage]);
+  }, []);
 
   useEffect(() => { loadRooms(); }, [loadRooms]);
 

@@ -13,23 +13,7 @@ const PET_CHARGES = {
 
 const statusColor = { 'checked-in': 'green', confirmed: 'teal', pending: 'amber', 'checked-out': 'gray', cancelled: 'rose' };
 const sourceColor = { direct: 'gold', 'booking.com': 'teal', expedia: 'violet', agoda: 'rose' };
-const BOOKINGS_STORAGE_KEY = 'stayos_bookings';
-const ROOMS_STORAGE_KEY = 'stayos_rooms';
 
-const safeReadJson = (key, fallback) => {
-  try {
-    const raw = localStorage.getItem(key);
-    if (!raw) return fallback;
-    const parsed = JSON.parse(raw);
-    return Array.isArray(parsed) ? parsed : fallback;
-  } catch {
-    return fallback;
-  }
-};
-
-const safeWriteJson = (key, value) => {
-  try { ); } catch { }
-};
 
 const formatDate = (d) => {
   if (!d) return '';
@@ -347,7 +331,7 @@ const BookingDetail = ({ booking, onClose, onAction }) => (
 );
 
 const BookingsPage = () => {
-  const [bookings, setBookings] = useState(() => safeReadJson(BOOKINGS_STORAGE_KEY, []));
+  const [bookings, setBookings] = useState([]);
   const [filter, setFilter] = useState('all');
   const [search, setSearch] = useState('');
   const [showNew, setShowNew] = useState(false);
@@ -361,22 +345,14 @@ const BookingsPage = () => {
         if (res.data) {
           const flat = res.data.map(toFlat);
           setBookings(flat);
-          safeWriteJson(BOOKINGS_STORAGE_KEY, flat);
           setApiReady(true);
         }
       } catch (err) {
         console.error("loadFromApi failed:", err);
-        // API not available, use localStorage (already set via useState)
       }
     };
     loadFromApi();
   }, []);
-
-    // Hydrate shared in-memory room list from persisted room states is no longer needed since ROOMS mockData is removed.
-
-  useEffect(() => {
-    safeWriteJson(BOOKINGS_STORAGE_KEY, bookings);
-  }, [bookings]);
 
   const filtered = bookings.filter(b => {
     const matchFilter = filter === 'all' || b.status === filter;
@@ -388,19 +364,17 @@ const BookingsPage = () => {
     if (newStatus === 'deleted') {
       if (!window.confirm(`Are you sure you want to permanently delete Booking ${booking.id}?`)) return;
       if (apiReady && booking._id) {
-        try { await api.deleteBooking(booking._id); }
-        catch (err) { console.error('Failed to delete booking', err); return; }
+        try { 
+          await api.deleteBooking(booking._id); 
+          setBookings(prev => prev.filter(b => b.id !== booking.id));
+        }
+        catch (err) { console.error('Failed to delete booking', err); }
       }
-      setBookings(prev => {
-        const next = prev.filter(b => b.id !== booking.id);
-        safeWriteJson(BOOKINGS_STORAGE_KEY, next);
-        return next;
-      });
       return;
     }
 
     const apiStatus = newStatus.replace(/-/g, '_');
-    // Try API first
+    // Try API
     if (apiReady && booking._id) {
       try {
         if (newStatus === 'checked-in') {
@@ -410,19 +384,15 @@ const BookingsPage = () => {
         } else if (newStatus === 'cancelled') {
           await api.cancelBooking(booking._id);
         }
-      } catch {
-        // Fall back to localStorage below
+        // Update local state only if API succeeded
+        setBookings(prev => prev.map(b => {
+          if (b.id !== booking.id) return b;
+          return { ...b, status: newStatus };
+        }));
+      } catch (err) {
+        console.error('Failed to update booking status', err);
       }
     }
-    // Update localStorage booking state
-    setBookings(prev => prev.map(b => {
-      if (b.id !== booking.id) return b;
-      // removed local ROOMS mutation since we don't use ROOMS anymore
-      // We still update BOOKINGS_STORAGE_KEY
-      const roomId = String(booking.room).split(' – ')[0];
-      // The room status will be updated next time RoomsPage loads from API or localStorage
-      return { ...b, status: newStatus };
-    }));
   }, [apiReady]);
 
   const handleSave = useCallback(async (form, totalAmount, nights, petCharge) => {
@@ -445,31 +415,18 @@ const BookingsPage = () => {
       status: 'confirmed',
     };
 
-    // Try API first
     if (apiReady) {
       try {
         const flatForm = fromFlat({ ...newBooking, id: `BK-${Date.now()}` });
         const res = await api.createBooking(flatForm);
         if (res.data) {
           const flat = toFlat(res.data);
-          // Backend should update room status automatically, 
-          // we don't need to manually update ROOMS mock data.
           setBookings(prev => [...prev, flat]);
-          return;
         }
       } catch (err) {
         console.error("createBooking failed:", err);
-        // Fall through to localStorage
       }
     }
-
-    // Fallback: localStorage only
-    // Note: We don't have ROOMS anymore to mutate, we just create the booking.
-    setBookings(prev => [...prev, {
-      id: `BK-${1009 + Math.floor(Math.random() * 100)}`,
-      ...newBooking,
-      room: form.room,
-    }]);
   }, [apiReady]);
 
   const stats = [
