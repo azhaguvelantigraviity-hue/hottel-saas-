@@ -643,6 +643,18 @@ const verifySubscriptionPayment = catchAsync(async (req, res) => {
   res.status(200).json({ success: true, data: updatedHotel });
 });
 
+const updateProfile = catchAsync(async (req, res) => {
+  const allowedUpdates = ['name', 'address', 'phone', 'email', 'website'];
+  const updateData = {};
+  for (let key of allowedUpdates) {
+    if (req.body[key] !== undefined) {
+      updateData[key] = req.body[key];
+    }
+  }
+  const hotel = await Hotel.findByIdAndUpdate(req.hotelId, updateData, { new: true });
+  sendSuccess(res, hotel);
+});
+
 module.exports = {
   getRooms, getRoom, createRoom, updateRoom, deleteRoom,
   updateRoomHousekeeping, checkAvailability,
@@ -656,5 +668,5 @@ module.exports = {
   getEmployees, getEmployee, createEmployee, updateEmployee, deleteEmployee,
   markAttendance, applyLeave, getAttendance,
   getTodayCheckins, getTodayCheckouts, getPendingPayments, getMaintenanceRooms, updateRoomMaintenance,
-  createSubscriptionOrder, verifySubscriptionPayment
+  createSubscriptionOrder, verifySubscriptionPayment, updateProfile
 };

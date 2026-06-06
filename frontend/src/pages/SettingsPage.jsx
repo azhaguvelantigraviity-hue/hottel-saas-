@@ -15,7 +15,48 @@ const SettingsPage = ({ role, plan, onNav }) => {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [msg, setMsg] = useState(null); // { type: 'success'|'error', text }
+  const [propMsg, setPropMsg] = useState(null);
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
+  const [profile, setProfile] = useState({
+    name: '', address: '', city: '', country: '', phone: '', email: '', website: ''
+  });
+
+  React.useEffect(() => {
+    import('../services/api').then(api => {
+      const user = api.getUser();
+      if (user && user.hotel && typeof user.hotel === 'object') {
+        setProfile({
+          name: user.hotel.name || '',
+          address: user.hotel.address?.street || '',
+          city: user.hotel.address?.city || '',
+          country: user.hotel.address?.country || '',
+          phone: user.hotel.phone || '',
+          email: user.hotel.email || '',
+          website: user.hotel.website || ''
+        });
+      }
+    });
+  }, []);
+
+  const handleSaveProfile = async () => {
+    setPropMsg(null);
+    setLoading(true);
+    try {
+      const api = await import('../services/api').then(m => m.default || m);
+      await api.put('/hotel/profile', {
+        name: profile.name,
+        address: { street: profile.address, city: profile.city, country: profile.country },
+        phone: profile.phone,
+        email: profile.email,
+        website: profile.website
+      });
+      setPropMsg({ type: 'success', text: 'Property settings updated!' });
+    } catch (e) {
+      setPropMsg({ type: 'error', text: e.message || 'Failed to update profile' });
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleSavePassword = async () => {
     setMsg(null);
@@ -138,21 +179,31 @@ const SettingsPage = ({ role, plan, onNav }) => {
           </div>
         )}
         
-        {/* ... Rest of the settings page layout */}
-        <div style={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: 'var(--radius)', padding: 'clamp(12px, 3vw, 24px)' }}>
-          <div style={{ fontSize: '15px', fontWeight: '700', marginBottom: '16px' }}>Property Settings</div>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-            {['Hotel Name', 'Address', 'City', 'Country', 'Phone', 'Email', 'Website'].map((f) => (
-              <div key={f}>
-                <label style={labelStyle}>{f.toUpperCase()}</label>
-                <input placeholder={f} style={inputStyle} />
-              </div>
-            ))}
-            <button style={{ padding: '10px', background: 'linear-gradient(135deg,#C9A84C,#8A6F2E)', border: 'none', borderRadius: '7px', color: '#fff', cursor: 'pointer', fontWeight: '600', fontSize: '13px', fontFamily: 'Inter, sans-serif', marginTop: '4px' }}>
-              Save Changes
-            </button>
+        {/* Property Settings (Only for Hotel role) */}
+        {role !== 'admin' && (
+          <div style={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: 'var(--radius)', padding: 'clamp(12px, 3vw, 24px)' }}>
+            <div style={{ fontSize: '15px', fontWeight: '700', marginBottom: '16px' }}>Property Settings</div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+              <div><label style={labelStyle}>HOTEL NAME</label><input style={inputStyle} value={profile.name} onChange={e => setProfile({...profile, name: e.target.value})} /></div>
+              <div><label style={labelStyle}>ADDRESS</label><input style={inputStyle} value={profile.address} onChange={e => setProfile({...profile, address: e.target.value})} /></div>
+              <div><label style={labelStyle}>CITY</label><input style={inputStyle} value={profile.city} onChange={e => setProfile({...profile, city: e.target.value})} /></div>
+              <div><label style={labelStyle}>COUNTRY</label><input style={inputStyle} value={profile.country} onChange={e => setProfile({...profile, country: e.target.value})} /></div>
+              <div><label style={labelStyle}>PHONE</label><input style={inputStyle} value={profile.phone} onChange={e => setProfile({...profile, phone: e.target.value})} /></div>
+              <div><label style={labelStyle}>EMAIL</label><input style={inputStyle} value={profile.email} onChange={e => setProfile({...profile, email: e.target.value})} /></div>
+              <div><label style={labelStyle}>WEBSITE</label><input style={inputStyle} value={profile.website} onChange={e => setProfile({...profile, website: e.target.value})} /></div>
+              
+              {propMsg && (
+                <div style={{ padding: '8px 12px', borderRadius: '6px', fontSize: '12px', fontWeight: 500, background: propMsg.type === 'success' ? 'rgba(52,211,153,0.12)' : 'rgba(239,68,68,0.12)', color: propMsg.type === 'success' ? 'var(--green)' : 'var(--rose)', border: `1px solid ${propMsg.type === 'success' ? 'rgba(52,211,153,0.3)' : 'rgba(239,68,68,0.3)'}` }}>
+                  {propMsg.text}
+                </div>
+              )}
+              
+              <button onClick={handleSaveProfile} disabled={loading} style={{ padding: '10px', background: 'linear-gradient(135deg,#C9A84C,#8A6F2E)', border: 'none', borderRadius: '7px', color: '#fff', cursor: loading ? 'not-allowed' : 'pointer', fontWeight: '600', fontSize: '13px', fontFamily: 'Inter, sans-serif', marginTop: '4px', opacity: loading ? 0.6 : 1 }}>
+                {loading ? 'Saving...' : 'Save Changes'}
+              </button>
+            </div>
           </div>
-        </div>
+        )}
         <div style={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: 'var(--radius)', padding: 'clamp(12px, 3vw, 24px)' }}>
           <div style={{ fontSize: '15px', fontWeight: '700', marginBottom: '16px' }}>Account Security</div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>

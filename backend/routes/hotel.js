@@ -13,7 +13,7 @@ const {
   getEmployees, getEmployee, createEmployee, updateEmployee, deleteEmployee,
   markAttendance, applyLeave,
   getTodayCheckins, getTodayCheckouts, getPendingPayments, getMaintenanceRooms, updateRoomMaintenance,
-  createSubscriptionOrder, verifySubscriptionPayment, getAttendance
+  createSubscriptionOrder, verifySubscriptionPayment, getAttendance, updateProfile
 } = require('../controllers/hotelController');
 const { protect, authorize, scopeToHotel, hotelAdmin } = require('../middleware/auth');
 const { requireFeature, enforceLimit } = require('../middleware/planGate');
@@ -21,6 +21,9 @@ const Room     = require('../models/Room');
 const { Employee } = require('../models/Operations');
 
 router.use(protect, scopeToHotel);
+
+// ── Property Profile ────────────────────────────────────────────────────────
+router.put   ('/profile',                 hotelAdmin, updateProfile);
 
 // ── Rooms (all plans) ─────────────────────────────────────────────────────────
 router.get   ('/rooms/availability',              checkAvailability);
