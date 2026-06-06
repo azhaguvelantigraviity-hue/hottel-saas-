@@ -33,8 +33,12 @@ const StepQR = ({ booking, onNext }) => {
     try {
       const res = await api.getBooking(bookingId.trim());
       const b = res.data;
-      if (b.status === 'checked_in' || b.status === 'checked_out' || b.status === 'cancelled') {
+      if (b.status === 'checked_out' || b.status === 'cancelled') {
         setError(`Booking is already ${b.status.replace('_', ' ')}`);
+        return;
+      }
+      if (b.status === 'checked_in') {
+        onNext({ booking: b, isCheckout: true });
         return;
       }
       // Generate QR code for the found booking
@@ -143,27 +147,33 @@ const StepIDScan = ({ booking, onNext }) => {
   const [scanning, setScanning] = useState(false);
   const [saving, setSaving] = useState(false);
   const [done, setDone] = useState(false);
+  const [selectedFile, setSelectedFile] = useState(null);
   const fileRef = useRef(null);
 
-  const simulateScan = () => {
+  const handleScan = async () => {
     if (!idNumber.trim()) return;
+    if (!selectedFile) {
+      alert("Please upload a document before scanning.");
+      return;
+    }
+    
     setScanning(true);
-    setTimeout(async () => {
+    setSaving(true);
+    try {
+      const formData = new FormData();
+      formData.append('idType', idType);
+      formData.append('idNumber', idNumber);
+      formData.append('documentImage', selectedFile);
+
+      await api.uploadIdScan(booking._id, formData);
+      setDone(true);
+      setTimeout(() => onNext({ idScanned: true }), 1200);
+    } catch (err) {
+      alert(err.message || 'Failed to upload ID scan');
+    } finally {
       setScanning(false);
-      setSaving(true);
-      try {
-        // Store dummy base64 document image
-        const dummyDoc = `data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==`;
-        await api.uploadIdScan(booking._id, { idType, idNumber, documentImage: dummyDoc });
-        setDone(true);
-        // Auto-advance after short delay
-        setTimeout(() => onNext({ idScanned: true }), 1200);
-      } catch (err) {
-        alert(err.message || 'Failed to upload ID scan');
-      } finally {
-        setSaving(false);
-      }
-    }, 1500);
+      setSaving(false);
+    }
   };
 
   return (
@@ -185,14 +195,14 @@ const StepIDScan = ({ booking, onNext }) => {
       </div>
       <div style={{ marginBottom: 16 }}>
         <label style={{ fontSize: 12, color: 'var(--text3)', display: 'block', marginBottom: 6, textTransform: 'uppercase', letterSpacing: '0.06em' }}>Upload Document</label>
-        <div onClick={() => fileRef.current?.click()} style={{ width: '100%', height: 100, border: '2px dashed var(--border)', borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', background: 'var(--surface)', color: 'var(--text3)', fontSize: 13 }}>
-          {done ? '✓ Document Uploaded' : 'Click to upload ID document (JPG/PNG)'}
+        <div onClick={() => fileRef.current?.click()} style={{ width: '100%', height: 100, border: '2px dashed var(--border)', borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', background: 'var(--surface)', color: 'var(--text3)', fontSize: 13, padding: '0 10px', textAlign: 'center' }}>
+          {done ? '✓ Document Uploaded' : selectedFile ? `Selected: ${selectedFile.name}` : 'Click to upload ID document (JPG/PNG/PDF)'}
         </div>
-        <input ref={fileRef} type="file" accept="image/*" style={{ display: 'none' }} onChange={() => { /* File selected - proceed with scan */ }} />
+        <input ref={fileRef} type="file" accept="image/*,application/pdf" style={{ display: 'none' }} onChange={(e) => setSelectedFile(e.target.files[0])} />
       </div>
-      <button onClick={simulateScan} disabled={scanning || saving || !idNumber.trim()} style={{ width: '100%', padding: '12px', background: scanning ? 'var(--surface)' : 'linear-gradient(135deg,#C9A84C,#8A6F2E)', border: 'none', borderRadius: 8, color: scanning ? 'var(--text3)' : '#fff', cursor: scanning ? 'not-allowed' : 'pointer', fontFamily: 'Inter, sans-serif', fontWeight: 600, fontSize: 14, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, opacity: scanning || saving || !idNumber.trim() ? 0.6 : 1 }}>
+      <button onClick={handleScan} disabled={scanning || saving || !idNumber.trim() || !selectedFile} style={{ width: '100%', padding: '12px', background: scanning ? 'var(--surface)' : 'linear-gradient(135deg,#C9A84C,#8A6F2E)', border: 'none', borderRadius: 8, color: scanning ? 'var(--text3)' : '#fff', cursor: scanning ? 'not-allowed' : 'pointer', fontFamily: 'Inter, sans-serif', fontWeight: 600, fontSize: 14, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, opacity: scanning || saving || !idNumber.trim() || !selectedFile ? 0.6 : 1 }}>
         <Icon name="fingerprint" size={16} color={scanning ? 'var(--text3)' : '#fff'} />
-        {done ? '✓ Verified' : saving ? 'Saving...' : scanning ? 'Scanning...' : 'Scan Document'}
+        {done ? '✓ Verified' : saving ? 'Uploading...' : scanning ? 'Scanning...' : 'Upload & Verify Document'}
       </button>
     </div>
   );
@@ -351,6 +361,59 @@ const StepComplete = ({ booking }) => {
   );
 };
 
+// ────── STEP 7: Check-Out ─────────────────────────────────────
+const StepCheckOut = ({ booking }) => {
+  const [loading, setLoading] = useState(false);
+  const [done, setDone] = useState(false);
+
+  const handleCheckOut = async () => {
+    if (!window.confirm("Confirm check-out?")) return;
+    setLoading(true);
+    try {
+      await api.checkOut(booking._id);
+      setDone(true);
+      alert("Successfully checked out!");
+    } catch (err) {
+      alert(err.message || 'Check-out failed');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 24, padding: '20px 0' }}>
+      <div style={{ textAlign: 'center' }}>
+        <div style={{ fontSize: 24, fontWeight: 700, color: 'var(--text)', marginBottom: 8, fontFamily: 'Playfair Display,serif' }}>Guest Check-Out</div>
+        <div style={{ fontSize: 14, color: 'var(--text2)' }}>Process departure for {booking?.guest ? `${booking.guest.firstName} ${booking.guest.lastName}` : 'Guest'}.</div>
+      </div>
+      <div style={{ background: 'var(--surface)', borderRadius: 12, padding: '20px 32px', border: '1px solid var(--border)', width: '100%', maxWidth: 400 }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 300px), 1fr))', gap: '12px', marginBottom: 20 }}>
+          {[
+            ['Booking ID', booking?.bookingId],
+            ['Room', booking?.room ? `${booking.room.roomNumber}` : '—'],
+          ].map(([k, v]) => (
+            <div key={k} style={{ background: 'var(--card)', borderRadius: 8, padding: '10px 12px' }}>
+              <div style={{ fontSize: 10, color: 'var(--text3)', letterSpacing: '0.06em', marginBottom: 3 }}>{k.toUpperCase()}</div>
+              <div style={{ fontSize: 14, fontWeight: 600 }}>{v || '—'}</div>
+            </div>
+          ))}
+        </div>
+        {!done ? (
+          <button 
+            onClick={handleCheckOut} 
+            disabled={loading}
+            style={{ width: '100%', padding: '12px', background: 'var(--rose)', border: 'none', borderRadius: 8, color: '#fff', cursor: loading ? 'not-allowed' : 'pointer', fontFamily: 'Inter, sans-serif', fontWeight: 600, fontSize: 14, opacity: loading ? 0.6 : 1 }}
+          >
+            {loading ? 'Processing...' : 'Complete Check-Out'}
+          </button>
+        ) : (
+          <div style={{ color: 'var(--teal)', fontWeight: 600, textAlign: 'center' }}>✓ Guest has been checked out</div>
+        )}
+      </div>
+    </div>
+  );
+};
+
 // ────── MAIN WIZARD ────────────────────────────────────────────
 const SmartCheckInPage = () => {
   const [step, setStep] = useState(0);
@@ -378,7 +441,10 @@ const SmartCheckInPage = () => {
   }, []);
 
   const handleNext = (data) => {
-    if (data.booking) {
+    if (data.isCheckout) {
+      setBooking(data.booking);
+      setStep(6); // Special Check-Out Step
+    } else if (data.booking) {
       setBooking(data.booking);
       setStepsCompleted(p => ({ ...p, qrScanned: true }));
       // Automatically advance to guest details after QR scan
@@ -418,6 +484,7 @@ const SmartCheckInPage = () => {
       case 3: return <StepFace booking={booking} onNext={handleNext} />;
       case 4: return <StepSignature booking={booking} onNext={handleNext} />;
       case 5: return <StepComplete booking={booking} />;
+      case 6: return <StepCheckOut booking={booking} />;
       default: return null;
     }
   };
@@ -434,8 +501,9 @@ const SmartCheckInPage = () => {
 
       {/* Progress stepper */}
       <div style={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: 'var(--radius-lg)', padding: 24 }}>
-        <div style={{ display: 'flex', gap: 4, marginBottom: 32, background: 'var(--surface)', borderRadius: 10, padding: 4 }}>
-          {STEPS.map((s, i) => {
+        {step !== 6 && (
+          <div style={{ display: 'flex', gap: 4, marginBottom: 32, background: 'var(--surface)', borderRadius: 10, padding: 4 }}>
+            {STEPS.map((s, i) => {
             const isActive = step === i;
             const isDone = canSkipTo(i + 1) || (step > i);
             return (
@@ -457,6 +525,7 @@ const SmartCheckInPage = () => {
             );
           })}
         </div>
+        )}
 
         {/* Step content */}
         <div style={{ animation: 'fadeIn 0.2s ease' }}>
@@ -472,7 +541,7 @@ const SmartCheckInPage = () => {
           >
             ← Back
           </button>
-          {step < 5 && (
+          {step < 5 && step !== 6 && (
             <button
               onClick={() => {
                 // Skip current step if already done

@@ -180,12 +180,18 @@ const updateBooking = catchAsync(async (req, res) => {
 const checkIn = catchAsync(async (req, res) => {
   const filter = oneFilter(req);
   filter.status = { $in: ['confirmed', 'pending'] };
-  const booking = await Booking.findOneAndUpdate(
-    filter, 
-    { status: 'checked_in', checkedInAt: new Date() },
-    { new: true }
-  );
+  const booking = await Booking.findOne(filter);
+  
   if (!booking) throw new AppError('Booking not found or already checked in', 404);
+
+  if (!booking.checkInProcess?.idScan?.documentImage) {
+    throw new AppError('Document upload required before check-in', 400);
+  }
+
+  booking.status = 'checked_in';
+  booking.checkedInAt = new Date();
+  await booking.save();
+
   // Update room status
   await Room.findByIdAndUpdate(booking.room, { status: 'occupied' });
   const populated = await populateBooking(Booking.findById(booking._id));
@@ -209,12 +215,24 @@ const checkIn = catchAsync(async (req, res) => {
 const checkOut = catchAsync(async (req, res) => {
   const filter = oneFilter(req);
   filter.status = 'checked_in';
-  const booking = await Booking.findOneAndUpdate(
-    filter, 
-    { status: 'checked_out', checkedOutAt: new Date() },
-    { new: true }
-  );
+  const booking = await Booking.findOne(filter);
+  
   if (!booking) throw new AppError('Booking not found or not checked in', 404);
+
+  const total = booking.totalAmount || 0;
+  const food = booking.foodCharges || 0;
+  const laundry = booking.laundryCharges || 0;
+  const other = booking.otherCharges || 0;
+  const paid = booking.paidAmount || 0;
+  
+  const grandTotal = total + food + laundry + other;
+  if (paid < grandTotal) {
+    throw new AppError(`Pending balance: ₹${(grandTotal - paid).toLocaleString()}. Please collect payment before checking out.`, 400);
+  }
+
+  booking.status = 'checked_out';
+  booking.checkedOutAt = new Date();
+  await booking.save();
   // Update room status
   const room = await Room.findByIdAndUpdate(booking.room, { status: 'cleaning', housekeepingStatus: 'dirty' });
   
@@ -321,7 +339,18 @@ const updateGuestDetails = catchAsync(async (req, res) => {
 const uploadIdScan = catchAsync(async (req, res) => {
   const booking = await Booking.findOne(oneFilter(req));
   if (!booking) throw new AppError('Booking not found', 404);
-  const { idType, idNumber, documentImage } = req.body;
+  
+  const { idType, idNumber } = req.body;
+  let documentImage = req.body.documentImage;
+  
+  if (req.file) {
+    documentImage = `/uploads/documents/${req.file.filename}`;
+  }
+  
+  if (!documentImage) {
+    throw new AppError('No document image provided', 400);
+  }
+
   booking.checkInProcess.idScan = { idType, idNumber, documentImage, verified: true, scannedAt: new Date() };
   booking.checkInProcess.stepsCompleted.idScanned = true;
   await booking.save();

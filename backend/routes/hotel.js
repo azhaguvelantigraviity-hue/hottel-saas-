@@ -1,5 +1,6 @@
 // src/routes/hotel.js
 const router = require('express').Router();
+const upload = require('../utils/upload');
 const {
   getRooms, getRoom, createRoom, updateRoom, deleteRoom,
   updateRoomHousekeeping, checkAvailability,
@@ -55,7 +56,7 @@ router.get  ('/payments/pending',                  getPendingPayments);
 router.get   ('/bookings/:id/checkin-process',       getCheckInProcess);
 router.post  ('/bookings/:id/qr-code',               generateQRCode);
 router.put   ('/bookings/:id/guest-details',         updateGuestDetails);
-router.post  ('/bookings/:id/id-scan',               uploadIdScan);
+router.post  ('/bookings/:id/id-scan',               upload.single('documentImage'), uploadIdScan);
 router.post  ('/bookings/:id/face-verification',     submitFaceVerification);
 router.post  ('/bookings/:id/signature',             saveSignature);
 
