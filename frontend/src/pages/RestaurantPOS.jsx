@@ -250,8 +250,8 @@ const RestaurantPOS = ({ role, hotelDetails }) => {
         <div style={{ padding: 'clamp(12px, 3vw, 24px)', overflowY: 'auto', flex: 1 }}>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(300px,1fr))', gap: '14px' }}>
              {orders.filter(o => activeTab === 'orders' ? ['pending', 'preparing'].includes(o.status) : ['delivered', 'cancelled'].includes(o.status)).map(order => {
-              const orderKey = order.id || order.orderId || order._id;
-              const orderIdDisplay = order.id || order.orderId || orderKey?.slice(-6);
+              const orderKey = order._id || order.id || order.orderId;
+              const orderIdDisplay = order.orderId || order.id || orderKey?.slice(-6);
               return (
               <div key={orderKey} style={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: 'var(--radius)', padding: '16px' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '12px' }}>
