@@ -69,7 +69,7 @@ exports.getHotel = asyncHandler(async (req, res, next) => {
 exports.createHotel = asyncHandler(async (req, res) => {
   const {
     name, email, phone, website, address, plan, planStatus, totalRooms,
-    adminEmail, adminPassword, managerEmail, managerPassword
+    adminEmail, adminPassword, managerName, managerEmail, managerPhone, managerPassword
   } = req.body;
 
   // Create Hotel
@@ -93,19 +93,20 @@ exports.createHotel = asyncHandler(async (req, res) => {
   const mPassword = managerPassword || adminPassword;
 
   if (mEmail && mPassword) {
-    // Find existing user or create a new one to prevent E11000 dup key errors
     let manager = await User.findOne({ email: mEmail });
     if (manager) {
-      manager.name = `${name} Manager`;
+      manager.name = managerName || `${name} Manager`;
       manager.password = mPassword;
       manager.role = 'hotel_admin';
       manager.hotel = hotel._id;
+      if (managerPhone) manager.phone = managerPhone;
       await manager.save();
     } else {
       manager = await User.create({
-        name: `${name} Manager`,
+        name: managerName || `${name} Manager`,
         email: mEmail,
         password: mPassword,
+        phone: managerPhone,
         role: 'hotel_admin',
         hotel: hotel._id
       });

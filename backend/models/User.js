@@ -5,6 +5,7 @@ const jwt      = require('jsonwebtoken');
 const UserSchema = new mongoose.Schema({
   name:     { type: String, required: true, trim: true },
   email:    { type: String, required: true, unique: true, lowercase: true, trim: true },
+  phone:    { type: String },
   password: { type: String, required: true, minlength: 6, select: false },
   role:     { type: String, enum: ['platform_admin','hotel_admin','hotel_staff'], default: 'hotel_staff' },
   department: { type: String, enum: ['Housekeeping', 'Maintenance', 'Front Desk', 'Restaurant', 'Manager', 'None'], default: 'None' },
