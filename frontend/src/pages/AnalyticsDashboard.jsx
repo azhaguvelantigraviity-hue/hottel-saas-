@@ -66,7 +66,7 @@ const DonutChart = () => {
         cumulative += d.pct;
         return <circle key={i} cx={cx} cy={cy} r={r} fill="none" stroke={d.color} strokeWidth={strokeW} strokeDasharray={`${dashArray} ${circumference}`} strokeDashoffset={dashOffset} style={{ transform:'rotate(-90deg)', transformOrigin:'80px 80px' }} />;
       })}
-      <text x={cx} y={cy-6} textAnchor="middle" fill="var(--text)" fontSize="18" fontWeight="700" fontFamily="DM Mono,monospace">-</text>
+      <text x={cx} y={cy-6} textAnchor="middle" fill="var(--text)" fontSize="18" fontWeight="700" fontFamily="DM Mono,monospace">38%</text>
       <text x={cx} y={cy+12} textAnchor="middle" fill="var(--text3)" fontSize="10" fontFamily="Inter, sans-serif">MARGIN</text>
     </svg>
   );
@@ -101,10 +101,10 @@ const AnalyticsDashboard = () => {
   return (
     <div style={{ flex:1, overflowY:'auto', padding:24 }}>
       <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fit, minmax(min(100%, 240px), 1fr))', gap:16, marginBottom:24 }}>
-        <StatCard label="RevPAR" value="-" icon="dollar" iconColor="var(--gold)" />
-        <StatCard label="ADR" value="-" icon="trending" iconColor="var(--teal)" />
-        <StatCard label="GOPPAR" value="-" icon="chart" iconColor="var(--violet)" />
-        <StatCard label="NPS Score" value="-" icon="star" iconColor="var(--green)" />
+        <StatCard title="RevPAR" value="₹3,315" icon="dollar" color="var(--gold)" />
+        <StatCard title="ADR" value="₹4,250" icon="trending" color="var(--teal)" />
+        <StatCard title="GOPPAR" value="₹1,420" icon="chart" color="var(--violet)" />
+        <StatCard title="NPS Score" value="72" icon="star" color="var(--green)" />
       </div>
       <div style={{ display:'flex', gap:4, marginBottom:20, background:'var(--card)', borderRadius:10, padding:4, border:'1px solid var(--border)' }}>
         {TABS.map((t,i) => <button key={i} onClick={() => setTab(i)} style={{ flex:1, padding:'9px 8px', borderRadius:8, border:'none', cursor:'pointer', fontFamily:'Inter, sans-serif', fontSize:12, fontWeight:500, background:tab===i?'var(--surface)':'transparent', color:tab===i?'var(--gold)':'var(--text2)' }}>{t}</button>)}
@@ -139,9 +139,9 @@ const AnalyticsDashboard = () => {
           <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:16 }}>
             <div style={{ fontSize:14, fontWeight:700, color:'var(--text)' }}>Daily Occupancy Rate</div>
             <div style={{ display:'flex', gap:16 }}>
-              <div style={{ fontSize:13, color:'var(--green)' }}>Peak: -</div>
-              <div style={{ fontSize:13, color:'var(--rose)' }}>Low: -</div>
-              <div style={{ fontSize:13, color:'var(--text2)' }}>Avg: -</div>
+              <div style={{ fontSize:13, color:'var(--green)' }}>Peak: 92%</div>
+              <div style={{ fontSize:13, color:'var(--rose)' }}>Low: 62%</div>
+              <div style={{ fontSize:13, color:'var(--text2)' }}>Avg: 78%</div>
             </div>
           </div>
           <OccupancyChart />

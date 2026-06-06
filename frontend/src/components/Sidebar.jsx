@@ -19,9 +19,10 @@ const Sidebar = ({ role, active, onNav, onLogout, plan, isOpen, setIsOpen }) => 
       label: 'MAIN MENU',
       items: [
         { id: 'dashboard', icon: 'dashboard', label: 'Dashboard',      plans: ['starter','professional','enterprise'] },
+        { id: 'checkin',   icon: 'checkin',   label: 'Check-In/Out',   plans: ['starter','professional','enterprise'] },
         { id: 'rooms',     icon: 'bed',       label: 'Rooms',          plans: ['starter','professional','enterprise'] },
         { id: 'bookings',  icon: 'calendar',  label: 'Bookings',       plans: ['starter','professional','enterprise'] },
-
+        { id: 'revenue',   icon: 'chart',     label: 'Revenue Report', plans: ['starter','professional','enterprise'] },
         { id: 'billing',   icon: 'receipt',   label: 'Billing',        plans: ['starter','professional','enterprise'] },
       ],
     },
@@ -31,6 +32,7 @@ const Sidebar = ({ role, active, onNav, onLogout, plan, isOpen, setIsOpen }) => 
         { id: 'guests',     icon: 'crm',        label: 'Guest CRM',      plans: ['professional','enterprise'] },
         { id: 'loyalty',    icon: 'loyalty',     label: 'Loyalty Program',plans: ['professional','enterprise'] },
         { id: 'restaurant', icon: 'food',        label: 'Restaurant POS', plans: ['professional','enterprise'] },
+        { id: 'complaints', icon: 'bell',        label: 'Complaints',     plans: ['starter','professional','enterprise'] },
         { id: 'laundry',    icon: 'laundry',     label: 'Laundry',        plans: ['professional','enterprise'] },
         { id: 'travel',     icon: 'taxi',        label: 'Travel Desk',    plans: ['enterprise'] },
         { id: 'events',     icon: 'events',      label: 'Events & Halls', plans: ['enterprise'] },
@@ -40,8 +42,9 @@ const Sidebar = ({ role, active, onNav, onLogout, plan, isOpen, setIsOpen }) => 
       label: 'STAFF MANAGEMENT',
       items: [
         { id: 'employees',    icon: 'users',       label: 'Employees',    plans: ['starter','professional','enterprise'] },
-        { id: 'housekeeping', icon: 'key',         label: 'Housekeeping', plans: ['professional','enterprise'] },
         { id: 'attendance',   icon: 'calendar',    label: 'Attendance',   plans: ['starter','professional','enterprise'] },
+        { id: 'housekeeping', icon: 'key',         label: 'Housekeeping', plans: ['professional','enterprise'] },
+        { id: 'maintenance',  icon: 'settings',    label: 'Maintenance',  plans: ['starter','professional','enterprise'] },
         { id: 'payroll',      icon: 'dollar',      label: 'Payroll',      plans: ['professional','enterprise'] },
       ],
     },
@@ -135,7 +138,12 @@ const Sidebar = ({ role, active, onNav, onLogout, plan, isOpen, setIsOpen }) => 
           hotelNavGroups.map(group => {
             const isItemVisible = (itemId) => {
               if (role === 'manager') {
-                const managerPages = ['dashboard', 'rooms', 'employees', 'analytics', 'reports', 'settings'];
+                const managerPages = [
+                  'dashboard', 'checkin', 'rooms', 'bookings', 
+                  'housekeeping', 'attendance', 'restaurant', 
+                  'complaints', 'maintenance', 'revenue', 
+                  'employees', 'analytics', 'reports', 'settings'
+                ];
                 return managerPages.includes(itemId);
               }
               if (role === 'staff') {

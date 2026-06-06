@@ -53,6 +53,8 @@ const HousekeepingPage = () => {
     try {
       const res = await hkApi.updateHousekeepingTask(id, { status });
       setTasks(prev => prev.map(t => t._id === id ? fromApi(res.data) : t));
+      // Refresh the room list so the room status grid updates
+      hotelApi.getRooms().then(roomsRes => setRooms(roomsRes.data || []));
     } catch (err) {
       console.error('Failed to update task', err);
     }

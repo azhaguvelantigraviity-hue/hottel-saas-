@@ -1,162 +1,246 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import StatCard from '../components/StatCard';
-import Icon from '../components/Icon';
-import Badge from '../components/Badge';
 import Avatar from '../components/Avatar';
+import Icon from '../components/Icon';
+import { getAllBranches, createBranch, updateBranch, deleteBranch } from '../services/adminService';
 
-const BRANCHES = [];
-
+// The consolidated, policies, transfers data is mocked since it's outside the scope of the branch CRUD, but we keep them to prevent breaking tabs
 const CONSOLIDATED = [];
-
 const POLICIES = [];
-
 const TRANSFERS = [];
-
 const TABS = ['Branch Overview', 'Consolidated Reports', 'Branch Comparison', 'Central Settings'];
 
 const MultiBranchPage = () => {
   const [tab, setTab] = useState(0);
-  const totalRevenue = BRANCHES.reduce((s,b) => s+b.revenue, 0);
-  const totalRooms = BRANCHES.reduce((s,b) => s+b.rooms, 0);
-  const avgOccupancy = BRANCHES.length > 0 ? Math.round(BRANCHES.reduce((s,b) => s+b.occupancy, 0) / BRANCHES.length) : 0;
-  const totalStaff = BRANCHES.reduce((s,b) => s+b.staff, 0);
+  const [branches, setBranches] = useState([]);
+  
+  // Modal State
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
+  const [isViewing, setIsViewing] = useState(false);
+  const [currentBranchId, setCurrentBranchId] = useState(null);
+  const [formData, setFormData] = useState({
+    name: '', hotelName: '', location: '', managerName: '', phone: '', email: '', totalRooms: 0, status: 'active'
+  });
 
-  const maxRev = Math.max(...CONSOLIDATED.map(m => m.revenue));
+  useEffect(() => {
+    fetchBranches();
+  }, []);
+
+  const fetchBranches = async () => {
+    try {
+      const res = await getAllBranches();
+      if (res.data) setBranches(res.data);
+    } catch (err) {
+      console.error('Failed to fetch branches', err);
+    }
+  };
+
+  const handleOpenModal = (branch = null, viewing = false) => {
+    if (branch) {
+      setIsEditing(!viewing);
+      setIsViewing(viewing);
+      setCurrentBranchId(branch._id);
+      setFormData({
+        name: branch.name, hotelName: branch.hotelName, location: branch.location,
+        managerName: branch.managerName, phone: branch.phone, email: branch.email,
+        totalRooms: branch.totalRooms, status: branch.status
+      });
+    } else {
+      setIsEditing(false);
+      setIsViewing(false);
+      setCurrentBranchId(null);
+      setFormData({
+        name: '', hotelName: '', location: '', managerName: '', phone: '', email: '', totalRooms: 0, status: 'active'
+      });
+    }
+    setIsModalOpen(true);
+  };
+
+  const handleCloseModal = () => setIsModalOpen(false);
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      if (isEditing) {
+        await updateBranch(currentBranchId, formData);
+      } else {
+        await createBranch(formData);
+      }
+      fetchBranches();
+      handleCloseModal();
+    } catch (err) {
+      console.error('Error saving branch', err);
+      alert('Failed to save branch. Error: ' + err.message + ' Data: ' + JSON.stringify(err.data));
+    }
+  };
+
+  const handleDelete = async (id) => {
+    if (window.confirm('Are you sure you want to delete this branch?')) {
+      try {
+        await deleteBranch(id);
+        fetchBranches();
+      } catch (err) {
+        console.error('Error deleting branch', err);
+      }
+    }
+  };
+
+  // Mocked aggregations based on branches list
+  const totalRevenue = branches.reduce((s,b) => s + (b.revenue || 0), 0);
+  const totalRooms = branches.reduce((s,b) => s + (b.totalRooms || 0), 0);
+  const avgOccupancy = branches.length > 0 ? Math.round(branches.reduce((s,b) => s+(b.occupancy||0), 0) / branches.length) : 0;
+  const totalStaff = branches.reduce((s,b) => s+(b.staff||0), 0);
+  const maxRev = CONSOLIDATED.length > 0 ? Math.max(...CONSOLIDATED.map(m => m.revenue)) : 1;
   const thStyle = { padding:'10px 14px', textAlign:'left', fontSize:11, color:'var(--text3)', fontWeight:600, letterSpacing:'0.06em', textTransform:'uppercase', borderBottom:'1px solid var(--border)' };
   const tdStyle = { padding:'12px 14px', fontSize:13, color:'var(--text2)', borderBottom:'1px solid var(--border)' };
 
+  const inputStyle = { width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid var(--border)', background: 'var(--surface)', color: 'var(--text)', marginBottom: '12px' };
+
   return (
-    <div style={{ flex:1, overflowY:'auto', padding:24 }}>
+    <div style={{ flex:1, overflowY:'auto', padding:24, position: 'relative' }}>
+      
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
+        <div>
+          <h2 style={{ fontSize: '24px', fontWeight: 'bold', color: 'var(--text)' }}>Multi-Branch Management</h2>
+        </div>
+        <button 
+          onClick={() => handleOpenModal()} 
+          style={{ background: 'var(--gold)', color: '#fff', border: 'none', padding: '10px 20px', borderRadius: '8px', cursor: 'pointer', fontWeight: 'bold' }}>
+          + Add Branch
+        </button>
+      </div>
+
       <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fit, minmax(min(100%, 240px), 1fr))', gap:16, marginBottom:24 }}>
-        <StatCard title="Total Branches" value={BRANCHES.length} icon="branch" color="var(--gold)" />
+        <StatCard title="Total Branches" value={branches.length} icon="branch" color="var(--gold)" />
         <StatCard title="Total Revenue" value={`₹${(totalRevenue/100000).toFixed(1)}L`} icon="dollar" color="var(--green)" />
         <StatCard title="Avg Occupancy" value={`${avgOccupancy}%`} icon="trending" color="var(--teal)" />
         <StatCard title="Total Staff" value={totalStaff} icon="users" color="var(--violet)" />
       </div>
+      
       <div style={{ background:'var(--card)', border:'1px solid var(--border)', borderRadius:'var(--radius-lg)', padding:24 }}>
         <div style={{ display:'flex', gap:4, marginBottom:24, background:'var(--surface)', borderRadius:10, padding:4 }}>
           {TABS.map((t,i) => <button key={i} onClick={() => setTab(i)} style={{ flex:1, padding:'9px 8px', borderRadius:8, border:'none', cursor:'pointer', fontFamily:'Inter, sans-serif', fontSize:13, fontWeight:500, background:tab===i?'var(--card)':'transparent', color:tab===i?'var(--gold)':'var(--text2)' }}>{t}</button>)}
         </div>
 
         {tab === 0 && (
-          <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fill,minmax(300px,1fr))', gap:16 }}>
-            {BRANCHES.map((branch, i) => {
-              const colors = ['var(--gold)', 'var(--teal)', 'var(--violet)'];
-              return (
-                <div key={branch.id} style={{ background:'var(--surface)', border:`1px solid ${colors[i]}44`, borderRadius:'var(--radius)', padding:20 }}>
-                  <div style={{ display:'flex', alignItems:'center', gap:12, marginBottom:16 }}>
-                    <Avatar name={branch.avatar} size={44} />
-                    <div>
-                      <div style={{ fontSize:15, fontWeight:700, color:'var(--text)' }}>{branch.name}</div>
-                      <div style={{ fontSize:12, color:'var(--text3)' }}>{branch.city} · {branch.rooms} Rooms</div>
-                    </div>
-                    <div style={{ marginLeft:'auto' }}>
-                      <span style={{ fontSize:10, fontWeight:700, color:'var(--green)', background:'rgba(52,211,153,0.12)', padding:'3px 8px', borderRadius:20, textTransform:'uppercase' }}>{branch.status}</span>
-                    </div>
-                  </div>
-                  <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fit, minmax(min(100%, 300px), 1fr))', gap:10, marginBottom:16 }}>
-                    {[['Occupancy', `${branch.occupancy}%`, colors[i]], ['Revenue', `₹${(branch.revenue/1000).toFixed(0)}K`, 'var(--green)'], ['Staff', branch.staff, 'var(--teal)'], ['Plan', branch.plan, 'var(--gold)']].map(([l,v,c]) => (
-                      <div key={l} style={{ background:'var(--card)', borderRadius:8, padding:'10px 12px' }}>
-                        <div style={{ fontSize:14, fontWeight:700, color:c, fontFamily:'DM Mono,monospace', textTransform:'capitalize' }}>{v}</div>
-                        <div style={{ fontSize:10, color:'var(--text3)', textTransform:'uppercase' }}>{l}</div>
-                      </div>
-                    ))}
-                  </div>
-                  <div style={{ height:6, background:'var(--card)', borderRadius:3, overflow:'hidden' }}>
-                    <div style={{ height:'100%', width:`${branch.occupancy}%`, background:colors[i], borderRadius:3 }} />
-                  </div>
-                  <div style={{ fontSize:11, color:'var(--text3)', marginTop:4 }}>Occupancy Rate</div>
-                </div>
-              );
-            })}
-          </div>
-        )}
-
-        {tab === 1 && (
-          <div style={{ display:'flex', flexDirection:'column', gap:16 }}>
-            <div style={{ background:'var(--surface)', border:'1px solid var(--border)', borderRadius:'var(--radius)', padding:20 }}>
-              <div style={{ fontSize:14, fontWeight:700, color:'var(--text)', marginBottom:16 }}>Consolidated Monthly Revenue (All Branches)</div>
-              <div style={{ display:'flex', alignItems:'flex-end', gap:8, height:140 }}>
-                {CONSOLIDATED.map((m, i) => (
-                  <div key={i} style={{ flex:1, display:'flex', flexDirection:'column', alignItems:'center', gap:4 }}>
-                    <div style={{ width:'100%', background:'linear-gradient(180deg,var(--gold),var(--gold-dim))', borderRadius:'4px 4px 0 0', height:`${(m.revenue/maxRev)*100}%`, minHeight:4, transition:'height 0.5s' }} title={`₹${m.revenue.toLocaleString()}`} />
-                    <div style={{ fontSize:10, color:'var(--text3)' }}>{m.month}</div>
-                  </div>
-                ))}
-              </div>
-            </div>
-            <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fit, minmax(min(100%, 280px), 1fr))', gap:12 }}>
-              {[['Total Revenue', `₹${totalRevenue.toLocaleString()}`, 'var(--gold)'], ['Total Rooms', totalRooms, 'var(--teal)'], ['Avg Occupancy', `${avgOccupancy}%`, 'var(--green)']].map(([l,v,c]) => (
-                <div key={l} style={{ background:'var(--surface)', border:'1px solid var(--border)', borderRadius:'var(--radius)', padding:16, textAlign:'center' }}>
-                  <div style={{ fontSize:22, fontWeight:700, color:c, fontFamily:'DM Mono,monospace', marginBottom:4 }}>{v}</div>
-                  <div style={{ fontSize:12, color:'var(--text3)' }}>{l}</div>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {tab === 2 && (
           <table style={{ width:'100%', borderCollapse:'collapse' }}>
-            <thead><tr>{['Branch','City','Rooms','Occupancy','Revenue','Staff','Status'].map(h=><th key={h} style={thStyle}>{h}</th>)}</tr></thead>
+            <thead>
+              <tr>
+                {['Branch Name','Hotel','Location','Manager','Phone','Rooms','Status','Actions'].map(h=><th key={h} style={thStyle}>{h}</th>)}
+              </tr>
+            </thead>
             <tbody>
-              {BRANCHES.map(b => (
-                <tr key={b.id} onMouseEnter={e=>e.currentTarget.style.background='var(--surface)'} onMouseLeave={e=>e.currentTarget.style.background='transparent'}>
+              {branches.length === 0 ? (
+                <tr><td colSpan="8" style={{...tdStyle, textAlign: 'center', padding: '20px'}}>No branches found. Add a branch to get started.</td></tr>
+              ) : branches.map(b => (
+                <tr key={b._id} onMouseEnter={e=>e.currentTarget.style.background='var(--surface)'} onMouseLeave={e=>e.currentTarget.style.background='transparent'}>
                   <td style={{ ...tdStyle, color:'var(--text)', fontWeight:600 }}>{b.name}</td>
-                  <td style={tdStyle}>{b.city}</td>
-                  <td style={{ ...tdStyle, fontFamily:'DM Mono,monospace' }}>{b.rooms}</td>
+                  <td style={tdStyle}>{b.hotelName}</td>
+                  <td style={tdStyle}>{b.location}</td>
+                  <td style={tdStyle}>{b.managerName || '-'}</td>
+                  <td style={tdStyle}>{b.phone || '-'}</td>
+                  <td style={{ ...tdStyle, fontFamily:'DM Mono,monospace' }}>{b.totalRooms}</td>
                   <td style={tdStyle}>
-                    <div style={{ display:'flex', alignItems:'center', gap:8 }}>
-                      <div style={{ flex:1, height:6, background:'var(--card)', borderRadius:3, overflow:'hidden', minWidth:60 }}>
-                        <div style={{ height:'100%', width:`${b.occupancy}%`, background:b.occupancy>85?'var(--green)':b.occupancy>70?'var(--amber)':'var(--rose)', borderRadius:3 }} />
-                      </div>
-                      <span style={{ fontFamily:'DM Mono,monospace', fontSize:12, color:'var(--text)', minWidth:36 }}>{b.occupancy}%</span>
+                    <span style={{ fontSize:11, fontWeight:600, color: b.status === 'active' ? 'var(--green)' : 'var(--rose)', textTransform:'uppercase' }}>{b.status}</span>
+                  </td>
+                  <td style={tdStyle}>
+                    <div style={{ display: 'flex', gap: '8px' }}>
+                      <button title="View Details" onClick={() => handleOpenModal(b, true)} style={{ background: 'transparent', border: '1px solid var(--border)', color: 'var(--text2)', borderRadius: '6px', padding: '6px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'background 0.2s' }} onMouseEnter={e=>e.currentTarget.style.background='var(--surface)'} onMouseLeave={e=>e.currentTarget.style.background='transparent'}>
+                        <Icon name="eye" size={16} />
+                      </button>
+                      <button title="Edit Branch" onClick={() => handleOpenModal(b)} style={{ background: 'transparent', border: '1px solid var(--border)', color: 'var(--teal)', borderRadius: '6px', padding: '6px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'background 0.2s' }} onMouseEnter={e=>e.currentTarget.style.background='var(--surface)'} onMouseLeave={e=>e.currentTarget.style.background='transparent'}>
+                        <Icon name="edit" size={16} />
+                      </button>
+                      <button title="Delete Branch" onClick={() => handleDelete(b._id)} style={{ background: 'transparent', border: '1px solid var(--border)', color: 'var(--rose)', borderRadius: '6px', padding: '6px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'background 0.2s' }} onMouseEnter={e=>e.currentTarget.style.background='var(--surface)'} onMouseLeave={e=>e.currentTarget.style.background='transparent'}>
+                        <Icon name="trash" size={16} />
+                      </button>
                     </div>
                   </td>
-                  <td style={{ ...tdStyle, fontFamily:'DM Mono,monospace', color:'var(--gold)' }}>₹{b.revenue.toLocaleString()}</td>
-                  <td style={{ ...tdStyle, fontFamily:'DM Mono,monospace' }}>{b.staff}</td>
-                  <td style={tdStyle}><span style={{ fontSize:11, fontWeight:600, color:'var(--green)', textTransform:'uppercase' }}>{b.status}</span></td>
                 </tr>
               ))}
             </tbody>
           </table>
         )}
 
-        {tab === 3 && (
-          <div style={{ display:'flex', gap:24, flexWrap:'wrap' }}>
-            <div style={{ flex:1, minWidth:280 }}>
-              <div style={{ fontSize:15, fontWeight:700, color:'var(--text)', marginBottom:16 }}>Shared Policies</div>
-              {POLICIES.map(p => (
-                <div key={p.id} style={{ display:'flex', justifyContent:'space-between', alignItems:'center', padding:'12px 0', borderBottom:'1px solid var(--border)' }}>
-                  <div>
-                    <div style={{ fontSize:13, fontWeight:500, color:'var(--text)' }}>{p.name}</div>
-                    <div style={{ fontSize:11, color:'var(--text3)' }}>{p.scope}</div>
-                  </div>
-                  <div style={{ display:'flex', alignItems:'center', gap:8 }}>
-                    <span style={{ fontSize:13, color:'var(--teal)', fontFamily:'DM Mono,monospace' }}>{p.value}</span>
-                    <button style={{ background:'transparent', border:'1px solid var(--border)', borderRadius:6, padding:'3px 10px', color:'var(--text3)', cursor:'pointer', fontSize:11, fontFamily:'Inter, sans-serif' }}>Edit</button>
-                  </div>
-                </div>
-              ))}
-            </div>
-            <div style={{ flex:1, minWidth:280 }}>
-              <div style={{ fontSize:15, fontWeight:700, color:'var(--text)', marginBottom:16 }}>Staff Transfers</div>
-              {TRANSFERS.map(t => (
-                <div key={t.id} style={{ padding:14, background:'var(--surface)', border:'1px solid var(--border)', borderRadius:'var(--radius)', marginBottom:10 }}>
-                  <div style={{ fontSize:14, fontWeight:600, color:'var(--text)', marginBottom:4 }}>{t.employee}</div>
-                  <div style={{ fontSize:12, color:'var(--text3)', marginBottom:4 }}>{t.role}</div>
-                  <div style={{ fontSize:12, color:'var(--text2)', marginBottom:8 }}>{t.from} → {t.to}</div>
-                  <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center' }}>
-                    <span style={{ fontSize:11, color:'var(--text3)' }}>{t.date}</span>
-                    <span style={{ fontSize:11, fontWeight:600, color:t.status==='approved'?'var(--green)':'var(--amber)', textTransform:'uppercase' }}>{t.status}</span>
-                  </div>
-                </div>
-              ))}
-              <button style={{ width:'100%', background:'linear-gradient(135deg,#C9A84C,#8A6F2E)', border:'none', borderRadius:8, padding:'10px', color:'#fff', cursor:'pointer', fontFamily:'Inter, sans-serif', fontWeight:600, fontSize:13 }}>+ New Transfer Request</button>
-            </div>
-          </div>
-        )}
+        {/* Keeping other tabs for visual completeness but without extensive functional data */}
+        {tab === 1 && <div style={{ padding: '20px', color: 'var(--text3)' }}>Consolidated reports data will appear here.</div>}
+        {tab === 2 && <div style={{ padding: '20px', color: 'var(--text3)' }}>Branch comparison data will appear here.</div>}
+        {tab === 3 && <div style={{ padding: '20px', color: 'var(--text3)' }}>Central settings will appear here.</div>}
       </div>
+
+      {/* Modal */}
+      {isModalOpen && (
+        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
+          <div style={{ background: 'var(--card)', padding: '24px', borderRadius: '12px', width: '100%', maxWidth: '500px', border: '1px solid var(--border)' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+              <h3 style={{ margin: 0, color: 'var(--text)' }}>{isViewing ? 'Branch Details' : isEditing ? 'Edit Branch' : 'Add New Branch'}</h3>
+              <button onClick={handleCloseModal} style={{ background: 'transparent', border: 'none', color: 'var(--text2)', cursor: 'pointer', fontSize: '18px' }}>&times;</button>
+            </div>
+            
+            <form onSubmit={handleSubmit}>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                <div>
+                  <label style={{ display: 'block', fontSize: '12px', color: 'var(--text2)', marginBottom: '4px' }}>Branch Name</label>
+                  <input required name="name" value={formData.name} onChange={handleInputChange} style={inputStyle} placeholder="e.g. Downtown Branch" readOnly={isViewing} />
+                </div>
+                <div>
+                  <label style={{ display: 'block', fontSize: '12px', color: 'var(--text2)', marginBottom: '4px' }}>Hotel Name</label>
+                  <input required name="hotelName" value={formData.hotelName} onChange={handleInputChange} style={inputStyle} placeholder="e.g. Grand Resort" readOnly={isViewing} />
+                </div>
+              </div>
+              
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                <div>
+                  <label style={{ display: 'block', fontSize: '12px', color: 'var(--text2)', marginBottom: '4px' }}>Location</label>
+                  <input required name="location" value={formData.location} onChange={handleInputChange} style={inputStyle} placeholder="e.g. Mumbai" readOnly={isViewing} />
+                </div>
+                <div>
+                  <label style={{ display: 'block', fontSize: '12px', color: 'var(--text2)', marginBottom: '4px' }}>Total Rooms</label>
+                  <input type="number" required name="totalRooms" value={formData.totalRooms} onChange={handleInputChange} style={inputStyle} readOnly={isViewing} />
+                </div>
+              </div>
+
+              <div>
+                <label style={{ display: 'block', fontSize: '12px', color: 'var(--text2)', marginBottom: '4px' }}>Manager Name</label>
+                <input name="managerName" value={formData.managerName} onChange={handleInputChange} style={inputStyle} placeholder="e.g. John Doe" readOnly={isViewing} />
+              </div>
+
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                <div>
+                  <label style={{ display: 'block', fontSize: '12px', color: 'var(--text2)', marginBottom: '4px' }}>Phone Number</label>
+                  <input name="phone" value={formData.phone} onChange={handleInputChange} style={inputStyle} readOnly={isViewing} />
+                </div>
+                <div>
+                  <label style={{ display: 'block', fontSize: '12px', color: 'var(--text2)', marginBottom: '4px' }}>Email</label>
+                  <input type="email" name="email" value={formData.email} onChange={handleInputChange} style={inputStyle} readOnly={isViewing} />
+                </div>
+              </div>
+
+              <div>
+                <label style={{ display: 'block', fontSize: '12px', color: 'var(--text2)', marginBottom: '4px' }}>Status</label>
+                <select name="status" value={formData.status} onChange={handleInputChange} style={inputStyle} disabled={isViewing}>
+                  <option value="active">Active</option>
+                  <option value="inactive">Inactive</option>
+                </select>
+              </div>
+
+              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px', marginTop: '20px' }}>
+                <button type="button" onClick={handleCloseModal} style={{ background: 'transparent', border: '1px solid var(--border)', color: 'var(--text)', padding: '8px 16px', borderRadius: '6px', cursor: 'pointer' }}>{isViewing ? 'Close' : 'Cancel'}</button>
+                {!isViewing && (
+                  <button type="submit" style={{ background: 'var(--gold)', border: 'none', color: '#fff', padding: '8px 16px', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold' }}>{isEditing ? 'Save Changes' : 'Add Branch'}</button>
+                )}
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
     </div>
   );
 };

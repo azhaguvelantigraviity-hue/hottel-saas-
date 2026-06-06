@@ -27,6 +27,8 @@ const billingRoutes    = require('./routes/billing');
 const manualItemsRoutes = require('./routes/manualItems');
 const laundryRoutes     = require('./routes/laundry');
 const bulkImportRoutes  = require('./routes/bulkImport');
+const complaintsRoutes  = require('./routes/complaints');
+const notificationRoutes = require('./routes/notificationRoutes');
 
 // ── Connect DB ────────────────────────────────────────────────────────────────
 connectDB();
@@ -148,6 +150,8 @@ app.use('/api/v1/billing',    billingRoutes);
 app.use('/api/v1/manual-items', manualItemsRoutes);
 app.use('/api/v1/laundry',      laundryRoutes);
 app.use('/api/v1/bulk-import',  bulkImportRoutes);
+app.use('/api/v1/complaints',   complaintsRoutes);
+app.use('/api/v1/notifications', notificationRoutes);
 
 // ── API info ──────────────────────────────────────────────────────────────────
 app.get('/api/v1', (_req, res) => {

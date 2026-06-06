@@ -212,9 +212,10 @@ const RoomsPage = ({ onNav, role, hotelDetails }) => {
     available: rooms.filter(r => r.status === 'available').length,
     reserved: rooms.filter(r => r.status === 'reserved').length,
     maintenance: rooms.filter(r => r.status === 'maintenance').length,
+    cleaning: rooms.filter(r => r.status === 'cleaning').length,
   };
 
-  const statusColor = { all: 'var(--gold)', occupied: 'var(--gold)', available: 'var(--green)', reserved: 'var(--violet)', maintenance: 'var(--rose)' };
+  const statusColor = { all: 'var(--gold)', occupied: 'var(--gold)', available: 'var(--green)', reserved: 'var(--violet)', maintenance: 'var(--rose)', cleaning: 'var(--amber)' };
   const hkColor = { clean: 'var(--green)', dirty: 'var(--rose)', inspect: 'var(--amber)' };
 
   return (
@@ -224,7 +225,7 @@ const RoomsPage = ({ onNav, role, hotelDetails }) => {
       {editRoom && <RoomFormModal title="Edit Room" room={editRoom} onClose={() => setEditRoom(null)} onSave={handleEditRoom} />}
 
       <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '24px', flexWrap: 'wrap' }}>
-        {['all', 'occupied', 'available', 'reserved', 'maintenance'].map(s => (
+        {['all', 'occupied', 'available', 'cleaning', 'reserved', 'maintenance'].map(s => (
           <button key={s} onClick={() => setFilterStatus(s)} style={{ padding: '7px 16px', borderRadius: '20px', border: '1px solid', fontSize: '12px', fontWeight: '600', cursor: 'pointer', fontFamily: 'Inter, sans-serif', background: filterStatus === s ? statusColor[s] : 'transparent', borderColor: filterStatus === s ? statusColor[s] : 'var(--border)', color: filterStatus === s ? '#000' : 'var(--text2)', textTransform: 'capitalize' }}>
             {s} ({counts[s]})
           </button>
@@ -259,7 +260,7 @@ const RoomsPage = ({ onNav, role, hotelDetails }) => {
               </div>
               <div style={{ fontSize: '11px', fontWeight: '600', color: 'var(--text2)', marginBottom: '4px' }}>{r.type}</div>
               <div style={{ fontSize: '10px', color: 'var(--text3)', marginBottom: '8px' }}>Floor {r.floor}</div>
-              <Badge color={r.status === 'occupied' ? 'gold' : r.status === 'available' ? 'green' : r.status === 'reserved' ? 'violet' : 'rose'}>{r.status}</Badge>
+              <Badge color={r.status === 'occupied' ? 'gold' : r.status === 'available' ? 'green' : r.status === 'reserved' ? 'violet' : r.status === 'cleaning' ? 'amber' : 'rose'}>{r.status}</Badge>
               {r.guest && <div style={{ marginTop: '8px', fontSize: '11px', color: 'var(--text2)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{r.guest}</div>}
               <div style={{ marginTop: '8px', fontSize: '12px', fontFamily: 'DM Mono,monospace', color: 'var(--gold)' }}>₹{(r.rate || 0).toLocaleString()}/n</div>
               {role === 'manager' && (
@@ -287,7 +288,7 @@ const RoomsPage = ({ onNav, role, hotelDetails }) => {
                   <td style={{ padding: '12px 16px', fontFamily: 'DM Mono,monospace', fontWeight: '700', color: statusColor[r.status] }}>{r.id}</td>
                   <td style={{ padding: '12px 16px', fontSize: '13px' }}>{r.type}</td>
                   <td style={{ padding: '12px 16px', fontSize: '13px', color: 'var(--text2)' }}>Floor {r.floor}</td>
-                  <td style={{ padding: '12px 16px' }}><Badge color={r.status === 'occupied' ? 'gold' : r.status === 'available' ? 'green' : r.status === 'reserved' ? 'violet' : 'rose'}>{r.status}</Badge></td>
+                  <td style={{ padding: '12px 16px' }}><Badge color={r.status === 'occupied' ? 'gold' : r.status === 'available' ? 'green' : r.status === 'reserved' ? 'violet' : r.status === 'cleaning' ? 'amber' : 'rose'}>{r.status}</Badge></td>
                   <td style={{ padding: '12px 16px', fontSize: '13px', color: 'var(--text2)' }}>{r.guest || '—'}</td>
                   <td style={{ padding: '12px 16px', fontFamily: 'DM Mono,monospace', fontSize: '13px' }}>₹{(r.rate || 0).toLocaleString()}</td>
                   <td style={{ padding: '12px 16px' }}><Badge color={r.housekeeping === 'clean' ? 'green' : r.housekeeping === 'dirty' ? 'rose' : 'amber'}>{r.housekeeping}</Badge></td>

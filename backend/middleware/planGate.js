@@ -35,6 +35,8 @@ const FEATURE_PLAN_MAP = {
 const PLAN_RANK = { starter: 1, professional: 2, enterprise: 3 };
 
 exports.requireFeature = (featureKey) => asyncHandler(async (req, _res, next) => {
+  if (req.user && req.user.role === 'platform_admin') return next();
+  
   const requiredPlan = FEATURE_PLAN_MAP[featureKey];
   if (!requiredPlan) return next();
 
@@ -67,6 +69,8 @@ const PLAN_LIMITS = {
 };
 
 exports.enforceLimit = (limitKey, Model) => asyncHandler(async (req, _res, next) => {
+  if (req.user && req.user.role === 'platform_admin') return next();
+  
   const hotelId = req.hotelId || req.user.hotel || req.body?.hotel || req.query?.hotel;
   const hotel   = await Hotel.findById(hotelId).select('plan totalRooms');
   if (!hotel) return next(new AppError('Hotel not found', 404));

@@ -15,16 +15,18 @@ import RestaurantPOS from './pages/RestaurantPOS';
 import MaintenancePage from './pages/MaintenancePage';
 import ChannelManagerPage from './pages/ChannelManagerPage';
 import ReportsPage from './pages/ReportsPage';
-import RevenueAIPage from './pages/RevenueAIPage';
+import DailyRevenueReportPage from './pages/DailyRevenueReportPage';
 import SettingsPage from './pages/SettingsPage';
 import LockedPage from './pages/LockedPage';
 import ComingSoon from './pages/ComingSoon';
 import AuditLogs from './pages/AuditLogs';
 import AdminRevenue from './pages/AdminRevenue';
 import SmartCheckInPage from './pages/SmartCheckInPage';
+import CheckInOutPage from './pages/CheckInOutPage';
 import InventoryPage from './pages/InventoryPage';
 import LoyaltyPage from './pages/LoyaltyPage';
 import EventsPage from './pages/EventsPage';
+import ComplaintsPage from './pages/ComplaintsPage';
 import LaundryPage from './pages/LaundryPage';
 import TravelDeskPage from './pages/TravelDeskPage';
 import BillingPage from './pages/BillingPage';
@@ -37,9 +39,13 @@ import MarketingPage from './pages/MarketingPage';
 import AttendancePage from './pages/AttendancePage';
 import MultiBranchPage from './pages/MultiBranchPage';
 import PayrollPage from './pages/PayrollPage';
+import AdminAccounts from './pages/AdminAccounts';
+import AdminAlerts from './pages/AdminAlerts';
+import AdminRoles from './pages/AdminRoles';
 import Sidebar from './components/Sidebar';
 import Topbar from './components/Topbar';
 import ProtectedRoute from './components/ProtectedRoute';
+import { NotificationProvider } from './context/NotificationContext';
 
 import * as authService from './services/authService';
 
@@ -65,19 +71,20 @@ const AdminApp = ({ onLogout }) => {
 
   const pages = {
     dashboard: <AdminDashboard onNav={setPage} />,
-    hotels: <AdminHotels />,
-    subscriptions: <AdminSubscriptions />,
-    revenue: <AdminRevenue />,
-    analytics: <AnalyticsDashboard />,
     multibranch: <MultiBranchPage />,
+    accounts: <AdminAccounts />,
+    subscriptions: <AdminSubscriptions />,
+    analytics: <AnalyticsDashboard />,
+    alerts: <AdminAlerts />,
     audit: <AuditLogs />,
+    roles: <AdminRoles />,
     settings: <SettingsPage role="admin" />,
   };
 
   const titles = {
-    dashboard: 'Platform Overview', hotels: 'Managed Hotels', subscriptions: 'Subscriptions',
-    revenue: 'Revenue', analytics: 'Analytics', multibranch: 'Multi-Branch Management',
-    audit: 'Audit Logs', settings: 'Settings',
+    dashboard: 'Platform Overview', multibranch: 'Multi-Branch Management', accounts: 'Account Management',
+    subscriptions: 'Subscriptions & Payments', analytics: 'Analytics Dashboard', alerts: 'Trial & Renewal Alerts',
+    audit: 'Audit Logs', roles: 'Roles & Permissions', settings: 'Settings',
   };
 
   return (
@@ -105,9 +112,9 @@ const HotelApp = ({ onLogout, initialPlan = 'enterprise', role = 'manager', hote
   const plan = initialPlan;
 
   const planFeatures = {
-    starter:      ['dashboard','rooms','bookings','billing','notifications','reports','settings','employees','analytics','attendance'],
-    professional: ['dashboard','rooms','bookings','billing','notifications','guests','loyalty','employees','housekeeping','restaurant','laundry','maintenance','channel','analytics','marketing','whatsapp','inventory','reports','settings','attendance','payroll'],
-    enterprise:   ['dashboard','rooms','bookings','billing','notifications','checkin','guests','loyalty','restaurant','laundry','travel','events','employees','housekeeping','maintenance','channel','revenue','analytics','marketing','whatsapp','inventory','iot','security','reports','settings','attendance','payroll'],
+    starter: ['dashboard', 'rooms', 'bookings', 'billing', 'notifications', 'reports', 'settings', 'employees', 'analytics', 'attendance', 'checkin', 'revenue', 'complaints', 'restaurant', 'housekeeping', 'maintenance'],
+    professional: ['dashboard', 'rooms', 'bookings', 'billing', 'notifications', 'guests', 'loyalty', 'employees', 'housekeeping', 'restaurant', 'laundry', 'maintenance', 'channel', 'analytics', 'marketing', 'whatsapp', 'inventory', 'reports', 'settings', 'attendance', 'payroll', 'checkin', 'revenue', 'complaints'],
+    enterprise: ['dashboard', 'rooms', 'bookings', 'billing', 'notifications', 'checkin', 'guests', 'loyalty', 'restaurant', 'laundry', 'travel', 'events', 'employees', 'housekeeping', 'maintenance', 'channel', 'revenue', 'analytics', 'marketing', 'whatsapp', 'inventory', 'iot', 'security', 'reports', 'settings', 'attendance', 'payroll', 'complaints'],
   };
   const allowed = planFeatures[plan] || planFeatures.starter;
 
@@ -121,7 +128,7 @@ const HotelApp = ({ onLogout, initialPlan = 'enterprise', role = 'manager', hote
     marketing: 'Marketing & SEO', whatsapp: 'WhatsApp Integration',
     inventory: 'Inventory Management', iot: 'IoT & Door Locks',
     attendance: 'Attendance', payroll: 'Payroll Management',
-    security: 'Security & CCTV',
+    security: 'Security & CCTV', complaints: 'Customer Complaints',
     notifications: 'Notifications', reports: 'Reports & Analytics', settings: 'Settings',
   };
 
@@ -133,9 +140,9 @@ const HotelApp = ({ onLogout, initialPlan = 'enterprise', role = 'manager', hote
     housekeeping: 'professional', restaurant: 'professional', laundry: 'professional',
     attendance: 'starter', payroll: 'professional', channel: 'professional',
     marketing: 'professional', whatsapp: 'professional', inventory: 'professional',
-    checkin: 'enterprise', travel: 'enterprise', events: 'enterprise',
+    checkin: 'starter', travel: 'enterprise', events: 'enterprise',
     iot: 'enterprise', security: 'enterprise',
-    revenue: 'enterprise',
+    revenue: 'starter', complaints: 'starter',
   };
 
   const subtitles = {
@@ -152,7 +159,7 @@ const HotelApp = ({ onLogout, initialPlan = 'enterprise', role = 'manager', hote
       case 'dashboard': return <HotelDashboard plan={plan} onNav={setPage} />;
       case 'rooms': return <RoomsPage onNav={setPage} role={role} hotelDetails={hotelDetails} />;
       case 'bookings': return <BookingsPage />;
-      case 'checkin': return <SmartCheckInPage />;
+      case 'checkin': return <CheckInOutPage />;
       case 'billing': return <BillingPage />;
       case 'guests': return <GuestCRMPage />;
       case 'loyalty': return <LoyaltyPage />;
@@ -166,7 +173,7 @@ const HotelApp = ({ onLogout, initialPlan = 'enterprise', role = 'manager', hote
       case 'maintenance': return <MaintenancePage />;
       case 'payroll': return <PayrollPage />;
       case 'channel': return <ChannelManagerPage />;
-      case 'revenue': return <RevenueAIPage />;
+      case 'revenue': return <DailyRevenueReportPage />;
       case 'analytics': return <AnalyticsDashboard />;
       case 'marketing': return <MarketingPage />;
       case 'whatsapp': return <WhatsAppPage />;
@@ -176,19 +183,22 @@ const HotelApp = ({ onLogout, initialPlan = 'enterprise', role = 'manager', hote
       case 'notifications': return <NotificationsPage plan={plan} />;
       case 'reports': return <ReportsPage />;
       case 'settings': return <SettingsPage role="hotel" plan={plan} onNav={setPage} />;
+      case 'pos': return <ComingSoon title="Restaurant POS" icon="restaurant" color="var(--amber)" />;
+      case 'complaints': return <ComplaintsPage />;
       default: return <ComingSoon title={titles[page] || page} icon="hotel" color="var(--gold)" />;
     }
   };
 
   return (
+    <NotificationProvider hotelDetails={hotelDetails}>
     <div style={{ display: 'flex', height: '100vh', background: 'var(--bg)' }}>
       <Sidebar role={role} active={page} onNav={setPage} onLogout={onLogout} plan={plan} isOpen={isSidebarOpen} setIsOpen={setIsSidebarOpen} />
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
-        <Topbar 
-          title={titles[page] || 'Dashboard'} 
-          subtitle={subtitles[plan] || 'StayOS Platform'} 
-          role={role} 
-          onNav={setPage} 
+        <Topbar
+          title={titles[page] || 'Dashboard'}
+          subtitle={subtitles[plan] || 'StayOS Platform'}
+          role={role}
+          onNav={setPage}
           hotelDetails={hotelDetails}
           toggleSidebar={() => setIsSidebarOpen(true)}
         />
@@ -197,6 +207,7 @@ const HotelApp = ({ onLogout, initialPlan = 'enterprise', role = 'manager', hote
         </div>
       </div>
     </div>
+    </NotificationProvider>
   );
 };
 
@@ -265,7 +276,7 @@ const App = () => {
   };
 
   const handleLogout = () => {
-    authService.logout().catch(() => {});
+    authService.logout().catch(() => { });
     setLoginType(null);
     setIsAuthenticated(false);
     setHotelPlan('enterprise');

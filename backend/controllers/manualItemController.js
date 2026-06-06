@@ -12,6 +12,16 @@ exports.getItems = asyncHandler(async (req, res) => {
 
 // Create item
 exports.createItem = asyncHandler(async (req, res) => {
+  const existingItem = await ManualItem.findOne({ 
+    hotel: req.hotelId, 
+    name: new RegExp(`^${req.body.name}$`, 'i'),
+    category: req.body.category 
+  });
+  
+  if (existingItem) {
+    return res.status(400).json({ success: false, message: `An item named "${req.body.name}" already exists in the ${req.body.category} category.` });
+  }
+
   const item = await ManualItem.create({ ...req.body, hotel: req.hotelId });
   
   const io = req.app.get('io');

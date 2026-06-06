@@ -21,6 +21,7 @@ exports.protect = asyncHandler(async (req, _res, next) => {
 
 // Restrict to platform_admin
 exports.platformAdmin = (req, _res, next) => {
+  console.log('platformAdmin check - User email:', req.user.email, 'Role:', req.user.role);
   if (req.user.role !== 'platform_admin') {
     return next(new AppError('Platform admin access required', 403));
   }

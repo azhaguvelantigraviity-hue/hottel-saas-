@@ -62,6 +62,16 @@ const parseBulkImport = asyncHandler(async (req, res) => {
     fs.unlink(filePath, () => {});
   }
 
+  // Duplicate Check
+  const existingItems = await MenuItem.find({ hotel: req.hotelId }).select('name').lean();
+  const existingNames = new Set(existingItems.map(i => i.name.toLowerCase()));
+
+  for (const item of items) {
+    if (existingNames.has(item.name.toLowerCase())) {
+      item.errors.push(`Duplicate: An item named "${item.name}" already exists in the menu`);
+    }
+  }
+
   const validItems = items.filter(i => i.errors.length === 0);
   const invalidItems = items.filter(i => i.errors.length > 0);
 

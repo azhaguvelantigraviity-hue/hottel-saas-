@@ -33,7 +33,10 @@ const ManualItemPage = ({ role, hotelDetails }) => {
 
     socket.on('manualItemChanged', ({ action, item, id }) => {
       setItems(prev => {
-        if (action === 'create') return [...prev, item].sort((a,b) => a.name.localeCompare(b.name));
+        if (action === 'create') {
+          if (prev.find(i => i._id === item._id)) return prev;
+          return [...prev, item].sort((a,b) => a.name.localeCompare(b.name));
+        }
         if (action === 'update') return prev.map(i => i._id === item._id ? item : i);
         if (action === 'delete') return prev.filter(i => i._id !== id);
         return prev;
@@ -48,12 +51,11 @@ const ManualItemPage = ({ role, hotelDetails }) => {
   const handleSave = async (formData) => {
     try {
       if (editItem) {
-        const updated = await updateApi(editItem._id, formData);
-        setItems(prev => prev.map(i => i._id === updated._id ? updated : i));
+        await updateApi(editItem._id, formData);
       } else {
-        const created = await createApi(formData);
-        setItems(prev => [...prev, created].sort((a,b) => a.name.localeCompare(b.name)));
+        await createApi(formData);
       }
+      refetch();
       setShowForm(false);
       setEditItem(null);
     } catch (err) {

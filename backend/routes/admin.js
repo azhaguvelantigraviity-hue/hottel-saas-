@@ -3,7 +3,8 @@ const router = require('express').Router();
 const {
   getDashboard, getAllHotels, getHotel, createHotel, updateHotel,
   updateSubscription, deleteHotel, getPlatformRevenue, getAuditLogs,
-  getAllUsers, getPlatformStats,
+  getAllUsers, createUser, updateUser, deleteUser, getPlatformStats,
+  getRenewalAlerts, getRoles, createRole, updateRole, deleteRole
 } = require('../controllers/adminController');
 const { protect, platformAdmin } = require('../middleware/auth');
 
@@ -18,8 +19,28 @@ router.put  ('/hotels/:id',              updateHotel);
 router.put  ('/hotels/:id/subscription', updateSubscription);
 router.delete('/hotels/:id',             deleteHotel);
 router.get  ('/revenue',                 getPlatformRevenue);
+router.get  ('/alerts/renewals',         getRenewalAlerts);
 router.get  ('/audit-logs',              getAuditLogs);
 router.get  ('/users',                   getAllUsers);
+router.post ('/users',                   createUser);
+router.put  ('/users/:id',               updateUser);
+router.delete('/users/:id',              deleteUser);
+
+// Roles routes
+router.get   ('/roles',     getRoles);
+router.post  ('/roles',     createRole);
+router.put   ('/roles/:id', updateRole);
+router.delete('/roles/:id', deleteRole);
+
 router.get  ('/stats/overview',          getPlatformStats);
 
+// Branch routes
+const {
+  getAllBranches, createBranch, updateBranch, deleteBranch
+} = require('../controllers/adminController');
+
+router.get   ('/branches',      getAllBranches);
+router.post  ('/branches',      createBranch);
+router.put   ('/branches/:id',  updateBranch);
+router.delete('/branches/:id',  deleteBranch);
 module.exports = router;

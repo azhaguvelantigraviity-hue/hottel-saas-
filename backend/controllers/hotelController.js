@@ -10,10 +10,9 @@ const Hotel = require('../models/Hotel');
 const SubscriptionPayment = require('../models/SubscriptionPayment');
 const Razorpay = require('razorpay');
 const crypto = require('crypto');
-const { AppError, sendSuccess } = require('../utils/helpers');
-const catchAsync = require('../utils/helpers').catchAsync || ((fn) => (req, res, next) => {
-  Promise.resolve(fn(req, res, next)).catch(next);
-});
+const { asyncHandler, sendSuccess, AppError } = require('../utils/helpers');
+const catchAsync = asyncHandler;
+const { emitNotification } = require('../utils/notificationHelper');
 
 // ── Helpers ────────────────────────────────────────────────────
 const hotelFilter = (req) => req.hotelId ? { hotel: req.hotelId } : {};
@@ -189,6 +188,21 @@ const checkIn = catchAsync(async (req, res) => {
   // Update room status
   await Room.findByIdAndUpdate(booking.room, { status: 'occupied' });
   const populated = await populateBooking(Booking.findById(booking._id));
+
+  // Emit Notification
+  if (populated && populated.room) {
+    await emitNotification(req, {
+      hotel: booking.hotel,
+      title: 'Room Check-in',
+      desc: `Guest checked into Room ${populated.room.roomNumber}`,
+      type: 'booking',
+      icon: 'check',
+      color: 'var(--green)',
+      targetRoles: ['admin', 'manager', 'staff'],
+      relatedRoom: populated.room.roomNumber
+    });
+  }
+
   sendSuccess(res, populated);
 });
 const checkOut = catchAsync(async (req, res) => {
@@ -200,8 +214,47 @@ const checkOut = catchAsync(async (req, res) => {
   booking.checkedOutAt = new Date();
   await booking.save();
   // Update room status
-  await Room.findByIdAndUpdate(booking.room, { status: 'available' });
+  const room = await Room.findByIdAndUpdate(booking.room, { status: 'cleaning', housekeepingStatus: 'dirty' });
+  
+  if (room) {
+    const { Housekeeping } = require('../models/Operations');
+    await Housekeeping.create({
+      hotel: booking.hotel,
+      roomNumber: room.roomNumber,
+      type: 'Full Clean',
+      assignedTo: 'Unassigned',
+      priority: 'high',
+      status: 'pending',
+      notes: 'Auto-generated upon guest checkout.'
+    });
+
+    await emitNotification(req, {
+      hotel: booking.hotel,
+      title: 'Cleaning Required',
+      desc: `Housekeeping required for Room ${room.roomNumber} after checkout.`,
+      type: 'maintenance',
+      icon: 'maintenance',
+      color: 'var(--rose)',
+      targetRoles: ['admin', 'manager'],
+      relatedRoom: room.roomNumber
+    });
+  }
+
   const populated = await populateBooking(Booking.findById(booking._id));
+
+  if (populated && populated.room) {
+    await emitNotification(req, {
+      hotel: booking.hotel,
+      title: 'Room Checkout',
+      desc: `Guest checked out of Room ${populated.room.roomNumber}`,
+      type: 'booking',
+      icon: 'x',
+      color: 'var(--teal)',
+      targetRoles: ['admin', 'manager', 'staff'],
+      relatedRoom: populated.room.roomNumber
+    });
+  }
+
   sendSuccess(res, populated);
 });
 const cancelBooking = catchAsync(async (req, res) => {
@@ -431,8 +484,8 @@ const markAttendance = catchAsync(async (req, res) => {
   const employee = await Employee.findOne({ _id: employeeId, hotel: req.hotelId });
   if (!employee) throw new AppError('Employee not found', 404);
 
-  const parsedDate = new Date(date);
-  parsedDate.setHours(0, 0, 0, 0);
+  // Ensure date is UTC midnight to avoid timezone shifts
+  const parsedDate = new Date(`${date}T00:00:00.000Z`);
 
   const attendanceRecord = await Attendance.findOneAndUpdate(
     { hotel: req.hotelId, employee: employeeId, date: parsedDate },

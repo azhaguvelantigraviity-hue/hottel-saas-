@@ -9,6 +9,7 @@ const SecurityActivity = require('../models/SecurityActivity');
 const UserSession = require('../models/UserSession');
 const { POSOrder, Housekeeping } = require('../models/Operations');
 const { asyncHandler, sendSuccess } = require('../utils/helpers');
+const { emitNotification } = require('../utils/notificationHelper');
 
 // ── Housekeeping ──────────────────────────────────────────────
 
@@ -41,6 +42,41 @@ const updateHousekeepingTask = asyncHandler(async (req, res) => {
     { new: true, runValidators: true }
   );
   if (!task) return res.status(404).json({ success: false, message: 'Housekeeping task not found' });
+
+  // Sync with Room status
+  const Room = require('../models/Room');
+  if (req.body.status === 'completed' || req.body.status === 'verified') {
+    await Room.findOneAndUpdate(
+      { hotel: req.hotelId, roomNumber: task.roomNumber },
+      { status: 'available', housekeepingStatus: 'clean' }
+    );
+    await emitNotification(req, {
+      hotel: req.hotelId,
+      title: 'Cleaning Completed',
+      desc: `Housekeeping staff finished cleaning Room ${task.roomNumber}.`,
+      type: 'maintenance',
+      icon: 'check',
+      color: 'var(--green)',
+      targetRoles: ['admin', 'manager', 'staff'],
+      relatedRoom: task.roomNumber
+    });
+  } else if (req.body.status === 'in-progress') {
+    await Room.findOneAndUpdate(
+      { hotel: req.hotelId, roomNumber: task.roomNumber },
+      { housekeepingStatus: 'in-progress' }
+    );
+    await emitNotification(req, {
+      hotel: req.hotelId,
+      title: 'Cleaning Started',
+      desc: `Housekeeping staff started cleaning Room ${task.roomNumber}.`,
+      type: 'maintenance',
+      icon: 'maintenance',
+      color: 'var(--amber)',
+      targetRoles: ['admin', 'manager'],
+      relatedRoom: task.roomNumber
+    });
+  }
+
   sendSuccess(res, task);
 });
 
@@ -51,6 +87,25 @@ const verifyHousekeepingTask = asyncHandler(async (req, res) => {
     { new: true }
   );
   if (!task) return res.status(404).json({ success: false, message: 'Housekeeping task not found' });
+
+  // Sync with Room status
+  const Room = require('../models/Room');
+  await Room.findOneAndUpdate(
+    { hotel: req.hotelId, roomNumber: task.roomNumber },
+    { status: 'available', housekeepingStatus: 'clean' }
+  );
+
+  await emitNotification(req, {
+    hotel: req.hotelId,
+    title: 'Cleaning Verified',
+    desc: `Room ${task.roomNumber} has been inspected and verified clean.`,
+    type: 'maintenance',
+    icon: 'check',
+    color: 'var(--green)',
+    targetRoles: ['admin', 'manager', 'staff'],
+    relatedRoom: task.roomNumber
+  });
+
   sendSuccess(res, task);
 });
 
@@ -130,6 +185,24 @@ const getPOSOrders = asyncHandler(async (req, res) => {
 
 const createPOSOrder = asyncHandler(async (req, res) => {
   const { table, type, items } = req.body;
+  
+  if (type === 'room-service') {
+    const Room = require('../models/Room');
+    const Booking = require('../models/Booking');
+    const room = await Room.findOne({ hotel: req.hotelId, roomNumber: table });
+    if (!room) {
+      return res.status(400).json({ success: false, message: 'This room is not currently occupied.' });
+    }
+    const activeBooking = await Booking.findOne({
+      hotel: req.hotelId,
+      room: room._id,
+      status: { $in: ['confirmed', 'checked_in'] }
+    });
+    if (!activeBooking) {
+      return res.status(400).json({ success: false, message: 'This room is not currently occupied.' });
+    }
+  }
+
   const subtotal = items.reduce((s, i) => s + i.price * i.qty, 0);
   const tax = Math.round(subtotal * 0.05);
   const total = subtotal + tax;

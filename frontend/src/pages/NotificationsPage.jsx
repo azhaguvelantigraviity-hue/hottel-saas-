@@ -2,26 +2,27 @@ import React, { useState } from 'react';
 import StatCard from '../components/StatCard';
 import Icon from '../components/Icon';
 import Badge from '../components/Badge';
+import { useNotifications } from '../context/NotificationContext';
 
-const NOTIFS_INIT = [];
-
-const NOTIF_SETTINGS = [];
+const NOTIF_SETTINGS = [
+  { id: 'booking', label: 'Booking Alerts', desc: 'New bookings, cancellations, check-ins', email: true, sms: false, push: true, whatsapp: true },
+  { id: 'maintenance', label: 'Housekeeping & Maintenance', desc: 'Room cleaning status, repairs', email: false, sms: false, push: true, whatsapp: false },
+  { id: 'payment', label: 'Payments & Billing', desc: 'Invoices, failed payments, refunds', email: true, sms: true, push: true, whatsapp: true },
+  { id: 'system', label: 'System Alerts', desc: 'Security alerts, API issues, backups', email: true, sms: false, push: true, whatsapp: false }
+];
 
 const TABS = ['Live Feed', 'Settings', 'Subscription Alerts'];
 
 const NotificationsPage = ({ plan }) => {
   const [tab, setTab] = useState(0);
-  const [notifs, setNotifs] = useState(NOTIFS_INIT);
+  const { notifications: notifs, unreadCount: unread, markRead, markAllRead } = useNotifications();
   const [settings, setSettings] = useState(NOTIF_SETTINGS);
   const [filter, setFilter] = useState('all');
   const [loading, setLoading] = useState(false);
 
-  const markRead = (id) => setNotifs(prev => prev.map(n => n.id === id ? { ...n, read:true } : n));
-  const markAllRead = () => setNotifs(prev => prev.map(n => ({ ...n, read:true })));
   const toggleSetting = (id, channel) => setSettings(prev => prev.map(s => s.id === id ? { ...s, [channel]: !s[channel] } : s));
 
   const filtered = filter === 'all' ? notifs : filter === 'unread' ? notifs.filter(n=>!n.read) : notifs.filter(n=>n.type===filter);
-  const unread = notifs.filter(n=>!n.read).length;
 
   const loadRazorpay = () => {
     return new Promise((resolve) => {
@@ -92,7 +93,7 @@ const NotificationsPage = ({ plan }) => {
       <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fit, minmax(min(100%, 240px), 1fr))', gap:16, marginBottom:24 }}>
         <StatCard title="Total" value={notifs.length} icon="notification" color="var(--teal)" />
         <StatCard title="Unread" value={unread} icon="bell" color="var(--amber)" />
-        <StatCard title="Today" value={notifs.filter(n=>n.time.includes('min')||n.time.includes('hr')).length} icon="calendar" color="var(--gold)" />
+        <StatCard title="Today" value={notifs.filter(n=>new Date(n.time).toDateString() === new Date().toDateString()).length} icon="calendar" color="var(--gold)" />
         <StatCard title="Critical" value={notifs.filter(n=>n.type==='maintenance'&&!n.read).length} icon="maintenance" color="var(--rose)" />
       </div>
       <div style={{ background:'var(--card)', border:'1px solid var(--border)', borderRadius:'var(--radius-lg)', padding:24 }}>
@@ -123,7 +124,7 @@ const NotificationsPage = ({ plan }) => {
                     </div>
                     <div style={{ fontSize:12, color:'var(--text3)' }}>{n.desc}</div>
                   </div>
-                  <div style={{ fontSize:11, color:'var(--text3)', flexShrink:0 }}>{n.time}</div>
+                  <div style={{ fontSize:11, color:'var(--text3)', flexShrink:0 }}>{new Date(n.time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</div>
                 </div>
               ))}
               {filtered.length === 0 && <div style={{ textAlign:'center', padding:40, color:'var(--text3)' }}>No notifications in this category</div>}

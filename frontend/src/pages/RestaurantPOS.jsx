@@ -95,7 +95,11 @@ const RestaurantPOS = ({ role, hotelDetails }) => {
       setTableNo('');
       refetchOrders();
       refetchMenu();
-    } catch {
+    } catch (err) {
+      if (err?.message?.includes('not currently occupied')) {
+        alert(err.message);
+        return;
+      }
       const newOrder = {
         id: `ORD-${String(orders.length + 1).padStart(3, '0')}`,
         table: tableNo,
