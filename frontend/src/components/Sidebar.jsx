@@ -139,7 +139,7 @@ const Sidebar = ({ role, active, onNav, onLogout, plan, isOpen, setIsOpen }) => 
                   'dashboard', 'checkin', 'rooms', 'bookings', 
                   'housekeeping', 'attendance', 'restaurant', 
                   'maintenance', 'revenue', 
-                  'employees', 'analytics', 'reports', 'settings'
+                  'employees', 'payroll', 'analytics', 'reports', 'settings'
                 ];
                 return managerPages.includes(itemId);
               }
