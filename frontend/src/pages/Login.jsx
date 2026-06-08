@@ -47,7 +47,12 @@ const Login = ({ type, onSuccess, onBack }) => {
           plan: hotel.plan || 'enterprise',
           ...hotel
         } : null;
-        onSuccess(hotel?.plan || 'enterprise', 'staff', hotelDetails);
+        let uiRole = 'staff';
+        if (user.department === 'Front Desk') uiRole = 'reception';
+        else if (user.department === 'Housekeeping') uiRole = 'housekeeping';
+        else if (user.department === 'Manager') uiRole = 'manager';
+        
+        onSuccess(hotel?.plan || 'enterprise', uiRole, hotelDetails);
       } else {
         alert('Unknown user role');
       }

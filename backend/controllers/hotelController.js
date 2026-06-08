@@ -504,6 +504,7 @@ const createEmployee = catchAsync(async (req, res) => {
         password: req.body.loginPassword,
         role: 'hotel_staff',
         hotel: body.hotel,
+        department: body.department === 'Front Office' ? 'Front Desk' : body.department,
         isActive: true
       });
     }

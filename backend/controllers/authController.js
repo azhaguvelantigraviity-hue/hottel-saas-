@@ -3,7 +3,7 @@ const { AppError, asyncHandler, sendSuccess } = require('../utils/helpers');
 
 const sendToken = (user, statusCode, res) => {
   const token = user.getSignedJwt();
-  const userObj = { id: user._id, name: user.name, email: user.email, role: user.role, hotel: user.hotel };
+  const userObj = { id: user._id, name: user.name, email: user.email, role: user.role, department: user.department, hotel: user.hotel };
   sendSuccess(res, { token, user: userObj }, statusCode);
 };
 
@@ -23,6 +23,17 @@ exports.login = asyncHandler(async (req, res, next) => {
     return next(new AppError('Invalid credentials', 401));
   }
   if (!user.isActive) return next(new AppError('Account is deactivated', 401));
+
+  // Heal missing department from Employee collection
+  if (user.role === 'hotel_staff' && (!user.department || user.department === 'None')) {
+    const { Employee } = require('../models/Operations');
+    const emp = await Employee.findOne({ email: user.email });
+    if (emp && emp.department) {
+      user.department = emp.department === 'Front Office' ? 'Front Desk' : emp.department;
+      await user.save({ validateBeforeSave: false });
+    }
+  }
+
   sendToken(user, 200, res);
 });
 
@@ -32,6 +43,16 @@ exports.logout = asyncHandler(async (_req, res) => {
 
 exports.getMe = asyncHandler(async (req, res) => {
   const user = await User.findById(req.user.id).populate('hotel', 'name plan planStatus address');
+  
+  if (user && user.role === 'hotel_staff' && (!user.department || user.department === 'None')) {
+    const { Employee } = require('../models/Operations');
+    const emp = await Employee.findOne({ email: user.email });
+    if (emp && emp.department) {
+      user.department = emp.department === 'Front Office' ? 'Front Desk' : emp.department;
+      await user.save({ validateBeforeSave: false });
+    }
+  }
+  
   sendSuccess(res, user);
 });
 

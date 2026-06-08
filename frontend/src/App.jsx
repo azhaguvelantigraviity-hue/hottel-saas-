@@ -268,6 +268,13 @@ const App = () => {
     const token = authService.getToken();
     const cachedUser = authService.getUser();
     
+    const getUIRole = (u) => {
+      if (u.role === 'hotel_admin' || u.department === 'Manager') return 'manager';
+      if (u.department === 'Front Desk') return 'reception';
+      if (u.department === 'Housekeeping') return 'housekeeping';
+      return 'staff';
+    };
+
     // Quick optimistic restore
     if (token && cachedUser) {
       setIsAuthenticated(true);
@@ -275,7 +282,7 @@ const App = () => {
         setLoginType('admin');
       } else {
         setLoginType('hotel');
-        setHotelRole(cachedUser.role || 'manager');
+        setHotelRole(getUIRole(cachedUser));
         setHotelPlan(cachedUser.hotel?.plan || 'enterprise');
         setCurrentHotel(cachedUser.hotel);
       }
@@ -291,7 +298,7 @@ const App = () => {
             setLoginType('admin');
           } else {
             setLoginType('hotel');
-            setHotelRole(user.role || 'manager');
+            setHotelRole(getUIRole(user));
             setHotelPlan(user.hotel?.plan || 'enterprise');
             setCurrentHotel(user.hotel);
           }
