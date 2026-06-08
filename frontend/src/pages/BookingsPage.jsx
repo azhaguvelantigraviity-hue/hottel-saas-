@@ -102,7 +102,9 @@ const NewBookingForm = ({ onClose, onSave }) => {
             id: r.roomNumber || r._id,
             type: r.type,
             rate: r.baseRate || 0,
-            status: r.status
+            status: r.status,
+            maxGuests: r.maxGuests || 2,
+            bedType: r.bedType || 'Double'
           }));
           setAvailableRooms(mapped);
         }
@@ -147,7 +149,7 @@ const NewBookingForm = ({ onClose, onSave }) => {
           <select style={inputStyle} value={form.room} onChange={e => set('room', e.target.value)}>
             <option value="">Select room</option>
             {availableRooms.filter(r => r.status === 'available').map(r => (
-              <option key={r.id} value={r.id}>{r.id} – {r.type} (₹{r.rate}/night)</option>
+              <option key={r.id} value={r.id}>{r.id} – {r.type} (Max {r.maxGuests}, {r.bedType}) (₹{r.rate}/night)</option>
             ))}
           </select>
         </div>

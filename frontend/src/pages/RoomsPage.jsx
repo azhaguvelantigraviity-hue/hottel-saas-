@@ -29,53 +29,128 @@ const Toast = ({ message, type, onClose }) => {
 };
 
 const RoomFormModal = ({ title, room, onClose, onSave }) => {
-  const [form, setForm] = useState(room || { id: '', type: 'Deluxe King', floor: 1, rate: 3500, status: 'available', housekeeping: 'clean', guest: '' });
+  const [form, setForm] = useState(room || { 
+    id: '', type: 'Deluxe King', floor: 1, rate: 3500, 
+    status: 'available', housekeeping: 'clean', guest: '',
+    bedType: 'Double', maxGuests: 2, amenities: '', description: '',
+    extraCharges: 0, maintenanceIssue: '', images: []
+  });
   const [error, setError] = useState('');
   const set = (k, v) => setForm(p => ({ ...p, [k]: v }));
 
   const handleSave = () => {
     const id = form.id.toString().trim();
     if (!id) { setError('Please enter a room number.'); return; }
-    if (!/^\d+[A-Za-z]?$/.test(id)) { setError('Room number must be a number (e.g. 101) or number + letter (e.g. 101A).'); return; }
+    if (!/^\d+[A-Za-z]?$/.test(id)) { setError('Room number must be a number or number + letter.'); return; }
     const rate = Number(form.rate);
     if (!rate || rate <= 0) { setError('Please enter a valid nightly rate.'); return; }
     setError('');
     onSave({ ...form, id, rate });
   };
 
+  const handleImageUpload = (e) => {
+    const files = Array.from(e.target.files);
+    Promise.all(files.map(f => new Promise((resolve) => {
+      const reader = new FileReader();
+      reader.onload = (ev) => resolve(ev.target.result);
+      reader.readAsDataURL(f);
+    }))).then(base64s => {
+      setForm(p => ({ ...p, images: [...p.images, ...base64s] }));
+    });
+  };
+
   return (
     <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.7)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
-      <div style={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: 'var(--radius-lg)', width: '100%', maxWidth: '400px' }}>
-        <div style={{ padding: '20px 24px', borderBottom: '1px solid var(--border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+      <div style={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: 'var(--radius-lg)', width: '100%', maxWidth: '500px', maxHeight: '90vh', display: 'flex', flexDirection: 'column' }}>
+        <div style={{ padding: '20px 24px', borderBottom: '1px solid var(--border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexShrink: 0 }}>
           <h2 style={{ fontFamily: 'Poppins,sans-serif', fontSize: '18px', margin: 0 }}>{title}</h2>
           <button onClick={onClose} style={{ background: 'none', border: 'none', cursor: 'pointer' }}><Icon name="x" size={20} color="var(--text3)" /></button>
         </div>
-        <div style={{ padding: 'clamp(12px, 3vw, 24px)', display: 'flex', flexDirection: 'column', gap: '14px' }}>
+        <div style={{ padding: 'clamp(12px, 3vw, 24px)', display: 'flex', flexDirection: 'column', gap: '14px', overflowY: 'auto' }}>
           {error && <div style={{ padding: '8px 12px', background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.2)', borderRadius: '6px', color: 'var(--rose)', fontSize: '12px', fontWeight: '500' }}>{error}</div>}
+          
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '14px' }}>
+            <div>
+              <label style={lbl}>ROOM NUMBER *</label>
+              <input style={inp()} value={form.id} onChange={e => set('id', e.target.value)} placeholder="e.g. 301" />
+            </div>
+            <div>
+              <label style={lbl}>ROOM TYPE</label>
+              <select style={inp()} value={form.type} onChange={e => set('type', e.target.value)}>
+                {['Standard Twin','Deluxe King','Deluxe Queen','Suite','Premium Suite','Presidential Suite','Executive'].map(t => (
+                  <option key={t} value={t}>{t}</option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <label style={lbl}>BED TYPE</label>
+              <select style={inp()} value={form.bedType} onChange={e => set('bedType', e.target.value)}>
+                {['Single','Double','Twin','Queen','King'].map(t => (
+                  <option key={t} value={t}>{t}</option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <label style={lbl}>MAX GUESTS</label>
+              <input type="number" min="1" style={inp()} value={form.maxGuests} onChange={e => set('maxGuests', Number(e.target.value) || 1)} />
+            </div>
+            <div>
+              <label style={lbl}>FLOOR</label>
+              <input type="number" min="1" style={inp()} value={form.floor} onChange={e => set('floor', Number(e.target.value) || 1)} />
+            </div>
+            <div>
+              <label style={lbl}>NIGHTLY RATE (₹) *</label>
+              <input type="number" min="1" style={inp()} value={form.rate} onChange={e => set('rate', e.target.value)} />
+            </div>
+            <div>
+              <label style={lbl}>EXTRA CHARGES (₹)</label>
+              <input type="number" min="0" style={inp()} value={form.extraCharges} onChange={e => set('extraCharges', e.target.value)} />
+            </div>
+            <div>
+              <label style={lbl}>ROOM STATUS</label>
+              <select style={inp()} value={form.status} onChange={e => set('status', e.target.value)}>
+                {['available','occupied','reserved','maintenance','cleaning'].map(t => (
+                  <option key={t} value={t}>{t}</option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <label style={lbl}>CLEANING STATUS</label>
+              <select style={inp()} value={form.housekeeping} onChange={e => set('housekeeping', e.target.value)}>
+                {['clean','dirty','inspect','in-progress'].map(t => (
+                  <option key={t} value={t}>{t}</option>
+                ))}
+              </select>
+            </div>
+          </div>
+
           <div>
-            <label style={lbl}>ROOM NUMBER *</label>
-            <input style={inp()} value={form.id} onChange={e => set('id', e.target.value)} placeholder="e.g. 301" />
+            <label style={lbl}>AMENITIES (comma separated)</label>
+            <input style={inp()} value={form.amenities} onChange={e => set('amenities', e.target.value)} placeholder="WiFi, AC, TV, Mini Fridge" />
           </div>
           <div>
-            <label style={lbl}>ROOM TYPE</label>
-            <select style={inp()} value={form.type} onChange={e => set('type', e.target.value)}>
-              {['Standard Twin','Deluxe King','Deluxe Queen','Suite','Premium Suite','Presidential Suite','Executive'].map(t => (
-                <option key={t} value={t}>{t}</option>
-              ))}
-            </select>
+            <label style={lbl}>DESCRIPTION</label>
+            <textarea style={{...inp(), resize: 'vertical', minHeight: '60px'}} value={form.description} onChange={e => set('description', e.target.value)} placeholder="Room description..." />
           </div>
           <div>
-            <label style={lbl}>FLOOR</label>
-            <input type="number" min="1" style={inp()} value={form.floor} onChange={e => set('floor', Number(e.target.value) || 1)} />
+            <label style={lbl}>MAINTENANCE NOTES</label>
+            <textarea style={{...inp(), resize: 'vertical', minHeight: '60px'}} value={form.maintenanceIssue} onChange={e => set('maintenanceIssue', e.target.value)} placeholder="E.g., AC not cooling properly..." />
           </div>
           <div>
-            <label style={lbl}>NIGHTLY RATE (₹) *</label>
-            <input type="number" min="1" style={inp()} value={form.rate} onChange={e => set('rate', e.target.value)} />
+            <label style={lbl}>ROOM PHOTOS UPLOAD</label>
+            <input type="file" multiple accept="image/*" onChange={handleImageUpload} style={{ fontSize: '12px', color: 'var(--text2)' }} />
+            {form.images?.length > 0 && (
+              <div style={{ display: 'flex', gap: '8px', marginTop: '10px', overflowX: 'auto' }}>
+                {form.images.map((img, i) => (
+                  <img key={i} src={img} alt="Preview" style={{ width: '40px', height: '40px', objectFit: 'cover', borderRadius: '4px', border: '1px solid var(--border)' }} />
+                ))}
+              </div>
+            )}
           </div>
-          <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end', marginTop: '8px' }}>
-            <button onClick={onClose} style={{ padding: '9px 18px', background: 'transparent', border: '1px solid var(--border)', borderRadius: '8px', color: 'var(--text2)', cursor: 'pointer', fontSize: '13px', fontFamily: 'Inter, sans-serif' }}>Cancel</button>
-            <button onClick={handleSave} style={{ padding: '9px 20px', background: 'linear-gradient(135deg,#C9A84C,#8A6F2E)', border: 'none', borderRadius: '8px', color: '#fff', cursor: 'pointer', fontWeight: '600', fontSize: '13px', fontFamily: 'Inter, sans-serif' }}>Save</button>
-          </div>
+        </div>
+        <div style={{ padding: '16px 24px', borderTop: '1px solid var(--border)', display: 'flex', gap: '10px', justifyContent: 'flex-end', flexShrink: 0 }}>
+          <button onClick={onClose} style={{ padding: '9px 18px', background: 'transparent', border: '1px solid var(--border)', borderRadius: '8px', color: 'var(--text2)', cursor: 'pointer', fontSize: '13px', fontFamily: 'Inter, sans-serif' }}>Cancel</button>
+          <button onClick={handleSave} style={{ padding: '9px 20px', background: 'linear-gradient(135deg,#C9A84C,#8A6F2E)', border: 'none', borderRadius: '8px', color: '#fff', cursor: 'pointer', fontWeight: '600', fontSize: '13px', fontFamily: 'Inter, sans-serif' }}>Save</button>
         </div>
       </div>
     </div>
@@ -101,6 +176,13 @@ const RoomsPage = ({ onNav, role, hotelDetails }) => {
     status: r.status,
     housekeeping: r.housekeepingStatus || 'clean',
     guest: r.guest || '',
+    bedType: r.bedType || 'Double',
+    maxGuests: r.maxGuests || 2,
+    amenities: r.amenities ? r.amenities.join(', ') : '',
+    description: r.description || '',
+    extraCharges: r.extraCharges || 0,
+    maintenanceIssue: r.maintenanceIssue || '',
+    images: r.images || []
   });
 
   const [rooms, setRooms] = useState([]);
@@ -125,6 +207,13 @@ const RoomsPage = ({ onNav, role, hotelDetails }) => {
     baseRate: r.rate != null ? Number(r.rate) : 0,
     status: r.status || 'available',
     housekeepingStatus: r.housekeeping || 'clean',
+    bedType: r.bedType,
+    maxGuests: Number(r.maxGuests) || 2,
+    amenities: r.amenities ? r.amenities.split(',').map(a => a.trim()).filter(a => a) : [],
+    description: r.description,
+    extraCharges: Number(r.extraCharges) || 0,
+    maintenanceIssue: r.maintenanceIssue,
+    images: r.images || []
   });
 
   const handleAddRoom = async (newRoom) => {
@@ -240,8 +329,8 @@ const RoomsPage = ({ onNav, role, hotelDetails }) => {
                 <span style={{ fontSize: '22px', fontWeight: '900', fontFamily: 'Poppins,sans-serif', color: statusColor[r.status] }}>{r.id}</span>
                 <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: hkColor[r.housekeeping] || 'var(--green)', marginTop: '4px' }} />
               </div>
-              <div style={{ fontSize: '11px', fontWeight: '600', color: 'var(--text2)', marginBottom: '4px' }}>{r.type}</div>
-              <div style={{ fontSize: '10px', color: 'var(--text3)', marginBottom: '8px' }}>Floor {r.floor}</div>
+              <div style={{ fontSize: '11px', fontWeight: '600', color: 'var(--text2)', marginBottom: '4px' }}>{r.type} • {r.bedType}</div>
+              <div style={{ fontSize: '10px', color: 'var(--text3)', marginBottom: '8px' }}>Floor {r.floor} • Max {r.maxGuests} Guests</div>
               <Badge color={r.status === 'occupied' ? 'gold' : r.status === 'available' ? 'green' : r.status === 'reserved' ? 'violet' : r.status === 'cleaning' ? 'amber' : 'rose'}>{r.status}</Badge>
               {r.guest && <div style={{ marginTop: '8px', fontSize: '11px', color: 'var(--text2)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{r.guest}</div>}
               <div style={{ marginTop: '8px', fontSize: '12px', fontFamily: 'DM Mono,monospace', color: 'var(--gold)' }}>₹{(r.rate || 0).toLocaleString()}/n</div>
@@ -259,7 +348,7 @@ const RoomsPage = ({ onNav, role, hotelDetails }) => {
           <table style={{ width: '100%', borderCollapse: 'collapse' }}>
             <thead>
               <tr style={{ borderBottom: '1px solid var(--border)', background: 'var(--surface)' }}>
-                {['Room', 'Type', 'Floor', 'Status', 'Guest', 'Rate', 'Housekeeping', ''].map(h => (
+                {['Room', 'Type', 'Bed Type', 'Max Guests', 'Floor', 'Status', 'Guest', 'Rate', 'Housekeeping', ''].map(h => (
                   <th key={h} style={{ padding: '12px 16px', textAlign: 'left', fontSize: '11px', color: 'var(--text3)', fontWeight: '600', letterSpacing: '0.05em' }}>{h.toUpperCase()}</th>
                 ))}
               </tr>
@@ -269,6 +358,8 @@ const RoomsPage = ({ onNav, role, hotelDetails }) => {
                 <tr key={r._id || r.id} style={{ borderBottom: '1px solid var(--border)' }} onMouseEnter={e => e.currentTarget.style.background = 'var(--surface)'} onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>
                   <td style={{ padding: '12px 16px', fontFamily: 'DM Mono,monospace', fontWeight: '700', color: statusColor[r.status] }}>{r.id}</td>
                   <td style={{ padding: '12px 16px', fontSize: '13px' }}>{r.type}</td>
+                  <td style={{ padding: '12px 16px', fontSize: '13px' }}>{r.bedType}</td>
+                  <td style={{ padding: '12px 16px', fontSize: '13px' }}>{r.maxGuests}</td>
                   <td style={{ padding: '12px 16px', fontSize: '13px', color: 'var(--text2)' }}>Floor {r.floor}</td>
                   <td style={{ padding: '12px 16px' }}><Badge color={r.status === 'occupied' ? 'gold' : r.status === 'available' ? 'green' : r.status === 'reserved' ? 'violet' : r.status === 'cleaning' ? 'amber' : 'rose'}>{r.status}</Badge></td>
                   <td style={{ padding: '12px 16px', fontSize: '13px', color: 'var(--text2)' }}>{r.guest || '—'}</td>
