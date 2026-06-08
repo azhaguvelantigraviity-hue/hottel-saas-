@@ -258,7 +258,7 @@ const HotelDashboard = ({ plan, onNav }) => {
           <table style={{ width: '100%', borderCollapse: 'collapse' }}>
             <thead>
               <tr style={{ borderBottom: '1px solid var(--border)' }}>
-                {['Booking ID', 'Guest', 'Room', 'Check-in', 'Check-out', 'Amount', 'Status'].map((h) => (
+                {['Booking ID', 'Guest', 'Room', 'Check-in', 'Check-out', 'Stay Days', 'Status'].map((h) => (
                   <th key={h} style={{ padding: '8px 10px', textAlign: 'left', fontSize: '11px', color: 'var(--text3)', fontWeight: '600', letterSpacing: '0.05em' }}>
                     {h.toUpperCase()}
                   </th>
@@ -271,9 +271,9 @@ const HotelDashboard = ({ plan, onNav }) => {
                   <td style={{ padding: '11px 10px', fontSize: '12px', fontFamily: 'DM Mono,monospace', color: 'var(--gold)' }}>{b.bookingId}</td>
                   <td style={{ padding: '11px 10px', fontSize: '13px', fontWeight: '600' }}>{b.guest?.firstName} {b.guest?.lastName}</td>
                   <td style={{ padding: '11px 10px', fontSize: '12px', color: 'var(--text2)' }}>{b.room?.roomNumber}</td>
-                  <td style={{ padding: '11px 10px', fontSize: '12px', color: 'var(--text2)' }}>{new Date(b.checkIn).toLocaleDateString()}</td>
-                  <td style={{ padding: '11px 10px', fontSize: '12px', color: 'var(--text2)' }}>{new Date(b.checkOut).toLocaleDateString()}</td>
-                  <td style={{ padding: '11px 10px', fontSize: '13px', fontFamily: 'DM Mono,monospace' }}>₹{b.totalAmount?.toLocaleString()}</td>
+                  <td style={{ padding: '11px 10px', fontSize: '12px', color: 'var(--text2)' }}>{b.checkInDateTime ? new Date(b.checkInDateTime).toLocaleString([], { dateStyle: 'short', timeStyle: 'short' }) : new Date(b.checkIn).toLocaleDateString()}</td>
+                  <td style={{ padding: '11px 10px', fontSize: '12px', color: 'var(--text2)' }}>{b.checkOutDateTime ? new Date(b.checkOutDateTime).toLocaleString([], { dateStyle: 'short', timeStyle: 'short' }) : new Date(b.checkOut).toLocaleDateString()}</td>
+                  <td style={{ padding: '11px 10px', fontSize: '13px', fontFamily: 'DM Mono,monospace' }}>{b.stayDays || b.nights || 1} Days</td>
                   <td style={{ padding: '11px 10px' }}>
                     <Badge color={b.status === 'checked_in' ? 'green' : 'amber'}>{b.status}</Badge>
                   </td>

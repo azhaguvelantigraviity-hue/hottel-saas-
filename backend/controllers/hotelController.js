@@ -149,7 +149,9 @@ const createBooking = catchAsync(async (req, res) => {
   body.room  = await resolveRoom(body);
   
   // Calculate missing fields required by Booking schema
-  if (!body.nights && body.checkIn && body.checkOut) {
+  if (body.stayDays) {
+    body.nights = body.stayDays;
+  } else if (!body.nights && body.checkIn && body.checkOut) {
     body.nights = Math.max(1, Math.ceil((new Date(body.checkOut) - new Date(body.checkIn)) / 86400000));
   }
   if (!body.roomRate) {
@@ -193,6 +195,7 @@ const checkIn = catchAsync(async (req, res) => {
 
   booking.status = 'checked_in';
   booking.checkedInAt = new Date();
+  booking.loginTime = new Date();
   await booking.save();
 
   // Update room status
@@ -249,6 +252,7 @@ const checkOut = catchAsync(async (req, res) => {
 
   booking.status = 'checked_out';
   booking.checkedOutAt = new Date();
+  booking.logoutTime = new Date();
   await booking.save();
   // Update room status
   const room = await Room.findByIdAndUpdate(booking.room, { status: 'cleaning', housekeepingStatus: 'dirty' });

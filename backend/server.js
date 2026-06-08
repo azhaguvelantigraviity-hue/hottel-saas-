@@ -174,10 +174,14 @@ app.all('*', (req, _res, next) => {
   next(new AppError(`Route not found: ${req.method} ${req.originalUrl}`, 404));
 });
 
-// ── Global error handler ──────────────────────────────────────────────────────
+// ── Global Error Handling ─────────────────────────────────────────────────────
 app.use(errorHandler);
 
-// ── Start server ──────────────────────────────────────────────────────────────
+// ── Cron Jobs ─────────────────────────────────────────────────────────────────
+const { startCheckoutCron } = require('./cron/checkoutAlerts');
+startCheckoutCron(app);
+
+// ── Server Startup ──────────────────────────────────────────────────────────────
 const PORT = process.env.PORT || 5000;
 server.listen(PORT, () => {
   logger.info(`StayOS API running on port ${PORT} [${process.env.NODE_ENV}]`);

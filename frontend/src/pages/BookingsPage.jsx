@@ -30,6 +30,9 @@ const toFlat = (b) => ({
   room: b.room ? `${b.room.roomNumber || ''} – ${b.room.type || ''}`.trim() : (b.room || ''),
   checkIn: formatDate(b.checkIn),
   checkOut: formatDate(b.checkOut),
+  checkInDateTime: b.checkInDateTime || b.checkIn,
+  checkOutDateTime: b.checkOutDateTime || b.checkOut,
+  stayDays: b.stayDays || b.nights || 0,
   nights: b.nights || 0,
   adults: b.adults || 1,
   children: b.children || 0,
@@ -52,6 +55,9 @@ const fromFlat = (f) => ({
   room: f.room,
   checkIn: f.checkIn,
   checkOut: f.checkOut,
+  checkInDateTime: f.checkInDateTime,
+  checkOutDateTime: f.checkOutDateTime,
+  stayDays: f.stayDays,
   nights: f.nights,
   adults: f.adults,
   children: f.children,
@@ -88,7 +94,7 @@ const labelStyle = { fontSize: '11px', color: 'var(--text3)', fontWeight: '600',
 
 const NewBookingForm = ({ onClose, onSave }) => {
   const [form, setForm] = useState({
-    guest: '', phone: '', email: '', room: '', checkIn: '', checkOut: '', adults: 1, children: 0,
+    guest: '', phone: '', email: '', room: '', checkInDateTime: '', stayDays: 1, adults: 1, children: 0,
     source: 'direct', specialRequests: '', hasPet: false, petSize: 'small', petType: '',
   });
   const [availableRooms, setAvailableRooms] = useState([]);
@@ -115,9 +121,9 @@ const NewBookingForm = ({ onClose, onSave }) => {
     loadRooms();
   }, []);
 
-  const nights = form.checkIn && form.checkOut
-    ? Math.max(0, Math.ceil((new Date(form.checkOut) - new Date(form.checkIn)) / 86400000))
-    : 0;
+  const nights = form.stayDays || 1;
+  const checkOutDateObj = form.checkInDateTime ? new Date(new Date(form.checkInDateTime).getTime() + nights * 24 * 60 * 60 * 1000) : null;
+  const computedCheckOut = checkOutDateObj ? checkOutDateObj.toLocaleString() : '';
 
   const selectedRoom = availableRooms.find(r => String(r.id) === String(form.room));
   const roomRate = selectedRoom ? selectedRoom.rate : 0;
@@ -154,12 +160,18 @@ const NewBookingForm = ({ onClose, onSave }) => {
           </select>
         </div>
         <div>
-          <label style={labelStyle}>CHECK-IN *</label>
-          <input type="date" style={inputStyle} value={form.checkIn} onChange={e => set('checkIn', e.target.value)} />
+          <label style={labelStyle}>CHECK-IN DATE & TIME *</label>
+          <input type="datetime-local" style={inputStyle} value={form.checkInDateTime} onChange={e => set('checkInDateTime', e.target.value)} />
         </div>
         <div>
-          <label style={labelStyle}>CHECK-OUT *</label>
-          <input type="date" style={inputStyle} value={form.checkOut} onChange={e => set('checkOut', e.target.value)} />
+          <label style={labelStyle}>STAY DURATION (DAYS) *</label>
+          <input type="number" min="1" style={inputStyle} value={form.stayDays} onChange={e => set('stayDays', +e.target.value)} />
+        </div>
+        <div>
+          <label style={labelStyle}>CHECK-OUT DATE & TIME</label>
+          <div style={{ ...inputStyle, background: 'var(--bg)', color: 'var(--text3)' }}>
+            {computedCheckOut || 'Select check-in time'}
+          </div>
         </div>
         <div>
           <label style={labelStyle}>ADULTS</label>
@@ -263,7 +275,7 @@ const NewBookingForm = ({ onClose, onSave }) => {
           Cancel
         </button>
         <button
-          onClick={() => { if (form.guest && form.room && form.checkIn && form.checkOut) { onSave(form, totalAmount, nights, petCharge); onClose(); } }}
+          onClick={() => { if (form.guest && form.room && form.checkInDateTime && form.stayDays > 0) { onSave({ ...form, checkIn: form.checkInDateTime, checkOut: checkOutDateObj.toISOString(), checkOutDateTime: checkOutDateObj.toISOString() }, totalAmount, nights, petCharge); onClose(); } }}
           style={{ padding: '10px 24px', background: 'linear-gradient(135deg,#C9A84C,#8A6F2E)', border: 'none', borderRadius: '8px', color: '#fff', cursor: 'pointer', fontWeight: '600', fontSize: '13px', fontFamily: 'DM Sans,sans-serif' }}
         >
           Create Booking
@@ -292,8 +304,9 @@ const BookingDetail = ({ booking, onClose, onAction, apiReady }) => {
       {[
         ['Booking ID', booking.id], ['Guest', booking.guest], ['Phone', booking.phone || '—'],
         ['Email', booking.email || '—'], ['Room', booking.room], ['Source', booking.source],
-        ['Check-in', booking.checkIn], ['Check-out', booking.checkOut],
-        ['Nights', booking.nights], ['Adults', booking.adults], ['Children', booking.children || 0],
+        ['Check-in', booking.checkInDateTime ? new Date(booking.checkInDateTime).toLocaleString([], { dateStyle: 'medium', timeStyle: 'short' }) : booking.checkIn],
+        ['Check-out', booking.checkOutDateTime ? new Date(booking.checkOutDateTime).toLocaleString([], { dateStyle: 'medium', timeStyle: 'short' }) : booking.checkOut],
+        ['Stay Days', booking.stayDays || booking.nights], ['Adults', booking.adults], ['Children', booking.children || 0],
       ].map(([k, v]) => (
         <div key={k} style={{ background: 'var(--surface)', borderRadius: '8px', padding: '10px 12px' }}>
           <div style={{ fontSize: '10px', color: 'var(--text3)', letterSpacing: '0.06em', marginBottom: '3px' }}>{k.toUpperCase()}</div>
@@ -486,6 +499,9 @@ const BookingsPage = () => {
       room: form.room,
       checkIn: form.checkIn,
       checkOut: form.checkOut,
+      checkInDateTime: form.checkInDateTime,
+      checkOutDateTime: form.checkOutDateTime,
+      stayDays: form.stayDays,
       adults: form.adults,
       children: form.children,
       amount: totalAmount,

@@ -8,6 +8,11 @@ const BookingSchema = new mongoose.Schema({
   bookingId:     { type: String, unique: true },
   checkIn:       { type: Date, required: true },
   checkOut:      { type: Date, required: true },
+  checkInDateTime: { type: Date },
+  checkOutDateTime:{ type: Date },
+  stayDays:      { type: Number },
+  loginTime:     { type: Date },
+  logoutTime:    { type: Date },
   nights:        { type: Number, required: true },
   adults:        { type: Number, default: 1 },
   children:      { type: Number, default: 0 },
@@ -31,6 +36,10 @@ const BookingSchema = new mongoose.Schema({
   checkedOutAt:  Date,
   cancelledAt:   Date,
   cancelReason:  String,
+  alertsSent: {
+    nearCheckout: { type: Boolean, default: false },
+    overdue:      { type: Boolean, default: false }
+  },
 
   // ── Smart Check-In Process ─────────────────────────────────
   checkInProcess: {
