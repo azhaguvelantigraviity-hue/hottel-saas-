@@ -843,6 +843,44 @@ const processAllPendingPayroll = catchAsync(async (req, res) => {
   sendSuccess(res, { message: `${pendingRecords.length} records processed.` });
 });
 
+// ── Documents ────────────────────────────────────────────────────────
+const uploadDocument = catchAsync(async (req, res) => {
+  const booking = await Booking.findOne(oneFilter(req));
+  if (!booking) throw new AppError('Booking not found', 404);
+  
+  if (!req.file) throw new AppError('No document file provided', 400);
+
+  const doc = await Document.create({
+    hotel: req.hotelId,
+    bookingId: booking.bookingId,
+    guestId: booking.guest,
+    docType: req.body.docType || 'Aadhaar',
+    fileUrl: `/uploads/documents/${req.file.filename}`,
+    fileName: req.file.originalname,
+    uploadedBy: req.user.id
+  });
+
+  sendSuccess(res, doc, 201);
+});
+
+const getDocuments = catchAsync(async (req, res) => {
+  const booking = await Booking.findOne(oneFilter(req));
+  if (!booking) throw new AppError('Booking not found', 404);
+  const docs = await Document.find({ hotel: req.hotelId, bookingId: booking.bookingId });
+  sendSuccess(res, docs);
+});
+
+const getGuestDocuments = catchAsync(async (req, res) => {
+  const docs = await Document.find({ hotel: req.hotelId, guestId: req.params.id });
+  sendSuccess(res, docs);
+});
+
+const deleteDocument = catchAsync(async (req, res) => {
+  const doc = await Document.findOneAndDelete({ _id: req.params.id, hotel: req.hotelId });
+  if (!doc) throw new AppError('Document not found', 404);
+  sendSuccess(res, null, 204);
+});
+
 module.exports = {
   getRooms, getRoom, createRoom, updateRoom, deleteRoom,
   updateRoomHousekeeping, checkAvailability,
@@ -857,5 +895,6 @@ module.exports = {
   markAttendance, applyLeave, getAttendance,
   getTodayCheckins, getTodayCheckouts, getPendingPayments, getMaintenanceRooms, updateRoomMaintenance,
   createSubscriptionOrder, verifySubscriptionPayment, updateProfile,
-  getPayrollRecords, updatePayrollRecord, markPayrollPaid, processAllPendingPayroll
+  getPayrollRecords, updatePayrollRecord, markPayrollPaid, processAllPendingPayroll,
+  uploadDocument, getDocuments, getGuestDocuments, deleteDocument
 };
