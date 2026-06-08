@@ -129,7 +129,14 @@ const CheckInOutPage = () => {
                     <td style={{ padding: '16px', textAlign: 'right' }}>
                       {activeTab === 'arrivals' ? (
                         b.status === 'checked_in' ? (
-                          <span style={{ fontSize: '13px', color: 'var(--green)', fontWeight: 600 }}>Checked In ✓</span>
+                          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: '8px' }}>
+                            <span style={{ fontSize: '13px', color: 'var(--green)', fontWeight: 600 }}>Checked In ✓</span>
+                            <button 
+                              onClick={() => setCheckInModalBooking(b)}
+                              style={{ background: 'var(--surface)', color: 'var(--text)', border: '1px solid var(--border)', padding: '6px 10px', borderRadius: '6px', cursor: 'pointer', fontWeight: 600, fontSize: '12px', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                              <Icon name="file" size={14} color="var(--gold)" /> Docs
+                            </button>
+                          </div>
                         ) : (
                           <button 
                             onClick={() => setCheckInModalBooking(b)}
@@ -305,8 +312,14 @@ const CheckInModal = ({ booking, onClose, onConfirm }) => {
           </div>
 
           <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px', borderTop: '1px solid var(--border)', paddingTop: '20px' }}>
-            <button onClick={onClose} style={{ padding: '10px 16px', background: 'transparent', border: '1px solid var(--border)', borderRadius: '6px', color: 'var(--text)', cursor: 'pointer', fontWeight: 600 }}>Cancel</button>
-            <button onClick={() => onConfirm(booking._id)} style={{ padding: '10px 16px', background: 'var(--green)', border: 'none', borderRadius: '6px', color: '#fff', cursor: 'pointer', fontWeight: 600 }}>Confirm Check-In</button>
+            {booking.status === 'checked_in' ? (
+              <button onClick={onClose} style={{ padding: '10px 16px', background: 'var(--green)', border: 'none', borderRadius: '6px', color: '#fff', cursor: 'pointer', fontWeight: 600 }}>Done</button>
+            ) : (
+              <>
+                <button onClick={onClose} style={{ padding: '10px 16px', background: 'transparent', border: '1px solid var(--border)', borderRadius: '6px', color: 'var(--text)', cursor: 'pointer', fontWeight: 600 }}>Cancel</button>
+                <button onClick={() => onConfirm(booking._id)} style={{ padding: '10px 16px', background: 'var(--green)', border: 'none', borderRadius: '6px', color: '#fff', cursor: 'pointer', fontWeight: 600 }}>Confirm Check-In</button>
+              </>
+            )}
           </div>
         </div>
       </div>
