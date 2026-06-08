@@ -148,7 +148,7 @@ const HotelApp = ({ onLogout, initialPlan = 'enterprise', role = 'manager', hote
 
   const roleAllowedPages = {
     manager: Object.keys(titles), // Manager gets everything
-    reception: ['dashboard', 'rooms', 'bookings', 'checkin', 'guests', 'billing', 'restaurant', 'laundry', 'attendance', 'complaints', 'settings'],
+    reception: ['dashboard', 'rooms', 'bookings', 'checkin', 'guests', 'complaints', 'settings'],
     housekeeping: ['dashboard', 'housekeeping', 'maintenance', 'settings'],
     hotel_staff: ['dashboard', 'settings']
   };
@@ -270,8 +270,8 @@ const App = () => {
     
     const getUIRole = (u) => {
       if (u.role === 'hotel_admin' || u.department === 'Manager') return 'manager';
-      if (u.role === 'receptionist' || u.department === 'Front Desk') return 'reception';
-      if (u.role === 'housekeeping' || u.department === 'Housekeeping') return 'housekeeping';
+      if (u.department === 'Front Desk') return 'reception';
+      if (u.department === 'Housekeeping') return 'housekeeping';
       return 'staff';
     };
 

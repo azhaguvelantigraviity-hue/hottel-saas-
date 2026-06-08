@@ -17,7 +17,7 @@ router.get   ('/invoices',                getInvoices);
 router.get   ('/invoices/:id',            getInvoice);
 
 // Invoice write operations
-router.use(authorize('hotel_admin', 'platform_admin', 'manager', 'hotel_staff', 'receptionist', 'housekeeping'));
+router.use(authorize('hotel_admin', 'platform_admin', 'manager', 'hotel_staff'));
 router.post  ('/invoices',                createInvoice);
 router.put   ('/invoices/:id',            updateInvoice);
 router.delete('/invoices/:id',            deleteInvoice);

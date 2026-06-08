@@ -11,7 +11,7 @@ const { protect, scopeToHotel, authorize } = require('../middleware/auth');
 router.use(protect, scopeToHotel);
 
 // Allow access for 'hotel_admin' (manager) and 'platform_admin'
-const requireAdminOrManager = authorize('hotel_admin', 'platform_admin'); // Kept as is, as requested in other places but here it's strictly admin/manager
+const requireAdminOrManager = authorize('hotel_admin', 'platform_admin');
 
 router.get('/', getItems);
 router.post('/', requireAdminOrManager, createItem);

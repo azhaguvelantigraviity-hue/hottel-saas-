@@ -15,8 +15,8 @@ const Topbar = ({ title, subtitle, role, onNav, toggleSidebar }) => {
     return 'Good Evening,';
   };
 
-  const userName  = role === 'admin' ? 'Admin' : role === 'manager' ? 'Manager' : role === 'reception' ? 'Receptionist' : role === 'housekeeping' ? 'Housekeeping' : 'User';
-  const userInitials = role === 'admin' ? 'A' : role === 'manager' ? 'M' : role === 'reception' ? 'R' : role === 'housekeeping' ? 'H' : 'U';
+  const userName  = role === 'admin' ? 'Admin' : role === 'manager' ? 'Manager' : role === 'staff' ? 'Receptionist' : 'User';
+  const userInitials = role === 'admin' ? 'A' : role === 'manager' ? 'M' : role === 'staff' ? 'R' : 'U';
 
   return (
     <div style={{
