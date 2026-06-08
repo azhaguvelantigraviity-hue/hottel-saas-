@@ -144,13 +144,16 @@ const Sidebar = ({ role, active, onNav, onLogout, plan, isOpen, setIsOpen }) => 
                 return managerPages.includes(itemId);
               }
               if (role === 'staff') {
-                const staffPages = [
-                  'dashboard', 'rooms', 'bookings', 'checkin', 'billing', 'guests', 
-                  'restaurant', 'laundry', 'travel', 'events', 'housekeeping', 'attendance',
-                  'channel', 'revenue', 'analytics', 'marketing', 'whatsapp', 'inventory', 
-                  'iot', 'security', 'notifications', 'chatbot', 'reports', 'settings'
-                ];
+                const staffPages = ['dashboard', 'settings'];
                 return staffPages.includes(itemId);
+              }
+              if (role === 'reception') {
+                const receptionPages = ['dashboard', 'rooms', 'bookings', 'checkin', 'guests', 'billing', 'restaurant', 'laundry', 'attendance', 'complaints', 'settings'];
+                return receptionPages.includes(itemId);
+              }
+              if (role === 'housekeeping') {
+                const hkPages = ['dashboard', 'housekeeping', 'maintenance', 'settings'];
+                return hkPages.includes(itemId);
               }
               return true;
             };

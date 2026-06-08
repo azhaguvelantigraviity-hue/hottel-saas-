@@ -479,7 +479,7 @@ const getEmployee = catchAsync(async (req, res) => {
 const createEmployee = catchAsync(async (req, res) => {
   const body = { ...req.body, hotel: req.hotelId || req.body.hotel };
 
-  if (req.user && req.user.role === 'hotel_staff') {
+  if (req.user && ['hotel_staff', 'receptionist'].includes(req.user.role)) {
     const allowedDepts = ['Housekeeping', 'Security', 'Cleaning'];
     if (!allowedDepts.includes(body.department)) {
       throw new AppError(`Receptionists can only add employees to ${allowedDepts.join(', ')} departments`, 403);
@@ -492,17 +492,21 @@ const createEmployee = catchAsync(async (req, res) => {
 
   const employee = await Employee.create(body);
 
-  const rStr = (body.role || '').toLowerCase();
-  const isReceptionist = body.department === 'Front Office' || rStr.includes('reception') || rStr.includes('front desk');
+  if (req.body.loginEmail && req.body.loginPassword) {
+    const isReceptionist = body.department === 'Front Office' || (body.role || '').toLowerCase().includes('reception');
+    const isHousekeeping = body.department === 'Housekeeping';
+    
+    let assignRole = 'hotel_staff';
+    if (isReceptionist) assignRole = 'receptionist';
+    else if (isHousekeeping) assignRole = 'housekeeping';
 
-  if (isReceptionist && req.body.loginEmail && req.body.loginPassword) {
     const existingUser = await User.findOne({ email: req.body.loginEmail });
     if (!existingUser) {
       await User.create({
         name: body.name,
         email: req.body.loginEmail,
         password: req.body.loginPassword,
-        role: 'hotel_staff',
+        role: assignRole,
         hotel: body.hotel,
         department: body.department === 'Front Office' ? 'Front Desk' : body.department,
         isActive: true
