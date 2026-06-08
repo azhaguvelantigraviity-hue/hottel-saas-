@@ -338,8 +338,8 @@ const BookingDetail = ({ booking, onClose, onAction, apiReady }) => {
         </div>
       </div>
     )}
-    <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-      {booking.status === 'confirmed' && (
+    <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', alignItems: 'flex-start' }}>
+      {booking.status === 'confirmed' && !showCheckout && (
         <button onClick={() => { onAction(booking, 'checked-in'); onClose(); }} style={{ flex: 1, padding: '10px', background: 'rgba(52,211,153,0.15)', border: '1px solid rgba(52,211,153,0.3)', borderRadius: '8px', color: 'var(--green)', cursor: 'pointer', fontWeight: '600', fontSize: '13px', fontFamily: 'DM Sans,sans-serif' }}>
           ✓ Check In
         </button>
@@ -350,8 +350,8 @@ const BookingDetail = ({ booking, onClose, onAction, apiReady }) => {
             ↗ Check Out
           </button>
         ) : (
-          <div style={{ flex: 1, width: '100%' }}>
-            <div style={{ background: 'var(--surface)', padding: '16px', borderRadius: '8px', border: '1px solid var(--border)', marginBottom: '12px' }}>
+          <div style={{ flexBasis: '100%' }}>
+            <div style={{ background: 'var(--surface)', padding: '16px', borderRadius: '8px', border: '1px solid var(--border)' }}>
               <div style={{ fontSize: '14px', fontWeight: 600, marginBottom: '12px' }}>Checkout Payment</div>
               <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '12px', fontSize: '13px' }}>
                 <span style={{ color: 'var(--text3)' }}>Total Amount</span>
@@ -394,14 +394,16 @@ const BookingDetail = ({ booking, onClose, onAction, apiReady }) => {
           </div>
         )
       )}
-      {(booking.status === 'confirmed' || booking.status === 'pending') && (
+      {(booking.status === 'confirmed' || booking.status === 'pending') && !showCheckout && (
         <button onClick={() => { onAction(booking, 'cancelled'); onClose(); }} style={{ padding: '10px 16px', background: 'rgba(251,113,133,0.1)', border: '1px solid rgba(251,113,133,0.3)', borderRadius: '8px', color: 'var(--rose)', cursor: 'pointer', fontWeight: '600', fontSize: '13px', fontFamily: 'DM Sans,sans-serif' }}>
           Cancel
         </button>
       )}
-      <button onClick={() => { onAction(booking, 'deleted'); onClose(); }} style={{ padding: '10px 16px', background: 'transparent', border: '1px solid var(--rose)', borderRadius: '8px', color: 'var(--rose)', cursor: 'pointer', fontWeight: '600', fontSize: '13px', fontFamily: 'DM Sans,sans-serif' }}>
-        Delete
-      </button>
+      {!showCheckout && (
+        <button onClick={() => { onAction(booking, 'deleted'); onClose(); }} style={{ padding: '10px 16px', background: 'transparent', border: '1px solid var(--rose)', borderRadius: '8px', color: 'var(--rose)', cursor: 'pointer', fontWeight: '600', fontSize: '13px', fontFamily: 'DM Sans,sans-serif' }}>
+          Delete
+        </button>
+      )}
     </div>
   </div>
 );
