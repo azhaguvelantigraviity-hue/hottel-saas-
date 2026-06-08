@@ -29,9 +29,16 @@ const labelStyle = { fontSize: '11px', color: 'var(--text3)', fontWeight: '600',
 const GuestDetail = ({ guest, onClose, onDelete, onRefresh }) => {
   const [deleting, setDeleting] = useState(false);
   const [confirm, setConfirm] = useState(false);
+  const [documents, setDocuments] = useState([]);
   const name = [guest.firstName, guest.lastName].filter(Boolean).join(' ') || 'Guest';
   const status = deriveStatus(guest);
   const guestBookings = []; // backend booking lookup could go here
+
+  useEffect(() => {
+    if (guest._id) {
+      api.getGuestDocuments(guest._id).then(res => setDocuments(res.data || [])).catch(console.error);
+    }
+  }, [guest._id]);
 
   const handleDelete = async () => {
     setDeleting(true);
@@ -96,6 +103,23 @@ const GuestDetail = ({ guest, onClose, onDelete, onRefresh }) => {
                   </div>
                 </div>
               ))}
+            </div>
+          )}
+          {documents.length > 0 && (
+            <div>
+              <div style={{ fontSize: '13px', fontWeight: '700', marginBottom: '10px' }}>Uploaded Documents</div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                {documents.map(d => (
+                  <div key={d._id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 12px', background: 'var(--surface)', borderRadius: '8px', border: '1px solid var(--border)' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      <Icon name="file" size={14} color="var(--gold)" />
+                      <span style={{ fontSize: '13px', fontWeight: 600 }}>{d.docType}</span>
+                      <span style={{ fontSize: '11px', color: 'var(--text3)', marginLeft: '8px' }}>{new Date(d.createdAt).toLocaleDateString('en-IN')}</span>
+                    </div>
+                    <a href={d.fileUrl} target="_blank" rel="noreferrer" style={{ color: 'var(--blue)', fontSize: '12px', textDecoration: 'none', fontWeight: 600 }}>View</a>
+                  </div>
+                ))}
+              </div>
             </div>
           )}
           <div style={{ borderTop: '1px solid var(--border)', paddingTop: '16px', display: 'flex', justifyContent: 'flex-end' }}>

@@ -8,6 +8,7 @@ const CheckInOutPage = () => {
   const [arrivals, setArrivals] = useState([]);
   const [departures, setDepartures] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [checkInModalBooking, setCheckInModalBooking] = useState(null);
 
   const fetchData = async () => {
     setLoading(true);
@@ -30,9 +31,9 @@ const CheckInOutPage = () => {
   }, []);
 
   const handleCheckIn = async (id) => {
-    if (!window.confirm("Confirm check-in for this guest?")) return;
     try {
       await api.checkIn(id);
+      setCheckInModalBooking(null);
       fetchData(); // refresh lists
     } catch (err) {
       alert(err.message || 'Check-in failed');
@@ -57,6 +58,13 @@ const CheckInOutPage = () => {
 
   return (
     <div style={{ flex: 1, overflowY: 'auto', padding: '24px', background: 'var(--bg)' }}>
+      {checkInModalBooking && (
+        <CheckInModal 
+          booking={checkInModalBooking} 
+          onClose={() => setCheckInModalBooking(null)} 
+          onConfirm={handleCheckIn} 
+        />
+      )}
       {/* Metrics Row */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px', marginBottom: '24px' }}>
         <MetricCard title="Expected Arrivals" count={pendingArrivals.length} total={arrivals.length} color="var(--blue)" icon="login" />
@@ -124,7 +132,7 @@ const CheckInOutPage = () => {
                           <span style={{ fontSize: '13px', color: 'var(--green)', fontWeight: 600 }}>Checked In ✓</span>
                         ) : (
                           <button 
-                            onClick={() => handleCheckIn(b._id)}
+                            onClick={() => setCheckInModalBooking(b)}
                             style={{ background: 'var(--green)', color: '#fff', border: 'none', padding: '8px 16px', borderRadius: '6px', cursor: 'pointer', fontWeight: 600, fontSize: '13px' }}>
                             Check In
                           </button>
@@ -197,6 +205,113 @@ const StatusBadge = ({ status }) => {
   };
   const config = map[status] || { color: 'gray', label: status };
   return <Badge color={config.color} label={config.label} />;
+};
+
+const CheckInModal = ({ booking, onClose, onConfirm }) => {
+  const [documents, setDocuments] = useState([]);
+  const [docType, setDocType] = useState('Aadhaar');
+  const [file, setFile] = useState(null);
+  const [uploading, setUploading] = useState(false);
+  const [loadingDocs, setLoadingDocs] = useState(true);
+
+  const fetchDocs = async () => {
+    try {
+      const res = await api.getDocuments(booking._id);
+      setDocuments(res.data || []);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoadingDocs(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchDocs();
+  }, []);
+
+  const handleUpload = async () => {
+    if (!file) return alert('Please select a file');
+    setUploading(true);
+    try {
+      const formData = new FormData();
+      formData.append('documentFile', file);
+      formData.append('docType', docType);
+      await api.uploadDocument(booking._id, formData);
+      setFile(null);
+      fetchDocs();
+    } catch (err) {
+      alert(err.message || 'Upload failed');
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  const handleDelete = async (docId) => {
+    if (!window.confirm('Delete this document?')) return;
+    try {
+      await api.deleteDocument(docId);
+      fetchDocs();
+    } catch (err) {
+      alert(err.message || 'Delete failed');
+    }
+  };
+
+  return (
+    <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.7)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, padding: '20px' }}>
+      <div style={{ background: 'var(--card)', borderRadius: '12px', width: '100%', maxWidth: '500px', overflow: 'hidden' }}>
+        <div style={{ padding: '20px', borderBottom: '1px solid var(--border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <h3 style={{ margin: 0, fontSize: '18px' }}>Smart Check-In: {booking.guest?.firstName} {booking.guest?.lastName}</h3>
+          <button onClick={onClose} style={{ background: 'none', border: 'none', cursor: 'pointer' }}><Icon name="x" size={20} color="var(--text3)" /></button>
+        </div>
+        
+        <div style={{ padding: '20px' }}>
+          <div style={{ marginBottom: '20px' }}>
+            <div style={{ fontSize: '14px', fontWeight: 600, marginBottom: '10px' }}>Guest ID Documents</div>
+            {loadingDocs ? <div style={{ fontSize: '13px', color: 'var(--text3)' }}>Loading documents...</div> : documents.length > 0 ? (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginBottom: '16px' }}>
+                {documents.map(d => (
+                  <div key={d._id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px', background: 'var(--surface)', borderRadius: '8px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                      <Icon name="file" size={16} color="var(--gold)" />
+                      <div>
+                        <div style={{ fontSize: '13px', fontWeight: 600 }}>{d.docType}</div>
+                        <div style={{ fontSize: '11px', color: 'var(--text3)' }}>{d.fileName}</div>
+                      </div>
+                    </div>
+                    <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+                      <a href={d.fileUrl} target="_blank" rel="noreferrer" style={{ color: 'var(--blue)', fontSize: '12px', textDecoration: 'none', fontWeight: 600 }}>View</a>
+                      <button onClick={() => handleDelete(d._id)} style={{ background: 'none', border: 'none', color: 'var(--rose)', cursor: 'pointer', padding: 0, display: 'flex' }}><Icon name="trash" size={14} /></button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div style={{ fontSize: '13px', color: 'var(--text3)', marginBottom: '16px' }}>No documents uploaded yet. A document is highly recommended.</div>
+            )}
+            
+            <div style={{ display: 'flex', gap: '10px', alignItems: 'center', background: 'var(--surface)', padding: '10px', borderRadius: '8px', border: '1px dashed var(--border)' }}>
+              <select value={docType} onChange={e => setDocType(e.target.value)} style={{ padding: '8px', borderRadius: '6px', border: '1px solid var(--border)', background: 'var(--bg)', color: 'var(--text)', outline: 'none' }}>
+                <option value="Aadhaar">Aadhaar</option>
+                <option value="Passport">Passport</option>
+                <option value="Driving License">Driving License</option>
+                <option value="PAN">PAN</option>
+                <option value="Other">Other</option>
+              </select>
+              <input type="file" accept=".pdf,.jpg,.jpeg,.png" onChange={e => setFile(e.target.files[0])} style={{ flex: 1, fontSize: '12px', color: 'var(--text)' }} />
+              <button onClick={handleUpload} disabled={uploading} style={{ padding: '8px 12px', background: 'var(--gold)', color: '#000', border: 'none', borderRadius: '6px', fontWeight: 600, cursor: uploading ? 'not-allowed' : 'pointer' }}>
+                {uploading ? '...' : 'Upload'}
+              </button>
+            </div>
+          </div>
+
+          <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px', borderTop: '1px solid var(--border)', paddingTop: '20px' }}>
+            <button onClick={onClose} style={{ padding: '10px 16px', background: 'transparent', border: '1px solid var(--border)', borderRadius: '6px', color: 'var(--text)', cursor: 'pointer', fontWeight: 600 }}>Cancel</button>
+            <button onClick={() => onConfirm(booking._id)} style={{ padding: '10px 16px', background: 'var(--green)', border: 'none', borderRadius: '6px', color: '#fff', cursor: 'pointer', fontWeight: 600 }}>Confirm Check-In</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
 };
 
 export default CheckInOutPage;

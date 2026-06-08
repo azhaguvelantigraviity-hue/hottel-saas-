@@ -15,7 +15,8 @@ const {
   markAttendance, applyLeave,
   getTodayCheckins, getTodayCheckouts, getPendingPayments, getMaintenanceRooms, updateRoomMaintenance,
   createSubscriptionOrder, verifySubscriptionPayment, getAttendance, updateProfile,
-  getPayrollRecords, updatePayrollRecord, markPayrollPaid, processAllPendingPayroll
+  getPayrollRecords, updatePayrollRecord, markPayrollPaid, processAllPendingPayroll,
+  uploadDocument, getDocuments, getGuestDocuments, deleteDocument
 } = require('../controllers/hotelController');
 const { protect, authorize, scopeToHotel, hotelAdmin } = require('../middleware/auth');
 const { requireFeature, enforceLimit } = require('../middleware/planGate');
@@ -60,6 +61,12 @@ router.put   ('/bookings/:id/guest-details',         updateGuestDetails);
 router.post  ('/bookings/:id/id-scan',               upload.single('documentImage'), uploadIdScan);
 router.post  ('/bookings/:id/face-verification',     submitFaceVerification);
 router.post  ('/bookings/:id/signature',             saveSignature);
+
+// ── Documents ─────────────────────────────────────────────────────────────────
+router.post  ('/bookings/:id/documents',             upload.single('documentFile'), uploadDocument);
+router.get   ('/bookings/:id/documents',             getDocuments);
+router.get   ('/guests/:id/documents',               getGuestDocuments);
+router.delete('/documents/:id',                      deleteDocument);
 
 // ── Cab Bookings / Travel Desk (all plans) ────────────────────────────────────
 router.get   ('/cab-bookings',                         getCabBookings);

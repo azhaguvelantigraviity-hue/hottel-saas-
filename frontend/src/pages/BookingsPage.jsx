@@ -273,7 +273,16 @@ const NewBookingForm = ({ onClose, onSave }) => {
   );
 };
 
-const BookingDetail = ({ booking, onClose, onAction }) => (
+const BookingDetail = ({ booking, onClose, onAction }) => {
+  const [documents, setDocuments] = useState([]);
+  
+  useEffect(() => {
+    if (booking._id) {
+      api.getDocuments(booking._id).then(res => setDocuments(res.data || [])).catch(err => console.error(err));
+    }
+  }, [booking._id]);
+
+  return (
   <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 300px), 1fr))', gap: '12px' }}>
       {[
@@ -309,6 +318,22 @@ const BookingDetail = ({ booking, onClose, onAction }) => (
         <span style={{ color: 'var(--gold)', fontFamily: 'DM Mono,monospace' }}>₹{booking.amount?.toLocaleString()}</span>
       </div>
     </div>
+    {documents.length > 0 && (
+      <div style={{ background: 'var(--surface)', borderRadius: '8px', padding: '12px' }}>
+        <div style={{ fontSize: '11px', color: 'var(--text3)', marginBottom: '8px' }}>UPLOADED DOCUMENTS</div>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+          {documents.map(d => (
+            <div key={d._id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '8px', background: 'var(--bg)', borderRadius: '6px', border: '1px solid var(--border)' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <Icon name="file" size={14} color="var(--gold)" />
+                <span style={{ fontSize: '13px', fontWeight: 600 }}>{d.docType}</span>
+              </div>
+              <a href={d.fileUrl} target="_blank" rel="noreferrer" style={{ color: 'var(--blue)', fontSize: '12px', textDecoration: 'none', fontWeight: 600 }}>View</a>
+            </div>
+          ))}
+        </div>
+      </div>
+    )}
     <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
       {booking.status === 'confirmed' && (
         <button onClick={() => { onAction(booking, 'checked-in'); onClose(); }} style={{ flex: 1, padding: '10px', background: 'rgba(52,211,153,0.15)', border: '1px solid rgba(52,211,153,0.3)', borderRadius: '8px', color: 'var(--green)', cursor: 'pointer', fontWeight: '600', fontSize: '13px', fontFamily: 'DM Sans,sans-serif' }}>
@@ -331,6 +356,7 @@ const BookingDetail = ({ booking, onClose, onAction }) => (
     </div>
   </div>
 );
+};
 
 const BookingsPage = () => {
   const [bookings, setBookings] = useState([]);

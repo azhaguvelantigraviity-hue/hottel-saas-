@@ -53,6 +53,12 @@ export const uploadIdScan        = (id, formData) => uploadFile(`/hotel/bookings
 export const submitFaceVerification = (id, body) => post(`/hotel/bookings/${id}/face-verification`, body);
 export const saveSignature       = (id, body)   => post(`/hotel/bookings/${id}/signature`, body);
 
+// ── Documents ───────────────────────────────────────────────────
+export const uploadDocument      = (id, formData) => uploadFile(`/hotel/bookings/${id}/documents`, formData);
+export const getDocuments        = (id)           => get(`/hotel/bookings/${id}/documents`);
+export const getGuestDocuments   = (id)           => get(`/hotel/guests/${id}/documents`);
+export const deleteDocument      = (docId)        => del(`/hotel/documents/${docId}`);
+
 // ── Cab Bookings / Travel Desk ──────────────────────────────────
 export const getCabBookings   = (params = {}) => get(`/hotel/cab-bookings?${new URLSearchParams(params)}`);
 export const getCabBooking    = (id)          => get(`/hotel/cab-bookings/${id}`);

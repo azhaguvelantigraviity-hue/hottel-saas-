@@ -7,6 +7,7 @@ const Guest   = require('../models/Guest');
 const CabBooking = require('../models/CabBooking');
 const TravelPackage = require('../models/TravelPackage');
 const Hotel = require('../models/Hotel');
+const Document = require('../models/Document');
 const SubscriptionPayment = require('../models/SubscriptionPayment');
 const Payroll = require('../models/Payroll');
 const Razorpay = require('razorpay');
