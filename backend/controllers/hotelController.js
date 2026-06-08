@@ -222,6 +222,12 @@ const checkOut = catchAsync(async (req, res) => {
   
   if (!booking) throw new AppError('Booking not found or not checked in', 404);
 
+  const { paymentAmount, paymentMethod } = req.body;
+  if (paymentAmount) {
+    booking.paidAmount = (booking.paidAmount || 0) + Number(paymentAmount);
+    if (paymentMethod) booking.paymentMethod = paymentMethod;
+  }
+
   const total = booking.totalAmount || 0;
   const food = booking.foodCharges || 0;
   const laundry = booking.laundryCharges || 0;
@@ -229,7 +235,15 @@ const checkOut = catchAsync(async (req, res) => {
   const paid = booking.paidAmount || 0;
   
   const grandTotal = total + food + laundry + other;
+
+  if (paid >= grandTotal) {
+    booking.paymentStatus = 'paid';
+  } else if (paid > 0) {
+    booking.paymentStatus = 'partial';
+  }
+
   if (paid < grandTotal) {
+    if (paymentAmount) await booking.save(); // Save the partial payment
     throw new AppError(`Pending balance: ₹${(grandTotal - paid).toLocaleString()}. Please collect payment before checking out.`, 400);
   }
 

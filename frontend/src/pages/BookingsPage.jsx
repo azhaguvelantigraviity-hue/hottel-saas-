@@ -273,9 +273,13 @@ const NewBookingForm = ({ onClose, onSave }) => {
   );
 };
 
-const BookingDetail = ({ booking, onClose, onAction }) => {
+const BookingDetail = ({ booking, onClose, onAction, apiReady }) => {
   const [documents, setDocuments] = useState([]);
-  
+  const [showCheckout, setShowCheckout] = useState(false);
+  const balance = Math.max(0, (booking.amount || 0) - (booking.paid || 0));
+  const [paymentAmount, setPaymentAmount] = useState(balance);
+  const [paymentMethod, setPaymentMethod] = useState('cash');
+
   useEffect(() => {
     if (booking._id) {
       api.getDocuments(booking._id).then(res => setDocuments(res.data || [])).catch(err => console.error(err));
@@ -341,9 +345,54 @@ const BookingDetail = ({ booking, onClose, onAction }) => {
         </button>
       )}
       {booking.status === 'checked-in' && (
-        <button onClick={() => { onAction(booking, 'checked-out'); onClose(); }} style={{ flex: 1, padding: '10px', background: 'rgba(201,168,76,0.15)', border: '1px solid rgba(201,168,76,0.3)', borderRadius: '8px', color: 'var(--gold)', cursor: 'pointer', fontWeight: '600', fontSize: '13px', fontFamily: 'DM Sans,sans-serif' }}>
-          ↗ Check Out
-        </button>
+        !showCheckout ? (
+          <button onClick={() => setShowCheckout(true)} style={{ flex: 1, padding: '10px', background: 'rgba(201,168,76,0.15)', border: '1px solid rgba(201,168,76,0.3)', borderRadius: '8px', color: 'var(--gold)', cursor: 'pointer', fontWeight: '600', fontSize: '13px', fontFamily: 'DM Sans,sans-serif' }}>
+            ↗ Check Out
+          </button>
+        ) : (
+          <div style={{ flex: 1, width: '100%' }}>
+            <div style={{ background: 'var(--surface)', padding: '16px', borderRadius: '8px', border: '1px solid var(--border)', marginBottom: '12px' }}>
+              <div style={{ fontSize: '14px', fontWeight: 600, marginBottom: '12px' }}>Checkout Payment</div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '12px', fontSize: '13px' }}>
+                <span style={{ color: 'var(--text3)' }}>Total Amount</span>
+                <span>₹{booking.amount?.toLocaleString()}</span>
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '12px', fontSize: '13px' }}>
+                <span style={{ color: 'var(--text3)' }}>Paid Amount</span>
+                <span style={{ color: 'var(--green)' }}>₹{booking.paid?.toLocaleString() || 0}</span>
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '16px', fontSize: '14px', fontWeight: 600 }}>
+                <span>Balance Due</span>
+                <span style={{ color: 'var(--rose)' }}>₹{balance.toLocaleString()}</span>
+              </div>
+              
+              {balance > 0 && (
+                <div style={{ display: 'flex', gap: '10px', marginBottom: '16px' }}>
+                  <div style={{ flex: 1 }}>
+                    <label style={{ fontSize: '11px', color: 'var(--text3)', fontWeight: 600, marginBottom: '6px', display: 'block' }}>PAYING NOW (₹)</label>
+                    <input type="number" value={paymentAmount} onChange={e => setPaymentAmount(e.target.value)} style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid var(--border)', background: 'var(--bg)', color: 'var(--text)', outline: 'none', fontSize: '13px' }} />
+                  </div>
+                  <div style={{ flex: 1 }}>
+                    <label style={{ fontSize: '11px', color: 'var(--text3)', fontWeight: 600, marginBottom: '6px', display: 'block' }}>PAYMENT METHOD</label>
+                    <select value={paymentMethod} onChange={e => setPaymentMethod(e.target.value)} style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid var(--border)', background: 'var(--bg)', color: 'var(--text)', outline: 'none', fontSize: '13px' }}>
+                      <option value="cash">Cash</option>
+                      <option value="card">Card</option>
+                      <option value="upi">UPI</option>
+                      <option value="bank_transfer">Bank Transfer</option>
+                    </select>
+                  </div>
+                </div>
+              )}
+              
+              <div style={{ display: 'flex', gap: '10px' }}>
+                <button onClick={() => setShowCheckout(false)} style={{ flex: 1, padding: '10px', background: 'transparent', border: '1px solid var(--border)', borderRadius: '6px', color: 'var(--text)', cursor: 'pointer', fontWeight: 600, fontSize: '13px' }}>Cancel</button>
+                <button onClick={() => { onAction(booking, 'checked-out', { paymentAmount: Number(paymentAmount), paymentMethod }); onClose(); }} style={{ flex: 2, padding: '10px', background: 'var(--gold)', border: 'none', borderRadius: '6px', color: '#000', cursor: 'pointer', fontWeight: 600, fontSize: '13px' }}>
+                  Confirm & Check Out
+                </button>
+              </div>
+            </div>
+          </div>
+        )
       )}
       {(booking.status === 'confirmed' || booking.status === 'pending') && (
         <button onClick={() => { onAction(booking, 'cancelled'); onClose(); }} style={{ padding: '10px 16px', background: 'rgba(251,113,133,0.1)', border: '1px solid rgba(251,113,133,0.3)', borderRadius: '8px', color: 'var(--rose)', cursor: 'pointer', fontWeight: '600', fontSize: '13px', fontFamily: 'DM Sans,sans-serif' }}>

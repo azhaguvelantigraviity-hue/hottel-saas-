@@ -18,7 +18,7 @@ export const getBooking    = (id)          => get(`/hotel/bookings/${id}`);
 export const createBooking = (body)        => post('/hotel/bookings', body);
 export const updateBooking = (id, body)    => put(`/hotel/bookings/${id}`, body);
 export const checkIn       = (id)          => post(`/hotel/bookings/${id}/checkin`, {});
-export const checkOut      = (id)          => post(`/hotel/bookings/${id}/checkout`, {});
+export const checkOut      = (id, data={}) => post(`/hotel/bookings/${id}/checkout`, data);
 export const cancelBooking = (id, reason)  => post(`/hotel/bookings/${id}/cancel`, { reason });
 export const deleteBooking = (id)          => del('/hotel/bookings/' + id);
 
