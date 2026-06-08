@@ -146,6 +146,17 @@ const HotelApp = ({ onLogout, initialPlan = 'enterprise', role = 'manager', hote
     revenue: 'starter', complaints: 'starter',
   };
 
+  const roleAllowedPages = {
+    manager: Object.keys(titles), // Manager gets everything
+    reception: ['dashboard', 'rooms', 'bookings', 'checkin', 'guests', 'complaints', 'settings'],
+    housekeeping: ['dashboard', 'housekeeping', 'maintenance', 'settings'],
+    hotel_staff: ['dashboard', 'settings']
+  };
+
+  const currentRolePages = roleAllowedPages[role] || roleAllowedPages['hotel_staff'];
+  const hasRoleAccess = currentRolePages.includes(page);
+  const hasPlanAccess = allowed.includes(page);
+
   const subtitles = {
     starter: 'Starter Plan',
     professional: 'Professional Plan',
@@ -153,8 +164,16 @@ const HotelApp = ({ onLogout, initialPlan = 'enterprise', role = 'manager', hote
   };
 
   const getPage = () => {
-    if (!allowed.includes(page)) {
+    if (!hasPlanAccess) {
       return <LockedPage feature={titles[page]} requiredPlan={reqPlans[page] || 'professional'} onNav={setPage} />;
+    }
+    if (!hasRoleAccess) {
+      return (
+        <div style={{ padding: '40px', textAlign: 'center', color: 'var(--rose)' }}>
+          <h2>Access Denied</h2>
+          <p>Your role ({role}) does not have permission to view this module.</p>
+        </div>
+      );
     }
     switch (page) {
       case 'dashboard': return <HotelDashboard plan={plan} onNav={setPage} />;
@@ -247,9 +266,26 @@ const App = () => {
   // ── Session restore ──
   useEffect(() => {
     const token = authService.getToken();
+    const cachedUser = authService.getUser();
+    
+    // Quick optimistic restore
+    if (token && cachedUser) {
+      setIsAuthenticated(true);
+      if (cachedUser.role === 'platform_admin') {
+        setLoginType('admin');
+      } else {
+        setLoginType('hotel');
+        setHotelRole(cachedUser.role || 'manager');
+        setHotelPlan(cachedUser.hotel?.plan || 'enterprise');
+        setCurrentHotel(cachedUser.hotel);
+      }
+      setAuthReady(true);
+    }
+    
     if (token) {
       authService.getMe()
         .then((user) => {
+          authService.setUser(user); // refresh cache
           setIsAuthenticated(true);
           if (user.role === 'platform_admin') {
             setLoginType('admin');
@@ -259,10 +295,12 @@ const App = () => {
             setHotelPlan(user.hotel?.plan || 'enterprise');
             setCurrentHotel(user.hotel);
           }
-          setAuthReady(true);
+          if (!authReady) setAuthReady(true);
         })
         .catch(() => {
           authService.logout();
+          setIsAuthenticated(false);
+          setLoginType(null);
           setAuthReady(true);
         });
     } else {

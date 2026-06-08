@@ -1,9 +1,18 @@
 // ─────────────────────────────────────────────────────────────
 //  Auth Service  –  /api/v1/auth
 // ─────────────────────────────────────────────────────────────
-import { post, get, put, setToken, removeToken, setUser, removeUser, getToken, getUser } from './api.js';
+import { post, get, put } from './api.js';
 
-export { getToken, getUser };
+export function getToken() { return localStorage.getItem('stayos_token'); }
+export function setToken(token) { localStorage.setItem('stayos_token', token); }
+export function removeToken() { localStorage.removeItem('stayos_token'); }
+
+export function getUser() { 
+  try { return JSON.parse(localStorage.getItem('stayos_user')); } 
+  catch { return null; }
+}
+export function setUser(user) { localStorage.setItem('stayos_user', JSON.stringify(user)); }
+export function removeUser() { localStorage.removeItem('stayos_user'); }
 
 /**
  * Login – returns { token, user }
