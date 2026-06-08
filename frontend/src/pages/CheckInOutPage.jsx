@@ -296,18 +296,32 @@ const CheckInModal = ({ booking, onClose, onConfirm }) => {
               <div style={{ fontSize: '13px', color: 'var(--text3)', marginBottom: '16px' }}>No documents uploaded yet. A document is highly recommended.</div>
             )}
             
-            <div style={{ display: 'flex', gap: '10px', alignItems: 'center', background: 'var(--surface)', padding: '10px', borderRadius: '8px', border: '1px dashed var(--border)' }}>
-              <select value={docType} onChange={e => setDocType(e.target.value)} style={{ padding: '8px', borderRadius: '6px', border: '1px solid var(--border)', background: 'var(--bg)', color: 'var(--text)', outline: 'none' }}>
-                <option value="Aadhaar">Aadhaar</option>
-                <option value="Passport">Passport</option>
-                <option value="Driving License">Driving License</option>
-                <option value="PAN">PAN</option>
-                <option value="Other">Other</option>
-              </select>
-              <input type="file" accept=".pdf,.jpg,.jpeg,.png" onChange={e => setFile(e.target.files[0])} style={{ flex: 1, fontSize: '12px', color: 'var(--text)' }} />
-              <button onClick={handleUpload} disabled={uploading} style={{ padding: '8px 12px', background: 'var(--gold)', color: '#000', border: 'none', borderRadius: '6px', fontWeight: 600, cursor: uploading ? 'not-allowed' : 'pointer' }}>
-                {uploading ? '...' : 'Upload'}
-              </button>
+            <div style={{ background: 'var(--surface)', padding: '16px', borderRadius: '8px', border: '1px solid var(--border)' }}>
+              <div style={{ marginBottom: '12px' }}>
+                <label style={{ fontSize: '11px', color: 'var(--text3)', fontWeight: 600, marginBottom: '6px', display: 'block' }}>DOCUMENT TYPE</label>
+                <select value={docType} onChange={e => setDocType(e.target.value)} style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid var(--border)', background: 'var(--bg)', color: 'var(--text)', outline: 'none', fontSize: '13px', cursor: 'pointer' }}>
+                  <option value="Aadhaar">Aadhaar</option>
+                  <option value="Passport">Passport</option>
+                  <option value="Driving License">Driving License</option>
+                  <option value="PAN">PAN</option>
+                  <option value="Other">Other</option>
+                </select>
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                <label style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '12px', border: file ? '1px solid var(--gold)' : '1px dashed var(--border)', borderRadius: '6px', background: 'var(--bg)', cursor: 'pointer', transition: 'all 0.2s' }}>
+                  <input type="file" accept=".pdf,.jpg,.jpeg,.png" onChange={e => setFile(e.target.files[0])} style={{ display: 'none' }} />
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: file ? 'var(--text)' : 'var(--text3)' }}>
+                    <Icon name="upload-cloud" size={16} color={file ? 'var(--gold)' : 'currentColor'} />
+                    <span style={{ fontSize: '13px', fontWeight: 500, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: '220px' }}>
+                      {file ? file.name : 'Click to select file...'}
+                    </span>
+                  </div>
+                </label>
+                <button onClick={handleUpload} disabled={uploading || !file} style={{ padding: '12px 20px', background: 'var(--gold)', color: '#000', border: 'none', borderRadius: '6px', fontWeight: 600, fontSize: '13px', cursor: (uploading || !file) ? 'not-allowed' : 'pointer', opacity: (!file || uploading) ? 0.6 : 1, transition: 'opacity 0.2s', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  {uploading ? <Icon name="loader" size={14} className="spin" /> : <Icon name="check" size={14} />}
+                  {uploading ? 'Uploading' : 'Upload'}
+                </button>
+              </div>
             </div>
           </div>
 
