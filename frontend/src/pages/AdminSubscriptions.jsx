@@ -1,8 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Avatar from '../components/Avatar';
 import Badge from '../components/Badge';
 import Icon from '../components/Icon';
-import { getAllHotels, updateHotel } from '../services/adminService';
+import { getAllHotels, updateHotel, getPlans, updatePlan, updateSubscription } from '../services/adminService';
 
 // ── Helpers ───────────────────────────────────────────────────
 const PLAN_KEYS = ['starter', 'professional', 'enterprise'];
@@ -29,42 +29,6 @@ const DEFAULT_PLANS = {
 };
 
 const getPlan = (key) => DEFAULT_PLANS[key] || DEFAULT_PLANS.starter;
-
-const loadPlans = () => {
-  try {
-    const saved = localStorage.getItem('stayos_plan_prices');
-    if (saved) {
-      const prices = JSON.parse(saved);
-      return {
-        starter: { ...DEFAULT_PLANS.starter, price: prices.starter ?? DEFAULT_PLANS.starter.price },
-        professional: { ...DEFAULT_PLANS.professional, price: prices.professional ?? DEFAULT_PLANS.professional.price },
-        enterprise: { ...DEFAULT_PLANS.enterprise, price: prices.enterprise ?? DEFAULT_PLANS.enterprise.price },
-      };
-    }
-  } catch (_) { }
-  return DEFAULT_PLANS;
-};
-
-const savePlanPrices = (plans) => {
-  try {
-    localStorage.setItem('stayos_plan_prices', JSON.stringify({
-      starter: plans.starter.price,
-      professional: plans.professional.price,
-      enterprise: plans.enterprise.price,
-    }));
-  } catch (_) { }
-};
-
-const loadHotels = () => {
-  try {
-    const data = localStorage.getItem('stayos_hotels');
-    return data ? JSON.parse(data) : [];
-  } catch (e) { console.error('Failed to load hotels:', e); return []; }
-};
-
-const saveHotels = (hotels) => {
-  // Mock data removed
-};
 
 const inp = {
   width: '100%', padding: '10px 12px', background: 'var(--bg)',
@@ -225,16 +189,28 @@ const ManageSubModal = ({ hotel, plans, onClose, onSave }) => {
 
 // ── Main Component ────────────────────────────────────────────
 const AdminSubscriptions = () => {
-  const [plans, setPlans] = useState(loadPlans);
+  const [plans, setPlans] = useState(DEFAULT_PLANS);
   const [hotels, setHotels] = useState([]);
   const [editPlan, setEditPlan] = useState(null);
   const [manageSub, setManageSub] = useState(null);
   const [filterPlan, setFilterPlan] = useState('all');
   const [saved, setSaved] = useState(false);
 
-  React.useEffect(() => {
+  useEffect(() => {
+    fetchPlansData();
     fetchHotels();
   }, []);
+
+  const fetchPlansData = async () => {
+    try {
+      const res = await getPlans();
+      if (res.data) {
+        setPlans(res.data);
+      }
+    } catch (e) {
+      console.error('Failed to fetch plans', e);
+    }
+  };
 
   const fetchHotels = async () => {
     try {
@@ -260,18 +236,24 @@ const AdminSubscriptions = () => {
     }
   };
 
-  const handleSavePlan = (updated) => {
-    const next = { ...plans, [updated.id]: updated };
-    setPlans(next);
-    savePlanPrices(next);
-    setSaved(true);
-    setTimeout(() => setSaved(false), 2500);
+  const handleSavePlan = async (updated) => {
+    try {
+      const res = await updatePlan(updated.id || updated.planId, { price: updated.price, features: updated.features, missing: updated.missing });
+      if (res.data) {
+        const next = { ...plans, [updated.id || updated.planId]: res.data };
+        setPlans(next);
+        setSaved(true);
+        setTimeout(() => setSaved(false), 2500);
+      }
+    } catch (e) {
+      console.error('Failed to save plan', e);
+    }
   };
 
   const handleUpdateSub = async (updated) => {
     try {
       if (updated.dbId) {
-        await updateHotel(updated.dbId, {
+        await updateSubscription(updated.dbId, {
           plan: updated.plan,
           planStatus: updated.status,
           planRenewalDate: updated.renewal || undefined,
@@ -283,7 +265,6 @@ const AdminSubscriptions = () => {
     }
     const next = hotels.map(h => h.id === updated.id ? updated : h);
     setHotels(next);
-
   };
 
   const filteredHotels = filterPlan === 'all' ? hotels : hotels.filter(h => h.plan === filterPlan || h.status === filterPlan);

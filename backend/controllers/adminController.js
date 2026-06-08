@@ -5,6 +5,8 @@ const Booking = require('../models/Booking');
 const Room    = require('../models/Room');
 const AuditLog = require('../models/AuditLog');
 const Role    = require('../models/Role');
+const SubscriptionPlan = require('../models/SubscriptionPlan');
+const SubscriptionPayment = require('../models/SubscriptionPayment');
 const { asyncHandler, sendSuccess } = require('../utils/helpers');
 
 // Helper to create an audit log
@@ -24,16 +26,20 @@ const createAuditLog = async (req, action, target = '', details = '', status = '
 };
 
 exports.getDashboard = asyncHandler(async (_req, res) => {
-  const [totalHotels, activeHotels, totalUsers, totalRooms] = await Promise.all([
+  const [totalHotels, activeHotels, totalUsers, totalRooms, plansList] = await Promise.all([
     Hotel.countDocuments(),
     Hotel.countDocuments({ planStatus: 'active' }),
     User.countDocuments({ role: { $ne: 'platform_admin' } }),
-    Room.countDocuments()
+    Room.countDocuments(),
+    SubscriptionPlan.find()
   ]);
+
+  const prices = {};
+  plansList.forEach(p => { prices[p.planId] = p.price; });
+  if (!prices.starter) { prices.starter = 4999; prices.professional = 12999; prices.enterprise = 24999; }
 
   const hotels = await Hotel.find().select('plan planStatus');
   const mrr = hotels.reduce((sum, h) => {
-    const prices = { starter: 49, professional: 149, enterprise: 399 };
     return h.planStatus === 'active' ? sum + (prices[h.plan] || 0) : sum;
   }, 0);
 
@@ -47,9 +53,13 @@ exports.getDashboard = asyncHandler(async (_req, res) => {
 });
 
 exports.getPlatformStats = asyncHandler(async (_req, res) => {
+  const plansList = await SubscriptionPlan.find();
+  const prices = {};
+  plansList.forEach(p => { prices[p.planId] = p.price; });
+  if (!prices.starter) { prices.starter = 4999; prices.professional = 12999; prices.enterprise = 24999; }
+
   const hotels = await Hotel.find().select('plan planStatus');
   const mrr = hotels.reduce((sum, h) => {
-    const prices = { starter: 49, professional: 149, enterprise: 399 };
     return h.planStatus === 'active' ? sum + (prices[h.plan] || 0) : sum;
   }, 0);
   sendSuccess(res, { mrr, totalHotels: hotels.length });
@@ -133,13 +143,38 @@ exports.updateHotel = asyncHandler(async (req, res, next) => {
 });
 
 exports.updateSubscription = asyncHandler(async (req, res, next) => {
-  const { plan, planStatus } = req.body;
-  const hotel = await Hotel.findByIdAndUpdate(
-    req.params.id,
-    { plan, planStatus, subscriptionStart: new Date(), nextPaymentAt: new Date(Date.now() + 30 * 86400000) },
-    { new: true }
-  );
+  const { plan, planStatus, planRenewalDate, adminNotes } = req.body;
+  
+  const updates = { plan, planStatus };
+  if (planRenewalDate) updates.planRenewalDate = new Date(planRenewalDate);
+  if (adminNotes !== undefined) updates.adminNotes = adminNotes;
+  
+  if (planStatus === 'active') {
+    updates.subscriptionStart = new Date();
+    updates.nextPaymentAt = updates.planRenewalDate || new Date(Date.now() + 30 * 86400000);
+  }
+
+  const hotel = await Hotel.findByIdAndUpdate(req.params.id, updates, { new: true });
   if (!hotel) return next(new (require('../utils/helpers').AppError)('Hotel not found', 404));
+
+  if (planStatus === 'active') {
+    let planPrice = 0;
+    const subPlan = await SubscriptionPlan.findOne({ planId: plan });
+    if (subPlan) planPrice = subPlan.price;
+    else {
+      const defaultPrices = { starter: 4999, professional: 12999, enterprise: 24999 };
+      planPrice = defaultPrices[plan] || 0;
+    }
+    
+    await SubscriptionPayment.create({
+      hotelId: hotel._id,
+      plan: plan,
+      amount: planPrice,
+      razorpayOrderId: 'MANUAL_ADMIN_' + Date.now(),
+      status: 'success'
+    });
+  }
+
   await createAuditLog(req, 'Updated Subscription', hotel.name, `Changed to ${plan} (${planStatus})`, 'success');
   sendSuccess(res, hotel);
 });
@@ -152,10 +187,42 @@ exports.deleteHotel = asyncHandler(async (req, res, next) => {
 });
 
 exports.getPlatformRevenue = asyncHandler(async (_req, res) => {
+  const plansList = await SubscriptionPlan.find();
+  const prices = {};
+  plansList.forEach(p => { prices[p.planId] = p.price; });
+  if (!prices.starter) { prices.starter = 4999; prices.professional = 12999; prices.enterprise = 24999; }
+
   const hotels = await Hotel.find({ planStatus: 'active' }).select('plan');
-  const prices = { starter: 49, professional: 149, enterprise: 399 };
   const mrr = hotels.reduce((s, h) => s + (prices[h.plan] || 0), 0);
   sendSuccess(res, { mrr, hotelCount: hotels.length });
+});
+
+exports.getPlans = asyncHandler(async (_req, res) => {
+  let plans = await SubscriptionPlan.find();
+  if (plans.length === 0) {
+    const defaultPlans = [
+      { planId: 'starter', name: 'Starter', price: 4999, accent: '#6B7280', features: ['Dashboard', 'Room Management', 'Bookings', 'Billing', 'Notifications', 'Reports', 'Settings'], missing: ['Guest CRM', 'Loyalty Program', 'Restaurant POS', 'Revenue AI', 'Smart Check-In', 'IoT & Door Locks'] },
+      { planId: 'professional', name: 'Professional', price: 12999, accent: '#14B8A6', features: ['Everything in Starter', 'Guest CRM', 'Loyalty Program', 'Restaurant POS', 'Housekeeping', 'Employee Management', 'Channel Manager', 'Analytics Dashboard'], missing: ['Revenue AI', 'Smart Check-In', 'Events & Halls', 'IoT & Door Locks'] },
+      { planId: 'enterprise', name: 'Enterprise', price: 24999, accent: '#D97706', features: ['Everything in Professional', 'Revenue AI', 'Smart Check-In', 'Travel Desk', 'Events & Halls', 'IoT & Door Locks', 'Security & CCTV', 'AI Chatbot'], missing: [] }
+    ];
+    await SubscriptionPlan.insertMany(defaultPlans);
+    plans = await SubscriptionPlan.find();
+  }
+  
+  const plansObj = {};
+  plans.forEach(p => { plansObj[p.planId] = p; });
+  sendSuccess(res, plansObj);
+});
+
+exports.updatePlan = asyncHandler(async (req, res, next) => {
+  const { price, features, missing } = req.body;
+  const plan = await SubscriptionPlan.findOneAndUpdate(
+    { planId: req.params.id },
+    { price, features, missing },
+    { new: true, upsert: true }
+  );
+  await createAuditLog(req, 'Updated Plan', plan.name, `Price updated to ${price}`, 'success');
+  sendSuccess(res, plan);
 });
 
 exports.getAuditLogs = asyncHandler(async (_req, res) => {

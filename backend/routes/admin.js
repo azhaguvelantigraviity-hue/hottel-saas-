@@ -21,6 +21,12 @@ router.delete('/hotels/:id',             deleteHotel);
 router.get  ('/revenue',                 getPlatformRevenue);
 router.get  ('/alerts/renewals',         getRenewalAlerts);
 router.get  ('/audit-logs',              getAuditLogs);
+
+// Plans routes
+const { getPlans, updatePlan } = require('../controllers/adminController');
+router.get  ('/plans',                   getPlans);
+router.put  ('/plans/:id',               updatePlan);
+
 router.get  ('/users',                   getAllUsers);
 router.post ('/users',                   createUser);
 router.put  ('/users/:id',               updateUser);

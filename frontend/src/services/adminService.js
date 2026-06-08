@@ -25,6 +25,9 @@ export const updateHotel       = (id, body)  => put(`/admin/hotels/${id}`, body)
 export const deleteHotel       = (id)        => del(`/admin/hotels/${id}`);
 export const updateSubscription= (id, body)  => put(`/admin/hotels/${id}/subscription`, body);
 
+export const getPlans          = ()          => get('/admin/plans');
+export const updatePlan        = (id, data)  => put(`/admin/plans/${id}`, data);
+
 export const getAllBranches    = ()          => get('/admin/branches');
 export const createBranch      = (body)      => post('/admin/branches', body);
 export const updateBranch      = (id, body)  => put(`/admin/branches/${id}`, body);
