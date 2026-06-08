@@ -18,7 +18,8 @@ const AdminDashboard = ({ onNav }) => {
     totalRooms: 0,
     totalUsers: 0,
     mrr: 0,
-    planBreakdown: { starter: 0, professional: 0, enterprise: 0 }
+    planBreakdown: { starter: 0, professional: 0, enterprise: 0 },
+    revenueData: []
   });
   const [hotels, setHotels] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -64,10 +65,10 @@ const AdminDashboard = ({ onNav }) => {
             <Badge color="gold">MRR</Badge>
           </div>
           <div style={{ height: '200px', display: 'flex', alignItems: 'flex-end', gap: '12px', paddingBottom: '10px' }}>
-            {Array.from({length: 6}).map((_, i) => {
-              const monthMrr = mrr * (0.5 + (i * 0.1));
-              const pct = monthMrr / (mrr * 1.2 || 1);
-              const monthName = new Date(0, new Date().getMonth() - 5 + i).toLocaleString('default', { month: 'short' });
+            {(dashboard.revenueData && dashboard.revenueData.length > 0 ? dashboard.revenueData : Array.from({length: 6}).map((_, i) => ({ name: '', subscriptions: 0 }))).map((d, i, arr) => {
+              const monthMrr = d.subscriptions || 0;
+              const maxMrr = Math.max(...arr.map(x => x.subscriptions || 0)) || 1;
+              const pct = monthMrr / maxMrr;
               return (
                 <div key={i} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px' }}>
                   <div style={{ fontSize: '10px', color: 'var(--text3)', fontFamily: 'DM Mono,monospace' }}>₹{(monthMrr / 1000).toFixed(0)}K</div>
@@ -80,7 +81,7 @@ const AdminDashboard = ({ onNav }) => {
                       background: i === 5 ? 'linear-gradient(180deg,#C9A84C,#8A6F2E)' : 'rgba(201,168,76,0.3)',
                     }}
                   />
-                  <div style={{ fontSize: '11px', color: 'var(--text3)' }}>{monthName}</div>
+                  <div style={{ fontSize: '11px', color: 'var(--text3)' }}>{d.name}</div>
                 </div>
               );
             })}

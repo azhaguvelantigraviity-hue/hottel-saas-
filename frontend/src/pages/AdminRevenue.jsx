@@ -3,27 +3,8 @@ import StatCard from '../components/StatCard';
 import Badge from '../components/Badge';
 import { getPlatformRevenue } from '../services/adminService';
 
-const REVENUE_DATA = [
-  { name: 'Jan', subscriptions: 120000, commissions: 35000 },
-  { name: 'Feb', subscriptions: 140000, commissions: 42000 },
-  { name: 'Mar', subscriptions: 165000, commissions: 55000 },
-  { name: 'Apr', subscriptions: 180000, commissions: 60000 },
-  { name: 'May', subscriptions: 210000, commissions: 75000 },
-  { name: 'Jun', subscriptions: 245000, commissions: 90000 }
-];
-
-const PLAN_DATA = [
-  { name: 'Enterprise', value: 450000, color: 'var(--gold)' },
-  { name: 'Professional', value: 280000, color: 'var(--teal)' },
-  { name: 'Starter', value: 95000, color: 'var(--rose)' }
-];
-
-const TRANSACTIONS = [
-  { id: 'TXN-9092', hotel: 'The Grand Resort', type: 'Subscription (Enterprise)', amount: 39900, date: '2025-10-15', status: 'completed' },
-  { id: 'TXN-9091', hotel: 'Seaside Villas', type: 'Commission (Sep)', amount: 12500, date: '2025-10-14', status: 'completed' },
-  { id: 'TXN-9090', hotel: 'Mountain Retreat', type: 'Subscription (Pro)', amount: 14900, date: '2025-10-12', status: 'pending' },
-  { id: 'TXN-9089', hotel: 'City Center Inn', type: 'Commission (Sep)', amount: 8400, date: '2025-10-10', status: 'completed' }
-];
+// Dynamic data will be fetched from API
+// Replaced REVENUE_DATA, PLAN_DATA, TRANSACTIONS
 
 const thStyle = { padding: '14px 20px', textAlign: 'left', fontSize: '11px', color: 'var(--text3)', fontWeight: '600', letterSpacing: '0.06em', textTransform: 'uppercase', borderBottom: '1px solid var(--border)', background: 'var(--surface)' };
 const tdStyle = { padding: '14px 20px', fontSize: '13px', color: 'var(--text2)', borderBottom: '1px solid var(--border)' };
@@ -80,17 +61,29 @@ const HorizontalBar = ({ label, value, maxValue, color }) => {
 
 const AdminRevenue = () => {
   const [timeframe, setTimeframe] = useState('6m');
-  const [stats, setStats] = useState({ mrr: 0, hotelCount: 0 });
+  const [stats, setStats] = useState({ 
+    mrr: 0, 
+    hotelCount: 0,
+    revenueData: [],
+    planData: [],
+    transactions: []
+  });
 
   useEffect(() => {
     getPlatformRevenue()
       .then(res => {
-        if (res.data) setStats(res.data);
+        if (res.data) setStats({
+          mrr: res.data.mrr || 0,
+          hotelCount: res.data.hotelCount || 0,
+          revenueData: res.data.revenueData || [],
+          planData: res.data.planData || [],
+          transactions: res.data.transactions || []
+        });
       })
       .catch(err => console.error("Failed to fetch revenue", err));
   }, []);
 
-  const maxPlanVal = Math.max(...PLAN_DATA.map(d => d.value));
+  const maxPlanVal = Math.max(...(stats.planData.length ? stats.planData.map(d => d.value) : [1]));
 
   const totalMRR = stats.mrr;
   const subRevenue = stats.mrr; 
@@ -156,13 +149,13 @@ const AdminRevenue = () => {
               </div>
             </div>
           </div>
-          <SimpleBarChart data={REVENUE_DATA} />
+          <SimpleBarChart data={stats.revenueData} />
         </div>
 
         {/* Revenue by Plan */}
         <div style={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: 'var(--radius-lg)', padding: 'clamp(12px, 3vw, 24px)' }}>
           <div style={{ fontSize: '15px', fontWeight: '600', color: 'var(--text)', marginBottom: '24px', fontFamily: 'Poppins, sans-serif' }}>Revenue by Plan Type</div>
-          {PLAN_DATA.map(p => (
+          {stats.planData.map(p => (
             <HorizontalBar key={p.name} label={p.name} value={p.value} maxValue={maxPlanVal} color={p.color} />
           ))}
           <div style={{ borderTop: '1px solid var(--border)', marginTop: '16px', paddingTop: '16px' }}>
@@ -201,20 +194,30 @@ const AdminRevenue = () => {
               </tr>
             </thead>
             <tbody>
-              {TRANSACTIONS.map(txn => (
-                <tr key={txn.id} onMouseEnter={e => e.currentTarget.style.background='var(--surface)'} onMouseLeave={e => e.currentTarget.style.background='transparent'} style={{ transition: 'background 0.15s' }}>
-                  <td style={{ ...tdStyle, fontFamily: 'DM Mono,monospace', color: 'var(--gold)', fontWeight: '500' }}>{txn.id}</td>
-                  <td style={{ ...tdStyle, fontWeight: '500', color: 'var(--text)' }}>{txn.hotel}</td>
-                  <td style={tdStyle}>{txn.type}</td>
-                  <td style={{ ...tdStyle, fontFamily: 'DM Mono,monospace', fontWeight: '600', color: 'var(--text)' }}>₹{txn.amount.toLocaleString()}</td>
-                  <td style={tdStyle}>{txn.date}</td>
+              {stats.transactions.map((t, i) => (
+                <tr key={i} onMouseEnter={e => e.currentTarget.style.background='var(--surface)'} onMouseLeave={e => e.currentTarget.style.background='transparent'} style={{ transition: 'background 0.2s', cursor: 'pointer' }}>
+                  <td style={{ ...tdStyle, fontFamily: 'DM Mono,monospace', color: 'var(--gold)', fontWeight: '600' }}>{t.id.slice(-6)}</td>
+                  <td style={{ ...tdStyle, fontWeight: '500', color: 'var(--text)' }}>{t.hotel}</td>
                   <td style={tdStyle}>
-                    <Badge color={txn.status === 'completed' ? 'green' : txn.status === 'pending' ? 'amber' : 'rose'}>
-                      {txn.status}
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                      <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: t.type.includes('Commission') ? 'var(--teal)' : 'var(--gold)' }} />
+                      {t.type}
+                    </div>
+                  </td>
+                  <td style={{ ...tdStyle, fontFamily: 'DM Mono,monospace', fontWeight: '600', color: 'var(--text)' }}>₹{t.amount.toLocaleString()}</td>
+                  <td style={tdStyle}>{t.date}</td>
+                  <td style={tdStyle}>
+                    <Badge color={t.status === 'completed' ? 'green' : t.status === 'pending' ? 'amber' : 'rose'}>
+                      {t.status}
                     </Badge>
                   </td>
                 </tr>
               ))}
+              {stats.transactions.length === 0 && (
+                <tr>
+                  <td colSpan="6" style={{ ...tdStyle, textAlign: 'center', color: 'var(--text3)' }}>No recent transactions</td>
+                </tr>
+              )}
             </tbody>
           </table>
         </div>

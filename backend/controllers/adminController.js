@@ -194,7 +194,50 @@ exports.getPlatformRevenue = asyncHandler(async (_req, res) => {
 
   const hotels = await Hotel.find({ planStatus: 'active' }).select('plan');
   const mrr = hotels.reduce((s, h) => s + (prices[h.plan] || 0), 0);
-  sendSuccess(res, { mrr, hotelCount: hotels.length });
+
+  // Calculate PLAN_DATA
+  const planDataMap = {};
+  hotels.forEach(h => {
+    planDataMap[h.plan] = (planDataMap[h.plan] || 0) + (prices[h.plan] || 0);
+  });
+  const planData = Object.keys(planDataMap).map(k => ({
+    name: k.charAt(0).toUpperCase() + k.slice(1),
+    value: planDataMap[k],
+    color: k === 'enterprise' ? 'var(--gold)' : (k === 'professional' ? 'var(--teal)' : 'var(--rose)')
+  })).sort((a,b) => b.value - a.value);
+
+  // Fetch recent TRANSACTIONS
+  const transactionsRaw = await SubscriptionPayment.find().sort({ createdAt: -1 }).limit(10).populate('hotelId', 'name');
+  const transactions = transactionsRaw.map(t => ({
+    id: t.razorpayOrderId || t._id,
+    hotel: t.hotelId ? t.hotelId.name : 'Unknown Hotel',
+    type: `Subscription (${t.plan})`,
+    amount: t.amount,
+    date: new Date(t.createdAt).toISOString().slice(0, 10),
+    status: t.status === 'success' ? 'completed' : t.status
+  }));
+
+  // Calculate REVENUE_DATA (last 6 months)
+  const revenueData = [];
+  const now = new Date();
+  for (let i = 5; i >= 0; i--) {
+    const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+    const end = new Date(now.getFullYear(), now.getMonth() - i + 1, 0, 23, 59, 59);
+    
+    const monthlyPayments = await SubscriptionPayment.aggregate([
+      { $match: { createdAt: { $gte: d, $lte: end }, status: 'success' } },
+      { $group: { _id: null, total: { $sum: '$amount' } } }
+    ]);
+    const subscriptions = monthlyPayments.length > 0 ? monthlyPayments[0].total : 0;
+    
+    revenueData.push({
+      name: d.toLocaleString('default', { month: 'short' }),
+      subscriptions,
+      commissions: 0 
+    });
+  }
+
+  sendSuccess(res, { mrr, hotelCount: hotels.length, planData, transactions, revenueData });
 });
 
 exports.getPlans = asyncHandler(async (_req, res) => {
