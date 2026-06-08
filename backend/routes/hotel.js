@@ -107,4 +107,8 @@ router.post  ('/payroll/:id/mark-paid', markPayrollPaid);
 router.post('/subscription/create-order', createSubscriptionOrder);
 router.post('/subscription/verify', verifySubscriptionPayment);
 
+// ── Admin Help Request ────────────────────────────────────────────────────────
+const { requestAdminHelp } = require('../controllers/hotelController');
+router.post('/request-admin-help', requestAdminHelp);
+
 module.exports = router;

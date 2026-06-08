@@ -3,6 +3,8 @@
 // ─────────────────────────────────────────────────────────────
 import { get, post, put, patch, del, uploadFile } from './api.js';
 
+export const requestAdminHelp = () => post('/hotel/request-admin-help', {});
+
 // ── Rooms ─────────────────────────────────────────────────────
 export const getRooms            = ()           => get('/hotel/rooms');
 export const getRoom             = (id)         => get(`/hotel/rooms/${id}`);

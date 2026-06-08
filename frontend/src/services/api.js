@@ -23,6 +23,9 @@ export async function uploadFile(path, formData, onProgress) {
   const headers = {};
   if (token) headers['Authorization'] = `Bearer ${token}`;
 
+  const selectedHotelId = safeGetStorage('selectedHotelId');
+  if (selectedHotelId) headers['X-Hotel-Id'] = selectedHotelId;
+
   const xhr = new XMLHttpRequest();
   return new Promise((resolve, reject) => {
     xhr.upload.addEventListener('progress', (e) => {
@@ -96,6 +99,9 @@ async function request(method, path, body = null, options = {}) {
   const token = getToken();
   const headers = { 'Content-Type': 'application/json' };
   if (token) headers['Authorization'] = `Bearer ${token}`;
+
+  const selectedHotelId = safeGetStorage('selectedHotelId');
+  if (selectedHotelId) headers['X-Hotel-Id'] = selectedHotelId;
 
   const config = {
     method,

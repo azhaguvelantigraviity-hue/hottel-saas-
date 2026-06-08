@@ -1,12 +1,29 @@
 import React, { useState } from 'react';
 import Icon from './Icon';
 import { useNotifications } from '../context/NotificationContext';
+import { getAllHotels } from '../services/adminService';
 
 const Topbar = ({ title, subtitle, role, onNav, toggleSidebar }) => {
   const [search, setSearch] = useState('');
   const [showNotifs, setShowNotifs] = useState(false);
   const [showUserMenu, setShowUserMenu] = useState(false);
   const { notifications, unreadCount, markRead, markAllRead } = useNotifications();
+  const [hotels, setHotels] = useState([]);
+  const [selectedHotelId, setSelectedHotelId] = useState(localStorage.getItem('selectedHotelId') || '');
+
+  React.useEffect(() => {
+    if (role === 'admin') {
+      getAllHotels().then(res => setHotels(res.data || [])).catch(console.error);
+    }
+  }, [role]);
+
+  const handleHotelChange = (e) => {
+    const val = e.target.value;
+    if (val) localStorage.setItem('selectedHotelId', val);
+    else localStorage.removeItem('selectedHotelId');
+    setSelectedHotelId(val);
+    window.location.reload();
+  };
 
   const greeting = () => {
     const h = new Date().getHours();
@@ -66,6 +83,23 @@ const Topbar = ({ title, subtitle, role, onNav, toggleSidebar }) => {
 
       {/* Right — Search + actions + user */}
       <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexShrink: 0 }}>
+        {role === 'admin' && (
+          <select
+            value={selectedHotelId}
+            onChange={handleHotelChange}
+            className="mobile-hidden"
+            style={{
+              padding: '8px 12px',
+              background: 'var(--bg)', border: '1px solid var(--border)',
+              borderRadius: '8px', fontSize: '13px', color: 'var(--text)',
+              outline: 'none', cursor: 'pointer'
+            }}
+          >
+            <option value="">Global View (All Hotels)</option>
+            {hotels.map(h => <option key={h._id} value={h._id}>{h.name}</option>)}
+          </select>
+        )}
+
         {/* Search */}
         <div className="mobile-hidden" style={{ position: 'relative' }}>
           <div style={{

@@ -38,7 +38,11 @@ exports.hotelAdmin = (req, _res, next) => {
 
 // Scope all hotel requests to the user's hotel
 exports.scopeToHotel = asyncHandler(async (req, _res, next) => {
-  if (req.user.role === 'platform_admin') return next(); // platform admin can access all
+  if (req.user.role === 'platform_admin') {
+    const targetHotel = req.headers['x-hotel-id'] || req.query.hotelId;
+    if (targetHotel) req.hotelId = targetHotel;
+    return next();
+  }
   if (!req.user.hotel) return next(new AppError('No hotel associated with this account', 403));
   req.hotelId = req.user.hotel._id || req.user.hotel;
   next();

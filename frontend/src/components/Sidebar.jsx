@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import Icon from './Icon';
+import { requestAdminHelp } from '../services/hotelService';
 
 const Sidebar = ({ role, active, onNav, onLogout, plan, isOpen, setIsOpen }) => {
 
@@ -211,6 +212,25 @@ const Sidebar = ({ role, active, onNav, onLogout, plan, isOpen, setIsOpen }) => 
             </button>
           </div>
         )}
+
+        {role === 'manager' && (
+          <button
+            onClick={() => {
+              requestAdminHelp().then(() => alert('Admin notified successfully.')).catch(e => alert(e.message || 'Failed to notify admin.'));
+            }}
+            style={{
+              display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px',
+              padding: '9px 12px', borderRadius: '8px', border: '1px solid var(--rose)',
+              cursor: 'pointer', width: '100%', fontSize: '12px', fontWeight: '600',
+              color: 'var(--rose)', background: 'rgba(244,63,94,0.05)',
+              marginBottom: '10px', transition: 'all 0.15s',
+            }}
+          >
+            <Icon name="alert-triangle" size={14} color="var(--rose)" />
+            <span>Request Admin Help</span>
+          </button>
+        )}
+
         <button
           onClick={onLogout}
           style={{

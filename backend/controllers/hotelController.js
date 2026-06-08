@@ -899,6 +899,22 @@ const deleteDocument = catchAsync(async (req, res) => {
   sendSuccess(res, null, 204);
 });
 
+const requestAdminHelp = catchAsync(async (req, res) => {
+  if (!req.user.hotel) throw new AppError('No hotel associated', 400);
+  
+  await emitNotification(req, {
+    hotel: req.user.hotel,
+    title: 'Manager Help Required',
+    desc: `Manager ${req.user.name} from your managed hotel requires admin control/support.`,
+    type: 'system',
+    icon: 'alert-triangle',
+    color: 'var(--rose)',
+    targetRoles: ['platform_admin']
+  });
+
+  sendSuccess(res, { message: 'Admin support requested successfully' });
+});
+
 module.exports = {
   getRooms, getRoom, createRoom, updateRoom, deleteRoom,
   updateRoomHousekeeping, checkAvailability,
@@ -914,5 +930,5 @@ module.exports = {
   getTodayCheckins, getTodayCheckouts, getPendingPayments, getMaintenanceRooms, updateRoomMaintenance,
   createSubscriptionOrder, verifySubscriptionPayment, updateProfile,
   getPayrollRecords, updatePayrollRecord, markPayrollPaid, processAllPendingPayroll,
-  uploadDocument, getDocuments, getGuestDocuments, deleteDocument
+  uploadDocument, getDocuments, getGuestDocuments, deleteDocument, requestAdminHelp
 };
