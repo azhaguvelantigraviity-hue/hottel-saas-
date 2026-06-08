@@ -39,6 +39,12 @@ export const deleteEmployee  = (id)        => del(`/hotel/employees/${id}`);
 export const markAttendance  = (id, body)  => post(`/hotel/employees/${id}/attendance`, body);
 export const applyLeave      = (id, body)  => post(`/hotel/employees/${id}/leave`, body);
 
+// ── Payroll ───────────────────────────────────────────────────
+export const getPayrollRecords   = (month) => get(`/hotel/payroll?month=${month}`);
+export const updatePayrollRecord = (id, body) => put(`/hotel/payroll/${id}`, body);
+export const markPayrollPaid     = (id) => post(`/hotel/payroll/${id}/mark-paid`, {});
+export const processAllPendingPayroll = (month) => post(`/hotel/payroll/process-pending`, { month });
+
 // ── Smart Check-In Process ──────────────────────────────────
 export const getCheckInProcess   = (id)         => get(`/hotel/bookings/${id}/checkin-process`);
 export const generateQRCode      = (id)         => post(`/hotel/bookings/${id}/qr-code`, {});

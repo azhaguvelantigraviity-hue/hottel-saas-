@@ -14,7 +14,8 @@ const {
   getEmployees, getEmployee, createEmployee, updateEmployee, deleteEmployee,
   markAttendance, applyLeave,
   getTodayCheckins, getTodayCheckouts, getPendingPayments, getMaintenanceRooms, updateRoomMaintenance,
-  createSubscriptionOrder, verifySubscriptionPayment, getAttendance, updateProfile
+  createSubscriptionOrder, verifySubscriptionPayment, getAttendance, updateProfile,
+  getPayrollRecords, updatePayrollRecord, markPayrollPaid, processAllPendingPayroll
 } = require('../controllers/hotelController');
 const { protect, authorize, scopeToHotel, hotelAdmin } = require('../middleware/auth');
 const { requireFeature, enforceLimit } = require('../middleware/planGate');
@@ -88,6 +89,12 @@ router.post  ('/employees', authorize('hotel_admin', 'platform_admin', 'manager'
 router.get   ('/employees/:id',                           getEmployee);
 router.put   ('/employees/:id', authorize('hotel_admin', 'platform_admin', 'manager', 'hotel_staff'), updateEmployee);
 router.delete('/employees/:id', authorize('hotel_admin', 'platform_admin', 'manager', 'hotel_staff'), deleteEmployee);
+
+// ── Payroll (Professional+) ───────────────────────────────────────────────────
+router.get   ('/payroll', getPayrollRecords);
+router.post  ('/payroll/process-pending', processAllPendingPayroll);
+router.put   ('/payroll/:id', updatePayrollRecord);
+router.post  ('/payroll/:id/mark-paid', markPayrollPaid);
 
 // ── Subscriptions / Razorpay ──────────────────────────────────────────────────
 router.post('/subscription/create-order', createSubscriptionOrder);

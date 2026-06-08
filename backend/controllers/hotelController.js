@@ -8,6 +8,7 @@ const CabBooking = require('../models/CabBooking');
 const TravelPackage = require('../models/TravelPackage');
 const Hotel = require('../models/Hotel');
 const SubscriptionPayment = require('../models/SubscriptionPayment');
+const Payroll = require('../models/Payroll');
 const Razorpay = require('razorpay');
 const crypto = require('crypto');
 const { asyncHandler, sendSuccess, AppError } = require('../utils/helpers');
@@ -696,6 +697,145 @@ const updateProfile = catchAsync(async (req, res) => {
   sendSuccess(res, hotel);
 });
 
+// ── Payroll ───────────────────────────────────────────────────
+const getPayrollRecords = catchAsync(async (req, res) => {
+  const { month } = req.query; // format 'YYYY-MM'
+  if (!month) throw new AppError('Month is required', 400);
+
+  const employees = await Employee.find(hotelFilter(req));
+  
+  let payrollRecords = await Payroll.find({ hotel: req.hotelId, month }).populate('employee');
+
+  const yearStr = month.split('-')[0];
+  const monthStr = month.split('-')[1];
+  const year = parseInt(yearStr, 10);
+  const monthIdx = parseInt(monthStr, 10) - 1;
+
+  const daysInMonth = new Date(year, monthIdx + 1, 0).getDate();
+
+  // Initialize missing records
+  for (const emp of employees) {
+    let pr = payrollRecords.find(p => p.employee && p.employee._id.toString() === emp._id.toString());
+    if (!pr) {
+      // Calculate paid days from attendance
+      const startDate = new Date(year, monthIdx, 1);
+      const endDate = new Date(year, monthIdx + 1, 0);
+      endDate.setHours(23, 59, 59, 999);
+
+      const attendances = await Attendance.find({
+        hotel: req.hotelId,
+        employee: emp._id,
+        date: { $gte: startDate, $lte: endDate }
+      });
+
+      const present = attendances.filter(a => a.status === 'present').length;
+      const late = attendances.filter(a => a.status === 'late').length;
+      const leave = attendances.filter(a => a.status === 'leave').length;
+      
+      const paidDays = present + late + leave;
+      const baseSalary = emp.salary || 0;
+      
+      let netSalary = 0;
+      if (daysInMonth > 0) {
+        netSalary = Math.round((baseSalary / daysInMonth) * paidDays);
+      }
+
+      pr = await Payroll.create({
+        hotel: req.hotelId,
+        employee: emp._id,
+        month,
+        baseSalary,
+        workingDays: daysInMonth,
+        paidDays,
+        netSalary
+      });
+      pr.employee = emp; // Attach populated employee
+      payrollRecords.push(pr);
+    }
+  }
+
+  sendSuccess(res, payrollRecords);
+});
+
+const updatePayrollRecord = catchAsync(async (req, res) => {
+  const { overtime = 0, bonus = 0, deductions = 0, advance = 0, workingDays, paidDays } = req.body;
+  const pr = await Payroll.findOne(oneFilter(req));
+  if (!pr) throw new AppError('Payroll record not found', 404);
+
+  if (workingDays !== undefined) pr.workingDays = workingDays;
+  if (paidDays !== undefined) pr.paidDays = paidDays;
+  
+  pr.overtime = overtime;
+  pr.bonus = bonus;
+  pr.deductions = deductions;
+  pr.advance = advance;
+
+  // Recalculate net salary
+  const baseFraction = pr.workingDays > 0 ? (pr.baseSalary / pr.workingDays) * pr.paidDays : 0;
+  pr.netSalary = Math.round(baseFraction + pr.overtime + pr.bonus - pr.deductions - pr.advance);
+
+  await pr.save();
+  await pr.populate('employee');
+
+  sendSuccess(res, pr);
+});
+
+const markPayrollPaid = catchAsync(async (req, res) => {
+  const pr = await Payroll.findOne(oneFilter(req)).populate('employee');
+  if (!pr) throw new AppError('Payroll record not found', 404);
+
+  pr.status = 'Paid';
+  pr.paidDate = new Date();
+
+  // Snapshot payslip data
+  pr.payslipData = {
+    employeeName: pr.employee.name,
+    role: pr.employee.role,
+    month: pr.month,
+    baseSalary: pr.baseSalary,
+    workingDays: pr.workingDays,
+    paidDays: pr.paidDays,
+    overtime: pr.overtime,
+    bonus: pr.bonus,
+    deductions: pr.deductions,
+    advance: pr.advance,
+    netSalary: pr.netSalary,
+    paidDate: pr.paidDate
+  };
+
+  await pr.save();
+  sendSuccess(res, pr);
+});
+
+const processAllPendingPayroll = catchAsync(async (req, res) => {
+  const { month } = req.body;
+  if (!month) throw new AppError('Month is required', 400);
+
+  const pendingRecords = await Payroll.find({ hotel: req.hotelId, month, status: 'Pending', netSalary: { $gt: 0 } }).populate('employee');
+
+  for (const pr of pendingRecords) {
+    pr.status = 'Paid';
+    pr.paidDate = new Date();
+    pr.payslipData = {
+      employeeName: pr.employee.name,
+      role: pr.employee.role,
+      month: pr.month,
+      baseSalary: pr.baseSalary,
+      workingDays: pr.workingDays,
+      paidDays: pr.paidDays,
+      overtime: pr.overtime,
+      bonus: pr.bonus,
+      deductions: pr.deductions,
+      advance: pr.advance,
+      netSalary: pr.netSalary,
+      paidDate: pr.paidDate
+    };
+    await pr.save();
+  }
+
+  sendSuccess(res, { message: `${pendingRecords.length} records processed.` });
+});
+
 module.exports = {
   getRooms, getRoom, createRoom, updateRoom, deleteRoom,
   updateRoomHousekeeping, checkAvailability,
@@ -709,5 +849,6 @@ module.exports = {
   getEmployees, getEmployee, createEmployee, updateEmployee, deleteEmployee,
   markAttendance, applyLeave, getAttendance,
   getTodayCheckins, getTodayCheckouts, getPendingPayments, getMaintenanceRooms, updateRoomMaintenance,
-  createSubscriptionOrder, verifySubscriptionPayment, updateProfile
+  createSubscriptionOrder, verifySubscriptionPayment, updateProfile,
+  getPayrollRecords, updatePayrollRecord, markPayrollPaid, processAllPendingPayroll
 };
