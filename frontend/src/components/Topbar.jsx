@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import Icon from './Icon';
 import { useNotifications } from '../context/NotificationContext';
 import { getAllHotels } from '../services/adminService';
+import { getUser } from '../services/authService';
 
 const Topbar = ({ title, subtitle, role, onNav, toggleSidebar }) => {
   const [search, setSearch] = useState('');
@@ -98,6 +99,33 @@ const Topbar = ({ title, subtitle, role, onNav, toggleSidebar }) => {
             <option value="">Global View (All Hotels)</option>
             {hotels.map(h => <option key={h._id} value={h._id}>{h.name}</option>)}
           </select>
+        )}
+        
+        {role === 'admin' && selectedHotelId && (
+          <button 
+            onClick={() => window.location.href = '/hotel/dashboard'} 
+            className="mobile-hidden"
+            style={{ 
+              padding: '8px 12px', background: 'var(--primary)', color: 'white', 
+              border: 'none', borderRadius: '8px', cursor: 'pointer', fontSize: '12px', fontWeight: '600'
+            }}
+          >
+            Manage Hotel
+          </button>
+        )}
+
+        {/* Return to Admin Button if currently in hotel dashboard but user is admin */}
+        {role !== 'admin' && getUser()?.role === 'platform_admin' && (
+          <button 
+            onClick={() => window.location.href = '/admin/dashboard'} 
+            className="mobile-hidden"
+            style={{ 
+              padding: '8px 12px', background: 'var(--rose)', color: 'white', 
+              border: 'none', borderRadius: '8px', cursor: 'pointer', fontSize: '12px', fontWeight: '600'
+            }}
+          >
+            Exit to Platform Admin
+          </button>
         )}
 
         {/* Search */}

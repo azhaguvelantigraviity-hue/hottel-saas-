@@ -148,6 +148,8 @@ const HotelApp = ({ onLogout, initialPlan = 'enterprise', role = 'manager', hote
 
   const roleAllowedPages = {
     manager: Object.keys(titles), // Manager gets everything
+    hotel_admin: Object.keys(titles),
+    platform_admin: Object.keys(titles),
     reception: ['dashboard', 'rooms', 'bookings', 'checkin', 'guests', 'billing', 'restaurant', 'laundry', 'attendance', 'complaints', 'settings'],
     housekeeping: ['dashboard', 'housekeeping', 'maintenance', 'settings'],
     hotel_staff: ['dashboard', 'settings']
@@ -269,7 +271,7 @@ const App = () => {
     const cachedUser = authService.getUser();
     
     const getUIRole = (u) => {
-      if (u.role === 'hotel_admin' || u.department === 'Manager') return 'manager';
+      if (u.role === 'platform_admin' || u.role === 'hotel_admin' || u.department === 'Manager') return 'manager';
       if (u.role === 'receptionist' || u.department === 'Front Desk') return 'reception';
       if (u.role === 'housekeeping' || u.department === 'Housekeeping') return 'housekeeping';
       return 'staff';
@@ -280,6 +282,8 @@ const App = () => {
       setIsAuthenticated(true);
       if (cachedUser.role === 'platform_admin') {
         setLoginType('admin');
+        setHotelRole('manager');
+        setHotelPlan('enterprise');
       } else {
         setLoginType('hotel');
         setHotelRole(getUIRole(cachedUser));
@@ -296,6 +300,8 @@ const App = () => {
           setIsAuthenticated(true);
           if (user.role === 'platform_admin') {
             setLoginType('admin');
+            setHotelRole('manager');
+            setHotelPlan('enterprise');
           } else {
             setLoginType('hotel');
             setHotelRole(getUIRole(user));
@@ -352,7 +358,7 @@ const App = () => {
       } />
       <Route path="/hotel/*" element={
         <ProtectedRoute isAuthenticated={isAuthenticated} authReady={authReady}>
-          {loginType === 'hotel' ? <HotelApp onLogout={handleLogout} initialPlan={hotelPlan} role={hotelRole} hotelDetails={currentHotel} theme={theme} setTheme={setTheme} /> : <Navigate to="/admin/dashboard" replace />}
+          {(loginType === 'hotel' || loginType === 'admin') ? <HotelApp onLogout={handleLogout} initialPlan={hotelPlan} role={hotelRole} hotelDetails={currentHotel} theme={theme} setTheme={setTheme} /> : <Navigate to="/admin/dashboard" replace />}
         </ProtectedRoute>
       } />
       <Route path="*" element={<Navigate to="/" replace />} />
