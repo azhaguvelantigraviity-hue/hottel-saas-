@@ -2,6 +2,7 @@ const mongoose = require('mongoose');
 
 const HotelSchema = new mongoose.Schema({
   name:       { type: String, required: true, trim: true },
+  hotelCode:  { type: String, unique: true, sparse: true, trim: true },
   email:      { type: String, required: true, unique: true, lowercase: true },
   phone:      {
     type: String,
@@ -25,6 +26,7 @@ const HotelSchema = new mongoose.Schema({
   adminCredentials: {
     email:    String,
     password: String,
+    username: String,
   },
   subscriptionStart: { type: Date, default: Date.now },
   nextPaymentAt:     Date,

@@ -97,7 +97,11 @@ const HotelDetailModal = ({ hotel, onClose, onEdit }) => {
           {dbCreds && (
             <div style={{ background: 'var(--surface)', borderRadius: '10px', padding: '14px' }}>
               <div style={{ fontSize: '13px', fontWeight: '700', marginBottom: '12px' }}>Hotel Login Credentials</div>
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 300px), 1fr))', gap: '12px' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 150px), 1fr))', gap: '12px' }}>
+                <div>
+                  <div style={{ fontSize: '11px', color: 'var(--text3)', marginBottom: '4px' }}>USERNAME</div>
+                  <div style={{ fontSize: '13px', fontWeight: '600' }}>{dbCreds.username || dbCreds.email}</div>
+                </div>
                 <div>
                   <div style={{ fontSize: '11px', color: 'var(--text3)', marginBottom: '4px' }}>LOGIN EMAIL</div>
                   <div style={{ fontSize: '13px', fontWeight: '600' }}>{dbCreds.email}</div>
@@ -321,11 +325,18 @@ const EditHotelModal = ({ hotel, onClose, onSave }) => {
 const AddHotelModal = ({ onClose, onAdd }) => {
   const [showPassword, setShowPassword] = useState(false);
   const [form, setForm] = useState({
-    name: '', city: '', address: '', phone: '', email: '', plan: 'professional', status: 'active',
+    name: '', hotelCode: `HTL-${Math.random().toString(36).substring(2, 8).toUpperCase()}`, city: '', state: '', address: '', phone: '', email: '', plan: 'professional', status: 'active',
     rooms: '', staff: '', avatar: '', 
-    managerName: '', adminEmail: '', managerPhone: '', adminPassword: ''
+    managerName: '', managerUsername: '', adminEmail: '', managerPhone: '', adminPassword: ''
   });
   const set = (k, v) => setForm(p => ({ ...p, [k]: v }));
+
+  const generatePassword = () => {
+    const chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*';
+    let pass = '';
+    for (let i = 0; i < 10; i++) pass += chars.charAt(Math.floor(Math.random() * chars.length));
+    set('adminPassword', pass);
+  };
 
   const handleAdd = () => {
     if (!form.name || !form.city || !form.adminEmail || !form.adminPassword) {
@@ -336,6 +347,7 @@ const AddHotelModal = ({ onClose, onAdd }) => {
       ...form,
       managerEmail: form.adminEmail,
       managerPassword: form.adminPassword,
+      managerUsername: form.managerUsername || form.adminEmail,
       id: Date.now(),
       rooms: +form.rooms || 0,
       staff: +form.staff || 0,
@@ -353,7 +365,8 @@ const AddHotelModal = ({ onClose, onAdd }) => {
     }}>
       <div style={{
         background: 'var(--card)', border: '1px solid var(--border)',
-        borderRadius: 'var(--radius-lg)', width: '100%', maxWidth: '520px',
+        borderRadius: 'var(--radius-lg)', width: '100%', maxWidth: '600px',
+        maxHeight: '90vh', overflowY: 'auto'
       }}>
         <div style={{
           padding: 'clamp(12px, 3vw, 24px)', borderBottom: '1px solid var(--border)',
@@ -365,26 +378,14 @@ const AddHotelModal = ({ onClose, onAdd }) => {
           </button>
         </div>
         <div style={{ padding: 'clamp(12px, 3vw, 24px)', display: 'flex', flexDirection: 'column', gap: '12px' }}>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 300px), 1fr))', gap: '12px' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 250px), 1fr))', gap: '12px' }}>
             <div style={{ gridColumn: 'span 2' }}>
               <label style={lbl}>HOTEL NAME *</label>
               <input style={inp} value={form.name} onChange={e => set('name', e.target.value)} placeholder="e.g. The Royal Palace" />
             </div>
             <div>
-              <label style={lbl}>CITY *</label>
-              <input style={inp} value={form.city} onChange={e => set('city', e.target.value)} placeholder="e.g. Mumbai" />
-            </div>
-            <div>
-              <label style={lbl}>ADDRESS</label>
-              <input style={inp} value={form.address} onChange={e => set('address', e.target.value)} placeholder="e.g. 123 Main St" />
-            </div>
-            <div>
-              <label style={lbl}>PHONE</label>
-              <input style={inp} value={form.phone} onChange={e => set('phone', e.target.value)} placeholder="10-digit number" />
-            </div>
-            <div>
-              <label style={lbl}>CONTACT EMAIL</label>
-              <input style={inp} value={form.email} onChange={e => set('email', e.target.value)} placeholder="gm@hotel.com" />
+              <label style={lbl}>HOTEL CODE / ID</label>
+              <input style={{...inp, opacity: 0.7}} value={form.hotelCode} readOnly disabled />
             </div>
             <div>
               <label style={lbl}>PLAN</label>
@@ -394,6 +395,30 @@ const AddHotelModal = ({ onClose, onAdd }) => {
                 ))}
               </select>
             </div>
+            <div style={{ gridColumn: 'span 2' }}>
+              <label style={lbl}>ADDRESS</label>
+              <input style={inp} value={form.address} onChange={e => set('address', e.target.value)} placeholder="e.g. 123 Main St" />
+            </div>
+            <div>
+              <label style={lbl}>CITY *</label>
+              <input style={inp} value={form.city} onChange={e => set('city', e.target.value)} placeholder="e.g. Mumbai" />
+            </div>
+            <div>
+              <label style={lbl}>STATE</label>
+              <input style={inp} value={form.state} onChange={e => set('state', e.target.value)} placeholder="e.g. Maharashtra" />
+            </div>
+            <div>
+              <label style={lbl}>CONTACT NUMBER</label>
+              <input style={inp} value={form.phone} onChange={e => set('phone', e.target.value)} placeholder="10-digit number" />
+            </div>
+            <div>
+              <label style={lbl}>CONTACT EMAIL</label>
+              <input style={inp} value={form.email} onChange={e => set('email', e.target.value)} placeholder="info@hotel.com" />
+            </div>
+            <div>
+              <label style={lbl}>TOTAL ROOMS</label>
+              <input type="number" style={inp} value={form.rooms} onChange={e => set('rooms', e.target.value)} placeholder="e.g. 50" />
+            </div>
             <div>
               <label style={lbl}>STATUS</label>
               <select style={inp} value={form.status} onChange={e => set('status', e.target.value)}>
@@ -402,19 +427,11 @@ const AddHotelModal = ({ onClose, onAdd }) => {
                 ))}
               </select>
             </div>
-            <div>
-              <label style={lbl}>TOTAL ROOMS</label>
-              <input type="number" style={inp} value={form.rooms} onChange={e => set('rooms', e.target.value)} placeholder="e.g. 50" />
-            </div>
-            <div>
-              <label style={lbl}>STAFF COUNT</label>
-              <input type="number" style={inp} value={form.staff} onChange={e => set('staff', e.target.value)} placeholder="e.g. 12" />
-            </div>
           </div>
 
           <div style={{ marginTop: '8px', borderTop: '1px solid var(--border)', paddingTop: '16px' }}>
             <div style={{ fontSize: '13px', fontWeight: '600', marginBottom: '12px', color: 'var(--text)' }}>Manager Credential Create</div>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 300px), 1fr))', gap: '12px' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 250px), 1fr))', gap: '12px' }}>
               <div>
                 <label style={lbl}>MANAGER NAME</label>
                 <input style={inp} value={form.managerName} onChange={e => set('managerName', e.target.value)} placeholder="Manager Name" />
@@ -424,38 +441,49 @@ const AddHotelModal = ({ onClose, onAdd }) => {
                 <input style={inp} value={form.managerPhone} onChange={e => set('managerPhone', e.target.value)} placeholder="10-digit number" />
               </div>
               <div>
-                <label style={lbl}>EMAIL (USERNAME) *</label>
+                <label style={lbl}>MANAGER EMAIL *</label>
                 <input type="email" style={inp} value={form.adminEmail} onChange={e => set('adminEmail', e.target.value)} placeholder="manager@hotel.com" />
               </div>
-              <div style={{ position: 'relative' }}>
+              <div>
+                <label style={lbl}>MANAGER USERNAME</label>
+                <input type="text" style={inp} value={form.managerUsername} onChange={e => set('managerUsername', e.target.value)} placeholder="Defaults to Email" />
+              </div>
+              <div style={{ position: 'relative', gridColumn: 'span 2' }}>
                 <label style={lbl}>MANAGER PASSWORD *</label>
-                <input 
-                  type={showPassword ? 'text' : 'password'} 
-                  style={{ ...inp, paddingRight: '40px' }} 
-                  value={form.adminPassword} 
-                  onChange={e => set('adminPassword', e.target.value)} 
-                  placeholder="••••••••" 
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  style={{
-                    position: 'absolute',
-                    right: '10px',
-                    bottom: '8px',
-                    background: 'none',
-                    border: 'none',
-                    cursor: 'pointer',
-                    color: 'var(--text3)',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    padding: '2px'
-                  }}
-                  title={showPassword ? "Hide password" : "Show password"}
-                >
-                  <Icon name={showPassword ? "eye-off" : "eye"} size={16} color="currentColor" />
-                </button>
+                <div style={{ display: 'flex', gap: '8px' }}>
+                  <div style={{ position: 'relative', flex: 1 }}>
+                    <input 
+                      type={showPassword ? 'text' : 'password'} 
+                      style={{ ...inp, paddingRight: '40px' }} 
+                      value={form.adminPassword} 
+                      onChange={e => set('adminPassword', e.target.value)} 
+                      placeholder="••••••••" 
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      style={{
+                        position: 'absolute', right: '10px', top: '50%', transform: 'translateY(-50%)',
+                        background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text3)',
+                        display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '2px'
+                      }}
+                      title={showPassword ? "Hide password" : "Show password"}
+                    >
+                      <Icon name={showPassword ? "eye-off" : "eye"} size={16} color="currentColor" />
+                    </button>
+                  </div>
+                  <button 
+                    type="button" 
+                    onClick={generatePassword}
+                    style={{
+                      padding: '0 16px', background: 'var(--surface)', border: '1px solid var(--border)', 
+                      borderRadius: '8px', color: 'var(--text)', cursor: 'pointer', fontSize: '13px',
+                      whiteSpace: 'nowrap'
+                    }}
+                  >
+                    Auto-Generate
+                  </button>
+                </div>
               </div>
             </div>
           </div>
@@ -465,7 +493,7 @@ const AddHotelModal = ({ onClose, onAdd }) => {
               Cancel
             </button>
             <button onClick={handleAdd} style={{ padding: '10px 24px', background: 'linear-gradient(135deg,#C9A84C,#8A6F2E)', border: 'none', borderRadius: '8px', color: '#fff', cursor: 'pointer', fontWeight: '600', fontSize: '13px', fontFamily: 'Inter, sans-serif' }}>
-              Add Hotel
+              Create Hotel
             </button>
           </div>
         </div>
@@ -548,13 +576,15 @@ const AdminHotels = () => {
     try {
       const res = await createHotel({
         name: newHotel.name,
-        address: { street: newHotel.address, city: newHotel.city },
+        hotelCode: newHotel.hotelCode,
+        address: { street: newHotel.address, city: newHotel.city, state: newHotel.state },
         phone: newHotel.phone,
         email: newHotel.email,
         adminEmail: newHotel.adminEmail,
         adminPassword: newHotel.adminPassword,
         managerName: newHotel.managerName,
         managerPhone: newHotel.managerPhone,
+        managerUsername: newHotel.managerUsername,
         plan: newHotel.plan,
         planStatus: newHotel.status,
         totalRooms: newHotel.rooms,

@@ -68,13 +68,14 @@ exports.getHotel = asyncHandler(async (req, res, next) => {
 
 exports.createHotel = asyncHandler(async (req, res) => {
   const {
-    name, email, phone, website, address, plan, planStatus, totalRooms,
-    adminEmail, adminPassword, managerName, managerEmail, managerPhone, managerPassword
+    name, hotelCode, email, phone, website, address, plan, planStatus, totalRooms,
+    adminEmail, adminPassword, managerName, managerEmail, managerPhone, managerPassword, managerUsername
   } = req.body;
 
   // Create Hotel
   const hotel = await Hotel.create({
     name,
+    hotelCode: hotelCode || `HTL-${Math.random().toString(36).substring(2, 8).toUpperCase()}`,
     email: email || adminEmail || managerEmail,
     phone,
     website,
@@ -84,18 +85,21 @@ exports.createHotel = asyncHandler(async (req, res) => {
     totalRooms: totalRooms || req.body.rooms || 0,
     adminCredentials: {
       email: managerEmail || adminEmail || '',
-      password: managerPassword || adminPassword || ''
+      password: managerPassword || adminPassword || '',
+      username: managerUsername || managerEmail || adminEmail || ''
     }
   });
 
   // Extract manager credentials
   const mEmail = managerEmail || adminEmail;
   const mPassword = managerPassword || adminPassword;
+  const mUsername = managerUsername || mEmail;
 
   if (mEmail && mPassword) {
     let manager = await User.findOne({ email: mEmail });
     if (manager) {
       manager.name = managerName || `${name} Manager`;
+      manager.username = mUsername;
       manager.password = mPassword;
       manager.role = 'hotel_admin';
       manager.hotel = hotel._id;
@@ -104,6 +108,7 @@ exports.createHotel = asyncHandler(async (req, res) => {
     } else {
       manager = await User.create({
         name: managerName || `${name} Manager`,
+        username: mUsername,
         email: mEmail,
         password: mPassword,
         phone: managerPhone,
