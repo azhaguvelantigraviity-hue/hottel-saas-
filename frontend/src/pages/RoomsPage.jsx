@@ -36,6 +36,9 @@ const RoomFormModal = ({ title, room, onClose, onSave }) => {
     extraCharges: 0, maintenanceIssue: '', images: []
   });
   const [error, setError] = useState('');
+  const [showAmenities, setShowAmenities] = useState(false);
+  const AMENITY_OPTIONS = ['WiFi', 'AC', 'TV', 'Mini Fridge', 'Safe', 'Balcony', 'Bathtub', 'Work Desk', 'Coffee Maker', 'Room Service', 'Hairdryer', 'Iron'];
+
   const set = (k, v) => setForm(p => ({ ...p, [k]: v }));
 
   const handleSave = () => {
@@ -124,9 +127,40 @@ const RoomFormModal = ({ title, room, onClose, onSave }) => {
             </div>
           </div>
 
-          <div>
-            <label style={lbl}>AMENITIES (comma separated)</label>
-            <input style={inp()} value={form.amenities} onChange={e => set('amenities', e.target.value)} placeholder="WiFi, AC, TV, Mini Fridge" />
+          <div style={{ position: 'relative' }}>
+            <label style={lbl}>AMENITIES</label>
+            <div 
+              style={{...inp(), cursor: 'pointer', display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}
+              onClick={() => setShowAmenities(!showAmenities)}
+            >
+              <span style={{ color: form.amenities ? 'var(--text)' : 'var(--text3)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                {form.amenities || 'Select amenities...'}
+              </span>
+              <span style={{ color: 'var(--text3)', fontSize: '10px' }}>▼</span>
+            </div>
+            {showAmenities && (
+              <div style={{ position: 'absolute', top: '100%', left: 0, right: 0, marginTop: '4px', background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: '8px', zIndex: 10, maxHeight: '160px', overflowY: 'auto', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}>
+                {AMENITY_OPTIONS.map(a => {
+                  const currentAmenities = form.amenities ? form.amenities.split(',').map(s=>s.trim()).filter(Boolean) : [];
+                  const isSelected = currentAmenities.includes(a);
+                  return (
+                    <label key={a} style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '8px 12px', cursor: 'pointer', borderBottom: '1px solid var(--border)', fontSize: '13px', background: isSelected ? 'var(--bg)' : 'transparent', margin: 0 }}>
+                      <input 
+                        type="checkbox" 
+                        checked={isSelected}
+                        onChange={(e) => {
+                          let next = [...currentAmenities];
+                          if (e.target.checked) next.push(a);
+                          else next = next.filter(item => item !== a);
+                          set('amenities', next.join(', '));
+                        }}
+                      />
+                      <span style={{ color: isSelected ? 'var(--text)' : 'var(--text2)' }}>{a}</span>
+                    </label>
+                  );
+                })}
+              </div>
+            )}
           </div>
           <div>
             <label style={lbl}>DESCRIPTION</label>
