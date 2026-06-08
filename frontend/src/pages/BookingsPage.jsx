@@ -370,7 +370,10 @@ const BookingsPage = () => {
           await api.deleteBooking(booking._id); 
           setBookings(prev => prev.filter(b => b.id !== booking.id));
         }
-        catch (err) { console.error('Failed to delete booking', err); }
+        catch (err) { 
+          console.error('Failed to delete booking', err);
+          alert(err.message || 'Failed to delete booking');
+        }
       }
       return;
     }
@@ -393,6 +396,7 @@ const BookingsPage = () => {
         }));
       } catch (err) {
         console.error('Failed to update booking status', err);
+        alert(err.message || 'Failed to update booking status');
       }
     }
   }, [apiReady]);

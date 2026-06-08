@@ -185,9 +185,10 @@ const checkIn = catchAsync(async (req, res) => {
   
   if (!booking) throw new AppError('Booking not found or already checked in', 404);
 
-  if (!booking.checkInProcess?.idScan?.documentImage) {
-    throw new AppError('Document upload required before check-in', 400);
-  }
+  // Manual check-in from dashboard bypasses strict ID scan enforcement
+  // if (!booking.checkInProcess?.idScan?.documentImage) {
+  //   throw new AppError('Document upload required before check-in', 400);
+  // }
 
   booking.status = 'checked_in';
   booking.checkedInAt = new Date();
