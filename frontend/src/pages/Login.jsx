@@ -40,6 +40,22 @@ const Login = ({ type, onSuccess, onBack }) => {
           ...hotel
         } : null;
         onSuccess(hotel?.plan || 'enterprise', 'manager', hotelDetails);
+      } else if (role === 'receptionist') {
+        const hotelDetails = hotel ? {
+          id: hotel._id || hotel.id,
+          name: hotel.name,
+          plan: hotel.plan || 'enterprise',
+          ...hotel
+        } : null;
+        onSuccess(hotel?.plan || 'enterprise', 'reception', hotelDetails);
+      } else if (role === 'housekeeping') {
+        const hotelDetails = hotel ? {
+          id: hotel._id || hotel.id,
+          name: hotel.name,
+          plan: hotel.plan || 'enterprise',
+          ...hotel
+        } : null;
+        onSuccess(hotel?.plan || 'enterprise', 'housekeeping', hotelDetails);
       } else if (role === 'hotel_staff') {
         const hotelDetails = hotel ? {
           id: hotel._id || hotel.id,

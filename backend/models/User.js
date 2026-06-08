@@ -8,7 +8,7 @@ const UserSchema = new mongoose.Schema({
   email:    { type: String, required: true, unique: true, lowercase: true, trim: true },
   phone:    { type: String },
   password: { type: String, required: true, minlength: 6, select: false },
-  role:     { type: String, enum: ['platform_admin','hotel_admin','hotel_staff'], default: 'hotel_staff' },
+  role:     { type: String, enum: ['platform_admin','hotel_admin','hotel_staff','receptionist','housekeeping'], default: 'hotel_staff' },
   department: { type: String, enum: ['Housekeeping', 'Maintenance', 'Front Desk', 'Restaurant', 'Manager', 'None'], default: 'None' },
   hotel:    { type: mongoose.Schema.Types.ObjectId, ref: 'Hotel' },
   isActive: { type: Boolean, default: true },

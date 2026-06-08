@@ -12,9 +12,9 @@ const { requireFeature } = require('../middleware/planGate');
 router.use(protect, scopeToHotel);
 
 router.get('/', getOrders);
-router.post('/', requireFeature('laundry'), authorize('hotel_admin', 'hotel_staff', 'platform_admin'), createOrder);
-router.put('/:id', requireFeature('laundry'), authorize('hotel_admin', 'hotel_staff', 'platform_admin'), updateOrder);
-router.patch('/:id/advance', requireFeature('laundry'), authorize('hotel_admin', 'hotel_staff', 'platform_admin'), advanceOrder);
+router.post('/', requireFeature('laundry'), authorize('hotel_admin', 'hotel_staff', 'receptionist', 'housekeeping', 'platform_admin'), createOrder);
+router.put('/:id', requireFeature('laundry'), authorize('hotel_admin', 'hotel_staff', 'receptionist', 'housekeeping', 'platform_admin'), updateOrder);
+router.patch('/:id/advance', requireFeature('laundry'), authorize('hotel_admin', 'hotel_staff', 'receptionist', 'housekeeping', 'platform_admin'), advanceOrder);
 router.delete('/:id', requireFeature('laundry'), authorize('hotel_admin', 'platform_admin'), deleteOrder);
 
 module.exports = router;
