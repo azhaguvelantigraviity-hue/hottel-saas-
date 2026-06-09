@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
 import Icon from './Icon';
+import Toast from './Toast';
 import { requestAdminHelp } from '../services/hotelService';
 
 const Sidebar = ({ role, active, onNav, onLogout, plan, isOpen, setIsOpen }) => {
+  const [toast, setToast] = useState(null);
 
   const adminNav = [
     { id: 'dashboard', icon: 'dashboard', label: 'Dashboard' },
@@ -218,7 +220,7 @@ const Sidebar = ({ role, active, onNav, onLogout, plan, isOpen, setIsOpen }) => 
         {role === 'manager' && (
           <button
             onClick={() => {
-              requestAdminHelp().then(() => alert('Admin notified successfully.')).catch(e => alert(e.message || 'Failed to notify admin.'));
+              requestAdminHelp().then(() => setToast({ type: 'success', message: 'Admin notified successfully.' })).catch(e => setToast({ type: 'error', message: e.message || 'Failed to notify admin.' }));
             }}
             style={{
               display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px',
@@ -250,6 +252,7 @@ const Sidebar = ({ role, active, onNav, onLogout, plan, isOpen, setIsOpen }) => 
         </button>
       </div>
     </aside>
+    {toast && <Toast type={toast.type} message={toast.message} onClose={() => setToast(null)} />}
     </>
   );
 };
