@@ -11,7 +11,7 @@ const {
 
 router.use(protect);
 router.use(scopeToHotel);
-router.use(authorize('platform_admin', 'hotel_admin', 'manager', 'reception'));
+router.use(authorize('platform_admin', 'hotel_admin', 'manager', 'reception', 'receptionist'));
 router.use(requireEnterprise);
 
 // Agencies
