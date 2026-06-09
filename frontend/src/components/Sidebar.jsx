@@ -33,6 +33,7 @@ const Sidebar = ({ role, active, onNav, onLogout, plan, isOpen, setIsOpen }) => 
         { id: 'restaurant', icon: 'food',        label: 'Restaurant POS', plans: ['professional','enterprise'] },
         { id: 'laundry',    icon: 'laundry',     label: 'Laundry',        plans: ['professional','enterprise'] },
         { id: 'travel',     icon: 'taxi',        label: 'Travel Desk',    plans: ['enterprise'] },
+        { id: 'travels',    icon: 'car',         label: 'Travels Management', plans: ['enterprise'] },
         { id: 'events',     icon: 'events',      label: 'Events & Halls', plans: ['enterprise'] },
       ],
     },
@@ -149,7 +150,7 @@ const Sidebar = ({ role, active, onNav, onLogout, plan, isOpen, setIsOpen }) => 
                 return staffPages.includes(itemId);
               }
               if (role === 'reception') {
-                const receptionPages = ['dashboard', 'rooms', 'bookings', 'checkin', 'guests', 'billing', 'restaurant', 'laundry', 'attendance', 'complaints', 'settings'];
+                const receptionPages = ['dashboard', 'rooms', 'bookings', 'checkin', 'guests', 'billing', 'restaurant', 'laundry', 'attendance', 'complaints', 'settings', 'travel', 'travels'];
                 return receptionPages.includes(itemId);
               }
               if (role === 'housekeeping') {

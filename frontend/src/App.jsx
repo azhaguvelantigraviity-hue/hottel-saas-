@@ -29,6 +29,7 @@ import EventsPage from './pages/EventsPage';
 import ComplaintsPage from './pages/ComplaintsPage';
 import LaundryPage from './pages/LaundryPage';
 import TravelDeskPage from './pages/TravelDeskPage';
+import TravelsManagementPage from './pages/TravelsManagementPage';
 import BillingPage from './pages/BillingPage';
 import AnalyticsDashboard from './pages/AnalyticsDashboard';
 import SecurityPage from './pages/SecurityPage';
@@ -115,7 +116,7 @@ const HotelApp = ({ onLogout, initialPlan = 'enterprise', role = 'manager', hote
   const planFeatures = {
     starter: ['dashboard', 'rooms', 'bookings', 'billing', 'notifications', 'reports', 'settings', 'employees', 'analytics', 'attendance', 'checkin', 'revenue', 'complaints', 'restaurant', 'housekeeping', 'maintenance'],
     professional: ['dashboard', 'rooms', 'bookings', 'billing', 'notifications', 'guests', 'loyalty', 'employees', 'housekeeping', 'restaurant', 'laundry', 'maintenance', 'channel', 'analytics', 'marketing', 'whatsapp', 'inventory', 'reports', 'settings', 'attendance', 'payroll', 'checkin', 'revenue', 'complaints'],
-    enterprise: ['dashboard', 'rooms', 'bookings', 'billing', 'notifications', 'checkin', 'guests', 'loyalty', 'restaurant', 'laundry', 'travel', 'events', 'employees', 'housekeeping', 'maintenance', 'channel', 'revenue', 'analytics', 'marketing', 'whatsapp', 'inventory', 'iot', 'security', 'reports', 'settings', 'attendance', 'payroll', 'complaints'],
+    enterprise: ['dashboard', 'rooms', 'bookings', 'billing', 'notifications', 'checkin', 'guests', 'loyalty', 'restaurant', 'laundry', 'travel', 'travels', 'events', 'employees', 'housekeeping', 'maintenance', 'channel', 'revenue', 'analytics', 'marketing', 'whatsapp', 'inventory', 'iot', 'security', 'reports', 'settings', 'attendance', 'payroll', 'complaints'],
   };
   const allowed = planFeatures[plan] || planFeatures.starter;
 
@@ -141,7 +142,7 @@ const HotelApp = ({ onLogout, initialPlan = 'enterprise', role = 'manager', hote
     housekeeping: 'professional', restaurant: 'professional', laundry: 'professional',
     attendance: 'starter', payroll: 'professional', channel: 'professional',
     marketing: 'professional', whatsapp: 'professional', inventory: 'professional',
-    checkin: 'starter', travel: 'enterprise', events: 'enterprise',
+    checkin: 'starter', travel: 'enterprise', travels: 'enterprise', events: 'enterprise',
     iot: 'enterprise', security: 'enterprise',
     revenue: 'starter', complaints: 'starter',
   };
@@ -150,7 +151,7 @@ const HotelApp = ({ onLogout, initialPlan = 'enterprise', role = 'manager', hote
     manager: Object.keys(titles), // Manager gets everything
     hotel_admin: Object.keys(titles),
     platform_admin: Object.keys(titles),
-    reception: ['dashboard', 'rooms', 'bookings', 'checkin', 'guests', 'billing', 'restaurant', 'laundry', 'attendance', 'complaints', 'settings'],
+    reception: ['dashboard', 'rooms', 'bookings', 'checkin', 'guests', 'billing', 'restaurant', 'laundry', 'attendance', 'complaints', 'settings', 'travel', 'travels'],
     housekeeping: ['dashboard', 'housekeeping', 'maintenance', 'settings'],
     hotel_staff: ['dashboard', 'settings']
   };
@@ -188,6 +189,7 @@ const HotelApp = ({ onLogout, initialPlan = 'enterprise', role = 'manager', hote
       case 'restaurant': return <RestaurantPOS role={role} hotelDetails={hotelDetails} />;
       case 'laundry': return <LaundryPage />;
       case 'travel': return <TravelDeskPage />;
+      case 'travels': return <TravelsManagementPage />;
       case 'events': return <EventsPage />;
       case 'employees': return <EmployeesPage role={role} hotelDetails={hotelDetails} plan={plan} />;
       case 'attendance': return <AttendancePage />;

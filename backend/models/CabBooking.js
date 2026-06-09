@@ -32,6 +32,11 @@ const CabBookingSchema = new mongoose.Schema({
     }
   },
   vehicleNumber: { type: String, default: '' },
+
+  agency:        { type: mongoose.Schema.Types.ObjectId, ref: 'TravelAgency' },
+  vehicleId:     { type: mongoose.Schema.Types.ObjectId },
+  driverId:      { type: mongoose.Schema.Types.ObjectId }
+
 }, { timestamps: true });
 
 CabBookingSchema.pre('save', async function (next) {

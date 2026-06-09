@@ -29,6 +29,7 @@ const laundryRoutes     = require('./routes/laundry');
 const bulkImportRoutes  = require('./routes/bulkImport');
 const complaintsRoutes  = require('./routes/complaints');
 const notificationRoutes = require('./routes/notificationRoutes');
+const travelRoutes       = require('./routes/travels');
 
 // ── Connect DB ────────────────────────────────────────────────────────────────
 connectDB();
@@ -152,6 +153,7 @@ app.use('/api/v1/laundry',      laundryRoutes);
 app.use('/api/v1/bulk-import',  bulkImportRoutes);
 app.use('/api/v1/complaints',   complaintsRoutes);
 app.use('/api/v1/notifications', notificationRoutes);
+app.use('/api/v1/travels',      travelRoutes);
 
 // ── API info ──────────────────────────────────────────────────────────────────
 app.get('/api/v1', (_req, res) => {
