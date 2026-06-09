@@ -11,21 +11,22 @@ export const AdminNotificationProvider = ({ children }) => {
 
   const unreadCount = notifications.filter(n => !n.read).length;
 
+  const mapNotification = (n) => ({
+    id: n._id,
+    type: n.type,
+    title: n.title,
+    desc: `${n.hotelId?.name ? `[${n.hotelId.name}] ` : ''}${n.message}`,
+    time: n.createdAt,
+    read: n.status !== 'unread',
+    icon: n.type === 'help_request' ? 'alert-triangle' : (n.type === 'payment' || n.type === 'subscription' ? 'credit-card' : 'bell'),
+    color: n.type === 'help_request' ? 'var(--rose)' : (n.type === 'payment' || n.type === 'subscription' ? 'var(--gold)' : 'var(--brand)')
+  });
+
   const fetchNotifications = async () => {
     try {
-      const res = await adminService.getHelpRequests();
+      const res = await adminService.getAdminNotifications({ status: 'unread' });
       if (res && res.data) {
-        // Map HelpRequests to the same notification structure expected by Topbar
-        const mapped = res.data.map(req => ({
-          id: req._id,
-          title: 'Manager Help Required',
-          desc: `${req.hotelId?.name || 'A hotel'} - ${req.managerId?.name || 'Manager'}: ${req.message}`,
-          time: req.createdAt,
-          read: req.status !== 'unread',
-          icon: 'alert-triangle',
-          color: 'var(--rose)'
-        }));
-        setNotifications(mapped);
+        setNotifications(res.data.map(mapNotification));
       }
     } catch (err) {
       console.error('Failed to fetch admin notifications', err);
@@ -45,17 +46,8 @@ export const AdminNotificationProvider = ({ children }) => {
         newSocket.emit('joinAdmin');
       });
 
-      newSocket.on('newHelpRequest', (req) => {
-        const mapped = {
-          id: req._id,
-          title: 'Manager Help Required',
-          desc: `${req.hotelId?.name || 'A hotel'} - ${req.managerId?.name || 'Manager'}: ${req.message}`,
-          time: req.createdAt,
-          read: req.status !== 'unread',
-          icon: 'alert-triangle',
-          color: 'var(--rose)'
-        };
-        setNotifications(prev => [mapped, ...prev]);
+      newSocket.on('newAdminNotification', (req) => {
+        setNotifications(prev => [mapNotification(req), ...prev]);
       });
 
       setSocket(newSocket);
@@ -68,7 +60,7 @@ export const AdminNotificationProvider = ({ children }) => {
 
   const markRead = async (id) => {
     try {
-      await adminService.markHelpRequestRead(id);
+      await adminService.markAdminNotificationRead(id);
       setNotifications(prev => prev.map(n => n.id === id ? { ...n, read: true } : n));
     } catch (err) {
       console.error('Failed to mark admin notification as read', err);
@@ -77,10 +69,8 @@ export const AdminNotificationProvider = ({ children }) => {
 
   const markAllRead = async () => {
     try {
-      // marking all read isn't natively supported yet for help requests,
-      // but we can loop through unread ones.
       const unread = notifications.filter(n => !n.read);
-      await Promise.all(unread.map(n => adminService.markHelpRequestRead(n.id)));
+      await Promise.all(unread.map(n => adminService.markAdminNotificationRead(n.id)));
       setNotifications(prev => prev.map(n => ({ ...n, read: true })));
     } catch (err) {
       console.error('Failed to mark all as read', err);
@@ -88,7 +78,7 @@ export const AdminNotificationProvider = ({ children }) => {
   };
 
   return (
-    <AdminNotificationContext.Provider value={{ notifications, unreadCount, markRead, markAllRead }}>
+    <AdminNotificationContext.Provider value={{ notifications, unreadCount, markRead, markAllRead, fetchNotifications }}>
       {children}
     </AdminNotificationContext.Provider>
   );
@@ -96,5 +86,5 @@ export const AdminNotificationProvider = ({ children }) => {
 
 export const useAdminNotifications = () => {
   const context = useContext(AdminNotificationContext);
-  return context || { notifications: [], unreadCount: 0, markRead: () => {}, markAllRead: () => {} };
+  return context || { notifications: [], unreadCount: 0, markRead: () => {}, markAllRead: () => {}, fetchNotifications: () => {} };
 };

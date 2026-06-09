@@ -32,6 +32,10 @@ export const getAllBranches    = ()          => get('/admin/branches');
 export const createBranch      = (body)      => post('/admin/branches', body);
 export const updateBranch      = (id, body)  => put(`/admin/branches/${id}`, body);
 export const deleteBranch      = (id)        => del(`/admin/branches/${id}`);
-
-export const getHelpRequests   = ()          => get('/admin/help-requests');
-export const markHelpRequestRead = (id)      => put(`/admin/help-requests/${id}/read`);
+export const getAdminNotifications   = (filters = {}) => {
+  const query = new URLSearchParams(filters).toString();
+  return get(`/admin/notifications${query ? '?' + query : ''}`);
+};
+export const markAdminNotificationRead = (id)      => put(`/admin/notifications/${id}/read`);
+export const resolveAdminNotification  = (id)      => put(`/admin/notifications/${id}/resolve`);
+export const deleteAdminNotification   = (id)      => del(`/admin/notifications/${id}`);

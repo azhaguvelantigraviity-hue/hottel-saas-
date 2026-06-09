@@ -1,0 +1,32 @@
+const mongoose = require('mongoose');
+
+const adminNotificationSchema = new mongoose.Schema({
+  hotelId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Hotel' // Optional: some platform alerts might not be tied to a hotel
+  },
+  managerId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User' // Optional: who triggered it
+  },
+  type: {
+    type: String,
+    enum: ['help_request', 'checkout', 'payment', 'maintenance', 'subscription', 'system', 'staff'],
+    default: 'system'
+  },
+  title: {
+    type: String,
+    required: true
+  },
+  message: {
+    type: String,
+    required: true
+  },
+  status: {
+    type: String,
+    enum: ['unread', 'read', 'resolved'],
+    default: 'unread'
+  }
+}, { timestamps: true });
+
+module.exports = mongoose.model('AdminNotification', adminNotificationSchema);

@@ -50,9 +50,17 @@ router.post  ('/branches',      createBranch);
 router.put   ('/branches/:id',  updateBranch);
 router.delete('/branches/:id',  deleteBranch);
 
-// Help Requests
-const { getHelpRequests, markHelpRequestRead } = require('../controllers/adminController');
-router.get('/help-requests', getHelpRequests);
-router.put('/help-requests/:id/read', markHelpRequestRead);
+// Admin Notifications
+const { 
+  getAdminNotifications, 
+  markAdminNotificationRead,
+  resolveAdminNotification,
+  deleteAdminNotification
+} = require('../controllers/adminController');
+
+router.get('/notifications', getAdminNotifications);
+router.put('/notifications/:id/read', markAdminNotificationRead);
+router.put('/notifications/:id/resolve', resolveAdminNotification);
+router.delete('/notifications/:id', deleteAdminNotification);
 
 module.exports = router;

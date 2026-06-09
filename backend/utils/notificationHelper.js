@@ -13,6 +13,8 @@ const Notification = require('../models/Notification');
  * @param {Array} data.targetRoles - e.g. ['admin', 'manager', 'staff']
  * @param {String} [data.relatedRoom] - Optional related room number
  */
+const AdminNotification = require('../models/AdminNotification');
+
 const emitNotification = async (req, data) => {
   try {
     const notif = await Notification.create(data);
@@ -35,6 +37,32 @@ const emitNotification = async (req, data) => {
     if (io) {
       io.to(data.hotel.toString()).emit('newNotification', formatted);
     }
+
+    // Also dispatch an AdminNotification if it targets platform_admin
+    if (data.targetRoles && data.targetRoles.includes('platform_admin')) {
+      let adminType = 'system';
+      if (data.type === 'booking') adminType = 'checkout';
+      else if (data.type === 'payment') adminType = 'payment';
+      else if (data.type === 'maintenance') adminType = 'maintenance';
+      else if (data.title.toLowerCase().includes('subscription')) adminType = 'subscription';
+      else if (data.title.toLowerCase().includes('help')) adminType = 'help_request';
+
+      const adminNotif = await AdminNotification.create({
+        hotelId: data.hotel,
+        managerId: req.user ? req.user.id : null,
+        type: adminType,
+        title: data.title,
+        message: data.desc,
+        status: 'unread'
+      });
+
+      const populatedAdminNotif = await adminNotif.populate('hotelId', 'name phone').populate('managerId', 'name email phone');
+
+      if (io) {
+        io.to('adminRoom').emit('newAdminNotification', populatedAdminNotif);
+      }
+    }
+
   } catch (err) {
     console.error('Error emitting notification:', err);
   }

@@ -43,6 +43,7 @@ import PayrollPage from './pages/PayrollPage';
 import AdminAccounts from './pages/AdminAccounts';
 import AdminAlerts from './pages/AdminAlerts';
 import AdminRoles from './pages/AdminRoles';
+import AdminNotifications from './pages/AdminNotifications';
 import Sidebar from './components/Sidebar';
 import Topbar from './components/Topbar';
 import ProtectedRoute from './components/ProtectedRoute';
@@ -82,13 +83,14 @@ const AdminApp = ({ onLogout }) => {
     alerts: <AdminAlerts />,
     audit: <AuditLogs />,
     roles: <AdminRoles />,
+    notifications: <AdminNotifications />,
     settings: <SettingsPage role="admin" />,
   };
 
   const titles = {
     dashboard: 'Platform Overview', hotels: 'Registered Hotels', multibranch: 'Multi-Branch Management', accounts: 'Account Management',
     subscriptions: 'Subscriptions & Payments', analytics: 'Analytics Dashboard', alerts: 'Trial & Renewal Alerts',
-    audit: 'Audit Logs', roles: 'Roles & Permissions', settings: 'Settings',
+    audit: 'Audit Logs', roles: 'Roles & Permissions', notifications: 'Platform Notifications', settings: 'Settings',
   };
 
   return (

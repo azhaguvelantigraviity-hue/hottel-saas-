@@ -454,23 +454,45 @@ exports.deleteBranch = asyncHandler(async (req, res, next) => {
   sendSuccess(res, null, 200);
 });
 
-// Help Requests Controllers
-const HelpRequest = require('../models/HelpRequest');
+// Admin Notifications Controllers
+const AdminNotification = require('../models/AdminNotification');
 
-exports.getHelpRequests = asyncHandler(async (req, res) => {
-  const requests = await HelpRequest.find({ status: 'unread' })
+exports.getAdminNotifications = asyncHandler(async (req, res) => {
+  const { hotel, type, status } = req.query;
+  const filter = {};
+  if (hotel) filter.hotelId = hotel;
+  if (type) filter.type = type;
+  if (status) filter.status = status;
+
+  const notifications = await AdminNotification.find(filter)
     .populate('managerId', 'name email phone')
     .populate('hotelId', 'name phone')
     .sort('-createdAt');
-  sendSuccess(res, requests);
+  sendSuccess(res, notifications);
 });
 
-exports.markHelpRequestRead = asyncHandler(async (req, res, next) => {
-  const request = await HelpRequest.findByIdAndUpdate(
+exports.markAdminNotificationRead = asyncHandler(async (req, res, next) => {
+  const notif = await AdminNotification.findByIdAndUpdate(
     req.params.id, 
     { status: 'read' }, 
     { new: true }
   );
-  if (!request) return next(new (require('../utils/helpers').AppError)('Help request not found', 404));
-  sendSuccess(res, request);
+  if (!notif) return next(new (require('../utils/helpers').AppError)('Notification not found', 404));
+  sendSuccess(res, notif);
+});
+
+exports.resolveAdminNotification = asyncHandler(async (req, res, next) => {
+  const notif = await AdminNotification.findByIdAndUpdate(
+    req.params.id, 
+    { status: 'resolved' }, 
+    { new: true }
+  );
+  if (!notif) return next(new (require('../utils/helpers').AppError)('Notification not found', 404));
+  sendSuccess(res, notif);
+});
+
+exports.deleteAdminNotification = asyncHandler(async (req, res, next) => {
+  const notif = await AdminNotification.findByIdAndDelete(req.params.id);
+  if (!notif) return next(new (require('../utils/helpers').AppError)('Notification not found', 404));
+  sendSuccess(res, null, 204);
 });
