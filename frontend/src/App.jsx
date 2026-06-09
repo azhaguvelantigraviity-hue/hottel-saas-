@@ -124,7 +124,7 @@ const HotelApp = ({ onLogout, initialPlan = 'enterprise', role = 'manager', hote
     dashboard: 'Dashboard', rooms: 'Room Management', bookings: 'Bookings',
     checkin: 'Smart Check-In', billing: 'Billing & Invoices',
     guests: 'Guest CRM', loyalty: 'Loyalty Program', restaurant: 'Restaurant POS',
-    laundry: 'Laundry Management', travel: 'Travel Desk', events: 'Events & Halls',
+    laundry: 'Laundry Management', travel: 'Travel Desk', travels: 'Travels Management', events: 'Events & Halls',
     employees: 'Employee Management', housekeeping: 'Housekeeping', maintenance: 'Maintenance',
     channel: 'Channel Manager', revenue: 'Revenue AI', analytics: 'Analytics Dashboard',
     marketing: 'Marketing & SEO', whatsapp: 'WhatsApp Integration',
