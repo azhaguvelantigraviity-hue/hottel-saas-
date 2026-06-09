@@ -49,4 +49,10 @@ router.get   ('/branches',      getAllBranches);
 router.post  ('/branches',      createBranch);
 router.put   ('/branches/:id',  updateBranch);
 router.delete('/branches/:id',  deleteBranch);
+
+// Help Requests
+const { getHelpRequests, markHelpRequestRead } = require('../controllers/adminController');
+router.get('/help-requests', getHelpRequests);
+router.put('/help-requests/:id/read', markHelpRequestRead);
+
 module.exports = router;

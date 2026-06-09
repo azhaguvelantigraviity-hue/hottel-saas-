@@ -32,3 +32,6 @@ export const getAllBranches    = ()          => get('/admin/branches');
 export const createBranch      = (body)      => post('/admin/branches', body);
 export const updateBranch      = (id, body)  => put(`/admin/branches/${id}`, body);
 export const deleteBranch      = (id)        => del(`/admin/branches/${id}`);
+
+export const getHelpRequests   = ()          => get('/admin/help-requests');
+export const markHelpRequestRead = (id)      => put(`/admin/help-requests/${id}/read`);

@@ -453,3 +453,24 @@ exports.deleteBranch = asyncHandler(async (req, res, next) => {
   await createAuditLog(req, 'Deleted Branch', branch.name, 'Branch permanently deleted', 'warning');
   sendSuccess(res, null, 200);
 });
+
+// Help Requests Controllers
+const HelpRequest = require('../models/HelpRequest');
+
+exports.getHelpRequests = asyncHandler(async (req, res) => {
+  const requests = await HelpRequest.find({ status: 'unread' })
+    .populate('managerId', 'name email phone')
+    .populate('hotelId', 'name phone')
+    .sort('-createdAt');
+  sendSuccess(res, requests);
+});
+
+exports.markHelpRequestRead = asyncHandler(async (req, res, next) => {
+  const request = await HelpRequest.findByIdAndUpdate(
+    req.params.id, 
+    { status: 'read' }, 
+    { new: true }
+  );
+  if (!request) return next(new (require('../utils/helpers').AppError)('Help request not found', 404));
+  sendSuccess(res, request);
+});

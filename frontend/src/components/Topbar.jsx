@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import Icon from './Icon';
 import { useNotifications } from '../context/NotificationContext';
+import { useAdminNotifications } from '../context/AdminNotificationContext';
 import { getAllHotels } from '../services/adminService';
 import { getUser } from '../services/authService';
 
@@ -8,7 +9,9 @@ const Topbar = ({ title, subtitle, role, onNav, toggleSidebar }) => {
   const [search, setSearch] = useState('');
   const [showNotifs, setShowNotifs] = useState(false);
   const [showUserMenu, setShowUserMenu] = useState(false);
-  const { notifications, unreadCount, markRead, markAllRead } = useNotifications();
+  const hotelNotifs = useNotifications();
+  const adminNotifs = useAdminNotifications();
+  const { notifications, unreadCount, markRead, markAllRead } = role === 'admin' ? adminNotifs : hotelNotifs;
   const [hotels, setHotels] = useState([]);
   const [selectedHotelId, setSelectedHotelId] = useState(localStorage.getItem('selectedHotelId') || '');
 

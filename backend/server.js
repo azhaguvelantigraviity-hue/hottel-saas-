@@ -55,6 +55,11 @@ io.on('connection', (socket) => {
   socket.on('joinHotel', (hotelId) => {
     socket.join(hotelId);
   });
+  
+  // Platform admins should emit 'joinAdmin' to receive global notifications
+  socket.on('joinAdmin', () => {
+    socket.join('adminRoom');
+  });
 });
 
 // ── Security middleware ───────────────────────────────────────────────────────

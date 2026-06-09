@@ -899,20 +899,39 @@ const deleteDocument = catchAsync(async (req, res) => {
   sendSuccess(res, null, 204);
 });
 
+const HelpRequest = require('../models/HelpRequest');
+
 const requestAdminHelp = catchAsync(async (req, res) => {
   if (!req.user.hotel) throw new AppError('No hotel associated', 400);
   
+  const msg = req.body.message || `Manager ${req.user.name} requires admin control/support.`;
+
+  const helpRequest = await HelpRequest.create({
+    managerId: req.user.id,
+    hotelId: req.user.hotel,
+    message: msg,
+    status: 'unread'
+  });
+
+  const populatedReq = await helpRequest.populate('managerId', 'name email').populate('hotelId', 'name');
+
+  // Emit to all connected admins
+  if (req.app.get('io')) {
+    req.app.get('io').to('adminRoom').emit('newHelpRequest', populatedReq);
+  }
+
+  // Also emit the standard notification for completeness if needed, but the HelpRequest drives the bell
   await emitNotification(req, {
     hotel: req.user.hotel,
     title: 'Manager Help Required',
-    desc: `Manager ${req.user.name} from your managed hotel requires admin control/support.`,
+    desc: msg,
     type: 'system',
     icon: 'alert-triangle',
     color: 'var(--rose)',
     targetRoles: ['platform_admin']
   });
 
-  sendSuccess(res, { message: 'Admin support requested successfully' });
+  sendSuccess(res, { message: 'Admin support requested successfully', data: helpRequest });
 });
 
 module.exports = {

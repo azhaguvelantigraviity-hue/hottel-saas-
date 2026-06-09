@@ -61,6 +61,8 @@ const safeSetStorage = (key, value) => {
 };
 
 // ── ADMIN APP ─────────────────────────────────────────────────────────────────
+import { AdminNotificationProvider } from './context/AdminNotificationContext';
+
 const AdminApp = ({ onLogout }) => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -90,6 +92,7 @@ const AdminApp = ({ onLogout }) => {
   };
 
   return (
+    <AdminNotificationProvider>
     <div style={{ display: 'flex', height: '100vh', background: 'var(--bg)' }}>
       <Sidebar role="admin" active={page} onNav={setPage} onLogout={onLogout} isOpen={isSidebarOpen} setIsOpen={setIsSidebarOpen} />
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
@@ -99,6 +102,7 @@ const AdminApp = ({ onLogout }) => {
         </div>
       </div>
     </div>
+    </AdminNotificationProvider>
   );
 };
 
