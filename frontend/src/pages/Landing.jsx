@@ -14,6 +14,7 @@ const Landing = ({ onLogin, theme, setTheme }) => {
     <div style={{ minHeight: '100vh', background: 'var(--obsidian)' }}>
       {/* NAV */}
       <nav
+        className="landing-nav"
         style={{
           padding: '20px 60px',
           display: 'flex',
@@ -29,6 +30,7 @@ const Landing = ({ onLogin, theme, setTheme }) => {
       >
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
           <div
+            className="landing-logo-icon"
             style={{
               width: '32px',
               height: '32px',
@@ -42,6 +44,7 @@ const Landing = ({ onLogin, theme, setTheme }) => {
             <Icon name="hotel" size={16} color="#fff" />
           </div>
           <span
+            className="landing-logo-text"
             style={{
               fontSize: '20px',
               fontWeight: '700',
@@ -52,8 +55,9 @@ const Landing = ({ onLogin, theme, setTheme }) => {
             StayOS
           </span>
         </div>
-        <div style={{ display: 'flex', gap: '12px' }}>
+        <div className="landing-nav-buttons" style={{ display: 'flex', gap: '12px' }}>
           <button
+            className="landing-btn-icon"
             onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
             style={{
               padding: '9px',
@@ -72,6 +76,7 @@ const Landing = ({ onLogin, theme, setTheme }) => {
             <Icon name={theme === 'dark' ? 'sun' : 'moon'} size={18} color="currentColor" />
           </button>
           <button
+            className="landing-btn"
             onClick={() => onLogin('hotel')}
             style={{
               padding: '9px 20px',
@@ -87,6 +92,7 @@ const Landing = ({ onLogin, theme, setTheme }) => {
             Hotel Login
           </button>
           <button
+            className="landing-btn"
             onClick={() => onLogin('admin')}
             style={{
               padding: '9px 20px',
@@ -106,7 +112,7 @@ const Landing = ({ onLogin, theme, setTheme }) => {
       </nav>
 
       {/* HERO */}
-      <div style={{ padding: '100px 60px 80px', textAlign: 'center', position: 'relative', overflow: 'hidden' }}>
+      <div className="landing-hero-container" style={{ padding: '100px 60px 80px', textAlign: 'center', position: 'relative', overflow: 'hidden' }}>
         <div
           style={{
             position: 'absolute',
@@ -133,6 +139,7 @@ const Landing = ({ onLogin, theme, setTheme }) => {
           </span>
         </div>
         <h1
+          className="landing-hero-title"
           style={{
             fontSize: 'clamp(48px,6vw,80px)',
             fontFamily: 'Playfair Display,serif',
@@ -157,13 +164,13 @@ const Landing = ({ onLogin, theme, setTheme }) => {
           <br />
           Operating System
         </h1>
-        <p style={{ fontSize: '18px', color: 'var(--text2)', maxWidth: '560px', margin: '0 auto 40px', lineHeight: 1.7 }}>
+        <p className="landing-hero-desc" style={{ fontSize: '18px', color: 'var(--text2)', maxWidth: '560px', margin: '0 auto 40px', lineHeight: 1.7 }}>
           From room bookings to revenue analytics — every tool your hotel needs, in one beautifully unified platform.
         </p>
       </div>
 
       {/* FEATURES STRIP */}
-      <div style={{ padding: '0 60px 80px', maxWidth: '1100px', margin: '0 auto' }}>
+      <div className="landing-section-container" style={{ padding: '0 60px 80px', maxWidth: '1100px', margin: '0 auto' }}>
         <div style={{ textAlign: 'center', marginBottom: '32px' }}>
           <h2 style={{ fontFamily: 'Playfair Display,serif', fontSize: '32px', fontWeight: '700', marginBottom: '8px' }}>
             Everything Your Hotel Needs
@@ -221,7 +228,7 @@ const Landing = ({ onLogin, theme, setTheme }) => {
       </div>
 
       {/* PRICING */}
-      <div style={{ padding: '0 60px 100px', maxWidth: '1100px', margin: '0 auto' }}>
+      <div className="landing-section-container" style={{ padding: '0 60px 100px', maxWidth: '1100px', margin: '0 auto' }}>
         <div style={{ textAlign: 'center', marginBottom: '48px' }}>
           <h2 style={{ fontFamily: 'Playfair Display,serif', fontSize: '42px', fontWeight: '700', marginBottom: '12px' }}>
             Plans for Every Property

@@ -242,5 +242,43 @@ table {
     transform: translateX(0);
     box-shadow: 0 0 40px rgba(0,0,0,0.5);
   }
+
+  /* Landing Page Mobile Fixes */
+  .landing-nav {
+    padding: 16px 20px !important;
+    flex-wrap: wrap !important;
+    gap: 12px;
+  }
+  .landing-nav-buttons {
+    width: 100%;
+    justify-content: center !important;
+    gap: 8px !important;
+  }
+  .landing-btn {
+    padding: 8px 14px !important;
+    font-size: 13px !important;
+  }
+  .landing-btn-icon {
+    padding: 8px !important;
+  }
+  .landing-logo-text {
+    font-size: 18px !important;
+  }
+  .landing-logo-icon {
+    width: 28px !important;
+    height: 28px !important;
+  }
+  .landing-hero-title {
+    font-size: clamp(36px, 10vw, 48px) !important;
+  }
+  .landing-hero-desc {
+    font-size: 15px !important;
+  }
+  .landing-hero-container {
+    padding: 60px 20px 40px !important;
+  }
+  .landing-section-container {
+    padding: 0 20px 40px !important;
+  }
 }
 
