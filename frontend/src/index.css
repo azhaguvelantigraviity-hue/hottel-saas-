@@ -196,13 +196,46 @@ table {
   .mobile-block { display: block !important; }
   .mobile-flex { display: flex !important; }
   
-  .page-container { padding: 16px !important; }
+  .page-container { padding: 12px !important; }
   .force-wrap { grid-template-columns: 1fr !important; }
+  .topbar-container { padding: 0 12px !important; gap: 8px !important; }
+
+  /* Generic mobile wrap for headers and toolbars */
+  .mobile-wrap { 
+    flex-wrap: wrap !important; 
+    gap: 12px !important; 
+  }
+  .mobile-col {
+    flex-direction: column !important;
+    align-items: stretch !important;
+  }
+  .mobile-col > * {
+    width: 100% !important;
+  }
+  .mobile-text-sm {
+    font-size: 12px !important;
+  }
+  
+  /* Make all dashboard stat grids single column on mobile */
+  .dashboard-grid {
+    grid-template-columns: 1fr !important;
+  }
+  .dashboard-main-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* Adjust modals for mobile */
+  .modal-content {
+    width: 95vw !important;
+    max-height: 90vh !important;
+    padding: 16px !important;
+  }
 
   /* Sidebar Drawer */
   .sidebar-closed {
     position: fixed !important;
     transform: translateX(-100%);
+    box-shadow: none;
   }
   .sidebar-open {
     position: fixed !important;

@@ -55,9 +55,9 @@ const AdminDashboard = ({ onNav }) => {
       </div>
 
       {/* Charts Row */}
-      <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '20px', marginBottom: '28px' }}>
+      <div className="mobile-col" style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '20px', marginBottom: '28px' }}>
         <div style={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: 'var(--radius)', padding: 'clamp(12px, 3vw, 24px)' }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifySpace: 'space-between', justifyContent: 'space-between', marginBottom: '20px' }}>
+          <div className="mobile-wrap" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '20px' }}>
             <div>
               <div style={{ fontSize: '15px', fontWeight: '700', marginBottom: '3px' }}>Platform Revenue Growth</div>
               <div style={{ fontSize: '12px', color: 'var(--text3)' }}>Monthly Recurring Revenue</div>
@@ -120,7 +120,7 @@ const AdminDashboard = ({ onNav }) => {
       <div style={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: 'var(--radius)', padding: 'clamp(12px, 3vw, 24px)' }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '20px' }}>
           <div style={{ fontSize: '15px', fontWeight: '700' }}>Managed Hotels</div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+          <div className="mobile-wrap" style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
             <button
               onClick={() => onNav('hotels')}
               style={{
@@ -158,7 +158,8 @@ const AdminDashboard = ({ onNav }) => {
             </button>
           </div>
         </div>
-        <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+        <div className="table-responsive-wrapper">
+          <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: '800px' }}>
           <thead>
             <tr style={{ borderBottom: '1px solid var(--border)' }}>
               {['Hotel', 'City', 'Plan', 'Rooms', 'Occupancy', 'Revenue', 'Status'].map((h) => (
@@ -214,6 +215,7 @@ const AdminDashboard = ({ onNav }) => {
             ))}
           </tbody>
         </table>
+        </div>
       </div>
     </div>
   );

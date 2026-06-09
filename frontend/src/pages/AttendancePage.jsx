@@ -193,60 +193,62 @@ const AttendancePage = ({ employees, hotelDetails }) => {
                   <div style={{ fontSize: '13px', color: 'var(--text3)' }}>Add employees from the Staff Directory tab first</div>
                 </div>
               ) : (
-              <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-                <thead>
-                  <tr style={{ borderBottom: '1px solid var(--border)', background: 'var(--surface)' }}>
-                    {['Employee', 'Department', 'Shift', 'Check-in', 'Check-out', 'Hours', 'OT', 'Status', 'Actions'].map(h => (
-                      <th key={h} style={{ padding: '10px 12px', textAlign: 'left', fontSize: '11px', color: 'var(--text3)', fontWeight: '600', letterSpacing: '0.05em' }}>{h.toUpperCase()}</th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody>
-                  {employeeList.map(emp => {
-                    const rec = todayRecords.find(a => a.employeeId === emp.id);
-                    return (
-                      <tr key={emp.id} style={{ borderBottom: '1px solid var(--border)' }}
-                        onMouseEnter={e => e.currentTarget.style.background = 'var(--surface)'}
-                        onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>
-                        <td style={{ padding: '12px' }}>
-                          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                            <Avatar initials={emp.avatar} color={rec?.status === 'present' ? 'var(--green)' : rec?.status === 'absent' ? 'var(--rose)' : 'var(--text3)'} size={32} />
-                            <div>
-                              <div style={{ fontSize: '13px', fontWeight: '600' }}>{emp.name}</div>
-                              <div style={{ fontSize: '11px', color: 'var(--text3)' }}>{emp.role}</div>
+              <div className="table-responsive-wrapper">
+                <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: '800px' }}>
+                  <thead>
+                    <tr style={{ borderBottom: '1px solid var(--border)', background: 'var(--surface)' }}>
+                      {['Employee', 'Department', 'Shift', 'Check-in', 'Check-out', 'Hours', 'OT', 'Status', 'Actions'].map(h => (
+                        <th key={h} style={{ padding: '10px 12px', textAlign: 'left', fontSize: '11px', color: 'var(--text3)', fontWeight: '600', letterSpacing: '0.05em' }}>{h.toUpperCase()}</th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {employeeList.map(emp => {
+                      const rec = todayRecords.find(a => a.employeeId === emp.id);
+                      return (
+                        <tr key={emp.id} style={{ borderBottom: '1px solid var(--border)' }}
+                          onMouseEnter={e => e.currentTarget.style.background = 'var(--surface)'}
+                          onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>
+                          <td style={{ padding: '12px' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                              <Avatar initials={emp.avatar} color={rec?.status === 'present' ? 'var(--green)' : rec?.status === 'absent' ? 'var(--rose)' : 'var(--text3)'} size={32} />
+                              <div>
+                                <div style={{ fontSize: '13px', fontWeight: '600' }}>{emp.name}</div>
+                                <div style={{ fontSize: '11px', color: 'var(--text3)' }}>{emp.role}</div>
+                              </div>
                             </div>
-                          </div>
-                        </td>
-                        <td style={{ padding: '12px', fontSize: '12px', color: 'var(--text2)' }}>{emp.dept}</td>
-                        <td style={{ padding: '12px' }}><Badge color="gray">{emp.shift}</Badge></td>
-                        <td style={{ padding: '12px', fontSize: '13px', fontFamily: 'DM Mono,monospace', color: 'var(--teal)' }}>{rec?.checkIn || '—'}</td>
-                        <td style={{ padding: '12px', fontSize: '13px', fontFamily: 'DM Mono,monospace', color: 'var(--text2)' }}>{rec?.checkOut || '—'}</td>
-                        <td style={{ padding: '12px', fontSize: '13px', fontFamily: 'DM Mono,monospace' }}>{rec?.hours ? `${rec.hours}h` : '—'}</td>
-                        <td style={{ padding: '12px', fontSize: '13px', fontFamily: 'DM Mono,monospace', color: rec?.overtime > 0 ? 'var(--amber)' : 'var(--text3)' }}>{rec?.overtime > 0 ? `+${rec.overtime}h` : '—'}</td>
-                        <td style={{ padding: '12px' }}>
-                          {rec ? <Badge color={statusColor[rec.status]}>{rec.status}</Badge> : <Badge color="gray">Not Marked</Badge>}
-                        </td>
-                        <td style={{ padding: '12px' }}>
-                          <div style={{ display: 'flex', gap: '4px' }}>
-                            {(!rec || rec.status !== 'present') && (
-                              <button onClick={() => markAttendance(emp.id, 'present')} style={{ padding: '4px 8px', background: 'rgba(52,211,153,0.15)', border: '1px solid rgba(52,211,153,0.3)', borderRadius: '5px', color: 'var(--green)', cursor: 'pointer', fontSize: '11px', fontWeight: '600', fontFamily: 'Inter, sans-serif' }}>In</button>
-                            )}
-                            {rec?.status === 'present' && !rec.checkOut && (
-                              <button onClick={() => checkOut(emp.id)} style={{ padding: '4px 8px', background: 'rgba(201,168,76,0.15)', border: '1px solid rgba(201,168,76,0.3)', borderRadius: '5px', color: 'var(--gold)', cursor: 'pointer', fontSize: '11px', fontWeight: '600', fontFamily: 'Inter, sans-serif' }}>Out</button>
-                            )}
-                            {(!rec || rec.status !== 'absent') && (
-                              <button onClick={() => markAttendance(emp.id, 'absent')} style={{ padding: '4px 8px', background: 'rgba(251,113,133,0.1)', border: '1px solid rgba(251,113,133,0.3)', borderRadius: '5px', color: 'var(--rose)', cursor: 'pointer', fontSize: '11px', fontWeight: '600', fontFamily: 'Inter, sans-serif' }}>Abs</button>
-                            )}
-                            {(!rec || rec.status !== 'leave') && (
-                              <button onClick={() => markAttendance(emp.id, 'leave')} style={{ padding: '4px 8px', background: 'rgba(252,211,77,0.1)', border: '1px solid rgba(252,211,77,0.3)', borderRadius: '5px', color: 'var(--amber)', cursor: 'pointer', fontSize: '11px', fontWeight: '600', fontFamily: 'Inter, sans-serif' }}>Leave</button>
-                            )}
-                          </div>
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
+                          </td>
+                          <td style={{ padding: '12px', fontSize: '12px', color: 'var(--text2)' }}>{emp.dept}</td>
+                          <td style={{ padding: '12px' }}><Badge color="gray">{emp.shift}</Badge></td>
+                          <td style={{ padding: '12px', fontSize: '13px', fontFamily: 'DM Mono,monospace', color: 'var(--teal)' }}>{rec?.checkIn || '—'}</td>
+                          <td style={{ padding: '12px', fontSize: '13px', fontFamily: 'DM Mono,monospace', color: 'var(--text2)' }}>{rec?.checkOut || '—'}</td>
+                          <td style={{ padding: '12px', fontSize: '13px', fontFamily: 'DM Mono,monospace' }}>{rec?.hours ? `${rec.hours}h` : '—'}</td>
+                          <td style={{ padding: '12px', fontSize: '13px', fontFamily: 'DM Mono,monospace', color: rec?.overtime > 0 ? 'var(--amber)' : 'var(--text3)' }}>{rec?.overtime > 0 ? `+${rec.overtime}h` : '—'}</td>
+                          <td style={{ padding: '12px' }}>
+                            {rec ? <Badge color={statusColor[rec.status]}>{rec.status}</Badge> : <Badge color="gray">Not Marked</Badge>}
+                          </td>
+                          <td style={{ padding: '12px' }}>
+                            <div style={{ display: 'flex', gap: '4px' }}>
+                              {(!rec || rec.status !== 'present') && (
+                                <button onClick={() => markAttendance(emp.id, 'present')} style={{ padding: '4px 8px', background: 'rgba(52,211,153,0.15)', border: '1px solid rgba(52,211,153,0.3)', borderRadius: '5px', color: 'var(--green)', cursor: 'pointer', fontSize: '11px', fontWeight: '600', fontFamily: 'Inter, sans-serif' }}>In</button>
+                              )}
+                              {rec?.status === 'present' && !rec.checkOut && (
+                                <button onClick={() => checkOut(emp.id)} style={{ padding: '4px 8px', background: 'rgba(201,168,76,0.15)', border: '1px solid rgba(201,168,76,0.3)', borderRadius: '5px', color: 'var(--gold)', cursor: 'pointer', fontSize: '11px', fontWeight: '600', fontFamily: 'Inter, sans-serif' }}>Out</button>
+                              )}
+                              {(!rec || rec.status !== 'absent') && (
+                                <button onClick={() => markAttendance(emp.id, 'absent')} style={{ padding: '4px 8px', background: 'rgba(251,113,133,0.1)', border: '1px solid rgba(251,113,133,0.3)', borderRadius: '5px', color: 'var(--rose)', cursor: 'pointer', fontSize: '11px', fontWeight: '600', fontFamily: 'Inter, sans-serif' }}>Abs</button>
+                              )}
+                              {(!rec || rec.status !== 'leave') && (
+                                <button onClick={() => markAttendance(emp.id, 'leave')} style={{ padding: '4px 8px', background: 'rgba(252,211,77,0.1)', border: '1px solid rgba(252,211,77,0.3)', borderRadius: '5px', color: 'var(--amber)', cursor: 'pointer', fontSize: '11px', fontWeight: '600', fontFamily: 'Inter, sans-serif' }}>Leave</button>
+                              )}
+                            </div>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
               )}
             </div>
           </>
@@ -263,50 +265,52 @@ const AttendancePage = ({ employees, hotelDetails }) => {
               </div>
             ) : (
             <div style={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: 'var(--radius)', overflow: 'hidden' }}>
-              <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-                <thead>
-                  <tr style={{ borderBottom: '1px solid var(--border)', background: 'var(--surface)' }}>
-                    {['Employee', 'Dept', 'Present', 'Absent', 'Leave', 'Total Hours', 'Overtime', 'Attendance %'].map(h => (
-                      <th key={h} style={{ padding: '10px 12px', textAlign: 'left', fontSize: '11px', color: 'var(--text3)', fontWeight: '600', letterSpacing: '0.05em' }}>{h.toUpperCase()}</th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody>
-                  {monthlySummary.map(emp => {
-                    const total = emp.present + emp.absent + emp.leave;
-                    const pct = total > 0 ? Math.round((emp.present / total) * 100) : 0;
-                    return (
-                      <tr key={emp.id} style={{ borderBottom: '1px solid var(--border)' }}
-                        onMouseEnter={e => e.currentTarget.style.background = 'var(--surface)'}
-                        onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>
-                        <td style={{ padding: '12px' }}>
-                          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                            <Avatar initials={emp.avatar} color="var(--gold)" size={30} />
-                            <div>
-                              <div style={{ fontSize: '13px', fontWeight: '600' }}>{emp.name}</div>
-                              <div style={{ fontSize: '11px', color: 'var(--text3)' }}>{emp.role}</div>
+              <div className="table-responsive-wrapper">
+                <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: '800px' }}>
+                  <thead>
+                    <tr style={{ borderBottom: '1px solid var(--border)', background: 'var(--surface)' }}>
+                      {['Employee', 'Dept', 'Present', 'Absent', 'Leave', 'Total Hours', 'Overtime', 'Attendance %'].map(h => (
+                        <th key={h} style={{ padding: '10px 12px', textAlign: 'left', fontSize: '11px', color: 'var(--text3)', fontWeight: '600', letterSpacing: '0.05em' }}>{h.toUpperCase()}</th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {monthlySummary.map(emp => {
+                      const total = emp.present + emp.absent + emp.leave;
+                      const pct = total > 0 ? Math.round((emp.present / total) * 100) : 0;
+                      return (
+                        <tr key={emp.id} style={{ borderBottom: '1px solid var(--border)' }}
+                          onMouseEnter={e => e.currentTarget.style.background = 'var(--surface)'}
+                          onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>
+                          <td style={{ padding: '12px' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                              <Avatar initials={emp.avatar} color="var(--gold)" size={30} />
+                              <div>
+                                <div style={{ fontSize: '13px', fontWeight: '600' }}>{emp.name}</div>
+                                <div style={{ fontSize: '11px', color: 'var(--text3)' }}>{emp.role}</div>
+                              </div>
                             </div>
-                          </div>
-                        </td>
-                        <td style={{ padding: '12px', fontSize: '12px', color: 'var(--text2)' }}>{emp.dept}</td>
-                        <td style={{ padding: '12px', fontSize: '13px', fontWeight: '700', color: 'var(--green)' }}>{emp.present}</td>
-                        <td style={{ padding: '12px', fontSize: '13px', fontWeight: '700', color: 'var(--rose)' }}>{emp.absent}</td>
-                        <td style={{ padding: '12px', fontSize: '13px', fontWeight: '700', color: 'var(--amber)' }}>{emp.leave}</td>
-                        <td style={{ padding: '12px', fontSize: '13px', fontFamily: 'DM Mono,monospace' }}>{emp.totalHours}h</td>
-                        <td style={{ padding: '12px', fontSize: '13px', fontFamily: 'DM Mono,monospace', color: +emp.overtime > 0 ? 'var(--amber)' : 'var(--text3)' }}>{+emp.overtime > 0 ? `+${emp.overtime}h` : '—'}</td>
-                        <td style={{ padding: '12px' }}>
-                          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                            <div style={{ width: '60px', height: '4px', background: 'var(--surface)', borderRadius: '2px', overflow: 'hidden' }}>
-                              <div style={{ height: '100%', width: `${pct}%`, background: pct >= 90 ? 'var(--green)' : pct >= 75 ? 'var(--amber)' : 'var(--rose)', borderRadius: '2px' }} />
+                          </td>
+                          <td style={{ padding: '12px', fontSize: '12px', color: 'var(--text2)' }}>{emp.dept}</td>
+                          <td style={{ padding: '12px', fontSize: '13px', fontWeight: '700', color: 'var(--green)' }}>{emp.present}</td>
+                          <td style={{ padding: '12px', fontSize: '13px', fontWeight: '700', color: 'var(--rose)' }}>{emp.absent}</td>
+                          <td style={{ padding: '12px', fontSize: '13px', fontWeight: '700', color: 'var(--amber)' }}>{emp.leave}</td>
+                          <td style={{ padding: '12px', fontSize: '13px', fontFamily: 'DM Mono,monospace' }}>{emp.totalHours}h</td>
+                          <td style={{ padding: '12px', fontSize: '13px', fontFamily: 'DM Mono,monospace', color: +emp.overtime > 0 ? 'var(--amber)' : 'var(--text3)' }}>{+emp.overtime > 0 ? `+${emp.overtime}h` : '—'}</td>
+                          <td style={{ padding: '12px' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                              <div style={{ width: '60px', height: '4px', background: 'var(--surface)', borderRadius: '2px', overflow: 'hidden' }}>
+                                <div style={{ height: '100%', width: `${pct}%`, background: pct >= 90 ? 'var(--green)' : pct >= 75 ? 'var(--amber)' : 'var(--rose)', borderRadius: '2px' }} />
+                              </div>
+                              <span style={{ fontSize: '12px', fontWeight: '700', color: pct >= 90 ? 'var(--green)' : pct >= 75 ? 'var(--amber)' : 'var(--rose)' }}>{pct}%</span>
                             </div>
-                            <span style={{ fontSize: '12px', fontWeight: '700', color: pct >= 90 ? 'var(--green)' : pct >= 75 ? 'var(--amber)' : 'var(--rose)' }}>{pct}%</span>
-                          </div>
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
             </div>
             )}
           </>

@@ -588,44 +588,46 @@ const BookingsPage = () => {
 
       {/* Table */}
       <div style={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: 'var(--radius)', overflow: 'hidden' }}>
-        <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-          <thead>
-            <tr style={{ borderBottom: '1px solid var(--border)', background: 'var(--surface)' }}>
-              {['Booking ID', 'Guest', 'Room', 'Check-in', 'Check-out', 'Nights', 'Amount', 'Pet', 'Source', 'Status', ''].map(h => (
-                <th key={h} style={{ padding: '10px 12px', textAlign: 'left', fontSize: '11px', color: 'var(--text3)', fontWeight: '600', letterSpacing: '0.05em', whiteSpace: 'nowrap' }}>{h.toUpperCase()}</th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {filtered.length === 0 ? (
-              <tr><td colSpan={11} style={{ padding: '40px', textAlign: 'center', color: 'var(--text3)', fontSize: '14px' }}>No bookings found</td></tr>
-            ) : filtered.map(b => (
-              <tr key={b.id} style={{ borderBottom: '1px solid var(--border)', cursor: 'pointer' }}
-                onMouseEnter={e => e.currentTarget.style.background = 'var(--surface)'}
-                onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
-                onClick={() => setSelected(b)}
-              >
-                <td style={{ padding: '12px', fontSize: '12px', fontFamily: 'DM Mono,monospace', color: 'var(--gold)' }}>{b.id}</td>
-                <td style={{ padding: '12px', fontSize: '13px', fontWeight: '600' }}>{b.guest}</td>
-                <td style={{ padding: '12px', fontSize: '12px', color: 'var(--text2)' }}>{b.room}</td>
-                <td style={{ padding: '12px', fontSize: '12px', color: 'var(--text2)' }}>{b.checkIn}</td>
-                <td style={{ padding: '12px', fontSize: '12px', color: 'var(--text2)' }}>{b.checkOut}</td>
-                <td style={{ padding: '12px', fontSize: '13px', textAlign: 'center', color: 'var(--text2)' }}>{b.nights}</td>
-                <td style={{ padding: '12px', fontSize: '13px', fontFamily: 'DM Mono,monospace' }}>₹{b.amount?.toLocaleString()}</td>
-                <td style={{ padding: '12px', textAlign: 'center' }}>
-                  {b.hasPet ? <span title={`${b.petType} — ₹${b.petCharge}`} style={{ fontSize: '16px', cursor: 'help' }}>🐾</span> : <span style={{ color: 'var(--text3)', fontSize: '12px' }}>—</span>}
-                </td>
-                <td style={{ padding: '12px' }}><Badge color={sourceColor[b.source] || 'gray'}>{b.source}</Badge></td>
-                <td style={{ padding: '12px' }}><Badge color={statusColor[b.status] || 'gray'}>{b.status}</Badge></td>
-                <td style={{ padding: '12px' }}>
-                  <button onClick={e => { e.stopPropagation(); setSelected(b); }} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text3)' }}>
-                    <Icon name="eye" size={14} color="var(--text3)" />
-                  </button>
-                </td>
+        <div className="table-responsive-wrapper">
+          <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: '800px' }}>
+            <thead>
+              <tr style={{ borderBottom: '1px solid var(--border)', background: 'var(--surface)' }}>
+                {['Booking ID', 'Guest', 'Room', 'Check-in', 'Check-out', 'Nights', 'Amount', 'Pet', 'Source', 'Status', ''].map(h => (
+                  <th key={h} style={{ padding: '10px 12px', textAlign: 'left', fontSize: '11px', color: 'var(--text3)', fontWeight: '600', letterSpacing: '0.05em', whiteSpace: 'nowrap' }}>{h.toUpperCase()}</th>
+                ))}
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {filtered.length === 0 ? (
+                <tr><td colSpan={11} style={{ padding: '40px', textAlign: 'center', color: 'var(--text3)', fontSize: '14px' }}>No bookings found</td></tr>
+              ) : filtered.map(b => (
+                <tr key={b.id} style={{ borderBottom: '1px solid var(--border)', cursor: 'pointer' }}
+                  onMouseEnter={e => e.currentTarget.style.background = 'var(--surface)'}
+                  onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
+                  onClick={() => setSelected(b)}
+                >
+                  <td style={{ padding: '12px', fontSize: '12px', fontFamily: 'DM Mono,monospace', color: 'var(--gold)' }}>{b.id}</td>
+                  <td style={{ padding: '12px', fontSize: '13px', fontWeight: '600' }}>{b.guest}</td>
+                  <td style={{ padding: '12px', fontSize: '12px', color: 'var(--text2)' }}>{b.room}</td>
+                  <td style={{ padding: '12px', fontSize: '12px', color: 'var(--text2)' }}>{b.checkIn}</td>
+                  <td style={{ padding: '12px', fontSize: '12px', color: 'var(--text2)' }}>{b.checkOut}</td>
+                  <td style={{ padding: '12px', fontSize: '13px', textAlign: 'center', color: 'var(--text2)' }}>{b.nights}</td>
+                  <td style={{ padding: '12px', fontSize: '13px', fontFamily: 'DM Mono,monospace' }}>₹{b.amount?.toLocaleString()}</td>
+                  <td style={{ padding: '12px', textAlign: 'center' }}>
+                    {b.hasPet ? <span title={`${b.petType} — ₹${b.petCharge}`} style={{ fontSize: '16px', cursor: 'help' }}>🐾</span> : <span style={{ color: 'var(--text3)', fontSize: '12px' }}>—</span>}
+                  </td>
+                  <td style={{ padding: '12px' }}><Badge color={sourceColor[b.source] || 'gray'}>{b.source}</Badge></td>
+                  <td style={{ padding: '12px' }}><Badge color={statusColor[b.status] || 'gray'}>{b.status}</Badge></td>
+                  <td style={{ padding: '12px' }}>
+                    <button onClick={e => { e.stopPropagation(); setSelected(b); }} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text3)' }}>
+                      <Icon name="eye" size={14} color="var(--text3)" />
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   );

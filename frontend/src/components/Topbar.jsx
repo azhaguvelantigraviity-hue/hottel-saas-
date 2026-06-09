@@ -40,7 +40,7 @@ const Topbar = ({ title, subtitle, role, onNav, toggleSidebar }) => {
   const userInitials = role === 'admin' ? 'A' : role === 'manager' ? 'M' : role === 'reception' ? 'R' : role === 'housekeeping' ? 'H' : 'U';
 
   return (
-    <div style={{
+    <div className="topbar-container" style={{
       padding: '0 28px',
       height: '64px',
       borderBottom: '1px solid var(--border)',
@@ -49,10 +49,10 @@ const Topbar = ({ title, subtitle, role, onNav, toggleSidebar }) => {
       justifyContent: 'space-between',
       background: 'var(--surface)',
       flexShrink: 0,
-      gap: '16px',
+      gap: '12px',
     }}>
       {/* Left — Hamburger + Page title */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: '12px', minWidth: 0 }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '10px', minWidth: 0, flex: 1 }}>
         {toggleSidebar && (
           <button 
             className="mobile-block"
@@ -63,17 +63,14 @@ const Topbar = ({ title, subtitle, role, onNav, toggleSidebar }) => {
               padding: '4px', color: 'var(--text)',
             }}
           >
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <line x1="3" y1="12" x2="21" y2="12"></line>
-              <line x1="3" y1="6" x2="21" y2="6"></line>
-              <line x1="3" y1="18" x2="21" y2="18"></line>
-            </svg>
+            <Icon name="menu" size={24} color="var(--text)" />
           </button>
         )}
         <div>
-          <h1 style={{
+          <h1 className="mobile-text-sm" style={{
             fontSize: '20px', fontWeight: '700', color: 'var(--text)',
             letterSpacing: '-0.02em', lineHeight: 1.2, whiteSpace: 'nowrap',
+            textOverflow: 'ellipsis', overflow: 'hidden', maxWidth: '150px'
           }}>
             {title}
           </h1>
@@ -276,7 +273,7 @@ const Topbar = ({ title, subtitle, role, onNav, toggleSidebar }) => {
             }}>
               {userInitials}
             </div>
-            <div style={{ lineHeight: 1.3 }}>
+            <div className="mobile-hidden" style={{ lineHeight: 1.3 }}>
               <div style={{ fontSize: '11px', color: 'var(--text3)' }}>{greeting()}</div>
               <div style={{ fontSize: '13px', fontWeight: '600', color: 'var(--text)', display: 'flex', alignItems: 'center', gap: '4px' }}>
                 {userName}

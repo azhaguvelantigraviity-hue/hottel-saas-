@@ -379,38 +379,40 @@ const RoomsPage = ({ onNav, role, hotelDetails }) => {
         </div>
       ) : (
         <div style={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: 'var(--radius)', overflow: 'hidden' }}>
-          <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-            <thead>
-              <tr style={{ borderBottom: '1px solid var(--border)', background: 'var(--surface)' }}>
-                {['Room', 'Type', 'Bed Type', 'Max Guests', 'Floor', 'Status', 'Guest', 'Rate', 'Housekeeping', ''].map(h => (
-                  <th key={h} style={{ padding: '12px 16px', textAlign: 'left', fontSize: '11px', color: 'var(--text3)', fontWeight: '600', letterSpacing: '0.05em' }}>{h.toUpperCase()}</th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {filtered.map(r => (
-                <tr key={r._id || r.id} style={{ borderBottom: '1px solid var(--border)' }} onMouseEnter={e => e.currentTarget.style.background = 'var(--surface)'} onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>
-                  <td style={{ padding: '12px 16px', fontFamily: 'DM Mono,monospace', fontWeight: '700', color: statusColor[r.status] }}>{r.id}</td>
-                  <td style={{ padding: '12px 16px', fontSize: '13px' }}>{r.type}</td>
-                  <td style={{ padding: '12px 16px', fontSize: '13px' }}>{r.bedType}</td>
-                  <td style={{ padding: '12px 16px', fontSize: '13px' }}>{r.maxGuests}</td>
-                  <td style={{ padding: '12px 16px', fontSize: '13px', color: 'var(--text2)' }}>Floor {r.floor}</td>
-                  <td style={{ padding: '12px 16px' }}><Badge color={r.status === 'occupied' ? 'gold' : r.status === 'available' ? 'green' : r.status === 'reserved' ? 'violet' : r.status === 'cleaning' ? 'amber' : 'rose'}>{r.status}</Badge></td>
-                  <td style={{ padding: '12px 16px', fontSize: '13px', color: 'var(--text2)' }}>{r.guest || '—'}</td>
-                  <td style={{ padding: '12px 16px', fontFamily: 'DM Mono,monospace', fontSize: '13px' }}>₹{(r.rate || 0).toLocaleString()}</td>
-                  <td style={{ padding: '12px 16px' }}><Badge color={r.housekeeping === 'clean' ? 'green' : r.housekeeping === 'dirty' ? 'rose' : 'amber'}>{r.housekeeping}</Badge></td>
-                  <td style={{ padding: '12px 16px' }}>
-                    {role === 'manager' && (
-                      <div style={{ display: 'flex', gap: '4px' }}>
-                        <button onClick={() => setEditRoom(r)} style={{ padding: '4px 8px', background: 'rgba(201,168,76,0.1)', border: '1px solid rgba(201,168,76,0.25)', borderRadius: '6px', color: 'var(--gold)', cursor: 'pointer', fontSize: '10px', fontFamily: 'Inter, sans-serif' }}>Edit</button>
-                        <button onClick={() => handleDeleteRoom(r.id, r.id)} disabled={saving} style={{ padding: '4px 8px', background: 'transparent', border: '1px solid var(--rose)', borderRadius: '6px', color: 'var(--rose)', cursor: saving ? 'not-allowed' : 'pointer', fontSize: '10px', fontFamily: 'Inter, sans-serif' }}>✕</button>
-                      </div>
-                    )}
-                  </td>
+          <div className="table-responsive-wrapper">
+            <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: '800px' }}>
+              <thead>
+                <tr style={{ borderBottom: '1px solid var(--border)', background: 'var(--surface)' }}>
+                  {['Room', 'Type', 'Bed Type', 'Max Guests', 'Floor', 'Status', 'Guest', 'Rate', 'Housekeeping', ''].map(h => (
+                    <th key={h} style={{ padding: '12px 16px', textAlign: 'left', fontSize: '11px', color: 'var(--text3)', fontWeight: '600', letterSpacing: '0.05em' }}>{h.toUpperCase()}</th>
+                  ))}
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {filtered.map(r => (
+                  <tr key={r._id || r.id} style={{ borderBottom: '1px solid var(--border)' }} onMouseEnter={e => e.currentTarget.style.background = 'var(--surface)'} onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>
+                    <td style={{ padding: '12px 16px', fontFamily: 'DM Mono,monospace', fontWeight: '700', color: statusColor[r.status] }}>{r.id}</td>
+                    <td style={{ padding: '12px 16px', fontSize: '13px' }}>{r.type}</td>
+                    <td style={{ padding: '12px 16px', fontSize: '13px' }}>{r.bedType}</td>
+                    <td style={{ padding: '12px 16px', fontSize: '13px' }}>{r.maxGuests}</td>
+                    <td style={{ padding: '12px 16px', fontSize: '13px', color: 'var(--text2)' }}>Floor {r.floor}</td>
+                    <td style={{ padding: '12px 16px' }}><Badge color={r.status === 'occupied' ? 'gold' : r.status === 'available' ? 'green' : r.status === 'reserved' ? 'violet' : r.status === 'cleaning' ? 'amber' : 'rose'}>{r.status}</Badge></td>
+                    <td style={{ padding: '12px 16px', fontSize: '13px', color: 'var(--text2)' }}>{r.guest || '—'}</td>
+                    <td style={{ padding: '12px 16px', fontFamily: 'DM Mono,monospace', fontSize: '13px' }}>₹{(r.rate || 0).toLocaleString()}</td>
+                    <td style={{ padding: '12px 16px' }}><Badge color={r.housekeeping === 'clean' ? 'green' : r.housekeeping === 'dirty' ? 'rose' : 'amber'}>{r.housekeeping}</Badge></td>
+                    <td style={{ padding: '12px 16px' }}>
+                      {role === 'manager' && (
+                        <div style={{ display: 'flex', gap: '4px' }}>
+                          <button onClick={() => setEditRoom(r)} style={{ padding: '4px 8px', background: 'rgba(201,168,76,0.1)', border: '1px solid rgba(201,168,76,0.25)', borderRadius: '6px', color: 'var(--gold)', cursor: 'pointer', fontSize: '10px', fontFamily: 'Inter, sans-serif' }}>Edit</button>
+                          <button onClick={() => handleDeleteRoom(r.id, r.id)} disabled={saving} style={{ padding: '4px 8px', background: 'transparent', border: '1px solid var(--rose)', borderRadius: '6px', color: 'var(--rose)', cursor: saving ? 'not-allowed' : 'pointer', fontSize: '10px', fontFamily: 'Inter, sans-serif' }}>✕</button>
+                        </div>
+                      )}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
       )}
     </div>

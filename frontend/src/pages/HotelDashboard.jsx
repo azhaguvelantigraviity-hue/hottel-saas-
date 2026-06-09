@@ -118,8 +118,8 @@ const HotelDashboard = ({ plan, onNav }) => {
         {/* Housekeeping */}
         <div style={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: 'var(--radius)', padding: 'clamp(12px, 3vw, 24px)' }}>
           <div style={{ fontSize: '15px', fontWeight: '700', marginBottom: '16px' }}>Housekeeping Status</div>
-          <div style={{ maxHeight: '150px', overflowY: 'auto' }}>
-            <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+          <div style={{ maxHeight: '150px' }} className="table-responsive-wrapper">
+            <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: '300px' }}>
               <tbody>
                 {rooms.map(r => (
                   <tr key={r._id} style={{ borderBottom: '1px solid var(--border)' }}>
@@ -167,55 +167,59 @@ const HotelDashboard = ({ plan, onNav }) => {
          {/* Today's Check-ins */}
         <div style={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: 'var(--radius)', padding: 'clamp(12px, 3vw, 24px)' }}>
           <div style={{ fontSize: '15px', fontWeight: '700', marginBottom: '16px' }}>Today's Check-ins</div>
-          <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-            <thead>
-              <tr style={{ borderBottom: '1px solid var(--border)' }}>
-                <th style={{ padding: '8px 0', textAlign: 'left', fontSize: '11px', color: 'var(--text3)' }}>GUEST</th>
-                <th style={{ padding: '8px 0', textAlign: 'left', fontSize: '11px', color: 'var(--text3)' }}>ROOM</th>
-                <th style={{ padding: '8px 0', textAlign: 'left', fontSize: '11px', color: 'var(--text3)' }}>STATUS</th>
-              </tr>
-            </thead>
-            <tbody>
-              {checkins.length === 0 ? (
-                <tr><td colSpan="3" style={{ padding: '16px 0', color: 'var(--text3)', fontSize: '13px' }}>No check-ins today</td></tr>
-              ) : (
-                checkins.map(c => (
-                  <tr key={c._id} style={{ borderBottom: '1px solid var(--border)' }}>
-                    <td style={{ padding: '10px 0', fontSize: '13px', fontWeight: '600' }}>{c.guest?.firstName} {c.guest?.lastName}</td>
-                    <td style={{ padding: '10px 0', fontSize: '13px' }}>{c.room?.roomNumber}</td>
-                    <td style={{ padding: '10px 0' }}><Badge color={c.status === 'checked_in' ? 'green' : 'amber'}>{c.status}</Badge></td>
-                  </tr>
-                ))
-              )}
-            </tbody>
-          </table>
+          <div className="table-responsive-wrapper">
+            <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: '400px' }}>
+              <thead>
+                <tr style={{ borderBottom: '1px solid var(--border)' }}>
+                  <th style={{ padding: '8px 0', textAlign: 'left', fontSize: '11px', color: 'var(--text3)' }}>GUEST</th>
+                  <th style={{ padding: '8px 0', textAlign: 'left', fontSize: '11px', color: 'var(--text3)' }}>ROOM</th>
+                  <th style={{ padding: '8px 0', textAlign: 'left', fontSize: '11px', color: 'var(--text3)' }}>STATUS</th>
+                </tr>
+              </thead>
+              <tbody>
+                {checkins.length === 0 ? (
+                  <tr><td colSpan="3" style={{ padding: '16px 0', color: 'var(--text3)', fontSize: '13px' }}>No check-ins today</td></tr>
+                ) : (
+                  checkins.map(c => (
+                    <tr key={c._id} style={{ borderBottom: '1px solid var(--border)' }}>
+                      <td style={{ padding: '10px 0', fontSize: '13px', fontWeight: '600' }}>{c.guest?.firstName} {c.guest?.lastName}</td>
+                      <td style={{ padding: '10px 0', fontSize: '13px' }}>{c.room?.roomNumber}</td>
+                      <td style={{ padding: '10px 0' }}><Badge color={c.status === 'checked_in' ? 'green' : 'amber'}>{c.status}</Badge></td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+          </div>
         </div>
 
         {/* Today's Check-outs */}
         <div style={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: 'var(--radius)', padding: 'clamp(12px, 3vw, 24px)' }}>
           <div style={{ fontSize: '15px', fontWeight: '700', marginBottom: '16px' }}>Today's Check-outs</div>
-          <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-            <thead>
-              <tr style={{ borderBottom: '1px solid var(--border)' }}>
-                <th style={{ padding: '8px 0', textAlign: 'left', fontSize: '11px', color: 'var(--text3)' }}>GUEST</th>
-                <th style={{ padding: '8px 0', textAlign: 'left', fontSize: '11px', color: 'var(--text3)' }}>ROOM</th>
-                <th style={{ padding: '8px 0', textAlign: 'left', fontSize: '11px', color: 'var(--text3)' }}>STATUS</th>
-              </tr>
-            </thead>
-            <tbody>
-              {checkouts.length === 0 ? (
-                <tr><td colSpan="3" style={{ padding: '16px 0', color: 'var(--text3)', fontSize: '13px' }}>No check-outs today</td></tr>
-              ) : (
-                checkouts.map(c => (
-                  <tr key={c._id} style={{ borderBottom: '1px solid var(--border)' }}>
-                    <td style={{ padding: '10px 0', fontSize: '13px', fontWeight: '600' }}>{c.guest?.firstName} {c.guest?.lastName}</td>
-                    <td style={{ padding: '10px 0', fontSize: '13px' }}>{c.room?.roomNumber}</td>
-                    <td style={{ padding: '10px 0' }}><Badge color={c.status === 'checked_out' ? 'gray' : 'amber'}>{c.status}</Badge></td>
-                  </tr>
-                ))
-              )}
-            </tbody>
-          </table>
+          <div className="table-responsive-wrapper">
+            <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: '400px' }}>
+              <thead>
+                <tr style={{ borderBottom: '1px solid var(--border)' }}>
+                  <th style={{ padding: '8px 0', textAlign: 'left', fontSize: '11px', color: 'var(--text3)' }}>GUEST</th>
+                  <th style={{ padding: '8px 0', textAlign: 'left', fontSize: '11px', color: 'var(--text3)' }}>ROOM</th>
+                  <th style={{ padding: '8px 0', textAlign: 'left', fontSize: '11px', color: 'var(--text3)' }}>STATUS</th>
+                </tr>
+              </thead>
+              <tbody>
+                {checkouts.length === 0 ? (
+                  <tr><td colSpan="3" style={{ padding: '16px 0', color: 'var(--text3)', fontSize: '13px' }}>No check-outs today</td></tr>
+                ) : (
+                  checkouts.map(c => (
+                    <tr key={c._id} style={{ borderBottom: '1px solid var(--border)' }}>
+                      <td style={{ padding: '10px 0', fontSize: '13px', fontWeight: '600' }}>{c.guest?.firstName} {c.guest?.lastName}</td>
+                      <td style={{ padding: '10px 0', fontSize: '13px' }}>{c.room?.roomNumber}</td>
+                      <td style={{ padding: '10px 0' }}><Badge color={c.status === 'checked_out' ? 'gray' : 'amber'}>{c.status}</Badge></td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
 
@@ -224,26 +228,28 @@ const HotelDashboard = ({ plan, onNav }) => {
         {maintenance.length > 0 && (
           <div style={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: 'var(--radius)', padding: 'clamp(12px, 3vw, 24px)' }}>
             <div style={{ fontSize: '15px', fontWeight: '700', marginBottom: '16px', color: 'var(--amber)' }}>Maintenance Tracking</div>
-            <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-              <thead>
-                <tr style={{ borderBottom: '1px solid var(--border)' }}>
-                  <th style={{ padding: '8px 0', textAlign: 'left', fontSize: '11px', color: 'var(--text3)' }}>ROOM</th>
-                  <th style={{ padding: '8px 0', textAlign: 'left', fontSize: '11px', color: 'var(--text3)' }}>ISSUE</th>
-                  <th style={{ padding: '8px 0', textAlign: 'left', fontSize: '11px', color: 'var(--text3)' }}>EXPECTED COMPLETION</th>
-                </tr>
-              </thead>
-              <tbody>
-                {maintenance.map(m => (
-                  <tr key={m._id} style={{ borderBottom: '1px solid var(--border)' }}>
-                    <td style={{ padding: '10px 0', fontSize: '13px', fontWeight: '600' }}>Room {m.roomNumber}</td>
-                    <td style={{ padding: '10px 0', fontSize: '13px' }}>{m.maintenanceIssue || 'Under Maintenance'}</td>
-                    <td style={{ padding: '10px 0', fontSize: '13px', color: 'var(--text2)' }}>
-                      {m.expectedCompletion ? new Date(m.expectedCompletion).toLocaleDateString() : 'TBD'}
-                    </td>
+            <div className="table-responsive-wrapper">
+              <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: '400px' }}>
+                <thead>
+                  <tr style={{ borderBottom: '1px solid var(--border)' }}>
+                    <th style={{ padding: '8px 0', textAlign: 'left', fontSize: '11px', color: 'var(--text3)' }}>ROOM</th>
+                    <th style={{ padding: '8px 0', textAlign: 'left', fontSize: '11px', color: 'var(--text3)' }}>ISSUE</th>
+                    <th style={{ padding: '8px 0', textAlign: 'left', fontSize: '11px', color: 'var(--text3)' }}>EXPECTED COMPLETION</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  {maintenance.map(m => (
+                    <tr key={m._id} style={{ borderBottom: '1px solid var(--border)' }}>
+                      <td style={{ padding: '10px 0', fontSize: '13px', fontWeight: '600' }}>Room {m.roomNumber}</td>
+                      <td style={{ padding: '10px 0', fontSize: '13px' }}>{m.maintenanceIssue || 'Under Maintenance'}</td>
+                      <td style={{ padding: '10px 0', fontSize: '13px', color: 'var(--text2)' }}>
+                        {m.expectedCompletion ? new Date(m.expectedCompletion).toLocaleDateString() : 'TBD'}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </div>
         )}
 
@@ -255,32 +261,34 @@ const HotelDashboard = ({ plan, onNav }) => {
               All Bookings <Icon name="arrow" size={14} color="var(--gold)" />
             </button>
           </div>
-          <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-            <thead>
-              <tr style={{ borderBottom: '1px solid var(--border)' }}>
-                {['Booking ID', 'Guest', 'Room', 'Check-in', 'Check-out', 'Stay Days', 'Status'].map((h) => (
-                  <th key={h} style={{ padding: '8px 10px', textAlign: 'left', fontSize: '11px', color: 'var(--text3)', fontWeight: '600', letterSpacing: '0.05em' }}>
-                    {h.toUpperCase()}
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {bookings.map((b) => (
-                <tr key={b._id} style={{ borderBottom: '1px solid var(--border)' }}>
-                  <td style={{ padding: '11px 10px', fontSize: '12px', fontFamily: 'DM Mono,monospace', color: 'var(--gold)' }}>{b.bookingId}</td>
-                  <td style={{ padding: '11px 10px', fontSize: '13px', fontWeight: '600' }}>{b.guest?.firstName} {b.guest?.lastName}</td>
-                  <td style={{ padding: '11px 10px', fontSize: '12px', color: 'var(--text2)' }}>{b.room?.roomNumber}</td>
-                  <td style={{ padding: '11px 10px', fontSize: '12px', color: 'var(--text2)' }}>{b.checkInDateTime ? new Date(b.checkInDateTime).toLocaleString([], { dateStyle: 'short', timeStyle: 'short' }) : new Date(b.checkIn).toLocaleDateString()}</td>
-                  <td style={{ padding: '11px 10px', fontSize: '12px', color: 'var(--text2)' }}>{b.checkOutDateTime ? new Date(b.checkOutDateTime).toLocaleString([], { dateStyle: 'short', timeStyle: 'short' }) : new Date(b.checkOut).toLocaleDateString()}</td>
-                  <td style={{ padding: '11px 10px', fontSize: '13px', fontFamily: 'DM Mono,monospace' }}>{b.stayDays || b.nights || 1} Days</td>
-                  <td style={{ padding: '11px 10px' }}>
-                    <Badge color={b.status === 'checked_in' ? 'green' : 'amber'}>{b.status}</Badge>
-                  </td>
+          <div className="table-responsive-wrapper">
+            <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: '800px' }}>
+              <thead>
+                <tr style={{ borderBottom: '1px solid var(--border)' }}>
+                  {['Booking ID', 'Guest', 'Room', 'Check-in', 'Check-out', 'Stay Days', 'Status'].map((h) => (
+                    <th key={h} style={{ padding: '8px 10px', textAlign: 'left', fontSize: '11px', color: 'var(--text3)', fontWeight: '600', letterSpacing: '0.05em' }}>
+                      {h.toUpperCase()}
+                    </th>
+                  ))}
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {bookings.map((b) => (
+                  <tr key={b._id} style={{ borderBottom: '1px solid var(--border)' }}>
+                    <td style={{ padding: '11px 10px', fontSize: '12px', fontFamily: 'DM Mono,monospace', color: 'var(--gold)' }}>{b.bookingId}</td>
+                    <td style={{ padding: '11px 10px', fontSize: '13px', fontWeight: '600' }}>{b.guest?.firstName} {b.guest?.lastName}</td>
+                    <td style={{ padding: '11px 10px', fontSize: '12px', color: 'var(--text2)' }}>{b.room?.roomNumber}</td>
+                    <td style={{ padding: '11px 10px', fontSize: '12px', color: 'var(--text2)' }}>{b.checkInDateTime ? new Date(b.checkInDateTime).toLocaleString([], { dateStyle: 'short', timeStyle: 'short' }) : new Date(b.checkIn).toLocaleDateString()}</td>
+                    <td style={{ padding: '11px 10px', fontSize: '12px', color: 'var(--text2)' }}>{b.checkOutDateTime ? new Date(b.checkOutDateTime).toLocaleString([], { dateStyle: 'short', timeStyle: 'short' }) : new Date(b.checkOut).toLocaleDateString()}</td>
+                    <td style={{ padding: '11px 10px', fontSize: '13px', fontFamily: 'DM Mono,monospace' }}>{b.stayDays || b.nights || 1} Days</td>
+                    <td style={{ padding: '11px 10px' }}>
+                      <Badge color={b.status === 'checked_in' ? 'green' : 'amber'}>{b.status}</Badge>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
 
