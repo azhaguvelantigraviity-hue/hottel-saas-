@@ -126,6 +126,15 @@ const TravelDeskPage = () => {
     }
   };
 
+  const handleUpdateStatus = async (id, newStatus) => {
+    try {
+      await api.updateCabBooking(id, { status: newStatus });
+      await loadData();
+    } catch (err) {
+      alert(err.message || 'Failed to update status');
+    }
+  };
+
   const handleBookPackage = async (pkg) => {
     if (saving) return;
     setSaving(true);
@@ -203,7 +212,19 @@ const TravelDeskPage = () => {
                       <td style={tdStyle}><div style={{ fontSize:12 }}>{b.pickupLocation}</div><div style={{ fontSize:11, color:'var(--text3)' }}>→ {b.destination || b.flightNumber || '—'}</div></td>
                       <td style={tdStyle}>{formatDate(b.date)} {b.time}</td>
                       <td style={tdStyle}>{b.vehicleType}</td>
-                      <td style={tdStyle}><span style={{ fontSize:11, fontWeight:600, color:statusColor[b.status]||'var(--text3)', textTransform:'uppercase' }}>{b.status}</span></td>
+                      <td style={tdStyle}>
+                        <select 
+                          style={{ ...inputStyle, padding: '4px', fontSize: 11, fontWeight: 600, color: statusColor[b.status]||'var(--text)', textTransform: 'uppercase' }} 
+                          value={b.status} 
+                          onChange={e => handleUpdateStatus(b._id, e.target.value)}
+                        >
+                          <option value="pending">PENDING</option>
+                          <option value="confirmed">CONFIRMED</option>
+                          <option value="in-progress">IN-PROGRESS</option>
+                          <option value="completed">COMPLETED</option>
+                          <option value="cancelled">CANCELLED</option>
+                        </select>
+                      </td>
                       <td style={{ ...tdStyle, fontFamily:'DM Mono,monospace' }}>₹{(b.amount||0).toLocaleString()}</td>
                     </tr>
                   ))}
