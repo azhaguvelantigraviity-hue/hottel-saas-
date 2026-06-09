@@ -6,7 +6,13 @@ const UserSchema = new mongoose.Schema({
   name:     { type: String, required: true, trim: true },
   username: { type: String, unique: true, sparse: true, trim: true },
   email:    { type: String, required: true, unique: true, lowercase: true, trim: true },
-  phone:    { type: String },
+  phone: {
+    type: String,
+    validate: {
+      validator: function(v) { return !v || /^\d{10}$/.test(v); },
+      message: props => `Phone number must be exactly 10 digits.`
+    }
+  },
   password: { type: String, required: true, minlength: 6, select: false },
   role:     { type: String, enum: ['platform_admin','hotel_admin','hotel_staff','receptionist','housekeeping'], default: 'hotel_staff' },
   department: { type: String, enum: ['Housekeeping', 'Maintenance', 'Front Desk', 'Restaurant', 'Manager', 'None'], default: 'None' },

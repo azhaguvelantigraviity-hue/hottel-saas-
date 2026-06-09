@@ -175,7 +175,11 @@ const EditEmployeeModal = ({ employee, onClose, onSave }) => {
           {[['name', 'FULL NAME', 'text'], ['role', 'ROLE / DESIGNATION', 'text'], ['phone', 'PHONE', 'text'], ['email', 'EMAIL', 'email'], ['salary', 'MONTHLY SALARY (₹)', 'number']].map(([k, l, t]) => (
             <div key={k} style={{ gridColumn: k === 'name' || k === 'role' ? 'span 2' : 'span 1' }}>
               <label style={labelStyle}>{l}</label>
-              <input type={t} style={inputStyle} value={form[k]} onChange={e => set(k, e.target.value)} />
+              <input type={t} style={inputStyle} value={form[k]} onChange={e => {
+                let val = e.target.value;
+                if (k === 'phone') val = val.replace(/\D/g, '').slice(0, 10);
+                set(k, val);
+              }} />
             </div>
           ))}
           <div>
@@ -234,6 +238,9 @@ const EmployeesPage = ({ role, hotelDetails, plan }) => {
   ];
 
   const handleAddEmployee = (newEmp) => {
+    if (newEmp.phone && newEmp.phone.length !== 10) {
+      return alert("Phone number must be exactly 10 digits.");
+    }
     if (plan === 'starter' && employees.length >= 1) {
       alert("Starter Plan Limit Reached! Your plan allows a maximum of 1 staff account. Please upgrade to a higher plan to add more staff.");
       return;
@@ -251,6 +258,9 @@ const EmployeesPage = ({ role, hotelDetails, plan }) => {
   };
 
   const handleSaveEmployee = (updatedEmp) => {
+    if (updatedEmp.phone && updatedEmp.phone.length !== 10) {
+      return alert("Phone number must be exactly 10 digits.");
+    }
     // Try backend API first
     apiUpdateEmployee(updatedEmp.id, mapFEtoBE(updatedEmp))
       .then(res => {

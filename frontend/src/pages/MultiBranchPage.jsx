@@ -61,11 +61,16 @@ const MultiBranchPage = () => {
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
+    if (name === 'phone') {
+      setFormData(prev => ({ ...prev, [name]: value.replace(/\D/g, '').slice(0, 10) }));
+    } else {
+      setFormData(prev => ({ ...prev, [name]: value }));
+    }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (formData.phone && formData.phone.length !== 10) return alert('Phone number must be exactly 10 digits.');
     try {
       if (isEditing) {
         await updateBranch(currentBranchId, formData);

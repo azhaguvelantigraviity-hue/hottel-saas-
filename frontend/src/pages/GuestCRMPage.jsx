@@ -166,6 +166,7 @@ const GuestCRMPage = () => {
 
   const handleAddGuest = async () => {
     if (!newGuest.name) return;
+    if (newGuest.phone && newGuest.phone.length !== 10) return alert('Phone number must be exactly 10 digits.');
     setSaving(true);
     try {
       const nameParts = newGuest.name.trim().split(/\s+/);

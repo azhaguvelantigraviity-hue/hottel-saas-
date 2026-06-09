@@ -117,6 +117,7 @@ const SecurityPage = () => {
 
   const checkInVisitor = () => {
     if (!newVisitor.name.trim() || !newVisitor.purpose.trim() || !newVisitor.host.trim()) return;
+    if (newVisitor.phone && newVisitor.phone.length !== 10) return alert('Phone number must be exactly 10 digits.');
     const id = `VIS-${String(visitors.length + 1).padStart(3, '0')}`;
     const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
     const visitor = { id, ...newVisitor, checkIn: time, checkOut: '' };

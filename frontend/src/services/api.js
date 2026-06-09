@@ -117,7 +117,7 @@ async function request(method, path, body = null, options = {}) {
     if (res.status === 401) {
       removeToken();
       removeUser();
-      window.location.href = '/login';
+      // Let App.jsx handle the redirect via ProtectedRoute
     }
     const err = new Error(data.message || `HTTP ${res.status}`);
     err.status = res.status;

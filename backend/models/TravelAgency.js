@@ -12,7 +12,14 @@ const VehicleSchema = new mongoose.Schema({
 
 const DriverSchema = new mongoose.Schema({
   name: { type: String, required: true },
-  phone: { type: String, required: true },
+  phone: {
+    type: String,
+    required: true,
+    validate: {
+      validator: function(v) { return !v || /^\d{10}$/.test(v); },
+      message: props => `Phone number must be exactly 10 digits.`
+    }
+  },
   licenseNumber: { type: String, required: true },
   status: { type: String, enum: ['Available', 'On Duty'], default: 'Available' }
 });
@@ -22,7 +29,14 @@ const TravelAgencySchema = new mongoose.Schema({
   planType: { type: String, default: 'enterprise' },
   agencyName: { type: String, required: true },
   contactPerson: { type: String, default: '' },
-  phone: { type: String, required: true },
+  phone: {
+    type: String,
+    required: true,
+    validate: {
+      validator: function(v) { return !v || /^\d{10}$/.test(v); },
+      message: props => `Phone number must be exactly 10 digits.`
+    }
+  },
   email: { type: String, default: '' },
   address: { type: String, default: '' },
   vehicles: [VehicleSchema],

@@ -343,6 +343,8 @@ const AddHotelModal = ({ onClose, onAdd }) => {
       alert("Please fill in the required fields (Name, City, Manager Email, Password)");
       return;
     }
+    if (form.phone && form.phone.length !== 10) return alert('Phone number must be exactly 10 digits.');
+    if (form.managerPhone && form.managerPhone.length !== 10) return alert('Phone number must be exactly 10 digits.');
     onAdd({
       ...form,
       managerEmail: form.adminEmail,
@@ -409,7 +411,7 @@ const AddHotelModal = ({ onClose, onAdd }) => {
             </div>
             <div>
               <label style={lbl}>CONTACT NUMBER</label>
-              <input style={inp} value={form.phone} onChange={e => set('phone', e.target.value)} placeholder="10-digit number" />
+              <input style={inp} value={form.phone} onChange={e => set('phone', e.target.value.replace(/\D/g, '').slice(0, 10))} placeholder="10-digit number" />
             </div>
             <div>
               <label style={lbl}>CONTACT EMAIL</label>
@@ -438,7 +440,7 @@ const AddHotelModal = ({ onClose, onAdd }) => {
               </div>
               <div>
                 <label style={lbl}>MANAGER PHONE</label>
-                <input style={inp} value={form.managerPhone} onChange={e => set('managerPhone', e.target.value)} placeholder="10-digit number" />
+                <input style={inp} value={form.managerPhone} onChange={e => set('managerPhone', e.target.value.replace(/\D/g, '').slice(0, 10))} placeholder="10-digit number" />
               </div>
               <div>
                 <label style={lbl}>MANAGER EMAIL *</label>

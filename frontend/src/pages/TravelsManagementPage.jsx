@@ -31,6 +31,7 @@ const TravelsManagementPage = () => {
 
   const handleAddAgency = async () => {
     if (!agencyForm.agencyName || !agencyForm.phone) return;
+    if (agencyForm.phone && agencyForm.phone.length !== 10) return alert('Phone number must be exactly 10 digits.');
     try {
       await travelService.createAgency(agencyForm);
       setAgencyForm({ agencyName: '', phone: '', email: '', contactPerson: '', address: '' });
@@ -67,7 +68,7 @@ const TravelsManagementPage = () => {
           <div style={{ background: 'var(--card)', padding: '20px', borderRadius: '8px', border: '1px solid var(--border)' }}>
             <h3 style={{ marginTop: 0, marginBottom: '16px' }}>Add Travel Agency</h3>
             <div style={{ marginBottom: '12px' }}><label style={labelStyle}>Agency Name</label><input style={inputStyle} value={agencyForm.agencyName} onChange={e=>setAgencyForm({...agencyForm, agencyName: e.target.value})} /></div>
-            <div style={{ marginBottom: '12px' }}><label style={labelStyle}>Phone</label><input style={inputStyle} value={agencyForm.phone} onChange={e=>setAgencyForm({...agencyForm, phone: e.target.value})} /></div>
+            <div style={{ marginBottom: '12px' }}><label style={labelStyle}>Phone</label><input style={inputStyle} value={agencyForm.phone} onChange={e=>setAgencyForm({...agencyForm, phone: e.target.value.replace(/\D/g, '').slice(0, 10)})} /></div>
             <div style={{ marginBottom: '12px' }}><label style={labelStyle}>Contact Person</label><input style={inputStyle} value={agencyForm.contactPerson} onChange={e=>setAgencyForm({...agencyForm, contactPerson: e.target.value})} /></div>
             <button onClick={handleAddAgency} style={btnStyle}>Save Agency</button>
           </div>

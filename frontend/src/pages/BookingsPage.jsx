@@ -492,6 +492,7 @@ const BookingsPage = () => {
   }, [apiReady]);
 
   const handleSave = useCallback(async (form, totalAmount, nights, petCharge) => {
+    if (form.phone && form.phone.length !== 10) return alert('Phone number must be exactly 10 digits.');
     const newBooking = {
       guest: form.guest,
       phone: form.phone,

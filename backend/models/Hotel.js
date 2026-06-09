@@ -8,7 +8,7 @@ const HotelSchema = new mongoose.Schema({
     type: String,
     validate: {
       validator: function(v) { return !v || /^\d{10}$/.test(v); },
-      message: props => `${props.value} is not a valid 10-digit phone number!`
+      message: props => `Phone number must be exactly 10 digits.`
     }
   },
   website:    String,

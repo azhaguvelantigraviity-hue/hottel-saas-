@@ -102,6 +102,7 @@ const StepDetails = ({ booking, onNext }) => {
 
   const handleSave = async () => {
     if (!form.name.trim()) return;
+    if (form.phone && form.phone.length !== 10) return alert('Phone number must be exactly 10 digits.');
     setSaving(true);
     try {
       await api.updateGuestDetails(booking._id, form);
