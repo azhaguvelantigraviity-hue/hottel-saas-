@@ -51,7 +51,7 @@ const HousekeepingSchema = new mongoose.Schema({
 // ── Maintenance Ticket ────────────────────────────────────────
 const MaintenanceSchema = new mongoose.Schema({
   hotel:      { type: mongoose.Schema.Types.ObjectId, ref: 'Hotel', required: true },
-  ticketId:   { type: String, unique: true },
+  ticketId:   { type: String },
   room:       String,
   issue:      { type: String, required: true },
   category:   { type: String, enum: ['HVAC','Plumbing','Electronics','Elevator','Furniture','Electrical','Other'], default: 'Other' },
@@ -71,10 +71,9 @@ MaintenanceSchema.pre('save', async function (next) {
   next();
 });
 
-// ── POS Order ─────────────────────────────────────────────────
 const POSOrderSchema = new mongoose.Schema({
   hotel:      { type: mongoose.Schema.Types.ObjectId, ref: 'Hotel', required: true },
-  orderId:    { type: String, unique: true },
+  orderId:    { type: String },
   table:      String,
   type:       { type: String, enum: ['dine-in','room-service','takeaway'], default: 'dine-in' },
   items:      [{ menuItem: { type: mongoose.Schema.Types.ObjectId, ref: 'MenuItem' }, name: String, qty: Number, price: Number }],
