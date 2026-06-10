@@ -97,16 +97,16 @@ const HotelDetailModal = ({ hotel, onClose, onEdit }) => {
           {dbCreds && (
             <div style={{ background: 'var(--surface)', borderRadius: '10px', padding: '14px' }}>
               <div style={{ fontSize: '13px', fontWeight: '700', marginBottom: '12px' }}>Hotel Login Credentials</div>
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 150px), 1fr))', gap: '12px' }}>
-                <div>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '20px' }}>
+                <div style={{ flex: '1 1 180px' }}>
                   <div style={{ fontSize: '11px', color: 'var(--text3)', marginBottom: '4px' }}>USERNAME</div>
-                  <div style={{ fontSize: '13px', fontWeight: '600' }}>{dbCreds.username || dbCreds.email}</div>
+                  <div style={{ fontSize: '13px', fontWeight: '600', wordBreak: 'break-all' }}>{dbCreds.username || dbCreds.email}</div>
                 </div>
-                <div>
+                <div style={{ flex: '1 1 200px' }}>
                   <div style={{ fontSize: '11px', color: 'var(--text3)', marginBottom: '4px' }}>LOGIN EMAIL</div>
-                  <div style={{ fontSize: '13px', fontWeight: '600' }}>{dbCreds.email}</div>
+                  <div style={{ fontSize: '13px', fontWeight: '600', wordBreak: 'break-all' }}>{dbCreds.email}</div>
                 </div>
-                <div>
+                <div style={{ flex: '1 1 160px' }}>
                   <div style={{ fontSize: '11px', color: 'var(--text3)', marginBottom: '4px' }}>PASSWORD</div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                     <div style={{ fontSize: '13px', fontWeight: '600', fontFamily: 'DM Mono,monospace', letterSpacing: showPassword ? 'normal' : '0.2em' }}>
@@ -125,7 +125,7 @@ const HotelDetailModal = ({ hotel, onClose, onEdit }) => {
           )}
 
           {/* Stats grid */}
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 280px), 1fr))', gap: '10px' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 140px), 1fr))', gap: '10px' }}>
             {stats.map(s => (
               <div key={s.label} style={{ background: 'var(--surface)', borderRadius: '8px', padding: '12px' }}>
                 <div style={{ fontSize: '10px', color: 'var(--text3)', letterSpacing: '0.06em', marginBottom: '4px' }}>
