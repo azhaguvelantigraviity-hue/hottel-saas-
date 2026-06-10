@@ -199,7 +199,7 @@ const ComplaintsPage = ({ role, hotelDetails, currentUser }) => {
 
       {showModal && (
         <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
-          <div style={{ background: 'var(--card)', borderRadius: '12px', width: '400px', padding: '24px', border: '1px solid var(--border)' }}>
+          <div style={{ background: 'var(--card)', borderRadius: '12px', width: '100%', maxWidth: '400px', padding: '24px', border: '1px solid var(--border)' }}>
             <h3 style={{ margin: '0 0 20px 0', fontSize: '18px', color: 'var(--text)' }}>Log Complaint</h3>
             <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
               <div>

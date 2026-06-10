@@ -26,7 +26,7 @@ const MarketingPage = () => {
     <div style={{ flex:1, overflowY:'auto', padding:24 }}>
       {showCouponModal && (
         <div style={{ position:'fixed', inset:0, background:'rgba(0,0,0,0.7)', display:'flex', alignItems:'center', justifyContent:'center', zIndex:1000 }}>
-          <div style={{ background:'var(--card)', border:'1px solid var(--border)', borderRadius:'var(--radius-lg)', padding:28, width:420 }}>
+          <div style={{ background:'var(--card)', border:'1px solid var(--border)', borderRadius:'var(--radius-lg)', padding:28, width: '100%', maxWidth: 420 }}>
             <div style={{ fontSize:16, fontWeight:700, color:'var(--text)', marginBottom:20 }}>Create Coupon</div>
             {[['Coupon Code','code','text'],['Discount Value','discount','text'],['Max Usage','maxUsage','number'],['Expiry Date','expiry','date']].map(([l,f,t]) => (
               <div key={f} style={{ marginBottom:14 }}><label style={{ fontSize:11, color:'var(--text3)', display:'block', marginBottom:5, textTransform:'uppercase', letterSpacing:'0.06em' }}>{l}</label><input type={t} value={newCoupon[f]} onChange={e=>setNewCoupon(p=>({...p,[f]:e.target.value}))} style={inputStyle} /></div>

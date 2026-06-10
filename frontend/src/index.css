@@ -175,6 +175,7 @@ table { border-collapse: collapse; }
   width: 100%;
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
+  padding-bottom: 8px; /* space for scrollbar */
 }
 
 table {
@@ -182,49 +183,52 @@ table {
   border-collapse: collapse;
 }
 
-@media (max-width: 768px) {
-  table {
-    display: block;
-    overflow-x: auto;
-    white-space: nowrap;
-    -webkit-overflow-scrolling: touch;
-  }
+/* Base utility classes for all sizes */
+.responsive-grid {
+  display: grid;
+  gap: 16px;
 }
 
-@media (max-width: 768px) {
+.responsive-modal-content {
+  width: 90vw !important;
+  max-width: 600px;
+  max-height: 90vh !important;
+  overflow-y: auto;
+  padding: 24px !important;
+}
+
+/* ─── MOBILE (<640px) ──────────────────────────────────────────────────────── */
+@media (max-width: 639px) {
   .mobile-hidden { display: none !important; }
   .mobile-block { display: block !important; }
   .mobile-flex { display: flex !important; }
   
   .page-container { padding: 12px !important; }
-  .force-wrap { grid-template-columns: 1fr !important; }
-  .topbar-container { padding: 0 12px !important; gap: 8px !important; }
-
-  /* Generic mobile wrap for headers and toolbars */
-  .mobile-wrap { 
-    flex-wrap: wrap !important; 
-    gap: 12px !important; 
-  }
-  .mobile-col {
-    flex-direction: column !important;
-    align-items: stretch !important;
-  }
-  .mobile-col > * {
-    width: 100% !important;
-  }
-  .mobile-text-sm {
-    font-size: 12px !important;
-  }
   
-  /* Make all dashboard stat grids single column on mobile */
-  .dashboard-grid {
-    grid-template-columns: 1fr !important;
-  }
-  .dashboard-main-grid {
-    grid-template-columns: 1fr !important;
-  }
+  /* Layout utilities */
+  .responsive-grid { grid-template-columns: 1fr !important; }
+  .force-wrap { grid-template-columns: 1fr !important; }
+  .flex-col-mobile { flex-direction: column !important; align-items: stretch !important; }
+  .mobile-col > * { width: 100% !important; }
+  .w-full-mobile { width: 100% !important; }
+  
+  /* Generic mobile wrap for headers and toolbars */
+  .mobile-wrap { flex-wrap: wrap !important; gap: 12px !important; }
+  .topbar-container { padding: 0 12px !important; gap: 8px !important; }
+  
+  /* Typography */
+  .mobile-text-sm { font-size: 16px !important; } /* reduced titles */
+  
+  /* Dashboards */
+  .dashboard-grid { grid-template-columns: 1fr !important; }
+  .dashboard-main-grid { grid-template-columns: 1fr !important; }
 
-  /* Adjust modals for mobile */
+  /* Modals */
+  .responsive-modal-content {
+    width: 95vw !important;
+    padding: 16px !important;
+    border-radius: 12px !important;
+  }
   .modal-content {
     width: 95vw !important;
     max-height: 90vh !important;
@@ -243,42 +247,61 @@ table {
     box-shadow: 0 0 40px rgba(0,0,0,0.5);
   }
 
+  /* Tables */
+  table {
+    display: block;
+    overflow-x: auto;
+    white-space: nowrap;
+  }
+
   /* Landing Page Mobile Fixes */
-  .landing-nav {
-    padding: 16px 20px !important;
-    flex-wrap: wrap !important;
-    gap: 12px;
-  }
-  .landing-nav-buttons {
-    width: 100%;
-    justify-content: center !important;
-    gap: 8px !important;
-  }
-  .landing-btn {
-    padding: 8px 14px !important;
-    font-size: 13px !important;
-  }
-  .landing-btn-icon {
-    padding: 8px !important;
-  }
-  .landing-logo-text {
-    font-size: 18px !important;
-  }
-  .landing-logo-icon {
-    width: 28px !important;
-    height: 28px !important;
-  }
-  .landing-hero-title {
-    font-size: clamp(36px, 10vw, 48px) !important;
-  }
-  .landing-hero-desc {
-    font-size: 15px !important;
-  }
-  .landing-hero-container {
-    padding: 60px 20px 40px !important;
-  }
-  .landing-section-container {
-    padding: 0 20px 40px !important;
-  }
+  .landing-nav { padding: 16px 20px !important; flex-wrap: wrap !important; gap: 12px; }
+  .landing-nav-buttons { width: 100%; justify-content: center !important; gap: 8px !important; }
+  .landing-btn { padding: 8px 14px !important; font-size: 13px !important; }
+  .landing-btn-icon { padding: 8px !important; }
+  .landing-logo-text { font-size: 18px !important; }
+  .landing-logo-icon { width: 28px !important; height: 28px !important; }
+  .landing-hero-title { font-size: clamp(32px, 8vw, 40px) !important; }
+  .landing-hero-desc { font-size: 14px !important; }
+  .landing-hero-container { padding: 60px 16px 40px !important; }
+  .landing-section-container { padding: 0 16px 40px !important; }
 }
 
+/* ─── TABLET (640px to 1024px) ─────────────────────────────────────────────── */
+@media (min-width: 640px) and (max-width: 1024px) {
+  .tablet-hidden { display: none !important; }
+  
+  .page-container { padding: 20px !important; }
+  
+  /* Two column layout is usually safe for tablet */
+  .responsive-grid { grid-template-columns: repeat(2, 1fr) !important; }
+  .dashboard-grid { grid-template-columns: repeat(2, 1fr) !important; }
+  
+  /* Sidebar Drawer - Use drawer on tablet too for space */
+  .sidebar-closed {
+    position: fixed !important;
+    transform: translateX(-100%);
+    box-shadow: none;
+  }
+  .sidebar-open {
+    position: fixed !important;
+    transform: translateX(0);
+    box-shadow: 0 0 40px rgba(0,0,0,0.5);
+  }
+
+  /* Keep topbar menu button visible so they can open sidebar */
+  .mobile-block { display: block !important; }
+}
+
+/* ─── LAPTOP / DESKTOP (>1024px) ───────────────────────────────────────────── */
+@media (min-width: 1025px) {
+  .desktop-hidden { display: none !important; }
+  
+  .responsive-grid { grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); }
+  
+  /* Sidebar is static */
+  .sidebar-closed, .sidebar-open {
+    position: sticky !important;
+    transform: none !important;
+  }
+}

@@ -185,7 +185,7 @@ const Topbar = ({ title, subtitle, role, onNav, toggleSidebar }) => {
                 onClick={() => setShowNotifs(false)}
               />
               <div style={{
-                position: 'absolute', top: '50px', right: 0, width: '320px',
+                position: 'absolute', top: '50px', right: 0, width: '100%', maxWidth: '320px',
                 background: 'var(--surface)', border: '1px solid var(--border)',
                 borderRadius: '12px', boxShadow: '0 8px 32px rgba(0,0,0,0.15)',
                 zIndex: 9999, display: 'flex', flexDirection: 'column',

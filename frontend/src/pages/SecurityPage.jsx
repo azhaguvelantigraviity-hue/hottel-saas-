@@ -442,7 +442,7 @@ const SecurityPage = () => {
         }} onClick={() => setShowAddCamera(false)}>
           <div style={{
             background: 'var(--card)', border: '1px solid var(--border)', borderRadius: 'var(--radius-lg)',
-            padding: 28, width: 400, maxWidth: '90vw',
+            padding: 28, width: '100%', maxWidth: 400, maxWidth: '90vw',
           }} onClick={e => e.stopPropagation()}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
               <div style={{ fontSize: 16, fontWeight: 700, color: 'var(--text)' }}>Add Camera</div>
@@ -486,7 +486,7 @@ const SecurityPage = () => {
         }} onClick={() => setShowCheckIn(false)}>
           <div style={{
             background: 'var(--card)', border: '1px solid var(--border)', borderRadius: 'var(--radius-lg)',
-            padding: 28, width: 420, maxWidth: '90vw',
+            padding: 28, width: '100%', maxWidth: 420, maxWidth: '90vw',
           }} onClick={e => e.stopPropagation()}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
               <div style={{ fontSize: 16, fontWeight: 700, color: 'var(--text)' }}>Visitor Check-In</div>
