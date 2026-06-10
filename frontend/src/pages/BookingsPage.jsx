@@ -452,7 +452,7 @@ const BookingsPage = () => {
     return matchFilter && matchSearch;
   });
 
-  const handleAction = useCallback(async (booking, newStatus) => {
+  const handleAction = useCallback(async (booking, newStatus, extraData = {}) => {
     if (newStatus === 'deleted') {
       if (!window.confirm(`Are you sure you want to permanently delete Booking ${booking.id}?`)) return;
       if (apiReady && booking._id) {
@@ -475,7 +475,7 @@ const BookingsPage = () => {
         if (newStatus === 'checked-in') {
           await api.checkIn(booking._id);
         } else if (newStatus === 'checked-out') {
-          await api.checkOut(booking._id);
+          await api.checkOut(booking._id, extraData);
         } else if (newStatus === 'cancelled') {
           await api.cancelBooking(booking._id);
         }
