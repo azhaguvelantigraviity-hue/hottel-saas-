@@ -86,8 +86,23 @@ const deleteRoom = catchAsync(async (req, res) => {
   sendSuccess(res, room);
 });
 const updateRoomHousekeeping = catchAsync(async (req, res) => {
-  const room = await Room.findOneAndUpdate(oneFilter(req), { housekeepingStatus: req.body.housekeepingStatus }, { new: true });
+  let room = await Room.findOne(oneFilter(req));
   if (!room) throw new AppError('Room not found', 404);
+
+  room.housekeepingStatus = req.body.housekeepingStatus;
+  if (req.body.housekeepingStatus === 'clean' && room.status === 'cleaning') {
+    room.status = 'available';
+  }
+  await room.save();
+
+  if (req.app.get('io')) {
+    req.app.get('io').to(room.hotel.toString()).emit('roomStatusUpdated', {
+      roomId: room._id,
+      status: room.status,
+      housekeepingStatus: room.housekeepingStatus
+    });
+  }
+
   sendSuccess(res, room);
 });
 const checkAvailability = catchAsync(async (req, res) => {
@@ -148,6 +163,22 @@ const createBooking = catchAsync(async (req, res) => {
   body.guest = await findOrCreateGuest(body);
   body.room  = await resolveRoom(body);
   
+  // Prevent double booking
+  if (body.checkIn && body.checkOut && body.room) {
+    const overlap = await Booking.findOne({
+      room: body.room,
+      status: { $in: ['confirmed', 'checked_in'] },
+      $or: [
+        { checkIn:  { $lt: new Date(body.checkOut), $gte: new Date(body.checkIn) } },
+        { checkOut: { $gt: new Date(body.checkIn),  $lte: new Date(body.checkOut) } },
+        { checkIn:  { $lte: new Date(body.checkIn) }, checkOut: { $gte: new Date(body.checkOut) } },
+      ]
+    });
+    if (overlap) {
+      throw new AppError('Room is already booked for these dates.', 400);
+    }
+  }
+
   // Calculate missing fields required by Booking schema
   if (body.stayDays) {
     body.nights = body.stayDays;
@@ -160,6 +191,17 @@ const createBooking = catchAsync(async (req, res) => {
   }
 
   const booking = await Booking.create(body);
+  
+  // Update room status
+  const room = await Room.findByIdAndUpdate(booking.room, { status: 'occupied' }, { new: true });
+  if (room && req.app.get('io')) {
+    req.app.get('io').to(booking.hotel.toString()).emit('roomStatusUpdated', {
+      roomId: room._id,
+      status: room.status,
+      housekeepingStatus: room.housekeepingStatus
+    });
+  }
+
   // Auto-generate QR code
   try {
     const QRCode = require('qrcode');
@@ -199,7 +241,14 @@ const checkIn = catchAsync(async (req, res) => {
   await booking.save();
 
   // Update room status
-  await Room.findByIdAndUpdate(booking.room, { status: 'occupied' });
+  const room = await Room.findByIdAndUpdate(booking.room, { status: 'occupied' }, { new: true });
+  if (room && req.app.get('io')) {
+    req.app.get('io').to(booking.hotel.toString()).emit('roomStatusUpdated', {
+      roomId: room._id,
+      status: room.status,
+      housekeepingStatus: room.housekeepingStatus
+    });
+  }
   const populated = await populateBooking(Booking.findById(booking._id));
 
   // Emit Notification
@@ -255,9 +304,16 @@ const checkOut = catchAsync(async (req, res) => {
   booking.logoutTime = new Date();
   await booking.save();
   // Update room status
-  const room = await Room.findByIdAndUpdate(booking.room, { status: 'cleaning', housekeepingStatus: 'dirty' });
+  const room = await Room.findByIdAndUpdate(booking.room, { status: 'cleaning', housekeepingStatus: 'dirty' }, { new: true });
   
   if (room) {
+    if (req.app.get('io')) {
+      req.app.get('io').to(booking.hotel.toString()).emit('roomStatusUpdated', {
+        roomId: room._id,
+        status: room.status,
+        housekeepingStatus: room.housekeepingStatus
+      });
+    }
     const { Housekeeping } = require('../models/Operations');
     await Housekeeping.create({
       hotel: booking.hotel,
@@ -305,7 +361,14 @@ const cancelBooking = catchAsync(async (req, res) => {
   booking.cancelledAt = new Date();
   booking.cancelReason = req.body.reason || '';
   await booking.save();
-  await Room.findByIdAndUpdate(booking.room, { status: 'available' });
+  const room = await Room.findByIdAndUpdate(booking.room, { status: 'available' }, { new: true });
+  if (room && req.app.get('io')) {
+    req.app.get('io').to(booking.hotel.toString()).emit('roomStatusUpdated', {
+      roomId: room._id,
+      status: room.status,
+      housekeepingStatus: room.housekeepingStatus
+    });
+  }
   sendSuccess(res, booking);
 });
 
@@ -314,7 +377,14 @@ const deleteBooking = catchAsync(async (req, res) => {
   if (!booking) throw new AppError('Booking not found', 404);
   
   if (booking.room && (booking.status === 'checked-in' || booking.status === 'confirmed')) {
-    await Room.findByIdAndUpdate(booking.room, { status: 'available' });
+    const room = await Room.findByIdAndUpdate(booking.room, { status: 'available' }, { new: true });
+    if (room && req.app.get('io')) {
+      req.app.get('io').to(booking.hotel.toString()).emit('roomStatusUpdated', {
+        roomId: room._id,
+        status: room.status,
+        housekeepingStatus: room.housekeepingStatus
+      });
+    }
   }
   
   await booking.deleteOne();

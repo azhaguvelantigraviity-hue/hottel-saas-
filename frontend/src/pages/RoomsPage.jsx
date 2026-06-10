@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import Icon from '../components/Icon';
 import Badge from '../components/Badge';
 import * as api from '../services/hotelService';
+import { useNotifications } from '../context/NotificationContext';
 
 
 
@@ -198,6 +199,7 @@ const RoomsPage = ({ onNav, role, hotelDetails }) => {
   const [editRoom, setEditRoom] = useState(null);
   const [saving, setSaving] = useState(false);
   const [toast, setToast] = useState(null);
+  const { socket } = useNotifications();
 
   const showToast = (message, type = 'info') => setToast({ message, type, key: Date.now() });
 
@@ -232,6 +234,21 @@ const RoomsPage = ({ onNav, role, hotelDetails }) => {
   }, []);
 
   useEffect(() => { loadRooms(); }, [loadRooms]);
+
+  useEffect(() => {
+    if (socket) {
+      const handleStatusUpdate = (data) => {
+        setRooms(prev => prev.map(r => {
+          if (r._id === data.roomId || r.id === data.roomId) {
+            return { ...r, status: data.status, housekeeping: data.housekeepingStatus || r.housekeeping };
+          }
+          return r;
+        }));
+      };
+      socket.on('roomStatusUpdated', handleStatusUpdate);
+      return () => socket.off('roomStatusUpdated', handleStatusUpdate);
+    }
+  }, [socket]);
 
   const toApi = (r) => ({
     hotel: hotelDetails?._id || hotelDetails?.id,

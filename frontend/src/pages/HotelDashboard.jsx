@@ -9,6 +9,7 @@ import {
   getPendingPayments, getMaintenanceRooms,
   updateHousekeeping
 } from '../services/hotelService';
+import { useNotifications } from '../context/NotificationContext';
 
 const HotelDashboard = ({ plan, onNav }) => {
   const [rooms, setRooms] = useState([]);
@@ -22,6 +23,7 @@ const HotelDashboard = ({ plan, onNav }) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [toast, setToast] = useState(null);
+  const { socket } = useNotifications();
 
   const fetchAllData = async (isBackground = false) => {
     try {
@@ -60,6 +62,21 @@ const HotelDashboard = ({ plan, onNav }) => {
     const interval = setInterval(() => fetchAllData(true), 60000); // 60s polling
     return () => clearInterval(interval);
   }, []);
+
+  useEffect(() => {
+    if (socket) {
+      const handleStatusUpdate = (data) => {
+        setRooms(prev => prev.map(r => {
+          if (r._id === data.roomId || r.id === data.roomId) {
+            return { ...r, status: data.status, housekeeping: data.housekeepingStatus || r.housekeeping };
+          }
+          return r;
+        }));
+      };
+      socket.on('roomStatusUpdated', handleStatusUpdate);
+      return () => socket.off('roomStatusUpdated', handleStatusUpdate);
+    }
+  }, [socket]);
 
   const handleHousekeepingChange = async (roomId, status) => {
     try {

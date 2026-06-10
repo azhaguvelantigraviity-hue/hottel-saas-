@@ -64,7 +64,7 @@ export const NotificationProvider = ({ children, hotelDetails }) => {
   };
 
   return (
-    <NotificationContext.Provider value={{ notifications, unreadCount, markRead, markAllRead }}>
+    <NotificationContext.Provider value={{ notifications, unreadCount, markRead, markAllRead, socket }}>
       {children}
     </NotificationContext.Provider>
   );
