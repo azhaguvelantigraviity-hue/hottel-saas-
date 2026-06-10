@@ -82,6 +82,7 @@ export const getRevenueDashboard    = ()            => get('/billing/revenue/das
 export const getRevenueReport       = (params = {}) => get(`/billing/revenue/report?${new URLSearchParams(params)}`);
 
 // ── Dashboard Features ──────────────────────────────────────────
+export const getHotelDashboard     = ()         => get('/hotel/dashboard');
 export const getTodayCheckins      = ()         => get('/hotel/bookings/today/checkins');
 export const getTodayCheckouts     = ()         => get('/hotel/bookings/today/checkouts');
 export const getPendingPayments    = ()         => get('/hotel/payments/pending');

@@ -72,6 +72,7 @@ InvoiceSchema.pre('save', async function (next) {
 
 InvoiceSchema.index({ hotel: 1, invoiceNo: 1 }, { unique: true });
 InvoiceSchema.index({ hotel: 1, status: 1 });
+InvoiceSchema.index({ hotel: 1, paymentStatus: 1, status: 1 });
 InvoiceSchema.index({ hotel: 1, createdAt: -1 });
 
 module.exports = mongoose.model('Invoice', InvoiceSchema);

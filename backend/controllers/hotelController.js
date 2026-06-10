@@ -11,6 +11,7 @@ const Document = require('../models/Document');
 const SubscriptionPayment = require('../models/SubscriptionPayment');
 const Payroll = require('../models/Payroll');
 const AdminNotification = require('../models/AdminNotification');
+const Invoice = require('../models/Invoice');
 const Razorpay = require('razorpay');
 const crypto = require('crypto');
 const { asyncHandler, sendSuccess, AppError } = require('../utils/helpers');
@@ -992,6 +993,57 @@ const requestAdminHelp = catchAsync(async (req, res) => {
   sendSuccess(res, { message: 'Admin support requested successfully' });
 });
 
+// ── Unified Dashboard API ──────────────────────────────────────
+const getHotelDashboard = catchAsync(async (req, res) => {
+  const hotelId = req.hotelId;
+  const today = new Date(); 
+  today.setHours(0, 0, 0, 0);
+  const tomorrow = new Date(today); 
+  tomorrow.setDate(tomorrow.getDate() + 1);
+
+  const monthStart = new Date(today.getFullYear(), today.getMonth(), 1);
+
+  // Parallelize ALL necessary queries using lean() for maximum performance
+  const [
+    rooms, 
+    bookings, 
+    checkins, 
+    checkouts, 
+    pendingPayments, 
+    maintenance,
+    todayInvoices,
+    monthInvoices
+  ] = await Promise.all([
+    Room.find({ hotel: hotelId }).select('roomNumber status housekeepingStatus').lean(),
+    Booking.find({ hotel: hotelId }).sort('-createdAt').limit(10).populate('guest', 'firstName lastName').populate('room', 'roomNumber').lean(),
+    Booking.find({ hotel: hotelId, status: { $in: ['confirmed', 'checked-in'] }, checkIn: { $gte: today, $lt: tomorrow } }).populate('guest', 'firstName lastName').populate('room', 'roomNumber').lean(),
+    Booking.find({ hotel: hotelId, status: { $in: ['checked-in'] }, checkOut: { $gte: today, $lt: tomorrow } }).populate('guest', 'firstName lastName').populate('room', 'roomNumber').lean(),
+    Invoice.find({ hotel: hotelId, paymentStatus: { $in: ['pending', 'partial'] }, status: 'issued' }).select('bookingId totalAmount paidAmount guestName').lean(),
+    Room.find({ hotel: hotelId, status: 'maintenance' }).select('roomNumber maintenanceReason').lean(),
+    Invoice.find({ hotel: hotelId, createdAt: { $gte: today }, status: { $in: ['issued','paid'] } }).select('totalAmount paidAmount dueAmount').lean(),
+    Invoice.find({ hotel: hotelId, createdAt: { $gte: monthStart }, status: { $in: ['issued','paid'] } }).select('totalAmount paidAmount dueAmount').lean()
+  ]);
+
+  const sum = (arr) => arr.reduce((s, i) => s + (i.totalAmount || 0), 0);
+  const totalPaid = (arr) => arr.reduce((s, i) => s + (i.paidAmount || 0), 0);
+  const totalDue = (arr) => arr.reduce((s, i) => s + (i.dueAmount || 0), 0);
+
+  const revenueData = {
+    today:  { count: todayInvoices.length, revenue: sum(todayInvoices), collected: totalPaid(todayInvoices), due: totalDue(todayInvoices) },
+    month:  { count: monthInvoices.length, revenue: sum(monthInvoices), collected: totalPaid(monthInvoices), due: totalDue(monthInvoices) }
+  };
+
+  sendSuccess(res, {
+    rooms,
+    revenueData,
+    bookings,
+    checkins,
+    checkouts,
+    pendingPayments,
+    maintenance
+  });
+});
+
 module.exports = {
   getRooms, getRoom, createRoom, updateRoom, deleteRoom,
   updateRoomHousekeeping, checkAvailability,
@@ -1007,5 +1059,6 @@ module.exports = {
   getTodayCheckins, getTodayCheckouts, getPendingPayments, getMaintenanceRooms, updateRoomMaintenance,
   createSubscriptionOrder, verifySubscriptionPayment, updateProfile,
   getPayrollRecords, updatePayrollRecord, markPayrollPaid, processAllPendingPayroll,
-  uploadDocument, getDocuments, getGuestDocuments, deleteDocument, requestAdminHelp
+  uploadDocument, getDocuments, getGuestDocuments, deleteDocument, requestAdminHelp,
+  getHotelDashboard
 };

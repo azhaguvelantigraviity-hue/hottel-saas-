@@ -1,53 +1,84 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback, useMemo, memo } from 'react';
 import StatCard from '../components/StatCard';
 import Badge from '../components/Badge';
 import Icon from '../components/Icon';
 import Toast from '../components/Toast';
-import { 
-  getRooms, getRevenueDashboard, getBookings,
-  getTodayCheckins, getTodayCheckouts,
-  getPendingPayments, getMaintenanceRooms,
-  updateHousekeeping
-} from '../services/hotelService';
+import { getHotelDashboard, updateHousekeeping } from '../services/hotelService';
 import { useNotifications } from '../context/NotificationContext';
 
+// ── Skeleton Components ──────────────────────────────────────────────
+const SkeletonCard = () => (
+  <div style={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: 'var(--radius)', padding: '24px', display: 'flex', gap: '16px', alignItems: 'center' }}>
+    <div style={{ width: '48px', height: '48px', borderRadius: '12px', background: 'var(--surface)', animation: 'pulse 1.5s infinite' }} />
+    <div style={{ flex: 1 }}>
+      <div style={{ width: '60%', height: '14px', background: 'var(--surface)', borderRadius: '4px', marginBottom: '8px', animation: 'pulse 1.5s infinite' }} />
+      <div style={{ width: '40%', height: '24px', background: 'var(--surface)', borderRadius: '4px', animation: 'pulse 1.5s infinite' }} />
+    </div>
+  </div>
+);
+
+const SkeletonTable = () => (
+  <div style={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: 'var(--radius)', padding: '24px' }}>
+    <div style={{ width: '150px', height: '20px', background: 'var(--surface)', borderRadius: '4px', marginBottom: '20px', animation: 'pulse 1.5s infinite' }} />
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+      {[1,2,3].map(i => <div key={i} style={{ width: '100%', height: '40px', background: 'var(--surface)', borderRadius: '4px', animation: 'pulse 1.5s infinite' }} />)}
+    </div>
+  </div>
+);
+
+// ── Memoized Housekeeping Table ──────────────────────────────────────
+const HousekeepingTable = memo(({ rooms, onHousekeepingChange }) => (
+  <div style={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: 'var(--radius)', padding: 'clamp(12px, 3vw, 24px)' }}>
+    <div style={{ fontSize: '15px', fontWeight: '700', marginBottom: '16px' }}>Housekeeping Status</div>
+    <div style={{ maxHeight: '150px' }} className="table-responsive-wrapper">
+      <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: '300px' }}>
+        <tbody>
+          {rooms.map(r => (
+            <tr key={r._id} style={{ borderBottom: '1px solid var(--border)' }}>
+              <td style={{ padding: '8px 0', fontSize: '13px' }}>Room {r.roomNumber}</td>
+              <td style={{ padding: '8px 0', textAlign: 'right' }}>
+                <select 
+                  value={r.housekeepingStatus || 'clean'} 
+                  onChange={(e) => onHousekeepingChange(r._id, e.target.value)}
+                  style={{ padding: '4px 8px', borderRadius: '4px', border: '1px solid var(--border)', background: 'var(--surface)', color: 'var(--text)', fontSize: '12px' }}
+                >
+                  <option value="clean">Clean</option>
+                  <option value="dirty">Dirty</option>
+                  <option value="in-progress">In Progress</option>
+                  <option value="inspect">Inspect</option>
+                </select>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  </div>
+));
+
 const HotelDashboard = ({ plan, onNav }) => {
-  const [rooms, setRooms] = useState([]);
-  const [revenueData, setRevenueData] = useState(null);
-  const [bookings, setBookings] = useState([]);
-  const [checkins, setCheckins] = useState([]);
-  const [checkouts, setCheckouts] = useState([]);
-  const [pendingPayments, setPendingPayments] = useState([]);
-  const [maintenance, setMaintenance] = useState([]);
+  const [data, setData] = useState({
+    rooms: [],
+    revenueData: null,
+    bookings: [],
+    checkins: [],
+    checkouts: [],
+    pendingPayments: [],
+    maintenance: []
+  });
   
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [toast, setToast] = useState(null);
   const { socket } = useNotifications();
 
-  const fetchAllData = async (isBackground = false) => {
+  const fetchDashboardData = useCallback(async (isBackground = false) => {
     try {
-      if (!isBackground) setLoading(true);
-      const [
-        roomsRes, revenueRes, bookingsRes, 
-        checkinsRes, checkoutsRes, pendingRes, maintenanceRes
-      ] = await Promise.all([
-        getRooms(),
-        getRevenueDashboard(),
-        getBookings({ limit: 10 }),
-        getTodayCheckins(),
-        getTodayCheckouts(),
-        getPendingPayments(),
-        getMaintenanceRooms()
-      ]);
-
-      setRooms(roomsRes.data || []);
-      setRevenueData(revenueRes.data || null);
-      setBookings(bookingsRes.data || []);
-      setCheckins(checkinsRes.data || []);
-      setCheckouts(checkoutsRes.data || []);
-      setPendingPayments(pendingRes.data || []);
-      setMaintenance(maintenanceRes.data || []);
+      if (!isBackground && !data.rooms.length) setLoading(true);
+      const res = await getHotelDashboard();
+      if (res.data) {
+        setData(res.data);
+      }
     } catch (err) {
       console.error(err);
       if (!isBackground) setError(err.message || 'Failed to load dashboard data');
@@ -55,22 +86,25 @@ const HotelDashboard = ({ plan, onNav }) => {
     } finally {
       if (!isBackground) setLoading(false);
     }
-  };
+  }, [data.rooms.length]);
 
   useEffect(() => {
-    fetchAllData();
-    const interval = setInterval(() => fetchAllData(true), 60000); // 60s polling
+    fetchDashboardData();
+    const interval = setInterval(() => fetchDashboardData(true), 60000); // 60s polling
     return () => clearInterval(interval);
-  }, []);
+  }, [fetchDashboardData]);
 
   useEffect(() => {
     if (socket) {
-      const handleStatusUpdate = (data) => {
-        setRooms(prev => prev.map(r => {
-          if (r._id === data.roomId || r.id === data.roomId) {
-            return { ...r, status: data.status, housekeeping: data.housekeepingStatus || r.housekeeping };
-          }
-          return r;
+      const handleStatusUpdate = (updateData) => {
+        setData(prev => ({
+          ...prev,
+          rooms: prev.rooms.map(r => {
+            if (r._id === updateData.roomId || r.id === updateData.roomId) {
+              return { ...r, status: updateData.status, housekeepingStatus: updateData.housekeepingStatus || r.housekeepingStatus };
+            }
+            return r;
+          })
         }));
       };
       socket.on('roomStatusUpdated', handleStatusUpdate);
@@ -78,27 +112,52 @@ const HotelDashboard = ({ plan, onNav }) => {
     }
   }, [socket]);
 
-  const handleHousekeepingChange = async (roomId, status) => {
+  const handleHousekeepingChange = useCallback(async (roomId, status) => {
     try {
       await updateHousekeeping(roomId, status);
       setToast({ type: 'success', message: 'Room status updated' });
-      fetchAllData(true); // refresh in background
+      
+      // Optimistic update
+      setData(prev => ({
+        ...prev,
+        rooms: prev.rooms.map(r => r._id === roomId ? { ...r, housekeepingStatus: status } : r)
+      }));
     } catch (err) {
       setToast({ type: 'error', message: err.message || 'Update failed' });
     }
-  };
+  }, []);
+
+  const { occupied, available, occupancyPct } = useMemo(() => {
+    const occ = data.rooms.filter((r) => r.status === 'occupied').length;
+    const avail = data.rooms.filter((r) => r.status === 'available').length;
+    const pct = data.rooms.length > 0 ? Math.round((occ / data.rooms.length) * 100) : 0;
+    return { occupied: occ, available: avail, occupancyPct: pct };
+  }, [data.rooms]);
 
   if (loading) {
-    return <div style={{ padding: 'clamp(16px, 4vw, 32px)' }}>Loading dashboard...</div>;
+    return (
+      <div style={{ padding: 'clamp(16px, 4vw, 32px)', overflowY: 'auto', flex: 1 }}>
+        <style>{`
+          @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+          }
+        `}</style>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 240px), 1fr))', gap: '16px', marginBottom: '28px' }}>
+          <SkeletonCard /><SkeletonCard /><SkeletonCard /><SkeletonCard />
+        </div>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 280px), 1fr))', gap: '20px', marginBottom: '28px' }}>
+          <SkeletonTable /><SkeletonTable /><SkeletonTable />
+        </div>
+      </div>
+    );
   }
 
   if (error) {
     return <div style={{ padding: 'clamp(16px, 4vw, 32px)', color: 'red' }}>Error: {error}</div>;
   }
 
-  const occupied = rooms.filter((r) => r.status === 'occupied').length;
-  const available = rooms.filter((r) => r.status === 'available').length;
-  const occupancyPct = rooms.length > 0 ? Math.round((occupied / rooms.length) * 100) : 0;
+  const { rooms, revenueData, bookings, checkins, checkouts, pendingPayments, maintenance } = data;
 
   return (
     <div style={{ padding: 'clamp(16px, 4vw, 32px)', overflowY: 'auto', flex: 1 }}>
@@ -108,7 +167,7 @@ const HotelDashboard = ({ plan, onNav }) => {
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 240px), 1fr))', gap: '16px', marginBottom: '28px' }}>
         <StatCard icon="bed" iconColor="#2DD4BF" label="Total Rooms" value={rooms.length} sub={`${occupied} occupied`} trend={0} />
         <StatCard icon="calendar" iconColor="#A78BFA" label="Today's Check-ins" value={checkins.length} sub={`${checkouts.length} check-outs`} trend={0} />
-        <StatCard icon="dollar" iconColor="#C9A84C" label="Today's Revenue" value={`₹${revenueData?.today?.revenue?.toLocaleString() || 0}`} sub={`${revenueData?.month?.revenue ? `₹${revenueData.month.revenue.toLocaleString()} this month` : '-'}`} trend={0} />
+        <StatCard icon="dollar" iconColor="#C9A84C" label="Today's Revenue" value={`₹${revenueData?.today?.revenue?.toLocaleString() || 0}`} sub={`${revenueData?.month?.revenue ? \`₹${revenueData.month.revenue.toLocaleString()} this month\` : '-'}`} trend={0} />
         <StatCard icon="users" iconColor="#34D399" label="Pending Payments" value={pendingPayments.length} sub="Requires attention" />
       </div>
 
@@ -133,32 +192,7 @@ const HotelDashboard = ({ plan, onNav }) => {
         </div>
 
         {/* Housekeeping */}
-        <div style={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: 'var(--radius)', padding: 'clamp(12px, 3vw, 24px)' }}>
-          <div style={{ fontSize: '15px', fontWeight: '700', marginBottom: '16px' }}>Housekeeping Status</div>
-          <div style={{ maxHeight: '150px' }} className="table-responsive-wrapper">
-            <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: '300px' }}>
-              <tbody>
-                {rooms.map(r => (
-                  <tr key={r._id} style={{ borderBottom: '1px solid var(--border)' }}>
-                    <td style={{ padding: '8px 0', fontSize: '13px' }}>Room {r.roomNumber}</td>
-                    <td style={{ padding: '8px 0', textAlign: 'right' }}>
-                      <select 
-                        value={r.housekeepingStatus || 'clean'} 
-                        onChange={(e) => handleHousekeepingChange(r._id, e.target.value)}
-                        style={{ padding: '4px 8px', borderRadius: '4px', border: '1px solid var(--border)', background: 'var(--surface)', color: 'var(--text)', fontSize: '12px' }}
-                      >
-                        <option value="clean">Clean</option>
-                        <option value="dirty">Dirty</option>
-                        <option value="in-progress">In Progress</option>
-                        <option value="inspect">Inspect</option>
-                      </select>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
+        <HousekeepingTable rooms={rooms} onHousekeepingChange={handleHousekeepingChange} />
 
         {/* Pending Payments Alert */}
         <div style={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: 'var(--radius)', padding: 'clamp(12px, 3vw, 24px)' }}>
@@ -170,8 +204,8 @@ const HotelDashboard = ({ plan, onNav }) => {
               <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
                 {pendingPayments.map(p => (
                   <li key={p._id} style={{ padding: '8px 0', borderBottom: '1px solid var(--border)', display: 'flex', justifyContent: 'space-between', fontSize: '13px' }}>
-                    <span>{p.bookingId} - {p.guest?.firstName}</span>
-                    <span style={{ color: 'var(--rose)', fontWeight: '600' }}>₹{p.totalAmount - p.paidAmount}</span>
+                    <span>{p.bookingId} - {p.guestName || p.guest?.firstName || 'Guest'}</span>
+                    <span style={{ color: 'var(--rose)', fontWeight: '600' }}>₹{p.totalAmount - (p.paidAmount || 0)}</span>
                   </li>
                 ))}
               </ul>
@@ -201,7 +235,7 @@ const HotelDashboard = ({ plan, onNav }) => {
                     <tr key={c._id} style={{ borderBottom: '1px solid var(--border)' }}>
                       <td style={{ padding: '10px 0', fontSize: '13px', fontWeight: '600' }}>{c.guest?.firstName} {c.guest?.lastName}</td>
                       <td style={{ padding: '10px 0', fontSize: '13px' }}>{c.room?.roomNumber}</td>
-                      <td style={{ padding: '10px 0' }}><Badge color={c.status === 'checked_in' ? 'green' : 'amber'}>{c.status}</Badge></td>
+                      <td style={{ padding: '10px 0' }}><Badge color={c.status === 'checked-in' || c.status === 'checked_in' ? 'green' : 'amber'}>{c.status}</Badge></td>
                     </tr>
                   ))
                 )}
@@ -230,7 +264,7 @@ const HotelDashboard = ({ plan, onNav }) => {
                     <tr key={c._id} style={{ borderBottom: '1px solid var(--border)' }}>
                       <td style={{ padding: '10px 0', fontSize: '13px', fontWeight: '600' }}>{c.guest?.firstName} {c.guest?.lastName}</td>
                       <td style={{ padding: '10px 0', fontSize: '13px' }}>{c.room?.roomNumber}</td>
-                      <td style={{ padding: '10px 0' }}><Badge color={c.status === 'checked_out' ? 'gray' : 'amber'}>{c.status}</Badge></td>
+                      <td style={{ padding: '10px 0' }}><Badge color={c.status === 'checked-out' || c.status === 'checked_out' ? 'gray' : 'amber'}>{c.status}</Badge></td>
                     </tr>
                   ))
                 )}
@@ -299,7 +333,7 @@ const HotelDashboard = ({ plan, onNav }) => {
                     <td style={{ padding: '11px 10px', fontSize: '12px', color: 'var(--text2)' }}>{b.checkOutDateTime ? new Date(b.checkOutDateTime).toLocaleString([], { dateStyle: 'short', timeStyle: 'short' }) : new Date(b.checkOut).toLocaleDateString()}</td>
                     <td style={{ padding: '11px 10px', fontSize: '13px', fontFamily: 'DM Mono,monospace' }}>{b.stayDays || b.nights || 1} Days</td>
                     <td style={{ padding: '11px 10px' }}>
-                      <Badge color={b.status === 'checked_in' ? 'green' : 'amber'}>{b.status}</Badge>
+                      <Badge color={b.status === 'checked-in' || b.status === 'checked_in' ? 'green' : 'amber'}>{b.status}</Badge>
                     </td>
                   </tr>
                 ))}

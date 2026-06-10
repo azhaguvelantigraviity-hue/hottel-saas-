@@ -16,7 +16,8 @@ const {
   getTodayCheckins, getTodayCheckouts, getPendingPayments, getMaintenanceRooms, updateRoomMaintenance,
   createSubscriptionOrder, verifySubscriptionPayment, getAttendance, updateProfile,
   getPayrollRecords, updatePayrollRecord, markPayrollPaid, processAllPendingPayroll,
-  uploadDocument, getDocuments, getGuestDocuments, deleteDocument
+  uploadDocument, getDocuments, getGuestDocuments, deleteDocument,
+  getHotelDashboard
 } = require('../controllers/hotelController');
 const { protect, authorize, scopeToHotel, hotelAdmin } = require('../middleware/auth');
 const { requireFeature, enforceLimit } = require('../middleware/planGate');
@@ -52,6 +53,7 @@ router.post ('/bookings/:id/cancel',               cancelBooking);
 router.delete('/bookings/:id',                     deleteBooking);
 
 // ── Dashboard / Payments ──────────────────────────────────────────────────────
+router.get  ('/dashboard',                         getHotelDashboard);
 router.get  ('/payments/pending',                  getPendingPayments);
 
 // ── Smart Check-In Process (all plans) ──────────────────────────────────────

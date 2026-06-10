@@ -22,5 +22,6 @@ const RoomSchema = new mongoose.Schema({
 }, { timestamps: true });
 
 RoomSchema.index({ hotel: 1, roomNumber: 1 }, { unique: true });
+RoomSchema.index({ hotel: 1, status: 1 });
 
 module.exports = mongoose.model('Room', RoomSchema);

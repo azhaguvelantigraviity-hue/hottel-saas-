@@ -102,5 +102,6 @@ BookingSchema.pre('save', async function (next) {
 
 BookingSchema.index({ hotel: 1, status: 1 });
 BookingSchema.index({ hotel: 1, checkIn: 1 });
+BookingSchema.index({ hotel: 1, checkOut: 1 });
 
 module.exports = mongoose.model('Booking', BookingSchema);
