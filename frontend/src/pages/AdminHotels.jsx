@@ -565,6 +565,9 @@ const AdminHotels = () => {
         plan: updated.plan,
         planStatus: updated.status,
         totalRooms: updated.rooms,
+        staffCount: updated.staff,
+        occupancyRate: updated.occupancy,
+        revenue: updated.revenue,
       });
       const next = hotels.map(h => h.id === updated.id ? updated : h);
       setHotels(next);

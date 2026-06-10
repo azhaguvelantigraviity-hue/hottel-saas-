@@ -23,6 +23,9 @@ const HotelSchema = new mongoose.Schema({
   plan:       { type: String, enum: ['starter','professional','enterprise'], default: 'starter' },
   planStatus: { type: String, enum: ['active','trial','suspended','cancelled'], default: 'trial' },
   totalRooms: { type: Number, default: 0 },
+  staffCount: { type: Number, default: 0 },
+  occupancyRate: { type: Number, default: 0 },
+  revenue: { type: Number, default: 0 },
   adminCredentials: {
     email:    String,
     password: String,
