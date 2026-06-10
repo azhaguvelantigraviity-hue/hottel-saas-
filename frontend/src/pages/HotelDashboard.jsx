@@ -167,7 +167,7 @@ const HotelDashboard = ({ plan, onNav }) => {
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 240px), 1fr))', gap: '16px', marginBottom: '28px' }}>
         <StatCard icon="bed" iconColor="#2DD4BF" label="Total Rooms" value={rooms.length} sub={`${occupied} occupied`} trend={0} />
         <StatCard icon="calendar" iconColor="#A78BFA" label="Today's Check-ins" value={checkins.length} sub={`${checkouts.length} check-outs`} trend={0} />
-        <StatCard icon="dollar" iconColor="#C9A84C" label="Today's Revenue" value={`₹${revenueData?.today?.revenue?.toLocaleString() || 0}`} sub={`${revenueData?.month?.revenue ? \`₹${revenueData.month.revenue.toLocaleString()} this month\` : '-'}`} trend={0} />
+        <StatCard icon="dollar" iconColor="#C9A84C" label="Today's Revenue" value={`₹${revenueData?.today?.revenue?.toLocaleString() || 0}`} sub={revenueData?.month?.revenue ? `₹${revenueData.month.revenue.toLocaleString()} this month` : '-'} trend={0} />
         <StatCard icon="users" iconColor="#34D399" label="Pending Payments" value={pendingPayments.length} sub="Requires attention" />
       </div>
 
