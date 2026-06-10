@@ -260,7 +260,20 @@ const RestaurantPOS = ({ role, hotelDetails }) => {
       {(activeTab === 'orders' || activeTab === 'history') && (
         <div style={{ padding: 'clamp(12px, 3vw, 24px)', overflowY: 'auto', flex: 1 }}>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(300px,1fr))', gap: '14px' }}>
-             {orders.filter(o => activeTab === 'orders' ? ['pending', 'preparing'].includes(o.status) : ['delivered', 'cancelled'].includes(o.status)).map(order => {
+             {(() => {
+               const filteredOrders = orders.filter(o => activeTab === 'orders' ? ['pending', 'preparing'].includes(o.status) : ['delivered', 'cancelled'].includes(o.status));
+               if (filteredOrders.length === 0) {
+                 return (
+                   <div style={{ gridColumn: '1 / -1', textAlign: 'center', padding: '60px 20px', color: 'var(--text3)' }}>
+                     <div style={{ fontSize: '48px', marginBottom: '16px', opacity: 0.5 }}>🍽️</div>
+                     <div style={{ fontSize: '16px', fontWeight: '600', color: 'var(--text2)' }}>No {activeTab === 'orders' ? 'active' : 'past'} orders</div>
+                     <div style={{ fontSize: '13px', marginTop: '8px' }}>
+                       {activeTab === 'orders' ? 'New orders will appear here automatically.' : 'Completed and cancelled orders will appear here.'}
+                     </div>
+                   </div>
+                 );
+               }
+               return filteredOrders.map(order => {
               const orderKey = order._id || order.id || order.orderId;
               const orderIdDisplay = order.orderId || order.id || orderKey?.slice(-6);
               return (
@@ -286,7 +299,7 @@ const RestaurantPOS = ({ role, hotelDetails }) => {
                   {order.status === 'preparing' && <button onClick={() => updateOrderStatus(orderKey, 'delivered')} style={{ padding: '6px 12px', background: 'rgba(52,211,153,0.15)', border: '1px solid rgba(52,211,153,0.3)', borderRadius: '6px', color: 'var(--green)', cursor: 'pointer', fontSize: '12px', fontWeight: '600', fontFamily: 'Inter, sans-serif' }}>Mark Delivered</button>}
                 </div>
               </div>);
-            })}
+            })})()}
           </div>
         </div>
       )}
