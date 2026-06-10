@@ -232,6 +232,11 @@ const createPOSOrder = asyncHandler(async (req, res) => {
     subtotal, tax, total,
     status: 'pending',
   });
+
+  if (req.app.get('io')) {
+    req.app.get('io').to(req.hotelId.toString()).emit('posOrderUpdated', order);
+  }
+
   sendSuccess(res, order, 201);
 });
 
@@ -242,6 +247,11 @@ const updatePOSOrder = asyncHandler(async (req, res) => {
     { new: true, runValidators: true }
   );
   if (!order) return res.status(404).json({ success: false, message: 'Order not found' });
+
+  if (req.app.get('io')) {
+    req.app.get('io').to(req.hotelId.toString()).emit('posOrderUpdated', order);
+  }
+
   sendSuccess(res, order);
 });
 

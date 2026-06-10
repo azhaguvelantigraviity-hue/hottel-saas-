@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Badge from '../components/Badge';
 import { useApi, useMutation } from '../hooks/useApi';
 import { getMenuItems, getPOSOrders, createPOSOrder, updatePOSOrder, createMenuItem } from '../services/operationsService';
 import ManualItemPage from './ManualItemPage';
+import { useNotifications } from '../context/NotificationContext';
 
 const statusColor = { pending: 'amber', preparing: 'violet', delivered: 'green', cancelled: 'rose' };
 const categories = ['All', 'Breakfast', 'Starters', 'Main Course', 'Breads', 'Desserts', 'Beverages', 'Snacks', 'Custom'];
@@ -18,6 +19,7 @@ const RestaurantPOS = ({ role, hotelDetails }) => {
   const [manualPrice, setManualPrice] = useState('');
   const [manualStock, setManualStock] = useState('');
   const [showManual, setShowManual] = useState(false);
+  const { socket } = useNotifications();
 
   const { data: apiMenu, refetch: refetchMenu } = useApi(() => getMenuItems().catch(() => ({ data: null })), []);
   const { data: apiOrders, refetch: refetchOrders } = useApi(() => getPOSOrders().catch(() => ({ data: null })), []);
@@ -27,7 +29,7 @@ const RestaurantPOS = ({ role, hotelDetails }) => {
 
   const [localMenu, setLocalMenu] = useState([]);
   
-  React.useEffect(() => {
+  useEffect(() => {
     if (Array.isArray(apiMenu)) {
       setLocalMenu(apiMenu.length > 0 ? apiMenu : []);
     } else {
@@ -35,11 +37,21 @@ const RestaurantPOS = ({ role, hotelDetails }) => {
     }
   }, [apiMenu]);
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (activeTab === 'pos') {
       refetchMenu();
     }
   }, [activeTab, refetchMenu]);
+
+  useEffect(() => {
+    if (socket) {
+      const handlePosUpdate = () => {
+        refetchOrders();
+      };
+      socket.on('posOrderUpdated', handlePosUpdate);
+      return () => socket.off('posOrderUpdated', handlePosUpdate);
+    }
+  }, [socket, refetchOrders]);
 
   const menuItems = localMenu.length > 0 ? localMenu : [];
   const orders = Array.isArray(apiOrders) ? apiOrders : localOrders;
