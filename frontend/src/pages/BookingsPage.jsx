@@ -397,12 +397,21 @@ const BookingDetail = ({ booking, onClose, onAction, apiReady }) => {
                 </div>
               )}
               
-              <div style={{ display: 'flex', gap: '10px' }}>
-                <button onClick={() => setShowCheckout(false)} style={{ flex: 1, padding: '10px', background: 'transparent', border: '1px solid var(--border)', borderRadius: '6px', color: 'var(--text)', cursor: 'pointer', fontWeight: 600, fontSize: '13px' }}>Cancel</button>
-                <button onClick={() => { onAction(booking, 'checked-out', { paymentAmount: Number(paymentAmount), paymentMethod }); onClose(); }} style={{ flex: 2, padding: '10px', background: 'var(--gold)', border: 'none', borderRadius: '6px', color: '#000', cursor: 'pointer', fontWeight: 600, fontSize: '13px' }}>
-                  Confirm & Check Out
-                </button>
-              </div>
+              {balance > 0 ? (
+                <div style={{ display: 'flex', gap: '10px' }}>
+                  <button onClick={() => setShowCheckout(false)} style={{ flex: 1, padding: '10px', background: 'transparent', border: '1px solid var(--border)', borderRadius: '6px', color: 'var(--text)', cursor: 'pointer', fontWeight: 600, fontSize: '13px' }}>Cancel</button>
+                  <button onClick={() => onAction(booking, 'collect-payment', { paymentAmount: Number(paymentAmount), paymentMethod })} style={{ flex: 2, padding: '10px', background: 'var(--green)', border: 'none', borderRadius: '6px', color: '#fff', cursor: 'pointer', fontWeight: 600, fontSize: '13px' }}>
+                    Collect Payment
+                  </button>
+                </div>
+              ) : (
+                <div style={{ display: 'flex', gap: '10px' }}>
+                  <button onClick={() => setShowCheckout(false)} style={{ flex: 1, padding: '10px', background: 'transparent', border: '1px solid var(--border)', borderRadius: '6px', color: 'var(--text)', cursor: 'pointer', fontWeight: 600, fontSize: '13px' }}>Cancel</button>
+                  <button onClick={() => { onAction(booking, 'checked-out', { paymentAmount: 0, paymentMethod }); onClose(); }} style={{ flex: 2, padding: '10px', background: 'var(--gold)', border: 'none', borderRadius: '6px', color: '#000', cursor: 'pointer', fontWeight: 600, fontSize: '13px' }}>
+                    Confirm & Check Out
+                  </button>
+                </div>
+              )}
             </div>
           </div>
         )
@@ -476,6 +485,16 @@ const BookingsPage = () => {
           await api.checkIn(booking._id);
         } else if (newStatus === 'checked-out') {
           await api.checkOut(booking._id, extraData);
+        } else if (newStatus === 'collect-payment') {
+          await api.updateBooking(booking._id, {
+            paidAmount: (booking.paid || 0) + extraData.paymentAmount,
+            paymentMethod: extraData.paymentMethod
+          });
+          setBookings(prev => prev.map(b => {
+            if (b.id !== booking.id) return b;
+            return { ...b, paid: (b.paid || 0) + extraData.paymentAmount };
+          }));
+          return;
         } else if (newStatus === 'cancelled') {
           await api.cancelBooking(booking._id);
         }
