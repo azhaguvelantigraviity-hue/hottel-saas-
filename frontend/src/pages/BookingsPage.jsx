@@ -494,6 +494,10 @@ const BookingsPage = () => {
             if (b.id !== booking.id) return b;
             return { ...b, paid: (b.paid || 0) + extraData.paymentAmount };
           }));
+          setSelected(prev => {
+            if (!prev || prev.id !== booking.id) return prev;
+            return { ...prev, paid: (prev.paid || 0) + extraData.paymentAmount };
+          });
           return;
         } else if (newStatus === 'cancelled') {
           await api.cancelBooking(booking._id);
