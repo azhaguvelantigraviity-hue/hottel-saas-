@@ -44,9 +44,72 @@ const AdminDashboard = ({ onNav }) => {
   }, []);
 
   const { totalHotels, activeHotels, totalRooms, totalUsers, mrr, planBreakdown } = dashboard;
+  const [activeTab, setActiveTab] = useState('overview');
+  const [registrations, setRegistrations] = useState([]);
+  
+  useEffect(() => {
+    if (activeTab === 'registrations') {
+      adminApi.getRegistrations().then(res => setRegistrations(res.data || []));
+    }
+  }, [activeTab]);
+
+  const handleApprove = async (id) => {
+    try {
+      await adminApi.approveRegistration(id);
+      adminApi.getRegistrations().then(res => setRegistrations(res.data || []));
+    } catch (err) {
+      alert(err.message || 'Failed to approve');
+    }
+  };
+
+  const handleReject = async (id) => {
+    if (!window.confirm('Are you sure you want to reject this registration?')) return;
+    try {
+      await adminApi.rejectRegistration(id);
+      adminApi.getRegistrations().then(res => setRegistrations(res.data || []));
+    } catch (err) {
+      alert(err.message || 'Failed to reject');
+    }
+  };
 
   return (
     <div style={{ padding: 'clamp(16px, 4vw, 32px)', overflowY: 'auto', flex: 1, opacity: loading ? 0.6 : 1, pointerEvents: loading ? 'none' : 'auto' }}>
+      
+      <div style={{ display: 'flex', gap: '16px', marginBottom: '24px', borderBottom: '1px solid var(--border)' }}>
+        <button
+          onClick={() => setActiveTab('overview')}
+          style={{
+            padding: '12px 16px',
+            background: 'none',
+            border: 'none',
+            borderBottom: activeTab === 'overview' ? '2px solid var(--gold)' : '2px solid transparent',
+            color: activeTab === 'overview' ? 'var(--text)' : 'var(--text3)',
+            fontWeight: activeTab === 'overview' ? '600' : '500',
+            cursor: 'pointer',
+            fontSize: '15px'
+          }}
+        >
+          Overview
+        </button>
+        <button
+          onClick={() => setActiveTab('registrations')}
+          style={{
+            padding: '12px 16px',
+            background: 'none',
+            border: 'none',
+            borderBottom: activeTab === 'registrations' ? '2px solid var(--gold)' : '2px solid transparent',
+            color: activeTab === 'registrations' ? 'var(--text)' : 'var(--text3)',
+            fontWeight: activeTab === 'registrations' ? '600' : '500',
+            cursor: 'pointer',
+            fontSize: '15px'
+          }}
+        >
+          Pending Registrations
+        </button>
+      </div>
+
+      {activeTab === 'overview' ? (
+        <>
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 240px), 1fr))', gap: '16px', marginBottom: '28px' }}>
         <StatCard icon="hotel" iconColor="#C9A84C" label="Total Hotels" value={totalHotels} sub="Registered Hotels" trend={0} />
         <StatCard icon="dollar" iconColor="#2DD4BF" label="Monthly Revenue" value={`₹${(mrr / 1000).toFixed(0)}K`} sub="Platform MRR" trend={0} />
@@ -217,6 +280,65 @@ const AdminDashboard = ({ onNav }) => {
         </table>
         </div>
       </div>
+      </>
+      ) : (
+        <div style={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: 'var(--radius)', padding: 'clamp(12px, 3vw, 24px)' }}>
+          <div style={{ fontSize: '15px', fontWeight: '700', marginBottom: '20px' }}>Hotel Registration Requests</div>
+          <div className="table-responsive-wrapper">
+            <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: '800px' }}>
+            <thead>
+              <tr style={{ borderBottom: '1px solid var(--border)' }}>
+                {['Date', 'Hotel Info', 'Contact', 'Plan', 'Rooms', 'Status', 'Actions'].map((h) => (
+                  <th key={h} style={{ padding: '8px 12px', textAlign: 'left', fontSize: '11px', color: 'var(--text3)', fontWeight: '600', letterSpacing: '0.06em' }}>
+                    {h.toUpperCase()}
+                  </th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {registrations.length === 0 ? (
+                <tr><td colSpan={7} style={{ padding: '24px', textAlign: 'center', color: 'var(--text3)' }}>No registration requests found.</td></tr>
+              ) : registrations.map((r) => (
+                <tr
+                  key={r._id}
+                  style={{ borderBottom: '1px solid var(--border)' }}
+                >
+                  <td style={{ padding: '12px', fontSize: '13px', color: 'var(--text2)' }}>{new Date(r.createdAt).toLocaleDateString()}</td>
+                  <td style={{ padding: '12px 12px' }}>
+                    <div style={{ display: 'flex', flexDirection: 'column' }}>
+                      <span style={{ fontSize: '13px', fontWeight: '600' }}>{r.hotelName}</span>
+                      <span style={{ fontSize: '12px', color: 'var(--text3)' }}>{r.city}</span>
+                    </div>
+                  </td>
+                  <td style={{ padding: '12px' }}>
+                    <div style={{ display: 'flex', flexDirection: 'column' }}>
+                      <span style={{ fontSize: '13px', color: 'var(--text2)' }}>{r.ownerName}</span>
+                      <span style={{ fontSize: '12px', color: 'var(--text3)' }}>{r.email}</span>
+                      <span style={{ fontSize: '12px', color: 'var(--text3)' }}>{r.phone}</span>
+                    </div>
+                  </td>
+                  <td style={{ padding: '12px' }}>
+                    <Badge color={r.plan === 'enterprise' ? 'gold' : r.plan === 'professional' ? 'teal' : 'gray'}>{r.plan}</Badge>
+                  </td>
+                  <td style={{ padding: '12px', fontSize: '13px', color: 'var(--text2)' }}>{r.totalRooms}</td>
+                  <td style={{ padding: '12px' }}>
+                    <Badge color={r.status === 'approved' ? 'green' : r.status === 'pending' ? 'amber' : 'rose'}>{r.status}</Badge>
+                  </td>
+                  <td style={{ padding: '12px' }}>
+                    {r.status === 'pending' && (
+                      <div style={{ display: 'flex', gap: '8px' }}>
+                        <button onClick={() => handleApprove(r._id)} style={{ padding: '6px 12px', background: 'var(--green)', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '12px', fontWeight: '600' }}>Approve</button>
+                        <button onClick={() => handleReject(r._id)} style={{ padding: '6px 12px', background: 'var(--rose)', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '12px', fontWeight: '600' }}>Reject</button>
+                      </div>
+                    )}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

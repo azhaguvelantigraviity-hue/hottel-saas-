@@ -50,3 +50,8 @@ export async function updatePassword(currentPassword, newPassword) {
 export async function forgotPassword(email) {
   return post('/auth/forgotpassword', { email });
 }
+
+/** Register a new hotel */
+export async function registerHotel(data) {
+  return post('/auth/register-hotel', data);
+}

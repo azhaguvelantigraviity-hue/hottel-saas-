@@ -250,6 +250,7 @@ const App = () => {
   const [hotelPlan, setHotelPlan] = useState('enterprise');
   const [hotelRole, setHotelRole] = useState('manager');
   const [currentHotel, setCurrentHotel] = useState(null);
+  const [isTrialExpired, setIsTrialExpired] = useState(false);
   const [theme, setTheme] = useState(() => safeGetStorage('stayos_theme', 'light'));
 
   // ── Theme sync ──
@@ -292,11 +293,13 @@ const App = () => {
         setLoginType('admin');
         setHotelRole('manager');
         setHotelPlan('enterprise');
+        setIsTrialExpired(false);
       } else {
         setLoginType('hotel');
         setHotelRole(getUIRole(cachedUser));
         setHotelPlan(cachedUser.hotel?.plan || 'enterprise');
         setCurrentHotel(cachedUser.hotel);
+        setIsTrialExpired(!!cachedUser.isTrialExpired);
       }
       setAuthReady(true);
     }
@@ -310,11 +313,13 @@ const App = () => {
             setLoginType('admin');
             setHotelRole('manager');
             setHotelPlan('enterprise');
+            setIsTrialExpired(false);
           } else {
             setLoginType('hotel');
             setHotelRole(getUIRole(user));
             setHotelPlan(user.hotel?.plan || 'enterprise');
             setCurrentHotel(user.hotel);
+            setIsTrialExpired(!!user.isTrialExpired);
           }
           if (!authReady) setAuthReady(true);
         })
@@ -366,7 +371,13 @@ const App = () => {
       } />
       <Route path="/hotel/*" element={
         <ProtectedRoute isAuthenticated={isAuthenticated} authReady={authReady}>
-          {(loginType === 'hotel' || loginType === 'admin') ? <HotelApp onLogout={handleLogout} initialPlan={hotelPlan} role={hotelRole} hotelDetails={currentHotel} theme={theme} setTheme={setTheme} /> : <Navigate to="/admin/dashboard" replace />}
+          {(loginType === 'hotel' || loginType === 'admin') ? (
+            isTrialExpired ? (
+              <TrialExpiredScreen onLogout={handleLogout} />
+            ) : (
+              <HotelApp onLogout={handleLogout} initialPlan={hotelPlan} role={hotelRole} hotelDetails={currentHotel} theme={theme} setTheme={setTheme} />
+            )
+          ) : <Navigate to="/admin/dashboard" replace />}
         </ProtectedRoute>
       } />
       <Route path="*" element={<Navigate to="/" replace />} />
@@ -375,3 +386,32 @@ const App = () => {
 };
 
 export default App;
+
+const TrialExpiredScreen = ({ onLogout }) => {
+  return (
+    <div style={{ minHeight: '100vh', background: 'var(--bg)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
+      <div style={{ background: 'var(--card)', padding: '48px 40px', borderRadius: '16px', border: '1px solid var(--border)', textAlign: 'center', maxWidth: '460px', boxShadow: '0 20px 40px rgba(0,0,0,0.2)' }}>
+        <div style={{ width: '64px', height: '64px', background: 'rgba(239, 68, 68, 0.1)', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 24px' }}>
+          <span className="material-symbols-outlined" style={{ fontSize: '32px', color: '#EF4444' }}>lock</span>
+        </div>
+        <h2 style={{ fontSize: '28px', fontFamily: 'Playfair Display,serif', marginBottom: '12px' }}>Your Free Trial has Ended</h2>
+        <p style={{ color: 'var(--text2)', fontSize: '15px', lineHeight: 1.6, marginBottom: '32px' }}>
+          Your 12-day free trial of StayOS has expired. Please upgrade your plan or contact the platform administrator to continue managing your property seamlessly.
+        </p>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+          <button style={{ width: '100%', padding: '14px', background: 'linear-gradient(135deg,#C9A84C,#8A6F2E)', border: 'none', borderRadius: '8px', color: '#fff', fontSize: '15px', fontWeight: '600', cursor: 'pointer' }}>
+            Pay Now (Upgrade Plan)
+          </button>
+          <button style={{ width: '100%', padding: '14px', background: 'transparent', border: '1px solid var(--border)', borderRadius: '8px', color: 'var(--text)', fontSize: '15px', fontWeight: '600', cursor: 'pointer' }}>
+            Request Admin Help
+          </button>
+        </div>
+        <div style={{ marginTop: '24px' }}>
+          <button onClick={onLogout} style={{ background: 'none', border: 'none', color: 'var(--text3)', fontSize: '14px', cursor: 'pointer', textDecoration: 'underline' }}>
+            Logout
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};

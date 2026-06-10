@@ -39,3 +39,7 @@ export const getAdminNotifications   = (filters = {}) => {
 export const markAdminNotificationRead = (id)      => put(`/admin/notifications/${id}/read`);
 export const resolveAdminNotification  = (id)      => put(`/admin/notifications/${id}/resolve`);
 export const deleteAdminNotification   = (id)      => del(`/admin/notifications/${id}`);
+
+export const getRegistrations     = ()       => get('/admin/registrations');
+export const approveRegistration  = (id)     => put(`/admin/registrations/${id}/approve`);
+export const rejectRegistration   = (id)     => put(`/admin/registrations/${id}/reject`);

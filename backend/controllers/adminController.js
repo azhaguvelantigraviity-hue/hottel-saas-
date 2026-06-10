@@ -496,3 +496,82 @@ exports.deleteAdminNotification = asyncHandler(async (req, res, next) => {
   if (!notif) return next(new (require('../utils/helpers').AppError)('Notification not found', 404));
   sendSuccess(res, null, 204);
 });
+
+// Registration Controllers
+const Registration = require('../models/Registration');
+
+exports.getRegistrations = asyncHandler(async (req, res) => {
+  const registrations = await Registration.find().sort('-createdAt');
+  sendSuccess(res, registrations);
+});
+
+exports.approveRegistration = asyncHandler(async (req, res, next) => {
+  const reg = await Registration.findById(req.params.id);
+  if (!reg) return next(new (require('../utils/helpers').AppError)('Registration not found', 404));
+  if (reg.status !== 'pending') return next(new (require('../utils/helpers').AppError)('Registration is already ' + reg.status, 400));
+
+  const existingUser = await User.findOne({ email: reg.email });
+  if (existingUser) return next(new (require('../utils/helpers').AppError)('User with this email already exists', 400));
+
+  const generatedPassword = Math.random().toString(36).slice(-8);
+
+  // 1. Create Hotel
+  const trialEndDate = new Date(Date.now() + 12 * 24 * 60 * 60 * 1000); // 12 days
+  const hotel = await Hotel.create({
+    name: reg.hotelName,
+    hotelCode: `HTL-${Math.random().toString(36).substring(2, 8).toUpperCase()}`,
+    email: reg.email,
+    phone: reg.phone,
+    address: { city: reg.city },
+    plan: reg.plan,
+    planStatus: 'trial',
+    trialEndDate: trialEndDate,
+    totalRooms: reg.totalRooms,
+    adminCredentials: {
+      email: reg.email,
+      password: generatedPassword,
+      username: reg.email
+    }
+  });
+
+  // 2. Create User (Manager)
+  const manager = await User.create({
+    name: reg.ownerName,
+    username: reg.email,
+    email: reg.email,
+    phone: reg.phone,
+    password: generatedPassword,
+    role: 'hotel_admin',
+    hotel: hotel._id
+  });
+
+  hotel.owner = manager._id;
+  await hotel.save();
+
+  // 3. Mark Registration as Approved
+  reg.status = 'approved';
+  await reg.save();
+
+  await createAuditLog(req, 'Approved Hotel Registration', reg.hotelName, `Hotel ${hotel.name} created.`, 'success');
+
+  sendSuccess(res, {
+    message: 'Registration approved successfully.',
+    hotel: hotel,
+    credentials: {
+      email: reg.email,
+      password: generatedPassword
+    }
+  });
+});
+
+exports.rejectRegistration = asyncHandler(async (req, res, next) => {
+  const reg = await Registration.findById(req.params.id);
+  if (!reg) return next(new (require('../utils/helpers').AppError)('Registration not found', 404));
+  if (reg.status !== 'pending') return next(new (require('../utils/helpers').AppError)('Registration is already ' + reg.status, 400));
+
+  reg.status = 'rejected';
+  await reg.save();
+
+  await createAuditLog(req, 'Rejected Hotel Registration', reg.hotelName, '', 'warning');
+  sendSuccess(res, { message: 'Registration rejected.', registration: reg });
+});

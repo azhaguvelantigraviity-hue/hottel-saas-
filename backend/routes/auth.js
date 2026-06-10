@@ -1,9 +1,10 @@
 // src/routes/auth.js
 const router = require('express').Router();
-const { register, login, logout, getMe, updatePassword, forgotPassword, resetPassword } = require('../controllers/authController');
+const { register, login, logout, getMe, updatePassword, forgotPassword, resetPassword, registerHotel } = require('../controllers/authController');
 const { protect } = require('../middleware/auth');
 
 router.post('/register',                    register);
+router.post('/register-hotel',              registerHotel);
 router.post('/login',                       login);
 router.post('/logout',     protect,         logout);
 router.get ('/me',         protect,         getMe);

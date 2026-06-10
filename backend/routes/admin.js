@@ -63,4 +63,10 @@ router.put('/notifications/:id/read', markAdminNotificationRead);
 router.put('/notifications/:id/resolve', resolveAdminNotification);
 router.delete('/notifications/:id', deleteAdminNotification);
 
+// Registrations
+const { getRegistrations, approveRegistration, rejectRegistration } = require('../controllers/adminController');
+router.get('/registrations', getRegistrations);
+router.put('/registrations/:id/approve', approveRegistration);
+router.put('/registrations/:id/reject', rejectRegistration);
+
 module.exports = router;

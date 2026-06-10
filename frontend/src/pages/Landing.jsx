@@ -9,6 +9,7 @@ const PLANS = {
 
 const Landing = ({ onLogin, theme, setTheme }) => {
   const [hoveredPlan, setHoveredPlan] = useState('professional');
+  const [showRegister, setShowRegister] = useState(false);
 
   return (
     <div style={{ minHeight: '100vh', background: 'var(--obsidian)' }}>
@@ -93,6 +94,23 @@ const Landing = ({ onLogin, theme, setTheme }) => {
           </button>
           <button
             className="landing-btn"
+            onClick={() => setShowRegister(true)}
+            style={{
+              padding: '9px 20px',
+              background: 'linear-gradient(135deg,#C9A84C,#8A6F2E)',
+              border: 'none',
+              borderRadius: '8px',
+              color: '#fff',
+              cursor: 'pointer',
+              fontSize: '14px',
+              fontWeight: '600',
+              fontFamily: 'DM Sans,sans-serif',
+            }}
+          >
+            Free Trial
+          </button>
+          <button
+            className="landing-btn"
             onClick={() => onLogin('admin')}
             style={{
               padding: '9px 20px',
@@ -167,6 +185,24 @@ const Landing = ({ onLogin, theme, setTheme }) => {
         <p className="landing-hero-desc" style={{ fontSize: '18px', color: 'var(--text2)', maxWidth: '560px', margin: '0 auto 40px', lineHeight: 1.7 }}>
           From room bookings to revenue analytics — every tool your hotel needs, in one beautifully unified platform.
         </p>
+        <button
+          onClick={() => setShowRegister(true)}
+          style={{
+            padding: '16px 32px',
+            background: 'linear-gradient(135deg,#C9A84C,#8A6F2E)',
+            border: 'none',
+            borderRadius: '12px',
+            color: '#fff',
+            cursor: 'pointer',
+            fontSize: '16px',
+            fontWeight: '700',
+            fontFamily: 'DM Sans,sans-serif',
+            boxShadow: '0 8px 16px rgba(201,168,76,0.2)',
+            transition: 'all 0.3s',
+          }}
+        >
+          Start 12-Day Free Trial
+        </button>
       </div>
 
       {/* FEATURES STRIP */}
@@ -297,7 +333,7 @@ const Landing = ({ onLogin, theme, setTheme }) => {
                   ))}
                 </div>
                 <button
-                  onClick={() => onLogin('hotel')}
+                  onClick={() => setShowRegister(true)}
                   style={{
                     width: '100%',
                     padding: '12px',
@@ -312,15 +348,116 @@ const Landing = ({ onLogin, theme, setTheme }) => {
                     transition: 'all 0.3s',
                   }}
                 >
-                  Get Started
+                  Start Free Trial
                 </button>
               </div>
             );
           })}
         </div>
       </div>
+      
+      {showRegister && (
+        <RegistrationModal onClose={() => setShowRegister(false)} />
+      )}
     </div>
   );
 };
 
 export default Landing;
+
+const RegistrationModal = ({ onClose }) => {
+  const [formData, setFormData] = useState({
+    hotelName: '', ownerName: '', email: '', phone: '', address: '', city: '', totalRooms: 10, plan: 'professional'
+  });
+  const [loading, setLoading] = useState(false);
+  const [success, setSuccess] = useState(false);
+  const [error, setError] = useState('');
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    setError('');
+    try {
+      const { registerHotel } = await import('../services/authService');
+      await registerHotel({ ...formData, totalRooms: Number(formData.totalRooms) });
+      setSuccess(true);
+    } catch (err) {
+      setError(err.message || 'Failed to submit registration');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.8)', backdropFilter: 'blur(4px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 999 }}>
+      <div style={{ background: 'var(--card)', padding: '32px', borderRadius: '12px', width: '100%', maxWidth: '500px', border: '1px solid var(--border)' }}>
+        <h2 style={{ fontSize: '24px', fontFamily: 'Playfair Display,serif', marginBottom: '8px' }}>Start 12-Day Free Trial</h2>
+        <p style={{ color: 'var(--text2)', fontSize: '14px', marginBottom: '24px' }}>Register your hotel to get started. No credit card required.</p>
+        
+        {success ? (
+          <div style={{ textAlign: 'center', padding: '32px 0' }}>
+            <div style={{ width: '48px', height: '48px', background: 'rgba(52, 211, 153, 0.1)', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px' }}>
+              <Icon name="check" size={24} color="#34D399" />
+            </div>
+            <h3 style={{ fontSize: '18px', marginBottom: '8px' }}>Registration Submitted!</h3>
+            <p style={{ color: 'var(--text2)', fontSize: '14px', marginBottom: '24px' }}>Your request is pending admin approval. You will be notified once your account is ready.</p>
+            <button onClick={onClose} style={{ padding: '10px 24px', background: 'var(--border)', color: 'var(--text)', border: 'none', borderRadius: '6px', cursor: 'pointer' }}>Close</button>
+          </div>
+        ) : (
+          <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+            {error && <div style={{ padding: '10px', background: 'rgba(239, 68, 68, 0.1)', color: '#EF4444', borderRadius: '6px', fontSize: '13px' }}>{error}</div>}
+            
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+              <div>
+                <label style={{ display: 'block', fontSize: '12px', color: 'var(--text2)', marginBottom: '4px' }}>Hotel Name</label>
+                <input required value={formData.hotelName} onChange={e => setFormData({...formData, hotelName: e.target.value})} style={{ width: '100%', padding: '10px', background: 'var(--bg)', border: '1px solid var(--border)', borderRadius: '6px', color: 'var(--text)' }} />
+              </div>
+              <div>
+                <label style={{ display: 'block', fontSize: '12px', color: 'var(--text2)', marginBottom: '4px' }}>Owner Name</label>
+                <input required value={formData.ownerName} onChange={e => setFormData({...formData, ownerName: e.target.value})} style={{ width: '100%', padding: '10px', background: 'var(--bg)', border: '1px solid var(--border)', borderRadius: '6px', color: 'var(--text)' }} />
+              </div>
+            </div>
+
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+              <div>
+                <label style={{ display: 'block', fontSize: '12px', color: 'var(--text2)', marginBottom: '4px' }}>Email</label>
+                <input required type="email" value={formData.email} onChange={e => setFormData({...formData, email: e.target.value})} style={{ width: '100%', padding: '10px', background: 'var(--bg)', border: '1px solid var(--border)', borderRadius: '6px', color: 'var(--text)' }} />
+              </div>
+              <div>
+                <label style={{ display: 'block', fontSize: '12px', color: 'var(--text2)', marginBottom: '4px' }}>Phone Number</label>
+                <input required value={formData.phone} onChange={e => setFormData({...formData, phone: e.target.value})} style={{ width: '100%', padding: '10px', background: 'var(--bg)', border: '1px solid var(--border)', borderRadius: '6px', color: 'var(--text)' }} />
+              </div>
+            </div>
+
+            <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '16px' }}>
+              <div>
+                <label style={{ display: 'block', fontSize: '12px', color: 'var(--text2)', marginBottom: '4px' }}>City</label>
+                <input required value={formData.city} onChange={e => setFormData({...formData, city: e.target.value})} style={{ width: '100%', padding: '10px', background: 'var(--bg)', border: '1px solid var(--border)', borderRadius: '6px', color: 'var(--text)' }} />
+              </div>
+              <div>
+                <label style={{ display: 'block', fontSize: '12px', color: 'var(--text2)', marginBottom: '4px' }}>Total Rooms</label>
+                <input required type="number" min="1" value={formData.totalRooms} onChange={e => setFormData({...formData, totalRooms: e.target.value})} style={{ width: '100%', padding: '10px', background: 'var(--bg)', border: '1px solid var(--border)', borderRadius: '6px', color: 'var(--text)' }} />
+              </div>
+            </div>
+
+            <div>
+              <label style={{ display: 'block', fontSize: '12px', color: 'var(--text2)', marginBottom: '4px' }}>Plan</label>
+              <select value={formData.plan} onChange={e => setFormData({...formData, plan: e.target.value})} style={{ width: '100%', padding: '10px', background: 'var(--bg)', border: '1px solid var(--border)', borderRadius: '6px', color: 'var(--text)' }}>
+                <option value="starter">Starter</option>
+                <option value="professional">Professional</option>
+                <option value="enterprise">Enterprise</option>
+              </select>
+            </div>
+
+            <div style={{ display: 'flex', gap: '12px', marginTop: '16px' }}>
+              <button type="button" onClick={onClose} style={{ flex: 1, padding: '10px', background: 'transparent', border: '1px solid var(--border)', color: 'var(--text)', borderRadius: '6px', cursor: 'pointer' }}>Cancel</button>
+              <button type="submit" disabled={loading} style={{ flex: 1, padding: '10px', background: 'linear-gradient(135deg,#C9A84C,#8A6F2E)', border: 'none', color: '#fff', borderRadius: '6px', cursor: loading ? 'wait' : 'pointer', fontWeight: '600' }}>
+                {loading ? 'Submitting...' : 'Register'}
+              </button>
+            </div>
+          </form>
+        )}
+      </div>
+    </div>
+  );
+};

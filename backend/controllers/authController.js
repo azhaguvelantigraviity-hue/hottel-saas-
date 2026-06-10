@@ -41,8 +41,23 @@ exports.logout = asyncHandler(async (_req, res) => {
   sendSuccess(res, null, 200);
 });
 
+const Registration = require('../models/Registration');
+
+exports.registerHotel = asyncHandler(async (req, res, next) => {
+  const { hotelName, ownerName, email, phone, address, city, totalRooms, plan } = req.body;
+  const existingUser = await User.findOne({ email });
+  if (existingUser) return next(new AppError('Email already registered as a user', 400));
+  const existingReg = await Registration.findOne({ email });
+  if (existingReg) return next(new AppError('A registration with this email already exists', 400));
+
+  const reg = await Registration.create({
+    hotelName, ownerName, email, phone, address, city, totalRooms, plan
+  });
+  sendSuccess(res, reg, 201);
+});
+
 exports.getMe = asyncHandler(async (req, res) => {
-  const user = await User.findById(req.user.id).populate('hotel', 'name plan planStatus address');
+  const user = await User.findById(req.user.id).populate('hotel', 'name plan planStatus address trialEndDate');
   
   if (user && user.role === 'hotel_staff' && (!user.department || user.department === 'None')) {
     const { Employee } = require('../models/Operations');
@@ -52,8 +67,18 @@ exports.getMe = asyncHandler(async (req, res) => {
       await user.save({ validateBeforeSave: false });
     }
   }
+
+  let isTrialExpired = false;
+  if (user && user.hotel && user.hotel.planStatus === 'trial' && user.hotel.trialEndDate) {
+    if (Date.now() > new Date(user.hotel.trialEndDate).getTime()) {
+      isTrialExpired = true;
+    }
+  }
   
-  sendSuccess(res, user);
+  const userObj = user ? user.toObject() : null;
+  if (userObj) userObj.isTrialExpired = isTrialExpired;
+  
+  sendSuccess(res, userObj);
 });
 
 exports.updatePassword = asyncHandler(async (req, res, next) => {

@@ -32,6 +32,7 @@ const HotelSchema = new mongoose.Schema({
     username: String,
   },
   subscriptionStart: { type: Date, default: Date.now },
+  trialEndDate:      { type: Date },
   nextPaymentAt:     Date,
   logo:       String,
   timezone:   { type: String, default: 'Asia/Kolkata' },
