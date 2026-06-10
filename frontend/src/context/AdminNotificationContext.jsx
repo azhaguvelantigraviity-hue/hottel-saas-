@@ -17,13 +17,20 @@ export const AdminNotificationProvider = ({ children }) => {
     title: n.title,
     desc: `${n.hotelId?.name ? `[${n.hotelId.name}] ` : ''}${n.message}`,
     time: n.createdAt,
-    read: n.status !== 'unread',
+    read: n.status !== 'unread' && n.status !== 'pending',
     icon: n.type === 'help_request' ? 'alert-triangle' : (n.type === 'payment' || n.type === 'subscription' ? 'credit-card' : 'bell'),
-    color: n.type === 'help_request' ? 'var(--rose)' : (n.type === 'payment' || n.type === 'subscription' ? 'var(--gold)' : 'var(--brand)')
+    color: n.type === 'help_request' ? 'var(--rose)' : (n.type === 'payment' || n.type === 'subscription' ? 'var(--gold)' : 'var(--brand)'),
+    managerRole: n.managerId?.role || '',
+    hotelName: n.hotelId?.name || '',
+    status: n.status
   });
 
   const fetchNotifications = async () => {
     try {
+      // Assuming backend might need an array or just return all unread+pending.
+      // Wait, getAdminNotifications in backend only supports one status via filter.
+      // If we change it, maybe it's better to fetch all, or let the backend handle it?
+      // For now, let's keep it as is, we'll update AdminNotifications.jsx.
       const res = await adminService.getAdminNotifications({ status: 'unread' });
       if (res && res.data) {
         setNotifications(res.data.map(mapNotification));

@@ -10,6 +10,7 @@ const Hotel = require('../models/Hotel');
 const Document = require('../models/Document');
 const SubscriptionPayment = require('../models/SubscriptionPayment');
 const Payroll = require('../models/Payroll');
+const AdminNotification = require('../models/AdminNotification');
 const Razorpay = require('razorpay');
 const crypto = require('crypto');
 const { asyncHandler, sendSuccess, AppError } = require('../utils/helpers');
@@ -974,15 +975,19 @@ const requestAdminHelp = catchAsync(async (req, res) => {
   
   const msg = req.body.message || `Manager ${req.user.name} requires admin control/support.`;
 
-  await emitNotification(req, {
-    hotel: req.user.hotel,
-    title: 'Manager Help Required',
-    desc: msg,
+  const adminNotif = await AdminNotification.create({
+    hotelId: req.user.hotel,
+    managerId: req.user._id,
     type: 'help_request',
-    icon: 'alert-triangle',
-    color: 'var(--rose)',
-    targetRoles: ['platform_admin']
+    title: 'Manager Help Required',
+    message: msg,
+    status: 'pending'
   });
+
+  await adminNotif.populate('hotelId', 'name');
+  await adminNotif.populate('managerId', 'name role');
+
+  req.app.get('io').to('adminRoom').emit('newAdminNotification', adminNotif);
 
   sendSuccess(res, { message: 'Admin support requested successfully' });
 });

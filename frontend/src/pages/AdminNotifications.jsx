@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
+import io from 'socket.io-client';
 import Icon from '../components/Icon';
 import * as adminService from '../services/adminService';
+import { getUser } from '../services/authService';
 
 const AdminNotifications = () => {
   const [notifications, setNotifications] = useState([]);
@@ -44,6 +46,24 @@ const AdminNotifications = () => {
 
   useEffect(() => {
     fetchHotels();
+    
+    // Setup socket for real-time updates
+    const user = getUser();
+    if (user && user.role === 'platform_admin') {
+      const newSocket = io(import.meta.env.VITE_API_URL || 'http://localhost:5000', {
+        transports: ['websocket', 'polling']
+      });
+
+      newSocket.on('connect', () => {
+        newSocket.emit('joinAdmin');
+      });
+
+      newSocket.on('newAdminNotification', (notif) => {
+        setNotifications(prev => [notif, ...prev]);
+      });
+
+      return () => newSocket.disconnect();
+    }
   }, []);
 
   useEffect(() => {
@@ -80,6 +100,7 @@ const AdminNotifications = () => {
 
   const getStatusColor = (status) => {
     switch (status) {
+      case 'pending': return 'var(--gold)';
       case 'unread': return 'var(--rose)';
       case 'read': return 'var(--text3)';
       case 'resolved': return 'var(--teal)';
@@ -141,6 +162,7 @@ const AdminNotifications = () => {
           style={{ padding: '0.75rem', borderRadius: '8px', border: '1px solid var(--border)', background: 'var(--surface)', color: 'var(--text)', minWidth: '150px' }}
         >
           <option value="">All Statuses</option>
+          <option value="pending">Pending</option>
           <option value="unread">Unread</option>
           <option value="read">Read</option>
           <option value="resolved">Resolved</option>
@@ -200,12 +222,12 @@ const AdminNotifications = () => {
                   <div style={{ display: 'flex', gap: '1rem', fontSize: '0.8rem', color: 'var(--text3)' }}>
                     {notif.hotelId && (
                       <span style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
-                        <Icon name="home" size={14} /> {notif.hotelId.name}
+                        <Icon name="home" size={14} /> {notif.hotelId.name || notif.hotelId}
                       </span>
                     )}
                     {notif.managerId && (
                       <span style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
-                        <Icon name="user" size={14} /> {notif.managerId.name}
+                        <Icon name="user" size={14} /> {notif.managerId.name} {notif.managerId.role && `(${notif.managerId.role.replace('_', ' ')})`}
                       </span>
                     )}
                     <span style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
@@ -216,7 +238,7 @@ const AdminNotifications = () => {
               </div>
 
               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                {notif.status === 'unread' && (
+                {(notif.status === 'unread' || notif.status === 'pending') && (
                   <button 
                     onClick={() => handleMarkRead(notif._id)}
                     style={{ padding: '0.5rem 1rem', background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: '6px', color: 'var(--text)', cursor: 'pointer', fontSize: '0.8rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}
