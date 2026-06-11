@@ -132,3 +132,26 @@ export const post   = (path, body, opts) => request('POST',   path, body, opts);
 export const put    = (path, body, opts) => request('PUT',    path, body, opts);
 export const patch  = (path, body, opts) => request('PATCH',  path, body, opts);
 export const del    = (path, opts)       => request('DELETE', path, null, opts);
+
+export const postForm = async (path, formData) => {
+  const token = getToken();
+  const headers = {};
+  if (token) headers['Authorization'] = `Bearer ${token}`;
+
+  const selectedHotelId = safeGetStorage('selectedHotelId');
+  if (selectedHotelId) headers['X-Hotel-Id'] = selectedHotelId;
+
+  const res = await fetch(`${BASE_URL}${path}`, {
+    method: 'POST',
+    body: formData,
+    headers,
+  });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) {
+    const err = new Error(data.message || `HTTP ${res.status}`);
+    err.status = res.status;
+    err.data = data;
+    throw err;
+  }
+  return data;
+};
