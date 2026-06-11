@@ -22,6 +22,9 @@ const adminNotificationSchema = new mongoose.Schema({
     type: String,
     required: true
   },
+  metadata: {
+    type: mongoose.Schema.Types.Mixed
+  },
   status: {
     type: String,
     enum: ['pending', 'unread', 'read', 'resolved'],

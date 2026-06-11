@@ -78,7 +78,8 @@ exports.registerHotel = asyncHandler(async (req, res, next) => {
       type: 'system',
       title: 'New Hotel Registration',
       message: `${hotelName} (${ownerName}) has requested registration for the ${plan} plan.`,
-      status: 'unread'
+      status: 'unread',
+      metadata: { registrationId: registration._id }
     });
 
     const io = req.app.get('io');

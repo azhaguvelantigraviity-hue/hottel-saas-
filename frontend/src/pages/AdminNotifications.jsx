@@ -8,6 +8,9 @@ const AdminNotifications = () => {
   const [notifications, setNotifications] = useState([]);
   const [loading, setLoading] = useState(true);
   const [hotels, setHotels] = useState([]);
+  
+  const [selectedNotification, setSelectedNotification] = useState(null);
+  const [registrationDetails, setRegistrationDetails] = useState(null);
 
   // Filters
   const [filterHotel, setFilterHotel] = useState('');
@@ -95,6 +98,50 @@ const AdminNotifications = () => {
       setNotifications(prev => prev.filter(n => n._id !== id));
     } catch (err) {
       console.error('Failed to delete', err);
+    }
+  };
+
+  const handleViewDetails = async (notif) => {
+    setSelectedNotification(notif);
+    setRegistrationDetails(null);
+    if (notif.title === 'New Hotel Registration' && notif.metadata?.registrationId) {
+      try {
+        const res = await adminService.getRegistrations();
+        if (res && res.data) {
+          const reg = res.data.find(r => r._id === notif.metadata.registrationId);
+          if (reg) setRegistrationDetails(reg);
+        }
+      } catch (err) {
+        console.error('Failed to fetch registration details', err);
+      }
+    }
+  };
+
+  const handleApproveRegistration = async (id) => {
+    try {
+      await adminService.approveRegistration(id);
+      if (selectedNotification) {
+        await handleResolve(selectedNotification._id);
+        setSelectedNotification(null);
+      }
+      alert('Registration approved and hotel created!');
+    } catch (err) {
+      console.error('Failed to approve registration', err);
+      alert('Failed to approve: ' + (err.response?.data?.message || err.message));
+    }
+  };
+
+  const handleRejectRegistration = async (id) => {
+    try {
+      await adminService.rejectRegistration(id);
+      if (selectedNotification) {
+        await handleResolve(selectedNotification._id);
+        setSelectedNotification(null);
+      }
+      alert('Registration rejected.');
+    } catch (err) {
+      console.error('Failed to reject registration', err);
+      alert('Failed to reject: ' + (err.response?.data?.message || err.message));
     }
   };
 
@@ -238,6 +285,12 @@ const AdminNotifications = () => {
               </div>
 
               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                <button 
+                  onClick={() => handleViewDetails(notif)}
+                  style={{ padding: '0.5rem 1rem', background: 'var(--surface)', border: '1px solid var(--brand)', borderRadius: '6px', color: 'var(--brand)', cursor: 'pointer', fontSize: '0.8rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}
+                >
+                  <Icon name="eye" size={14} /> View Details
+                </button>
                 {(notif.status === 'unread' || notif.status === 'pending') && (
                   <button 
                     onClick={() => handleMarkRead(notif._id)}
@@ -263,6 +316,74 @@ const AdminNotifications = () => {
               </div>
             </div>
           ))}
+        </div>
+      )}
+
+      {selectedNotification && (
+        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.5)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <div style={{ background: 'var(--card)', width: '600px', maxWidth: '90vw', borderRadius: '12px', padding: '2rem', maxHeight: '90vh', overflowY: 'auto', position: 'relative' }}>
+            <button 
+              onClick={() => setSelectedNotification(null)}
+              style={{ position: 'absolute', top: '1rem', right: '1rem', background: 'transparent', border: 'none', cursor: 'pointer', color: 'var(--text2)' }}
+            >
+              <Icon name="x" size={24} />
+            </button>
+            <h2 style={{ fontSize: '1.25rem', fontWeight: '600', marginBottom: '1rem', color: 'var(--text)' }}>Notification Details</h2>
+            
+            <div style={{ marginBottom: '1.5rem', padding: '1rem', background: 'var(--surface)', borderRadius: '8px', border: '1px solid var(--border)' }}>
+              <div style={{ fontSize: '1.1rem', fontWeight: '600', marginBottom: '0.5rem', color: 'var(--text)' }}>{selectedNotification.title}</div>
+              <div style={{ color: 'var(--text2)', marginBottom: '1rem' }}>{selectedNotification.message}</div>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem', fontSize: '0.85rem', color: 'var(--text3)' }}>
+                <span><strong>Status:</strong> {selectedNotification.status}</span>
+                <span><strong>Date:</strong> {new Date(selectedNotification.createdAt).toLocaleString()}</span>
+                {selectedNotification.hotelId && <span><strong>Hotel:</strong> {selectedNotification.hotelId.name || selectedNotification.hotelId}</span>}
+                {selectedNotification.managerId && <span><strong>Manager:</strong> {selectedNotification.managerId.name}</span>}
+              </div>
+            </div>
+
+            {selectedNotification.title === 'New Hotel Registration' && (
+              <div style={{ marginTop: '1rem' }}>
+                <h3 style={{ fontSize: '1.1rem', fontWeight: '600', marginBottom: '1rem', color: 'var(--text)' }}>Registration Details</h3>
+                {registrationDetails ? (
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', fontSize: '0.9rem', color: 'var(--text2)' }}>
+                    <div><strong>Hotel Name:</strong> {registrationDetails.hotelName}</div>
+                    <div><strong>Owner Name:</strong> {registrationDetails.ownerName}</div>
+                    <div><strong>Email:</strong> {registrationDetails.email}</div>
+                    <div><strong>Phone:</strong> {registrationDetails.phone}</div>
+                    <div><strong>City:</strong> {registrationDetails.city}</div>
+                    <div><strong>Rooms:</strong> {registrationDetails.totalRooms}</div>
+                    <div><strong>Plan:</strong> {registrationDetails.plan}</div>
+                    <div><strong>Status:</strong> <span style={{ color: registrationDetails.status === 'pending' ? 'var(--gold)' : (registrationDetails.status === 'approved' ? 'var(--teal)' : 'var(--rose)') }}>{registrationDetails.status}</span></div>
+                    <div style={{ gridColumn: 'span 2' }}><strong>Address:</strong> {registrationDetails.address}</div>
+                    {registrationDetails.document && (
+                      <div style={{ gridColumn: 'span 2' }}>
+                        <strong>Document:</strong> <a href={`http://localhost:5000/uploads/documents/${registrationDetails.document}`} target="_blank" rel="noreferrer" style={{ color: 'var(--brand)', textDecoration: 'underline' }}>View Document</a>
+                      </div>
+                    )}
+                  </div>
+                ) : (
+                  <div style={{ color: 'var(--text3)' }}>Loading registration data...</div>
+                )}
+
+                {registrationDetails && registrationDetails.status === 'pending' && (
+                  <div style={{ display: 'flex', gap: '1rem', marginTop: '2rem' }}>
+                    <button 
+                      onClick={() => handleApproveRegistration(registrationDetails._id)}
+                      style={{ flex: 1, padding: '0.75rem', background: 'var(--teal)', border: 'none', color: 'white', borderRadius: '8px', fontWeight: '600', cursor: 'pointer' }}
+                    >
+                      Approve
+                    </button>
+                    <button 
+                      onClick={() => handleRejectRegistration(registrationDetails._id)}
+                      style={{ flex: 1, padding: '0.75rem', background: 'transparent', border: '1px solid var(--rose)', color: 'var(--rose)', borderRadius: '8px', fontWeight: '600', cursor: 'pointer' }}
+                    >
+                      Reject
+                    </button>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
         </div>
       )}
     </div>
