@@ -1,6 +1,9 @@
 import React, { useState } from 'react';
 import Icon from '../components/Icon';
 import Badge from '../components/Badge';
+import FeatureDetailModal from '../components/FeatureDetailModal';
+import { featureData } from '../utils/featureData';
+
 const PLANS = {
   starter: { id: 'starter', name: 'Starter', price: 2999, accent: '#6B7280', features: ['Up to 20 Rooms', 'Basic Bookings', 'Standard Support'], missing: ['POS System', 'Channel Manager', 'Advanced Analytics'] },
   professional: { id: 'professional', name: 'Professional', price: 5999, accent: '#0D9488', features: ['Up to 100 Rooms', 'POS System', 'Channel Manager', 'Priority Support'], missing: ['Advanced Analytics'] },
@@ -10,6 +13,7 @@ const PLANS = {
 const Landing = ({ onLogin, theme, setTheme }) => {
   const [hoveredPlan, setHoveredPlan] = useState('professional');
   const [showRegister, setShowRegister] = useState(false);
+  const [selectedFeature, setSelectedFeature] = useState(null);
 
   return (
     <div style={{ minHeight: '100vh', background: 'var(--obsidian)' }}>
@@ -218,22 +222,10 @@ const Landing = ({ onLogin, theme, setTheme }) => {
           gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 280px), 1fr))',
           gap: '14px',
         }}>
-          {[
-            { icon: 'bed',         label: 'Room Management',     color: '#2DD4BF', desc: 'Live room status & floor map' },
-            { icon: 'calendar',    label: 'Smart Bookings',       color: '#A78BFA', desc: 'Reservations with pet charges' },
-            { icon: 'food',        label: 'Restaurant POS',       color: '#FB7185', desc: 'Orders, kitchen & billing' },
-            { icon: 'maintenance', label: 'Maintenance',          color: '#FCD34D', desc: 'Tickets & repair tracking' },
-            { icon: 'channel',     label: 'OTA Channel Sync',     color: '#60A5FA', desc: 'Booking.com, Expedia & more' },
-            { icon: 'revenue',     label: 'Revenue Analytics',    color: '#C9A84C', desc: 'AI pricing & forecasting' },
-            { icon: 'users',       label: 'Employee Management',  color: '#34D399', desc: 'Attendance & payroll' },
-            { icon: 'key',         label: 'Housekeeping',         color: '#F97316', desc: 'Tasks, timers & room status' },
-            { icon: 'crm',         label: 'Guest CRM & Loyalty',  color: '#EC4899', desc: 'Points, tiers & referrals' },
-            { icon: 'shield',      label: 'Security & CCTV',      color: '#8B5CF6', desc: 'Visitor logs & 2FA' },
-            { icon: 'invoice',     label: 'Advanced Billing',     color: '#06B6D4', desc: 'Split pay, GST & PDF invoices' },
-            { icon: 'hotel',       label: 'Multi-Branch',         color: '#EF4444', desc: 'Centralized control' },
-          ].map((f) => (
+          {featureData.map((f) => (
             <div
-              key={f.label}
+              key={f.id}
+              onClick={() => setSelectedFeature(f)}
               style={{
                 background: 'var(--card)',
                 border: '1px solid var(--border)',
@@ -242,11 +234,19 @@ const Landing = ({ onLogin, theme, setTheme }) => {
                 display: 'flex',
                 alignItems: 'center',
                 gap: '14px',
-                transition: 'border-color 0.2s, transform 0.2s',
-                cursor: 'default',
+                transition: 'border-color 0.2s, transform 0.2s, box-shadow 0.2s',
+                cursor: 'pointer',
               }}
-              onMouseEnter={e => { e.currentTarget.style.borderColor = f.color; e.currentTarget.style.transform = 'translateY(-2px)'; }}
-              onMouseLeave={e => { e.currentTarget.style.borderColor = 'var(--border)'; e.currentTarget.style.transform = 'none'; }}
+              onMouseEnter={e => { 
+                e.currentTarget.style.borderColor = f.color; 
+                e.currentTarget.style.transform = 'translateY(-3px)'; 
+                e.currentTarget.style.boxShadow = `0 8px 20px ${f.color}15`;
+              }}
+              onMouseLeave={e => { 
+                e.currentTarget.style.borderColor = 'var(--border)'; 
+                e.currentTarget.style.transform = 'none'; 
+                e.currentTarget.style.boxShadow = 'none';
+              }}
             >
               <div style={{
                 width: '42px', height: '42px', borderRadius: '10px', flexShrink: 0,
@@ -256,7 +256,7 @@ const Landing = ({ onLogin, theme, setTheme }) => {
               </div>
               <div>
                 <div style={{ fontSize: '13px', fontWeight: '700', color: 'var(--text)', marginBottom: '2px' }}>{f.label}</div>
-                <div style={{ fontSize: '11px', color: 'var(--text3)' }}>{f.desc}</div>
+                <div style={{ fontSize: '11px', color: 'var(--text3)' }}>{f.shortDesc}</div>
               </div>
             </div>
           ))}
@@ -358,6 +358,18 @@ const Landing = ({ onLogin, theme, setTheme }) => {
       
       {showRegister && (
         <RegistrationModal onClose={() => setShowRegister(false)} />
+      )}
+
+      {/* Feature Detail Modal */}
+      {selectedFeature && (
+        <FeatureDetailModal
+          feature={selectedFeature}
+          onClose={() => setSelectedFeature(null)}
+          onStartTrial={() => {
+            setSelectedFeature(null);
+            setShowRegister(true);
+          }}
+        />
       )}
     </div>
   );
