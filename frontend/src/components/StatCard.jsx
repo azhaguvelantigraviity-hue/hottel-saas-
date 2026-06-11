@@ -1,17 +1,27 @@
-import React from 'react';
+import React, { useState } from 'react';
 import Icon from './Icon';
 
-const StatCard = ({ icon, iconColor, label, value, sub, trend }) => (
-  <div
-    style={{
-      background: 'var(--card)',
-      border: '1px solid var(--border)',
-      borderRadius: 'var(--radius)',
-      padding: '20px',
-      position: 'relative',
-      overflow: 'hidden',
-    }}
-  >
+const StatCard = ({ icon, iconColor, label, value, sub, trend, onClick }) => {
+  const [isHovered, setIsHovered] = useState(false);
+
+  return (
+    <div
+      onClick={onClick}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+      style={{
+        background: 'var(--card)',
+        border: '1px solid var(--border)',
+        borderRadius: 'var(--radius)',
+        padding: '20px',
+        position: 'relative',
+        overflow: 'hidden',
+        cursor: onClick ? 'pointer' : 'default',
+        transform: onClick && isHovered ? 'translateY(-2px)' : 'none',
+        boxShadow: onClick && isHovered ? '0 4px 12px rgba(0,0,0,0.05)' : 'none',
+        transition: 'all 0.2s ease',
+      }}
+    >
     <div
       style={{
         position: 'absolute',
@@ -82,6 +92,7 @@ const StatCard = ({ icon, iconColor, label, value, sub, trend }) => (
       </div>
     )}
   </div>
-);
+  );
+};
 
 export default StatCard;

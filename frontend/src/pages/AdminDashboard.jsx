@@ -5,6 +5,7 @@ import Avatar from '../components/Avatar';
 import Icon from '../components/Icon';
 import * as adminApi from '../services/adminService';
 import ManagerCredentialsModal from '../components/ManagerCredentialsModal';
+import DashboardDetailModal from '../components/DashboardDetailModal';
 
 const PLANS = {
   starter:      { id: 'starter', name: 'Starter', accent: '#6B7280' },
@@ -48,7 +49,8 @@ const AdminDashboard = ({ onNav }) => {
   const [activeTab, setActiveTab] = useState('overview');
   const [registrations, setRegistrations] = useState([]);
   const [approvingRegistration, setApprovingRegistration] = useState(null);
-  
+  const [detailModalType, setDetailModalType] = useState(null);
+
   useEffect(() => {
     if (activeTab === 'registrations') {
       adminApi.getRegistrations().then(res => setRegistrations(res.data || []));
@@ -120,10 +122,10 @@ const AdminDashboard = ({ onNav }) => {
       {activeTab === 'overview' ? (
         <>
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 240px), 1fr))', gap: '16px', marginBottom: '28px' }}>
-        <StatCard icon="hotel" iconColor="#C9A84C" label="Total Hotels" value={totalHotels} sub="Registered Hotels" trend={0} />
-        <StatCard icon="dollar" iconColor="#2DD4BF" label="Monthly Revenue" value={`₹${(mrr / 1000).toFixed(0)}K`} sub="Platform MRR" trend={0} />
-        <StatCard icon="trending" iconColor="#A78BFA" label="Active Subs" value={activeHotels} sub="Active Subscriptions" trend={0} />
-        <StatCard icon="users" iconColor="#FB7185" label="Total Staffs" value={totalUsers} sub="Across All Hotels" trend={0} />
+        <StatCard onClick={() => setDetailModalType('totalHotels')} icon="hotel" iconColor="#C9A84C" label="Total Hotels" value={totalHotels} sub="Registered Hotels" trend={0} />
+        <StatCard onClick={() => setDetailModalType('monthlyRevenue')} icon="dollar" iconColor="#2DD4BF" label="Monthly Revenue" value={`₹${(mrr / 1000).toFixed(0)}K`} sub="Platform MRR" trend={0} />
+        <StatCard onClick={() => setDetailModalType('activeSubs')} icon="trending" iconColor="#A78BFA" label="Active Subs" value={activeHotels} sub="Active Subscriptions" trend={0} />
+        <StatCard onClick={() => setDetailModalType('totalStaffs')} icon="users" iconColor="#FB7185" label="Total Staffs" value={totalUsers} sub="Across All Hotels" trend={0} />
       </div>
 
       {/* Charts Row */}
@@ -363,6 +365,13 @@ const AdminDashboard = ({ onNav }) => {
           registration={approvingRegistration}
           onSuccess={handleApproveSubmit}
           onClose={() => setApprovingRegistration(null)}
+        />
+      )}
+
+      {detailModalType && (
+        <DashboardDetailModal
+          type={detailModalType}
+          onClose={() => setDetailModalType(null)}
         />
       )}
     </div>
