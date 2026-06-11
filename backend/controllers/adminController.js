@@ -560,7 +560,8 @@ exports.approveRegistration = asyncHandler(async (req, res, next) => {
   if (existingUser) return next(new (require('../utils/helpers').AppError)('User with this email or username already exists', 400));
 
   // 1. Create Hotel
-  const trialEndDate = new Date(Date.now() + 2 * 24 * 60 * 60 * 1000); // 2 days
+  const trialStartDate = new Date();
+  const trialEndDate = new Date(trialStartDate.getTime() + 1 * 24 * 60 * 60 * 1000); // 24 hours
   const hotel = await Hotel.create({
     name: reg.hotelName,
     hotelCode: `HTL-${Math.random().toString(36).substring(2, 8).toUpperCase()}`,
@@ -569,7 +570,9 @@ exports.approveRegistration = asyncHandler(async (req, res, next) => {
     address: { city: reg.city },
     plan: reg.plan,
     planStatus: 'trial',
+    trialStartDate: trialStartDate,
     trialEndDate: trialEndDate,
+    paymentStatus: 'unpaid',
     totalRooms: reg.totalRooms,
     adminCredentials: {
       email: mEmail,

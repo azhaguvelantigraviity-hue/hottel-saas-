@@ -94,7 +94,7 @@ exports.registerHotel = asyncHandler(async (req, res, next) => {
 });
 
 exports.getMe = asyncHandler(async (req, res) => {
-  const user = await User.findById(req.user.id).populate('hotel', 'name plan planStatus address trialEndDate');
+  const user = await User.findById(req.user.id).populate('hotel', 'name plan planStatus address trialStartDate trialEndDate paymentStatus');
   
   if (user && user.role === 'hotel_staff' && (!user.department || user.department === 'None')) {
     const { Employee } = require('../models/Operations');

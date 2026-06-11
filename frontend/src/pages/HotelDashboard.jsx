@@ -161,9 +161,8 @@ const HotelDashboard = ({ plan, onNav, hotelDetails }) => {
 
   const isTrial = hotelDetails?.planStatus === 'trial';
   const trialEndDate = isTrial && hotelDetails?.trialEndDate ? new Date(hotelDetails.trialEndDate) : null;
-  const trialDaysLeft = trialEndDate ? Math.ceil((trialEndDate.getTime() - Date.now()) / (1000 * 60 * 60 * 24)) : 0;
-  // Fallback to ~2 days ago if start date isn't saved.
-  const trialStartDate = trialEndDate ? new Date(trialEndDate.getTime() - 2 * 24 * 60 * 60 * 1000) : null;
+  const trialHoursLeft = trialEndDate ? Math.max(0, Math.ceil((trialEndDate.getTime() - Date.now()) / (1000 * 60 * 60))) : 0;
+  const trialStartDate = isTrial && hotelDetails?.trialStartDate ? new Date(hotelDetails.trialStartDate) : (trialEndDate ? new Date(trialEndDate.getTime() - 24 * 60 * 60 * 1000) : null);
 
   return (
     <div style={{ padding: 'clamp(16px, 4vw, 32px)', overflowY: 'auto', flex: 1 }}>
@@ -173,10 +172,10 @@ const HotelDashboard = ({ plan, onNav, hotelDetails }) => {
         <div style={{ background: 'linear-gradient(135deg, rgba(201,168,76,0.1), rgba(138,111,46,0.1))', border: '1px solid var(--gold)', borderRadius: '12px', padding: '16px 24px', marginBottom: '24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '16px' }}>
           <div>
             <h3 style={{ fontSize: '18px', color: 'var(--gold)', marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <Icon name="clock" size={20} /> Free Trial Active
+              <Icon name="clock" size={20} /> 24-hour trial active
             </h3>
             <p style={{ color: 'var(--text2)', fontSize: '14px', margin: 0 }}>
-              Your {hotelDetails?.plan} plan trial ends on <strong>{trialEndDate.toLocaleDateString()}</strong>.
+              Your {hotelDetails?.plan} plan trial ends on <strong>{trialEndDate.toLocaleString()}</strong>.
             </p>
           </div>
           <div style={{ display: 'flex', gap: '24px', textAlign: 'center' }}>
@@ -185,8 +184,8 @@ const HotelDashboard = ({ plan, onNav, hotelDetails }) => {
               <div style={{ fontSize: '15px', fontWeight: '600', color: 'var(--text)' }}>{trialStartDate?.toLocaleDateString()}</div>
             </div>
             <div>
-              <div style={{ fontSize: '12px', color: 'var(--text3)' }}>Days Remaining</div>
-              <div style={{ fontSize: '24px', fontWeight: '700', color: trialDaysLeft <= 1 ? 'var(--rose)' : 'var(--gold)', lineHeight: 1 }}>{trialDaysLeft}</div>
+              <div style={{ fontSize: '12px', color: 'var(--text3)' }}>Hours Remaining</div>
+              <div style={{ fontSize: '24px', fontWeight: '700', color: trialHoursLeft <= 6 ? 'var(--rose)' : 'var(--gold)', lineHeight: 1 }}>{trialHoursLeft}</div>
             </div>
           </div>
         </div>

@@ -396,7 +396,7 @@ const TrialExpiredScreen = ({ onLogout }) => {
         </div>
         <h2 style={{ fontSize: '28px', fontFamily: 'Playfair Display,serif', marginBottom: '12px' }}>Trial expired. Please pay to continue.</h2>
         <p style={{ color: 'var(--text2)', fontSize: '15px', lineHeight: 1.6, marginBottom: '32px' }}>
-          Your 2-day free trial of StayOS has expired. Please upgrade your plan or contact the platform administrator to continue managing your property seamlessly.
+          Your 24-hour free trial of StayOS has expired. Please upgrade your plan or contact the platform administrator to continue managing your property seamlessly.
         </p>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
           <button style={{ width: '100%', padding: '14px', background: 'linear-gradient(135deg,#C9A84C,#8A6F2E)', border: 'none', borderRadius: '8px', color: '#fff', fontSize: '15px', fontWeight: '600', cursor: 'pointer' }}>
