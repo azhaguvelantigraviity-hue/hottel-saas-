@@ -46,6 +46,7 @@ const toFlat = (b) => ({
   specialRequests: b.specialRequests || '',
   checkedInAt: b.checkedInAt,
   checkedOutAt: b.checkedOutAt,
+  timeline: b.timeline || [],
 });
 
 const fromFlat = (f) => ({
@@ -285,9 +286,93 @@ const NewBookingForm = ({ onClose, onSave }) => {
   );
 };
 
+const ExtendStayForm = ({ booking, onClose, onSave }) => {
+  const [extendType, setExtendType] = useState('hours');
+  const [value, setValue] = useState(1);
+
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+      <div style={{ fontSize: '13px', color: 'var(--text2)' }}>
+        Current Check-out: <strong>{booking.checkOutDateTime ? new Date(booking.checkOutDateTime).toLocaleString() : booking.checkOut}</strong>
+      </div>
+      <div>
+        <label style={labelStyle}>EXTENSION TYPE</label>
+        <select style={inputStyle} value={extendType} onChange={e => setExtendType(e.target.value)}>
+          <option value="hours">Hours</option>
+          <option value="days">Days</option>
+        </select>
+      </div>
+      <div>
+        <label style={labelStyle}>{extendType === 'hours' ? 'NUMBER OF HOURS' : 'NUMBER OF DAYS'}</label>
+        <input type="number" min="1" style={inputStyle} value={value} onChange={e => setValue(e.target.value)} />
+      </div>
+      <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end', marginTop: '4px' }}>
+        <button onClick={onClose} style={{ padding: '10px 20px', background: 'transparent', border: '1px solid var(--border)', borderRadius: '8px', color: 'var(--text2)', cursor: 'pointer', fontFamily: 'DM Sans,sans-serif', fontSize: '13px' }}>
+          Cancel
+        </button>
+        <button
+          onClick={() => {
+            const data = extendType === 'hours' ? { addHours: Number(value) } : { addDays: Number(value) };
+            onSave(data);
+          }}
+          style={{ padding: '10px 24px', background: 'linear-gradient(135deg,#C9A84C,#8A6F2E)', border: 'none', borderRadius: '8px', color: '#fff', cursor: 'pointer', fontWeight: '600', fontSize: '13px', fontFamily: 'DM Sans,sans-serif' }}
+        >
+          Confirm Extension
+        </button>
+      </div>
+    </div>
+  );
+};
+
+const ChangeRoomForm = ({ booking, onClose, onSave }) => {
+  const [availableRooms, setAvailableRooms] = useState([]);
+  const [newRoomId, setNewRoomId] = useState('');
+  const [reason, setReason] = useState('');
+
+  useEffect(() => {
+    api.getRooms().then(res => {
+      if (res.data) setAvailableRooms(res.data.filter(r => r.status === 'available'));
+    });
+  }, []);
+
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+      <div style={{ fontSize: '13px', color: 'var(--text2)' }}>
+        Current Room: <strong>{booking.room}</strong>
+      </div>
+      <div>
+        <label style={labelStyle}>SELECT NEW ROOM *</label>
+        <select style={inputStyle} value={newRoomId} onChange={e => setNewRoomId(e.target.value)}>
+          <option value="">Select available room</option>
+          {availableRooms.map(r => (
+            <option key={r._id} value={r._id}>{r.roomNumber} – {r.type} (₹{r.baseRate}/night)</option>
+          ))}
+        </select>
+      </div>
+      <div>
+        <label style={labelStyle}>REASON FOR CHANGE</label>
+        <textarea style={{ ...inputStyle, resize: 'vertical', minHeight: '60px' }} value={reason} onChange={e => setReason(e.target.value)} placeholder="e.g. AC not working..." />
+      </div>
+      <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end', marginTop: '4px' }}>
+        <button onClick={onClose} style={{ padding: '10px 20px', background: 'transparent', border: '1px solid var(--border)', borderRadius: '8px', color: 'var(--text2)', cursor: 'pointer', fontFamily: 'DM Sans,sans-serif', fontSize: '13px' }}>
+          Cancel
+        </button>
+        <button
+          onClick={() => { if(newRoomId) onSave({ newRoomId, reason }); }}
+          style={{ padding: '10px 24px', background: 'var(--gold)', border: 'none', borderRadius: '8px', color: '#000', cursor: 'pointer', fontWeight: '600', fontSize: '13px', fontFamily: 'DM Sans,sans-serif' }}
+        >
+          Change Room
+        </button>
+      </div>
+    </div>
+  );
+};
+
 const BookingDetail = ({ booking, onClose, onAction, apiReady }) => {
   const [documents, setDocuments] = useState([]);
   const [showCheckout, setShowCheckout] = useState(false);
+  const [showExtend, setShowExtend] = useState(false);
+  const [showChangeRoom, setShowChangeRoom] = useState(false);
   const balance = Math.max(0, (booking.amount || 0) - (booking.paid || 0));
   const [paymentAmount, setPaymentAmount] = useState(balance);
   const [paymentMethod, setPaymentMethod] = useState('cash');
@@ -297,6 +382,14 @@ const BookingDetail = ({ booking, onClose, onAction, apiReady }) => {
       api.getDocuments(booking._id).then(res => setDocuments(res.data || [])).catch(err => console.error(err));
     }
   }, [booking._id]);
+
+  if (showExtend) {
+    return <ExtendStayForm booking={booking} onClose={() => setShowExtend(false)} onSave={(data) => { onAction(booking, 'extend-stay', data); setShowExtend(false); onClose(); }} />;
+  }
+
+  if (showChangeRoom) {
+    return <ChangeRoomForm booking={booking} onClose={() => setShowChangeRoom(false)} onSave={(data) => { onAction(booking, 'change-room', data); setShowChangeRoom(false); onClose(); }} />;
+  }
 
   return (
   <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
@@ -351,6 +444,24 @@ const BookingDetail = ({ booking, onClose, onAction, apiReady }) => {
         </div>
       </div>
     )}
+
+    {booking.timeline && booking.timeline.length > 0 && (
+      <div style={{ background: 'var(--surface)', borderRadius: '8px', padding: '12px' }}>
+        <div style={{ fontSize: '11px', color: 'var(--text3)', marginBottom: '8px' }}>ACTIVITY TIMELINE</div>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+          {booking.timeline.map((log, i) => (
+            <div key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: '10px' }}>
+              <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: 'var(--gold)', marginTop: '4px' }}></div>
+              <div>
+                <div style={{ fontSize: '13px', color: 'var(--text)' }}>{log.description}</div>
+                <div style={{ fontSize: '10px', color: 'var(--text3)' }}>{new Date(log.date).toLocaleString([], { dateStyle: 'medium', timeStyle: 'short' })}</div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    )}
+
     <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', alignItems: 'flex-start' }}>
       {booking.status === 'confirmed' && !showCheckout && (
         <button onClick={() => { onAction(booking, 'checked-in'); onClose(); }} style={{ flex: 1, padding: '10px', background: 'rgba(52,211,153,0.15)', border: '1px solid rgba(52,211,153,0.3)', borderRadius: '8px', color: 'var(--green)', cursor: 'pointer', fontWeight: '600', fontSize: '13px', fontFamily: 'DM Sans,sans-serif' }}>
@@ -359,9 +470,17 @@ const BookingDetail = ({ booking, onClose, onAction, apiReady }) => {
       )}
       {booking.status === 'checked-in' && (
         !showCheckout ? (
-          <button onClick={() => setShowCheckout(true)} style={{ flex: 1, padding: '10px', background: 'rgba(201,168,76,0.15)', border: '1px solid rgba(201,168,76,0.3)', borderRadius: '8px', color: 'var(--gold)', cursor: 'pointer', fontWeight: '600', fontSize: '13px', fontFamily: 'DM Sans,sans-serif' }}>
-            ↗ Check Out
-          </button>
+          <>
+            <button onClick={() => setShowExtend(true)} style={{ flex: 1, padding: '10px', background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: '8px', color: 'var(--text2)', cursor: 'pointer', fontWeight: '600', fontSize: '13px', fontFamily: 'DM Sans,sans-serif' }}>
+              Extend Stay
+            </button>
+            <button onClick={() => setShowChangeRoom(true)} style={{ flex: 1, padding: '10px', background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: '8px', color: 'var(--text2)', cursor: 'pointer', fontWeight: '600', fontSize: '13px', fontFamily: 'DM Sans,sans-serif' }}>
+              Change Room
+            </button>
+            <button onClick={() => setShowCheckout(true)} style={{ flex: 1, padding: '10px', background: 'rgba(201,168,76,0.15)', border: '1px solid rgba(201,168,76,0.3)', borderRadius: '8px', color: 'var(--gold)', cursor: 'pointer', fontWeight: '600', fontSize: '13px', fontFamily: 'DM Sans,sans-serif' }}>
+              ↗ Check Out
+            </button>
+          </>
         ) : (
           <div style={{ flexBasis: '100%' }}>
             <div style={{ background: 'var(--surface)', padding: '16px', borderRadius: '8px', border: '1px solid var(--border)' }}>
@@ -485,6 +604,18 @@ const BookingsPage = () => {
           await api.checkIn(booking._id);
         } else if (newStatus === 'checked-out') {
           await api.checkOut(booking._id, extraData);
+        } else if (newStatus === 'extend-stay') {
+          const res = await api.extendStay(booking._id, extraData);
+          const updated = toFlat(res.data);
+          setBookings(prev => prev.map(b => b.id === booking.id ? updated : b));
+          setSelected(updated);
+          return;
+        } else if (newStatus === 'change-room') {
+          const res = await api.changeRoom(booking._id, extraData);
+          const updated = toFlat(res.data);
+          setBookings(prev => prev.map(b => b.id === booking.id ? updated : b));
+          setSelected(updated);
+          return;
         } else if (newStatus === 'collect-payment') {
           await api.updateBooking(booking._id, {
             paidAmount: (booking.paid || 0) + extraData.paymentAmount,

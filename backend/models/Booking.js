@@ -88,6 +88,14 @@ const BookingSchema = new mongoose.Schema({
       signatureDone:{ type: Boolean, default: false },
     },
   },
+
+  // ── Activity Timeline ──────────────────────────────────────
+  timeline: [{
+    action: { type: String, required: true }, // e.g., 'created', 'check_in', 'check_out', 'room_changed', 'stay_extended'
+    description: String,
+    date: { type: Date, default: Date.now },
+    by: { type: mongoose.Schema.Types.ObjectId, ref: 'User' }
+  }],
 }, { timestamps: true });
 
 // Auto-generate booking ID

@@ -17,7 +17,7 @@ const {
   createSubscriptionOrder, verifySubscriptionPayment, getAttendance, updateProfile,
   getPayrollRecords, updatePayrollRecord, markPayrollPaid, processAllPendingPayroll,
   uploadDocument, getDocuments, getGuestDocuments, deleteDocument,
-  getHotelDashboard
+  getHotelDashboard, extendStay, changeRoom
 } = require('../controllers/hotelController');
 const { protect, authorize, scopeToHotel, hotelAdmin } = require('../middleware/auth');
 const { requireFeature, enforceLimit } = require('../middleware/planGate');
@@ -49,6 +49,8 @@ router.get  ('/bookings/:id',                      getBooking);
 router.put  ('/bookings/:id',        hotelAdmin,   updateBooking);
 router.post ('/bookings/:id/checkin',              checkIn);
 router.post ('/bookings/:id/checkout',             checkOut);
+router.post ('/bookings/:id/extend',               extendStay);
+router.post ('/bookings/:id/change-room',          changeRoom);
 router.post ('/bookings/:id/cancel',               cancelBooking);
 router.delete('/bookings/:id',                     deleteBooking);
 

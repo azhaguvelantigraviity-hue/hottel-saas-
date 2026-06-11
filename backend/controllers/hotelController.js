@@ -194,6 +194,13 @@ const createBooking = catchAsync(async (req, res) => {
 
   const booking = await Booking.create(body);
   
+  booking.timeline.push({
+    action: 'created',
+    description: 'Booking created',
+    by: req.user ? req.user._id : undefined
+  });
+  await booking.save();
+  
   // Update room status
   const room = await Room.findByIdAndUpdate(booking.room, { status: 'occupied' }, { new: true });
   if (room && req.app.get('io')) {
@@ -240,6 +247,11 @@ const checkIn = catchAsync(async (req, res) => {
   booking.status = 'checked_in';
   booking.checkedInAt = new Date();
   booking.loginTime = new Date();
+  booking.timeline.push({
+    action: 'checked_in',
+    description: 'Guest checked in',
+    by: req.user ? req.user._id : undefined
+  });
   await booking.save();
 
   // Update room status
@@ -304,6 +316,11 @@ const checkOut = catchAsync(async (req, res) => {
   booking.status = 'checked_out';
   booking.checkedOutAt = new Date();
   booking.logoutTime = new Date();
+  booking.timeline.push({
+    action: 'checked_out',
+    description: 'Guest checked out',
+    by: req.user ? req.user._id : undefined
+  });
   await booking.save();
   // Update room status
   const room = await Room.findByIdAndUpdate(booking.room, { status: 'cleaning', housekeepingStatus: 'dirty' }, { new: true });
@@ -1044,11 +1061,131 @@ const getHotelDashboard = catchAsync(async (req, res) => {
   });
 });
 
+// ── Booking Modifications ──────────────────────────────────────
+const extendStay = catchAsync(async (req, res) => {
+  const filter = oneFilter(req);
+  filter.status = 'checked_in';
+  const booking = await Booking.findOne(filter);
+  if (!booking) throw new AppError('Booking not found or not checked in', 404);
+
+  const { addHours, addDays } = req.body;
+  if (!addHours && !addDays) throw new AppError('Must specify addHours or addDays', 400);
+
+  let currentCheckOut = booking.checkOutDateTime || booking.checkOut;
+  if (!currentCheckOut) currentCheckOut = new Date();
+  const newCheckOut = new Date(currentCheckOut);
+
+  let extraCharge = 0;
+  let description = 'Stay extended';
+
+  if (addDays) {
+    newCheckOut.setDate(newCheckOut.getDate() + Number(addDays));
+    extraCharge = (booking.roomRate || 0) * Number(addDays);
+    booking.nights += Number(addDays);
+    booking.stayDays = booking.nights;
+    description = `Stay extended by ${addDays} day(s)`;
+  } else if (addHours) {
+    newCheckOut.setHours(newCheckOut.getHours() + Number(addHours));
+    extraCharge = Math.round(((booking.roomRate || 0) / 24) * Number(addHours));
+    description = `Stay extended by ${addHours} hour(s)`;
+  }
+
+  booking.checkOut = newCheckOut;
+  booking.checkOutDateTime = newCheckOut;
+  booking.otherCharges = (booking.otherCharges || 0) + extraCharge;
+  
+  booking.timeline.push({
+    action: 'stay_extended',
+    description: `${description}. Extra charge: ₹${extraCharge}`,
+    by: req.user ? req.user._id : undefined
+  });
+
+  await booking.save();
+
+  await emitNotification(req, {
+    hotel: booking.hotel,
+    title: 'Stay Extended',
+    desc: `Room ${booking.room?.roomNumber || 'Unknown'} ${description}.`,
+    type: 'booking',
+    icon: 'clock',
+    color: 'var(--blue)',
+    targetRoles: ['admin', 'manager']
+  });
+
+  const populated = await populateBooking(Booking.findById(booking._id));
+  sendSuccess(res, populated);
+});
+
+const changeRoom = catchAsync(async (req, res) => {
+  const filter = oneFilter(req);
+  filter.status = 'checked_in';
+  const booking = await Booking.findOne(filter).populate('room');
+  if (!booking) throw new AppError('Booking not found or not checked in', 404);
+
+  const { newRoomId, reason } = req.body;
+  if (!newRoomId) throw new AppError('newRoomId is required', 400);
+
+  const newRoom = await Room.findOne({ _id: newRoomId, hotel: req.hotelId, status: 'available' });
+  if (!newRoom) throw new AppError('New room is not available', 400);
+
+  const oldRoom = booking.room;
+
+  // Mark old room as cleaning
+  await Room.findByIdAndUpdate(oldRoom._id, { status: 'cleaning', housekeepingStatus: 'dirty' });
+  
+  // Mark new room as occupied
+  await Room.findByIdAndUpdate(newRoom._id, { status: 'occupied' });
+
+  // Reassign booking
+  booking.room = newRoom._id;
+  
+  booking.timeline.push({
+    action: 'room_changed',
+    description: `Room changed from ${oldRoom.roomNumber} to ${newRoom.roomNumber}. Reason: ${reason || 'N/A'}`,
+    by: req.user ? req.user._id : undefined
+  });
+
+  await booking.save();
+
+  if (req.app.get('io')) {
+    req.app.get('io').to(booking.hotel.toString()).emit('roomStatusUpdated', {
+      roomId: oldRoom._id, status: 'cleaning', housekeepingStatus: 'dirty'
+    });
+    req.app.get('io').to(booking.hotel.toString()).emit('roomStatusUpdated', {
+      roomId: newRoom._id, status: 'occupied', housekeepingStatus: 'clean'
+    });
+  }
+
+  const { Housekeeping } = require('../models/Operations');
+  await Housekeeping.create({
+    hotel: booking.hotel,
+    roomNumber: oldRoom.roomNumber,
+    type: 'Full Clean',
+    assignedTo: 'Unassigned',
+    priority: 'high',
+    status: 'pending',
+    notes: `Room changed to ${newRoom.roomNumber}. Reason: ${reason}`
+  });
+
+  await emitNotification(req, {
+    hotel: booking.hotel,
+    title: 'Room Changed',
+    desc: `Guest moved from Room ${oldRoom.roomNumber} to ${newRoom.roomNumber}.`,
+    type: 'maintenance',
+    icon: 'refresh-cw',
+    color: 'var(--amber)',
+    targetRoles: ['admin', 'manager', 'housekeeping']
+  });
+
+  const populated = await populateBooking(Booking.findById(booking._id));
+  sendSuccess(res, populated);
+});
+
 module.exports = {
   getRooms, getRoom, createRoom, updateRoom, deleteRoom,
   updateRoomHousekeeping, checkAvailability,
   getBookings, getBooking, createBooking, updateBooking,
-  checkIn, checkOut, cancelBooking, deleteBooking,
+  checkIn, checkOut, cancelBooking, deleteBooking, extendStay, changeRoom,
   getCheckInProcess, generateQRCode, updateGuestDetails,
   uploadIdScan, submitFaceVerification, saveSignature,
   getCabBookings, getCabBooking, createCabBooking, updateCabBooking, deleteCabBooking,
