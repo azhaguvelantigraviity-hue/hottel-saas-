@@ -43,8 +43,13 @@ exports.requireFeature = (featureKey) => asyncHandler(async (req, _res, next) =>
   const hotelId = req.hotelId || req.user.hotel || req.body?.hotel || req.query?.hotel;
   if (!hotelId) return next(new AppError('Hotel not found', 404));
 
-  const hotel = await Hotel.findById(hotelId).select('plan planStatus');
+  const hotel = await Hotel.findById(hotelId).select('plan planStatus trialEndDate');
   if (!hotel) return next(new AppError('Hotel not found', 404));
+  
+  if (hotel.planStatus === 'trial' && hotel.trialEndDate && Date.now() > new Date(hotel.trialEndDate).getTime()) {
+    return next(new AppError('Trial has expired. Please upgrade your plan to continue.', 402));
+  }
+
   if (hotel.planStatus !== 'active' && hotel.planStatus !== 'trial') {
     return next(new AppError('Subscription is not active', 402));
   }

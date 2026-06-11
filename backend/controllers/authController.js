@@ -3,7 +3,13 @@ const { AppError, asyncHandler, sendSuccess } = require('../utils/helpers');
 
 const sendToken = (user, statusCode, res) => {
   const token = user.getSignedJwt();
-  const userObj = { id: user._id, name: user.name, email: user.email, role: user.role, department: user.department, hotel: user.hotel };
+  let isTrialExpired = false;
+  if (user && user.hotel && user.hotel.planStatus === 'trial' && user.hotel.trialEndDate) {
+    if (Date.now() > new Date(user.hotel.trialEndDate).getTime()) {
+      isTrialExpired = true;
+    }
+  }
+  const userObj = { id: user._id, name: user.name, email: user.email, role: user.role, department: user.department, hotel: user.hotel, isTrialExpired };
   sendSuccess(res, { token, user: userObj }, statusCode);
 };
 
@@ -18,7 +24,7 @@ exports.register = asyncHandler(async (req, res, next) => {
 exports.login = asyncHandler(async (req, res, next) => {
   const { email, password } = req.body;
   if (!email || !password) return next(new AppError('Email and password required', 400));
-  const user = await User.findOne({ email: email.toLowerCase() }).select('+password').populate('hotel', 'name plan planStatus');
+  const user = await User.findOne({ email: email.toLowerCase() }).select('+password').populate('hotel', 'name plan planStatus trialEndDate');
   if (!user || !(await user.matchPassword(password))) {
     return next(new AppError('Invalid credentials', 401));
   }

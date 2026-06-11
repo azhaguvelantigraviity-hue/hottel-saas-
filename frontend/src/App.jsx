@@ -340,11 +340,12 @@ const App = () => {
     navigate(`/login/${type}`);
   };
 
-  const handleHotelSuccess = (plan, role, hotelDetails) => {
+  const handleHotelSuccess = (plan, role, hotelDetails, isTrialExpired) => {
     setLoginType('hotel');
     setHotelPlan(plan || 'enterprise');
     setHotelRole(role || 'manager');
     setCurrentHotel(hotelDetails || null);
+    setIsTrialExpired(!!isTrialExpired);
     setIsAuthenticated(true);
     navigate('/hotel/dashboard');
   };
