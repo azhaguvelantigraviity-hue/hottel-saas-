@@ -19,6 +19,7 @@ const RegistrationSchema = new mongoose.Schema({
   document: { type: String },
   plan: { type: String, enum: ['starter','professional','enterprise'], default: 'starter' },
   status: { type: String, enum: ['pending','approved','rejected'], default: 'pending' },
+  trialRequested: { type: Boolean, default: true },
 }, { timestamps: true });
 
 module.exports = mongoose.model('Registration', RegistrationSchema);

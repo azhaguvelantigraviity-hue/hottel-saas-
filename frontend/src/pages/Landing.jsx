@@ -385,6 +385,7 @@ const RegistrationModal = ({ onClose }) => {
   const [error, setError] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [showConfirm, setShowConfirm] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -392,6 +393,13 @@ const RegistrationModal = ({ onClose }) => {
       setError('Passwords do not match');
       return;
     }
+    
+    if (!showConfirm) {
+      // Validate HTML form has been met, now show confirmation step
+      setShowConfirm(true);
+      return;
+    }
+
     setLoading(true);
     setError('');
     try {
@@ -427,6 +435,35 @@ const RegistrationModal = ({ onClose }) => {
             <h3 style={{ fontSize: '18px', marginBottom: '8px' }}>Registration Submitted!</h3>
             <p style={{ color: 'var(--text2)', fontSize: '14px', marginBottom: '24px' }}>Your request is Pending Approval + Free Trial Requested. You will be notified once it is approved.</p>
             <button onClick={onClose} style={{ padding: '10px 24px', background: 'linear-gradient(135deg,#C9A84C,#8A6F2E)', color: '#fff', border: 'none', borderRadius: '6px', cursor: 'pointer' }}>Close</button>
+          </div>
+        ) : showConfirm ? (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+            <div style={{ padding: '16px', background: 'var(--bg)', borderRadius: '8px', border: '1px solid var(--border)' }}>
+              <h4 style={{ margin: '0 0 16px 0', color: 'var(--gold)' }}>Review Your Details</h4>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', fontSize: '13px' }}>
+                <div><span style={{ color: 'var(--text3)' }}>Hotel Name:</span><br/><strong>{formData.hotelName}</strong></div>
+                <div><span style={{ color: 'var(--text3)' }}>Owner Name:</span><br/><strong>{formData.ownerName}</strong></div>
+                <div><span style={{ color: 'var(--text3)' }}>Email:</span><br/><strong>{formData.email}</strong></div>
+                <div><span style={{ color: 'var(--text3)' }}>Phone:</span><br/><strong>{formData.phone}</strong></div>
+                <div><span style={{ color: 'var(--text3)' }}>City:</span><br/><strong>{formData.city}</strong></div>
+                <div><span style={{ color: 'var(--text3)' }}>Address:</span><br/><strong>{formData.address}</strong></div>
+                <div><span style={{ color: 'var(--text3)' }}>Total Rooms:</span><br/><strong>{formData.totalRooms}</strong></div>
+                <div><span style={{ color: 'var(--text3)' }}>Selected Plan:</span><br/><strong>{formData.plan}</strong></div>
+              </div>
+              <div style={{ marginTop: '16px', padding: '12px', background: 'rgba(201,168,76,0.1)', border: '1px solid var(--gold)', borderRadius: '6px', color: 'var(--gold)', fontSize: '13px', fontWeight: '600', textAlign: 'center' }}>
+                <Icon name="clock" size={16} style={{ verticalAlign: 'middle', marginRight: '6px' }} />
+                24-Hour Free Trial Requested
+              </div>
+            </div>
+            
+            {error && <div style={{ padding: '10px', background: 'rgba(239, 68, 68, 0.1)', color: '#EF4444', borderRadius: '6px', fontSize: '13px' }}>{error}</div>}
+
+            <div style={{ display: 'flex', gap: '12px', marginTop: '16px' }}>
+              <button type="button" onClick={() => setShowConfirm(false)} style={{ flex: 1, padding: '10px', background: 'transparent', border: '1px solid var(--border)', color: 'var(--text)', borderRadius: '6px', cursor: 'pointer' }}>Back / Edit</button>
+              <button type="button" onClick={handleSubmit} disabled={loading} style={{ flex: 1, padding: '10px', background: 'linear-gradient(135deg,#C9A84C,#8A6F2E)', border: 'none', color: '#fff', borderRadius: '6px', cursor: loading ? 'wait' : 'pointer', fontWeight: '600' }}>
+                {loading ? 'Submitting...' : 'Confirm & Continue'}
+              </button>
+            </div>
           </div>
         ) : (
           <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
