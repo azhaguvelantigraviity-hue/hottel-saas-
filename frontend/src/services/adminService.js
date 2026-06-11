@@ -41,5 +41,5 @@ export const resolveAdminNotification  = (id)      => put(`/admin/notifications/
 export const deleteAdminNotification   = (id)      => del(`/admin/notifications/${id}`);
 
 export const getRegistrations     = ()       => get('/admin/registrations');
-export const approveRegistration  = (id)     => put(`/admin/registrations/${id}/approve`);
+export const approveRegistration  = (id, body) => put(`/admin/registrations/${id}/approve`, body);
 export const rejectRegistration   = (id)     => put(`/admin/registrations/${id}/reject`);

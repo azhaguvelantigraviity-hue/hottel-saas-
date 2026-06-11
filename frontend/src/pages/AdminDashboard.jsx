@@ -4,6 +4,7 @@ import Badge from '../components/Badge';
 import Avatar from '../components/Avatar';
 import Icon from '../components/Icon';
 import * as adminApi from '../services/adminService';
+import ManagerCredentialsModal from '../components/ManagerCredentialsModal';
 
 const PLANS = {
   starter:      { id: 'starter', name: 'Starter', accent: '#6B7280' },
@@ -46,6 +47,7 @@ const AdminDashboard = ({ onNav }) => {
   const { totalHotels, activeHotels, totalRooms, totalUsers, mrr, planBreakdown } = dashboard;
   const [activeTab, setActiveTab] = useState('overview');
   const [registrations, setRegistrations] = useState([]);
+  const [approvingRegistration, setApprovingRegistration] = useState(null);
   
   useEffect(() => {
     if (activeTab === 'registrations') {
@@ -53,12 +55,19 @@ const AdminDashboard = ({ onNav }) => {
     }
   }, [activeTab]);
 
-  const handleApprove = async (id) => {
+  const handleApprove = (reg) => {
+    setApprovingRegistration(reg);
+  };
+
+  const handleApproveSubmit = async (id, credentials) => {
     try {
-      await adminApi.approveRegistration(id);
+      await adminApi.approveRegistration(id, credentials);
+      alert('Registration approved successfully and manager credentials created.');
+      setApprovingRegistration(null);
       adminApi.getRegistrations().then(res => setRegistrations(res.data || []));
     } catch (err) {
-      alert(err.message || 'Failed to approve');
+      alert(err.response?.data?.message || err.message || 'Failed to approve');
+      throw err;
     }
   };
 
@@ -336,7 +345,7 @@ const AdminDashboard = ({ onNav }) => {
                   <td style={{ padding: '12px' }}>
                     {r.status === 'pending' && (
                       <div style={{ display: 'flex', gap: '8px' }}>
-                        <button onClick={() => handleApprove(r._id)} style={{ padding: '6px 12px', background: 'var(--green)', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '12px', fontWeight: '600' }}>Approve</button>
+                        <button onClick={() => handleApprove(r)} style={{ padding: '6px 12px', background: 'var(--green)', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '12px', fontWeight: '600' }}>Approve</button>
                         <button onClick={() => handleReject(r._id)} style={{ padding: '6px 12px', background: 'var(--rose)', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '12px', fontWeight: '600' }}>Reject</button>
                       </div>
                     )}
@@ -347,6 +356,14 @@ const AdminDashboard = ({ onNav }) => {
           </table>
           </div>
         </div>
+      )}
+
+      {approvingRegistration && (
+        <ManagerCredentialsModal
+          registration={approvingRegistration}
+          onSuccess={handleApproveSubmit}
+          onClose={() => setApprovingRegistration(null)}
+        />
       )}
     </div>
   );

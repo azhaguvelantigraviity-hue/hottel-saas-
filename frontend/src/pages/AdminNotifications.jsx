@@ -3,6 +3,7 @@ import io from 'socket.io-client';
 import Icon from '../components/Icon';
 import * as adminService from '../services/adminService';
 import { getUser } from '../services/authService';
+import ManagerCredentialsModal from '../components/ManagerCredentialsModal';
 
 const AdminNotifications = () => {
   const [notifications, setNotifications] = useState([]);
@@ -11,6 +12,7 @@ const AdminNotifications = () => {
   
   const [selectedNotification, setSelectedNotification] = useState(null);
   const [registrationDetails, setRegistrationDetails] = useState(null);
+  const [approvingRegistration, setApprovingRegistration] = useState(null);
 
   // Filters
   const [filterHotel, setFilterHotel] = useState('');
@@ -129,17 +131,26 @@ const AdminNotifications = () => {
     }
   };
 
-  const handleApproveRegistration = async (id) => {
+  const handleApproveRegistration = (id) => {
+    if (registrationDetails && registrationDetails._id === id) {
+      setApprovingRegistration(registrationDetails);
+    }
+  };
+
+  const handleApproveSubmit = async (id, credentials) => {
     try {
-      await adminService.approveRegistration(id);
+      await adminService.approveRegistration(id, credentials);
       if (selectedNotification) {
         await handleResolve(selectedNotification._id);
         setSelectedNotification(null);
       }
-      alert('Registration approved and hotel created!');
+      setRegistrationDetails(null);
+      setApprovingRegistration(null);
+      alert('Registration approved and manager credentials created successfully!');
     } catch (err) {
       console.error('Failed to approve registration', err);
       alert('Failed to approve: ' + (err.response?.data?.message || err.message));
+      throw err;
     }
   };
 
@@ -403,6 +414,14 @@ const AdminNotifications = () => {
             )}
           </div>
         </div>
+      )}
+
+      {approvingRegistration && (
+        <ManagerCredentialsModal
+          registration={approvingRegistration}
+          onSuccess={handleApproveSubmit}
+          onClose={() => setApprovingRegistration(null)}
+        />
       )}
     </div>
   );

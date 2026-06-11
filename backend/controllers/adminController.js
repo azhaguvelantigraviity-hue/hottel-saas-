@@ -510,15 +510,20 @@ exports.approveRegistration = asyncHandler(async (req, res, next) => {
   if (!reg) return next(new (require('../utils/helpers').AppError)('Registration not found', 404));
   if (reg.status !== 'pending') return next(new (require('../utils/helpers').AppError)('Registration is already ' + reg.status, 400));
 
-  const existingUser = await User.findOne({ email: reg.email });
-  if (existingUser) return next(new (require('../utils/helpers').AppError)('User with this email already exists', 400));
+  const { mName, mUsername, mEmail, mPhone, mPassword } = req.body;
+  if (!mName || !mUsername || !mEmail || !mPhone || !mPassword) {
+    return next(new (require('../utils/helpers').AppError)('Manager credentials are required to approve the hotel.', 400));
+  }
+
+  const existingUser = await User.findOne({ $or: [{ email: mEmail }, { username: mUsername }] });
+  if (existingUser) return next(new (require('../utils/helpers').AppError)('User with this email or username already exists', 400));
 
   // 1. Create Hotel
   const trialEndDate = new Date(Date.now() + 2 * 24 * 60 * 60 * 1000); // 2 days
   const hotel = await Hotel.create({
     name: reg.hotelName,
     hotelCode: `HTL-${Math.random().toString(36).substring(2, 8).toUpperCase()}`,
-    email: reg.email,
+    email: mEmail,
     phone: reg.phone,
     address: { city: reg.city },
     plan: reg.plan,
@@ -526,19 +531,19 @@ exports.approveRegistration = asyncHandler(async (req, res, next) => {
     trialEndDate: trialEndDate,
     totalRooms: reg.totalRooms,
     adminCredentials: {
-      email: reg.email,
-      password: reg.password,
-      username: reg.email
+      email: mEmail,
+      password: mPassword,
+      username: mUsername
     }
   });
 
   // 2. Create User (Manager)
   const manager = await User.create({
-    name: reg.ownerName,
-    username: reg.email,
-    email: reg.email,
-    phone: reg.phone,
-    password: reg.password, // This will be hashed by User's pre-save hook
+    name: mName,
+    username: mUsername,
+    email: mEmail,
+    phone: mPhone,
+    password: mPassword, // This will be hashed by User's pre-save hook
     role: 'hotel_admin',
     hotel: hotel._id
   });
@@ -552,8 +557,11 @@ exports.approveRegistration = asyncHandler(async (req, res, next) => {
 
   await createAuditLog(req, 'Approved Hotel Registration', reg.hotelName, `Hotel ${hotel.name} created.`, 'success');
 
+  // TODO: Send email/notification to hotel owner with their new credentials
+  console.log(`[EMAIL SIMULATION] Sent to: ${mEmail}. Subject: Welcome to StayOS! Your Manager Credentials. Body: Username: ${mUsername}, Password: ${mPassword}`);
+
   sendSuccess(res, {
-    message: 'Registration approved successfully.',
+    message: 'Registration approved successfully. Manager credentials created.',
     hotel: hotel
   });
 });
