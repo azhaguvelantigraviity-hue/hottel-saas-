@@ -34,6 +34,38 @@ const checkOutAlerts = async (app) => {
       await booking.save();
     }
 
+    // 1.5 15-Minute Checkout Popup Alert
+    const fifteenMinFromNow = new Date(now.getTime() + 15 * 60 * 1000);
+    const fifteenMinCheckouts = await Booking.find({
+      status: 'checked_in',
+      checkOutDateTime: { $lte: fifteenMinFromNow, $gt: now },
+      'alertsSent.fifteenMinCheckout': false
+    }).populate('room guest');
+
+    for (const booking of fifteenMinCheckouts) {
+      const io = app.get('io');
+      if (io && booking.room && booking.guest) {
+        const checkoutTimeStr = new Date(booking.checkOutDateTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        
+        const alertPayload = {
+          bookingId: booking._id,
+          roomNumber: booking.room.roomNumber,
+          guestName: booking.guest.name,
+          checkoutTime: checkoutTimeStr,
+          message: `⚠️ Checkout Alert: Room ${booking.room.roomNumber} (${booking.guest.name}) is checking out in 15 minutes (at ${checkoutTimeStr}).`,
+          hotelId: booking.hotel.toString()
+        };
+
+        // Emit specifically for the real-time pop-up
+        io.to(booking.hotel.toString()).emit('checkoutAlertPopup', alertPayload);
+        io.to('adminRoom').emit('checkoutAlertPopup', alertPayload);
+      }
+      
+      booking.alertsSent = booking.alertsSent || {};
+      booking.alertsSent.fifteenMinCheckout = true;
+      await booking.save();
+    }
+
     // 2. Overdue Checkout Alerts (time passed)
     const overdueCheckouts = await Booking.find({
       status: 'checked_in',

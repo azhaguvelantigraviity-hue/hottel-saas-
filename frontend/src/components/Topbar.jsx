@@ -4,6 +4,7 @@ import { useNotifications } from '../context/NotificationContext';
 import { useAdminNotifications } from '../context/AdminNotificationContext';
 import { getAllHotels } from '../services/adminService';
 import { getUser } from '../services/authService';
+import CheckoutAlertPopup from './CheckoutAlertPopup';
 
 const Topbar = ({ title, subtitle, role, onNav, toggleSidebar }) => {
   const [search, setSearch] = useState('');
@@ -11,7 +12,7 @@ const Topbar = ({ title, subtitle, role, onNav, toggleSidebar }) => {
   const [showUserMenu, setShowUserMenu] = useState(false);
   const hotelNotifs = useNotifications();
   const adminNotifs = useAdminNotifications();
-  const { notifications, unreadCount, markRead, markAllRead } = role === 'admin' ? adminNotifs : hotelNotifs;
+  const { notifications, unreadCount, markRead, markAllRead, socket } = role === 'admin' ? adminNotifs : hotelNotifs;
   const [hotels, setHotels] = useState([]);
   const [selectedHotelId, setSelectedHotelId] = useState(localStorage.getItem('selectedHotelId') || '');
 
@@ -334,6 +335,7 @@ const Topbar = ({ title, subtitle, role, onNav, toggleSidebar }) => {
           )}
         </div>
       </div>
+      <CheckoutAlertPopup socket={socket} />
     </div>
   );
 };
