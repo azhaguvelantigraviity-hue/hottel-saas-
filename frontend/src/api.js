@@ -31,3 +31,23 @@ export const get = (endpoint) => apiRequest(endpoint, { method: 'GET' });
 export const post = (endpoint, body) => apiRequest(endpoint, { method: 'POST', body: JSON.stringify(body) });
 export const put = (endpoint, body) => apiRequest(endpoint, { method: 'PUT', body: JSON.stringify(body) });
 export const del = (endpoint) => apiRequest(endpoint, { method: 'DELETE' });
+
+export const postForm = async (endpoint, formData) => {
+  const token = localStorage.getItem('stayos_token');
+  const headers = {
+    ...(token ? { Authorization: `Bearer ${token}` } : {}),
+  };
+  const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+    method: 'POST',
+    body: formData,
+    headers,
+  });
+  const data = await response.json();
+  if (!response.ok) {
+    const err = new Error(data.message || 'API Error');
+    err.status = response.status;
+    err.data = data;
+    throw err;
+  }
+  return data;
+};

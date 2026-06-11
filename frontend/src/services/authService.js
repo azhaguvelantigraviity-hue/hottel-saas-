@@ -1,7 +1,7 @@
 // ─────────────────────────────────────────────────────────────
 //  Auth Service  –  /api/v1/auth
 // ─────────────────────────────────────────────────────────────
-import { post, get, put } from './api.js';
+import { post, get, put, postForm } from './api.js';
 
 export function getToken() { return localStorage.getItem('stayos_token'); }
 export function setToken(token) { localStorage.setItem('stayos_token', token); }
@@ -51,7 +51,12 @@ export async function forgotPassword(email) {
   return post('/auth/forgotpassword', { email });
 }
 
-/** Register a new hotel */
+/** Register a new hotel (JSON) */
 export async function registerHotel(data) {
   return post('/auth/register-hotel', data);
+}
+
+/** Register a new hotel (FormData) */
+export async function registerHotelForm(formData) {
+  return postForm('/auth/register-hotel', formData);
 }

@@ -15,6 +15,8 @@ const RegistrationSchema = new mongoose.Schema({
   address: { type: String, trim: true },
   city: { type: String, required: true, trim: true },
   totalRooms: { type: Number, required: true, min: 1 },
+  password: { type: String, required: true },
+  document: { type: String },
   plan: { type: String, enum: ['starter','professional','enterprise'], default: 'starter' },
   status: { type: String, enum: ['pending','approved','rejected'], default: 'pending' },
 }, { timestamps: true });

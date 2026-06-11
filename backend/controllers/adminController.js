@@ -283,7 +283,7 @@ exports.getRenewalAlerts = asyncHandler(async (_req, res) => {
     
     if (hotel.planStatus === 'trial') {
       const trialStart = new Date(hotel.subscriptionStart || hotel.createdAt);
-      const trialEnd = new Date(trialStart.getTime() + 14 * 24 * 60 * 60 * 1000); // 14 day trial
+      const trialEnd = new Date(trialStart.getTime() + 2 * 24 * 60 * 60 * 1000); // 2 day trial
       daysLeft = Math.ceil((trialEnd - now) / (1000 * 60 * 60 * 24));
       
       if (daysLeft < 0) {
@@ -513,10 +513,8 @@ exports.approveRegistration = asyncHandler(async (req, res, next) => {
   const existingUser = await User.findOne({ email: reg.email });
   if (existingUser) return next(new (require('../utils/helpers').AppError)('User with this email already exists', 400));
 
-  const generatedPassword = Math.random().toString(36).slice(-8);
-
   // 1. Create Hotel
-  const trialEndDate = new Date(Date.now() + 12 * 24 * 60 * 60 * 1000); // 12 days
+  const trialEndDate = new Date(Date.now() + 2 * 24 * 60 * 60 * 1000); // 2 days
   const hotel = await Hotel.create({
     name: reg.hotelName,
     hotelCode: `HTL-${Math.random().toString(36).substring(2, 8).toUpperCase()}`,
@@ -529,7 +527,7 @@ exports.approveRegistration = asyncHandler(async (req, res, next) => {
     totalRooms: reg.totalRooms,
     adminCredentials: {
       email: reg.email,
-      password: generatedPassword,
+      password: reg.password,
       username: reg.email
     }
   });
@@ -540,7 +538,7 @@ exports.approveRegistration = asyncHandler(async (req, res, next) => {
     username: reg.email,
     email: reg.email,
     phone: reg.phone,
-    password: generatedPassword,
+    password: reg.password, // This will be hashed by User's pre-save hook
     role: 'hotel_admin',
     hotel: hotel._id
   });
@@ -556,11 +554,7 @@ exports.approveRegistration = asyncHandler(async (req, res, next) => {
 
   sendSuccess(res, {
     message: 'Registration approved successfully.',
-    hotel: hotel,
-    credentials: {
-      email: reg.email,
-      password: generatedPassword
-    }
+    hotel: hotel
   });
 });
 

@@ -107,7 +107,7 @@ const Landing = ({ onLogin, theme, setTheme }) => {
               fontFamily: 'DM Sans,sans-serif',
             }}
           >
-            Free Trial
+            Register Hotel
           </button>
           <button
             className="landing-btn"
@@ -201,7 +201,7 @@ const Landing = ({ onLogin, theme, setTheme }) => {
             transition: 'all 0.3s',
           }}
         >
-          Start 12-Day Free Trial
+          Start 2-Day Free Trial
         </button>
       </div>
 
@@ -363,23 +363,34 @@ const Landing = ({ onLogin, theme, setTheme }) => {
   );
 };
 
-export default Landing;
-
 const RegistrationModal = ({ onClose }) => {
   const [formData, setFormData] = useState({
-    hotelName: '', ownerName: '', email: '', phone: '', address: '', city: '', totalRooms: 10, plan: 'professional'
+    hotelName: '', ownerName: '', email: '', phone: '', address: '', city: '', totalRooms: 10, plan: 'professional', password: '', confirmPassword: ''
   });
+  const [documentFile, setDocumentFile] = useState(null);
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState('');
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (formData.password !== formData.confirmPassword) {
+      setError('Passwords do not match');
+      return;
+    }
     setLoading(true);
     setError('');
     try {
-      const { registerHotel } = await import('../services/authService');
-      await registerHotel({ ...formData, totalRooms: Number(formData.totalRooms) });
+      const { registerHotelForm } = await import('../services/authService');
+      const submitData = new FormData();
+      Object.keys(formData).forEach(key => {
+        if (key !== 'confirmPassword') submitData.append(key, formData[key]);
+      });
+      if (documentFile) {
+        submitData.append('document', documentFile);
+      }
+      
+      await registerHotelForm(submitData);
       setSuccess(true);
     } catch (err) {
       setError(err.message || 'Failed to submit registration');
@@ -390,9 +401,9 @@ const RegistrationModal = ({ onClose }) => {
 
   return (
     <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.8)', backdropFilter: 'blur(4px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 999 }}>
-      <div style={{ background: 'var(--card)', padding: '32px', borderRadius: '12px', width: '100%', maxWidth: '500px', border: '1px solid var(--border)' }}>
-        <h2 style={{ fontSize: '24px', fontFamily: 'Playfair Display,serif', marginBottom: '8px' }}>Start 12-Day Free Trial</h2>
-        <p style={{ color: 'var(--text2)', fontSize: '14px', marginBottom: '24px' }}>Register your hotel to get started. No credit card required.</p>
+      <div style={{ background: 'var(--card)', padding: '32px', borderRadius: '12px', width: '100%', maxWidth: '550px', maxHeight: '90vh', overflowY: 'auto', border: '1px solid var(--border)' }}>
+        <h2 style={{ fontSize: '24px', fontFamily: 'Playfair Display,serif', marginBottom: '8px' }}>Register Your Hotel</h2>
+        <p style={{ color: 'var(--text2)', fontSize: '14px', marginBottom: '24px' }}>Submit your hotel details to create an account.</p>
         
         {success ? (
           <div style={{ textAlign: 'center', padding: '32px 0' }}>
@@ -400,8 +411,8 @@ const RegistrationModal = ({ onClose }) => {
               <Icon name="check" size={24} color="#34D399" />
             </div>
             <h3 style={{ fontSize: '18px', marginBottom: '8px' }}>Registration Submitted!</h3>
-            <p style={{ color: 'var(--text2)', fontSize: '14px', marginBottom: '24px' }}>Your request is pending admin approval. You will be notified once your account is ready.</p>
-            <button onClick={onClose} style={{ padding: '10px 24px', background: 'var(--border)', color: 'var(--text)', border: 'none', borderRadius: '6px', cursor: 'pointer' }}>Close</button>
+            <p style={{ color: 'var(--text2)', fontSize: '14px', marginBottom: '24px' }}>Your request is pending admin approval. You will be notified once it is approved.</p>
+            <button onClick={onClose} style={{ padding: '10px 24px', background: 'linear-gradient(135deg,#C9A84C,#8A6F2E)', color: '#fff', border: 'none', borderRadius: '6px', cursor: 'pointer' }}>Close</button>
           </div>
         ) : (
           <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
@@ -413,7 +424,7 @@ const RegistrationModal = ({ onClose }) => {
                 <input required value={formData.hotelName} onChange={e => setFormData({...formData, hotelName: e.target.value})} style={{ width: '100%', padding: '10px', background: 'var(--bg)', border: '1px solid var(--border)', borderRadius: '6px', color: 'var(--text)' }} />
               </div>
               <div>
-                <label style={{ display: 'block', fontSize: '12px', color: 'var(--text2)', marginBottom: '4px' }}>Owner Name</label>
+                <label style={{ display: 'block', fontSize: '12px', color: 'var(--text2)', marginBottom: '4px' }}>Owner/Manager Name</label>
                 <input required value={formData.ownerName} onChange={e => setFormData({...formData, ownerName: e.target.value})} style={{ width: '100%', padding: '10px', background: 'var(--bg)', border: '1px solid var(--border)', borderRadius: '6px', color: 'var(--text)' }} />
               </div>
             </div>
@@ -425,11 +436,18 @@ const RegistrationModal = ({ onClose }) => {
               </div>
               <div>
                 <label style={{ display: 'block', fontSize: '12px', color: 'var(--text2)', marginBottom: '4px' }}>Phone Number</label>
-                <input required value={formData.phone} onChange={e => setFormData({...formData, phone: e.target.value})} style={{ width: '100%', padding: '10px', background: 'var(--bg)', border: '1px solid var(--border)', borderRadius: '6px', color: 'var(--text)' }} />
+                <input required value={formData.phone} onChange={e => setFormData({...formData, phone: e.target.value.replace(/\D/g,'').slice(0,10)})} style={{ width: '100%', padding: '10px', background: 'var(--bg)', border: '1px solid var(--border)', borderRadius: '6px', color: 'var(--text)' }} placeholder="10-digit number" />
               </div>
             </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '16px' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '16px' }}>
+              <div>
+                <label style={{ display: 'block', fontSize: '12px', color: 'var(--text2)', marginBottom: '4px' }}>Hotel Address</label>
+                <input required value={formData.address} onChange={e => setFormData({...formData, address: e.target.value})} style={{ width: '100%', padding: '10px', background: 'var(--bg)', border: '1px solid var(--border)', borderRadius: '6px', color: 'var(--text)' }} />
+              </div>
+            </div>
+
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '16px' }}>
               <div>
                 <label style={{ display: 'block', fontSize: '12px', color: 'var(--text2)', marginBottom: '4px' }}>City</label>
                 <input required value={formData.city} onChange={e => setFormData({...formData, city: e.target.value})} style={{ width: '100%', padding: '10px', background: 'var(--bg)', border: '1px solid var(--border)', borderRadius: '6px', color: 'var(--text)' }} />
@@ -438,21 +456,38 @@ const RegistrationModal = ({ onClose }) => {
                 <label style={{ display: 'block', fontSize: '12px', color: 'var(--text2)', marginBottom: '4px' }}>Total Rooms</label>
                 <input required type="number" min="1" value={formData.totalRooms} onChange={e => setFormData({...formData, totalRooms: e.target.value})} style={{ width: '100%', padding: '10px', background: 'var(--bg)', border: '1px solid var(--border)', borderRadius: '6px', color: 'var(--text)' }} />
               </div>
+              <div>
+                <label style={{ display: 'block', fontSize: '12px', color: 'var(--text2)', marginBottom: '4px' }}>Plan</label>
+                <select value={formData.plan} onChange={e => setFormData({...formData, plan: e.target.value})} style={{ width: '100%', padding: '10px', background: 'var(--bg)', border: '1px solid var(--border)', borderRadius: '6px', color: 'var(--text)' }}>
+                  <option value="starter">Starter</option>
+                  <option value="professional">Professional</option>
+                  <option value="enterprise">Enterprise</option>
+                </select>
+              </div>
             </div>
 
-            <div>
-              <label style={{ display: 'block', fontSize: '12px', color: 'var(--text2)', marginBottom: '4px' }}>Plan</label>
-              <select value={formData.plan} onChange={e => setFormData({...formData, plan: e.target.value})} style={{ width: '100%', padding: '10px', background: 'var(--bg)', border: '1px solid var(--border)', borderRadius: '6px', color: 'var(--text)' }}>
-                <option value="starter">Starter</option>
-                <option value="professional">Professional</option>
-                <option value="enterprise">Enterprise</option>
-              </select>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+              <div>
+                <label style={{ display: 'block', fontSize: '12px', color: 'var(--text2)', marginBottom: '4px' }}>Password</label>
+                <input required type="password" value={formData.password} onChange={e => setFormData({...formData, password: e.target.value})} style={{ width: '100%', padding: '10px', background: 'var(--bg)', border: '1px solid var(--border)', borderRadius: '6px', color: 'var(--text)' }} />
+              </div>
+              <div>
+                <label style={{ display: 'block', fontSize: '12px', color: 'var(--text2)', marginBottom: '4px' }}>Confirm Password</label>
+                <input required type="password" value={formData.confirmPassword} onChange={e => setFormData({...formData, confirmPassword: e.target.value})} style={{ width: '100%', padding: '10px', background: 'var(--bg)', border: '1px solid var(--border)', borderRadius: '6px', color: 'var(--text)' }} />
+              </div>
+            </div>
+
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '16px' }}>
+              <div>
+                <label style={{ display: 'block', fontSize: '12px', color: 'var(--text2)', marginBottom: '4px' }}>Hotel Documents Upload (PDF/Image)</label>
+                <input type="file" onChange={e => setDocumentFile(e.target.files[0])} accept="image/*,.pdf" style={{ width: '100%', padding: '10px', background: 'var(--bg)', border: '1px solid var(--border)', borderRadius: '6px', color: 'var(--text)' }} />
+              </div>
             </div>
 
             <div style={{ display: 'flex', gap: '12px', marginTop: '16px' }}>
               <button type="button" onClick={onClose} style={{ flex: 1, padding: '10px', background: 'transparent', border: '1px solid var(--border)', color: 'var(--text)', borderRadius: '6px', cursor: 'pointer' }}>Cancel</button>
               <button type="submit" disabled={loading} style={{ flex: 1, padding: '10px', background: 'linear-gradient(135deg,#C9A84C,#8A6F2E)', border: 'none', color: '#fff', borderRadius: '6px', cursor: loading ? 'wait' : 'pointer', fontWeight: '600' }}>
-                {loading ? 'Submitting...' : 'Register'}
+                {loading ? 'Submitting...' : 'Submit Request'}
               </button>
             </div>
           </form>
@@ -461,3 +496,5 @@ const RegistrationModal = ({ onClose }) => {
     </div>
   );
 };
+
+export default Landing;

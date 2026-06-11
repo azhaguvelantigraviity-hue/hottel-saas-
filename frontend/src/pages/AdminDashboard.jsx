@@ -288,7 +288,7 @@ const AdminDashboard = ({ onNav }) => {
             <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: '800px' }}>
             <thead>
               <tr style={{ borderBottom: '1px solid var(--border)' }}>
-                {['Date', 'Hotel Info', 'Contact', 'Plan', 'Rooms', 'Status', 'Actions'].map((h) => (
+                {['Date', 'Hotel Info', 'Contact', 'Plan', 'Rooms', 'Document', 'Status', 'Actions'].map((h) => (
                   <th key={h} style={{ padding: '8px 12px', textAlign: 'left', fontSize: '11px', color: 'var(--text3)', fontWeight: '600', letterSpacing: '0.06em' }}>
                     {h.toUpperCase()}
                   </th>
@@ -297,7 +297,7 @@ const AdminDashboard = ({ onNav }) => {
             </thead>
             <tbody>
               {registrations.length === 0 ? (
-                <tr><td colSpan={7} style={{ padding: '24px', textAlign: 'center', color: 'var(--text3)' }}>No registration requests found.</td></tr>
+                <tr><td colSpan={8} style={{ padding: '24px', textAlign: 'center', color: 'var(--text3)' }}>No registration requests found.</td></tr>
               ) : registrations.map((r) => (
                 <tr
                   key={r._id}
@@ -321,6 +321,15 @@ const AdminDashboard = ({ onNav }) => {
                     <Badge color={r.plan === 'enterprise' ? 'gold' : r.plan === 'professional' ? 'teal' : 'gray'}>{r.plan}</Badge>
                   </td>
                   <td style={{ padding: '12px', fontSize: '13px', color: 'var(--text2)' }}>{r.totalRooms}</td>
+                  <td style={{ padding: '12px', fontSize: '13px' }}>
+                    {r.document ? (
+                      <a href={`http://localhost:5000/uploads/documents/${r.document}`} target="_blank" rel="noreferrer" style={{ color: 'var(--gold)', textDecoration: 'underline' }}>
+                        View
+                      </a>
+                    ) : (
+                      <span style={{ color: 'var(--text3)' }}>None</span>
+                    )}
+                  </td>
                   <td style={{ padding: '12px' }}>
                     <Badge color={r.status === 'approved' ? 'green' : r.status === 'pending' ? 'amber' : 'rose'}>{r.status}</Badge>
                   </td>

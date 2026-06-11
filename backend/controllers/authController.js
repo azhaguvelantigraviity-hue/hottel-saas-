@@ -44,16 +44,35 @@ exports.logout = asyncHandler(async (_req, res) => {
 const Registration = require('../models/Registration');
 
 exports.registerHotel = asyncHandler(async (req, res, next) => {
-  const { hotelName, ownerName, email, phone, address, city, totalRooms, plan } = req.body;
+  const { hotelName, ownerName, email, phone, address, city, totalRooms, plan, password } = req.body;
+  if (!password) return next(new AppError('Password is required', 400));
+  
   const existingUser = await User.findOne({ email });
   if (existingUser) return next(new AppError('Email already registered as a user', 400));
-  const existingReg = await Registration.findOne({ email });
-  if (existingReg) return next(new AppError('A registration with this email already exists', 400));
+  
+  const existingHotel = await require('../models/Hotel').findOne({ email });
+  if (existingHotel) return next(new AppError('A hotel with this email already exists', 400));
 
-  const reg = await Registration.create({
-    hotelName, ownerName, email, phone, address, city, totalRooms, plan
+  const existingReg = await Registration.findOne({ email });
+  if (existingReg) return next(new AppError('A registration with this email is already pending', 400));
+
+  const documentPath = req.file ? req.file.filename : null;
+
+  const registration = await Registration.create({
+    hotelName,
+    ownerName,
+    email,
+    phone,
+    address,
+    city,
+    totalRooms,
+    plan: plan || 'starter',
+    password,
+    document: documentPath,
+    status: 'pending'
   });
-  sendSuccess(res, reg, 201);
+
+  sendSuccess(res, { message: 'Registration submitted successfully. Pending admin approval.', registration }, 201);
 });
 
 exports.getMe = asyncHandler(async (req, res) => {
