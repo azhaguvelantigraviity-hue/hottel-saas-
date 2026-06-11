@@ -507,7 +507,7 @@ const RegistrationModal = ({ onClose }) => {
             <div style={{ display: 'flex', gap: '12px', marginTop: '16px' }}>
               <button type="button" onClick={onClose} style={{ flex: 1, padding: '10px', background: 'transparent', border: '1px solid var(--border)', color: 'var(--text)', borderRadius: '6px', cursor: 'pointer' }}>Cancel</button>
               <button type="submit" disabled={loading} style={{ flex: 1, padding: '10px', background: 'linear-gradient(135deg,#C9A84C,#8A6F2E)', border: 'none', color: '#fff', borderRadius: '6px', cursor: loading ? 'wait' : 'pointer', fontWeight: '600' }}>
-                {loading ? 'Submitting...' : 'Start 24-Hour Free Trial'}
+                {loading ? 'Submitting...' : 'Start Free Trial'}
               </button>
             </div>
           </form>
