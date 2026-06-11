@@ -142,6 +142,47 @@ exports.updateHotel = asyncHandler(async (req, res, next) => {
   sendSuccess(res, hotel);
 });
 
+exports.createManagerCredentialsForHotel = asyncHandler(async (req, res, next) => {
+  const hotel = await Hotel.findById(req.params.id);
+  if (!hotel) return next(new (require('../utils/helpers').AppError)('Hotel not found', 404));
+
+  if (hotel.owner) {
+    return next(new (require('../utils/helpers').AppError)('Hotel already has a manager assigned.', 400));
+  }
+
+  const { mName, mUsername, mEmail, mPhone, mPassword } = req.body;
+  if (!mName || !mUsername || !mEmail || !mPhone || !mPassword) {
+    return next(new (require('../utils/helpers').AppError)('Manager credentials are required.', 400));
+  }
+
+  const existingUser = await User.findOne({ $or: [{ email: mEmail }, { username: mUsername }] });
+  if (existingUser) return next(new (require('../utils/helpers').AppError)('User with this email or username already exists', 400));
+
+  // Create User
+  const manager = await User.create({
+    name: mName,
+    username: mUsername,
+    email: mEmail,
+    phone: mPhone,
+    password: mPassword,
+    role: 'hotel_admin',
+    hotel: hotel._id
+  });
+
+  // Link to Hotel
+  hotel.owner = manager._id;
+  hotel.adminCredentials = {
+    email: mEmail,
+    username: mUsername,
+    password: mPassword
+  };
+  await hotel.save();
+
+  await createAuditLog(req, 'Created Manager Credentials', hotel.name, `Manager ${mEmail} assigned.`, 'success');
+
+  sendSuccess(res, { message: 'Manager credentials created successfully.', hotel });
+});
+
 exports.updateSubscription = asyncHandler(async (req, res, next) => {
   const { plan, planStatus, planRenewalDate, adminNotes } = req.body;
   

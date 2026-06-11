@@ -2,7 +2,8 @@ import React, { useState, useEffect } from 'react';
 import Avatar from '../components/Avatar';
 import Badge from '../components/Badge';
 import Icon from '../components/Icon';
-import { createHotel, getHotel, getAllHotels, updateHotel, deleteHotel } from '../services/adminService';
+import { createHotel, getHotel, getAllHotels, updateHotel, deleteHotel, createManagerCredentials } from '../services/adminService';
+import ManagerCredentialsModal from '../components/ManagerCredentialsModal';
 
 const PLANS = {
   starter: { id: 'starter', name: 'Starter', accent: '#6B7280', features: ['Dashboard', 'Room Management', 'Bookings', 'Billing'] },
@@ -204,7 +205,7 @@ const HotelDetailModal = ({ hotel, onClose, onEdit }) => {
 };
 
 // ── Edit Hotel Modal ──────────────────────────────────────────
-const EditHotelModal = ({ hotel, onClose, onSave }) => {
+const EditHotelModal = ({ hotel, onClose, onSave, onCreateCredentials }) => {
   const [form, setForm] = useState({
     name:      hotel.name,
     city:      hotel.city,
@@ -245,6 +246,14 @@ const EditHotelModal = ({ hotel, onClose, onSave }) => {
         </div>
 
         <div style={{ padding: 'clamp(12px, 3vw, 24px)', display: 'flex', flexDirection: 'column', gap: '14px' }}>
+          {!hotel.hasManagerCredentials && (
+            <div style={{ padding: '12px', background: 'rgba(20, 184, 166, 0.1)', border: '1px solid rgba(20, 184, 166, 0.2)', borderRadius: '8px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <span style={{ fontSize: '13px', color: 'var(--teal)', fontWeight: '500' }}>This hotel has no manager credentials.</span>
+              <button onClick={() => onCreateCredentials(hotel)} style={{ padding: '6px 12px', background: 'var(--teal)', color: '#fff', border: 'none', borderRadius: '6px', fontSize: '12px', fontWeight: '600', cursor: 'pointer' }}>
+                Create Credentials
+              </button>
+            </div>
+          )}
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 300px), 1fr))', gap: '12px' }}>
             <div style={{ gridColumn: 'span 2' }}>
               <label style={lbl}>HOTEL NAME</label>
@@ -519,6 +528,19 @@ const AdminHotels = () => {
   const [viewHotel, setViewHotel] = useState(null);
   const [editHotel, setEditHotel] = useState(null);
   const [showAdd, setShowAdd] = useState(false);
+  const [creatingCredentialsFor, setCreatingCredentialsFor] = useState(null);
+
+  const handleCreateCredentialsSubmit = async (hotelId, credentials) => {
+    try {
+      await createManagerCredentials(hotelId, credentials);
+      alert('Manager credentials created successfully!');
+      setCreatingCredentialsFor(null);
+      fetchHotels(); // Refresh list to update hasManagerCredentials
+    } catch (err) {
+      alert(err.response?.data?.message || err.message || 'Failed to create credentials');
+      throw err;
+    }
+  };
 
   useEffect(() => {
     fetchHotels();
@@ -542,6 +564,7 @@ const AdminHotels = () => {
           revenue: h.revenue || 0,
           avatar: h.name ? h.name.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase() : 'H',
           joined: h.createdAt ? new Date(h.createdAt).toISOString().slice(0, 10) : new Date().toISOString().slice(0, 10),
+          hasManagerCredentials: !!h.owner,
         }));
         setHotels(mapped);
       }

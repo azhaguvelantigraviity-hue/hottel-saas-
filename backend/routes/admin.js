@@ -1,7 +1,7 @@
 // src/routes/admin.js
 const router = require('express').Router();
 const {
-  getDashboard, getAllHotels, getHotel, createHotel, updateHotel,
+  getDashboard, getAllHotels, getHotel, createHotel, updateHotel, createManagerCredentialsForHotel,
   updateSubscription, deleteHotel, getPlatformRevenue, getAuditLogs,
   getAllUsers, createUser, updateUser, deleteUser, getPlatformStats,
   getRenewalAlerts, getRoles, createRole, updateRole, deleteRole
@@ -16,6 +16,7 @@ router.get  ('/hotels',                  getAllHotels);
 router.post ('/hotels',                  createHotel);
 router.get  ('/hotels/:id',              getHotel);
 router.put  ('/hotels/:id',              updateHotel);
+router.post ('/hotels/:id/manager-credentials', createManagerCredentialsForHotel);
 router.put  ('/hotels/:id/subscription', updateSubscription);
 router.delete('/hotels/:id',             deleteHotel);
 router.get  ('/revenue',                 getPlatformRevenue);

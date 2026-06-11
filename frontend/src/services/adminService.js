@@ -19,10 +19,11 @@ export const updateRole        = (id, data)  => put(`/admin/roles/${id}`, data);
 export const deleteRole        = (id)        => del(`/admin/roles/${id}`);
 
 export const getAllHotels       = ()          => get('/admin/hotels');
-export const getHotel          = (id)        => get(`/admin/hotels/${id}`);
-export const createHotel       = (body)      => post('/admin/hotels', body);
-export const updateHotel       = (id, body)  => put(`/admin/hotels/${id}`, body);
-export const deleteHotel       = (id)        => del(`/admin/hotels/${id}`);
+export const createHotel       = (data)    => post('/admin/hotels', data);
+export const getHotel          = (id)      => get(`/admin/hotels/${id}`);
+export const updateHotel       = (id, data)=> put(`/admin/hotels/${id}`, data);
+export const createManagerCredentials = (id, data) => post(`/admin/hotels/${id}/manager-credentials`, data);
+export const deleteHotel       = (id)      => del(`/admin/hotels/${id}`);
 export const updateSubscription= (id, body)  => put(`/admin/hotels/${id}/subscription`, body);
 
 export const getPlans          = ()          => get('/admin/plans');
