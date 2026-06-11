@@ -185,7 +185,7 @@ const HotelApp = ({ onLogout, initialPlan = 'enterprise', role = 'manager', hote
       );
     }
     switch (page) {
-      case 'dashboard': return <HotelDashboard plan={plan} onNav={setPage} />;
+      case 'dashboard': return <HotelDashboard plan={plan} onNav={setPage} hotelDetails={hotelDetails} />;
       case 'rooms': return <RoomsPage onNav={setPage} role={role} hotelDetails={hotelDetails} />;
       case 'bookings': return <BookingsPage />;
       case 'checkin': return <CheckInOutPage />;

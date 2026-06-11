@@ -56,7 +56,7 @@ const HousekeepingTable = memo(({ rooms, onHousekeepingChange }) => (
   </div>
 ));
 
-const HotelDashboard = ({ plan, onNav }) => {
+const HotelDashboard = ({ plan, onNav, hotelDetails }) => {
   const [data, setData] = useState({
     rooms: [],
     revenueData: null,
@@ -159,10 +159,39 @@ const HotelDashboard = ({ plan, onNav }) => {
 
   const { rooms, revenueData, bookings, checkins, checkouts, pendingPayments, maintenance } = data;
 
+  const isTrial = hotelDetails?.planStatus === 'trial';
+  const trialEndDate = isTrial && hotelDetails?.trialEndDate ? new Date(hotelDetails.trialEndDate) : null;
+  const trialDaysLeft = trialEndDate ? Math.ceil((trialEndDate.getTime() - Date.now()) / (1000 * 60 * 60 * 24)) : 0;
+  // Fallback to ~2 days ago if start date isn't saved.
+  const trialStartDate = trialEndDate ? new Date(trialEndDate.getTime() - 2 * 24 * 60 * 60 * 1000) : null;
+
   return (
     <div style={{ padding: 'clamp(16px, 4vw, 32px)', overflowY: 'auto', flex: 1 }}>
       {toast && <Toast type={toast.type} message={toast.message} onClose={() => setToast(null)} />}
       
+      {isTrial && trialEndDate && (
+        <div style={{ background: 'linear-gradient(135deg, rgba(201,168,76,0.1), rgba(138,111,46,0.1))', border: '1px solid var(--gold)', borderRadius: '12px', padding: '16px 24px', marginBottom: '24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '16px' }}>
+          <div>
+            <h3 style={{ fontSize: '18px', color: 'var(--gold)', marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <Icon name="clock" size={20} /> Free Trial Active
+            </h3>
+            <p style={{ color: 'var(--text2)', fontSize: '14px', margin: 0 }}>
+              Your {hotelDetails?.plan} plan trial ends on <strong>{trialEndDate.toLocaleDateString()}</strong>.
+            </p>
+          </div>
+          <div style={{ display: 'flex', gap: '24px', textAlign: 'center' }}>
+            <div>
+              <div style={{ fontSize: '12px', color: 'var(--text3)' }}>Start Date</div>
+              <div style={{ fontSize: '15px', fontWeight: '600', color: 'var(--text)' }}>{trialStartDate?.toLocaleDateString()}</div>
+            </div>
+            <div>
+              <div style={{ fontSize: '12px', color: 'var(--text3)' }}>Days Remaining</div>
+              <div style={{ fontSize: '24px', fontWeight: '700', color: trialDaysLeft <= 1 ? 'var(--rose)' : 'var(--gold)', lineHeight: 1 }}>{trialDaysLeft}</div>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Top Stat Cards */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 240px), 1fr))', gap: '16px', marginBottom: '28px' }}>
         <StatCard icon="bed" iconColor="#2DD4BF" label="Total Rooms" value={rooms.length} sub={`${occupied} occupied`} trend={0} />

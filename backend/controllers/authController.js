@@ -90,7 +90,7 @@ exports.registerHotel = asyncHandler(async (req, res, next) => {
     console.error('Failed to send admin notification for registration:', err);
   }
 
-  sendSuccess(res, { message: 'Registration submitted successfully. Pending admin approval.', registration }, 201);
+  sendSuccess(res, { message: 'Pending Approval + Free Trial Requested.', registration }, 201);
 });
 
 exports.getMe = asyncHandler(async (req, res) => {

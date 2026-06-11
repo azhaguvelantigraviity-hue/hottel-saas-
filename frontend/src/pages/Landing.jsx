@@ -413,7 +413,7 @@ const RegistrationModal = ({ onClose }) => {
               <Icon name="check" size={24} color="#34D399" />
             </div>
             <h3 style={{ fontSize: '18px', marginBottom: '8px' }}>Registration Submitted!</h3>
-            <p style={{ color: 'var(--text2)', fontSize: '14px', marginBottom: '24px' }}>Your request is pending admin approval. You will be notified once it is approved.</p>
+            <p style={{ color: 'var(--text2)', fontSize: '14px', marginBottom: '24px' }}>Your request is Pending Approval + Free Trial Requested. You will be notified once it is approved.</p>
             <button onClick={onClose} style={{ padding: '10px 24px', background: 'linear-gradient(135deg,#C9A84C,#8A6F2E)', color: '#fff', border: 'none', borderRadius: '6px', cursor: 'pointer' }}>Close</button>
           </div>
         ) : (
@@ -495,7 +495,7 @@ const RegistrationModal = ({ onClose }) => {
             <div style={{ display: 'flex', gap: '12px', marginTop: '16px' }}>
               <button type="button" onClick={onClose} style={{ flex: 1, padding: '10px', background: 'transparent', border: '1px solid var(--border)', color: 'var(--text)', borderRadius: '6px', cursor: 'pointer' }}>Cancel</button>
               <button type="submit" disabled={loading} style={{ flex: 1, padding: '10px', background: 'linear-gradient(135deg,#C9A84C,#8A6F2E)', border: 'none', color: '#fff', borderRadius: '6px', cursor: loading ? 'wait' : 'pointer', fontWeight: '600' }}>
-                {loading ? 'Submitting...' : 'Submit Request'}
+                {loading ? 'Submitting...' : 'Start Free Trial'}
               </button>
             </div>
           </form>
