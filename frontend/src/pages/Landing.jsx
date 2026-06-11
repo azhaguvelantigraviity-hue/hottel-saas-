@@ -205,7 +205,7 @@ const Landing = ({ onLogin, theme, setTheme }) => {
             transition: 'all 0.3s',
           }}
         >
-          Start 2-Day Free Trial
+          Start 24-Hour Free Trial
         </button>
       </div>
 
