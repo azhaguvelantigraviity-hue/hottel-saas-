@@ -72,6 +72,23 @@ exports.registerHotel = asyncHandler(async (req, res, next) => {
     status: 'pending'
   });
 
+  try {
+    const AdminNotification = require('../models/AdminNotification');
+    const adminNotif = await AdminNotification.create({
+      type: 'system',
+      title: 'New Hotel Registration',
+      message: `${hotelName} (${ownerName}) has requested registration for the ${plan} plan.`,
+      status: 'unread'
+    });
+
+    const io = req.app.get('io');
+    if (io) {
+      io.to('adminRoom').emit('newAdminNotification', adminNotif);
+    }
+  } catch (err) {
+    console.error('Failed to send admin notification for registration:', err);
+  }
+
   sendSuccess(res, { message: 'Registration submitted successfully. Pending admin approval.', registration }, 201);
 });
 
