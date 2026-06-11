@@ -104,15 +104,27 @@ const AdminNotifications = () => {
   const handleViewDetails = async (notif) => {
     setSelectedNotification(notif);
     setRegistrationDetails(null);
-    if (notif.title === 'New Hotel Registration' && notif.metadata?.registrationId) {
+    if (notif.title === 'New Hotel Registration') {
       try {
         const res = await adminService.getRegistrations();
         if (res && res.data) {
-          const reg = res.data.find(r => r._id === notif.metadata.registrationId);
-          if (reg) setRegistrationDetails(reg);
+          let reg = null;
+          if (notif.metadata?.registrationId) {
+            reg = res.data.find(r => r._id === notif.metadata.registrationId);
+          } else {
+            // Fallback for legacy notifications
+            reg = res.data.find(r => notif.message.includes(r.hotelName) && notif.message.includes(r.ownerName));
+          }
+          
+          if (reg) {
+            setRegistrationDetails(reg);
+          } else {
+            setRegistrationDetails({ notFound: true });
+          }
         }
       } catch (err) {
         console.error('Failed to fetch registration details', err);
+        setRegistrationDetails({ notFound: true });
       }
     }
   };
@@ -345,27 +357,33 @@ const AdminNotifications = () => {
               <div style={{ marginTop: '1rem' }}>
                 <h3 style={{ fontSize: '1.1rem', fontWeight: '600', marginBottom: '1rem', color: 'var(--text)' }}>Registration Details</h3>
                 {registrationDetails ? (
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', fontSize: '0.9rem', color: 'var(--text2)' }}>
-                    <div><strong>Hotel Name:</strong> {registrationDetails.hotelName}</div>
-                    <div><strong>Owner Name:</strong> {registrationDetails.ownerName}</div>
-                    <div><strong>Email:</strong> {registrationDetails.email}</div>
-                    <div><strong>Phone:</strong> {registrationDetails.phone}</div>
-                    <div><strong>City:</strong> {registrationDetails.city}</div>
-                    <div><strong>Rooms:</strong> {registrationDetails.totalRooms}</div>
-                    <div><strong>Plan:</strong> {registrationDetails.plan}</div>
-                    <div><strong>Status:</strong> <span style={{ color: registrationDetails.status === 'pending' ? 'var(--gold)' : (registrationDetails.status === 'approved' ? 'var(--teal)' : 'var(--rose)') }}>{registrationDetails.status}</span></div>
-                    <div style={{ gridColumn: 'span 2' }}><strong>Address:</strong> {registrationDetails.address}</div>
-                    {registrationDetails.document && (
-                      <div style={{ gridColumn: 'span 2' }}>
-                        <strong>Document:</strong> <a href={`http://localhost:5000/uploads/documents/${registrationDetails.document}`} target="_blank" rel="noreferrer" style={{ color: 'var(--brand)', textDecoration: 'underline' }}>View Document</a>
-                      </div>
-                    )}
-                  </div>
+                  registrationDetails.notFound ? (
+                    <div style={{ color: 'var(--rose)', padding: '1rem', background: 'rgba(244,63,94,0.1)', borderRadius: '8px' }}>
+                      Registration data is not available. It may have already been processed, deleted, or this is a legacy notification.
+                    </div>
+                  ) : (
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', fontSize: '0.9rem', color: 'var(--text2)' }}>
+                      <div><strong>Hotel Name:</strong> {registrationDetails.hotelName}</div>
+                      <div><strong>Owner Name:</strong> {registrationDetails.ownerName}</div>
+                      <div><strong>Email:</strong> {registrationDetails.email}</div>
+                      <div><strong>Phone:</strong> {registrationDetails.phone}</div>
+                      <div><strong>City:</strong> {registrationDetails.city}</div>
+                      <div><strong>Rooms:</strong> {registrationDetails.totalRooms}</div>
+                      <div><strong>Plan:</strong> {registrationDetails.plan}</div>
+                      <div><strong>Status:</strong> <span style={{ color: registrationDetails.status === 'pending' ? 'var(--gold)' : (registrationDetails.status === 'approved' ? 'var(--teal)' : 'var(--rose)') }}>{registrationDetails.status}</span></div>
+                      <div style={{ gridColumn: 'span 2' }}><strong>Address:</strong> {registrationDetails.address}</div>
+                      {registrationDetails.document && (
+                        <div style={{ gridColumn: 'span 2' }}>
+                          <strong>Document:</strong> <a href={`http://localhost:5000/uploads/documents/${registrationDetails.document}`} target="_blank" rel="noreferrer" style={{ color: 'var(--brand)', textDecoration: 'underline' }}>View Document</a>
+                        </div>
+                      )}
+                    </div>
+                  )
                 ) : (
                   <div style={{ color: 'var(--text3)' }}>Loading registration data...</div>
                 )}
 
-                {registrationDetails && registrationDetails.status === 'pending' && (
+                {registrationDetails && !registrationDetails.notFound && registrationDetails.status === 'pending' && (
                   <div style={{ display: 'flex', gap: '1rem', marginTop: '2rem' }}>
                     <button 
                       onClick={() => handleApproveRegistration(registrationDetails._id)}
