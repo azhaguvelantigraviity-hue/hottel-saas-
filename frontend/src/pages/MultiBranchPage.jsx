@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import StatCard from '../components/StatCard';
 import Avatar from '../components/Avatar';
 import Icon from '../components/Icon';
-import { getAllBranches, createBranch, updateBranch, deleteBranch } from '../services/adminService';
+import { getAllBranches, createBranch, updateBranch, deleteBranch, getAllHotels } from '../services/adminService';
 
 // The consolidated, policies, transfers data is mocked since it's outside the scope of the branch CRUD, but we keep them to prevent breaking tabs
 const CONSOLIDATED = [];
@@ -13,6 +13,7 @@ const TABS = ['Branch Overview', 'Consolidated Reports', 'Branch Comparison', 'C
 const MultiBranchPage = () => {
   const [tab, setTab] = useState(0);
   const [branches, setBranches] = useState([]);
+  const [hotelsList, setHotelsList] = useState([]);
   
   // Modal State
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -20,12 +21,22 @@ const MultiBranchPage = () => {
   const [isViewing, setIsViewing] = useState(false);
   const [currentBranchId, setCurrentBranchId] = useState(null);
   const [formData, setFormData] = useState({
-    name: '', hotelName: '', location: '', managerName: '', phone: '', email: '', totalRooms: 0, status: 'active'
+    name: '', hotelId: '', hotelName: '', location: '', managerName: '', phone: '', email: '', totalRooms: 0, status: 'active', plan: '', planStatus: ''
   });
 
   useEffect(() => {
     fetchBranches();
+    fetchHotels();
   }, []);
+
+  const fetchHotels = async () => {
+    try {
+      const res = await getAllHotels();
+      if (res.data) setHotelsList(res.data);
+    } catch (err) {
+      console.error('Failed to fetch hotels', err);
+    }
+  };
 
   const fetchBranches = async () => {
     try {
@@ -42,16 +53,16 @@ const MultiBranchPage = () => {
       setIsViewing(viewing);
       setCurrentBranchId(branch._id);
       setFormData({
-        name: branch.name, hotelName: branch.hotelName, location: branch.location,
+        name: branch.name, hotelId: branch.hotelId || '', hotelName: branch.hotelName, location: branch.location,
         managerName: branch.managerName, phone: branch.phone, email: branch.email,
-        totalRooms: branch.totalRooms, status: branch.status
+        totalRooms: branch.totalRooms, status: branch.status, plan: branch.plan || '', planStatus: branch.planStatus || ''
       });
     } else {
       setIsEditing(false);
       setIsViewing(false);
       setCurrentBranchId(null);
       setFormData({
-        name: '', hotelName: '', location: '', managerName: '', phone: '', email: '', totalRooms: 0, status: 'active'
+        name: '', hotelId: '', hotelName: '', location: '', managerName: '', phone: '', email: '', totalRooms: 0, status: 'active', plan: '', planStatus: ''
       });
     }
     setIsModalOpen(true);
@@ -65,6 +76,30 @@ const MultiBranchPage = () => {
       setFormData(prev => ({ ...prev, [name]: value.replace(/\D/g, '').slice(0, 10) }));
     } else {
       setFormData(prev => ({ ...prev, [name]: value }));
+    }
+  };
+
+  const handleHotelChange = (e) => {
+    const selectedHotelId = e.target.value;
+    const selectedHotel = hotelsList.find(h => h._id === selectedHotelId);
+    if (selectedHotel) {
+      setFormData(prev => ({
+        ...prev,
+        hotelId: selectedHotel._id,
+        hotelName: selectedHotel.name,
+        managerName: selectedHotel.owner ? selectedHotel.owner.name : '',
+        plan: selectedHotel.plan || '',
+        planStatus: selectedHotel.planStatus || ''
+      }));
+    } else {
+      setFormData(prev => ({
+        ...prev,
+        hotelId: '',
+        hotelName: '',
+        managerName: '',
+        plan: '',
+        planStatus: ''
+      }));
     }
   };
 
@@ -195,11 +230,31 @@ const MultiBranchPage = () => {
                   <input required name="name" value={formData.name} onChange={handleInputChange} style={inputStyle} placeholder="e.g. Downtown Branch" readOnly={isViewing} />
                 </div>
                 <div>
-                  <label style={{ display: 'block', fontSize: '12px', color: 'var(--text2)', marginBottom: '4px' }}>Hotel Name</label>
-                  <input required name="hotelName" value={formData.hotelName} onChange={handleInputChange} style={inputStyle} placeholder="e.g. Grand Resort" readOnly={isViewing} />
+                  <label style={{ display: 'block', fontSize: '12px', color: 'var(--text2)', marginBottom: '4px' }}>Hotel</label>
+                  {isViewing ? (
+                    <input name="hotelName" value={formData.hotelName} style={inputStyle} readOnly />
+                  ) : (
+                    <select required name="hotelId" value={formData.hotelId} onChange={handleHotelChange} style={inputStyle}>
+                      <option value="">Select a Hotel...</option>
+                      {hotelsList.map(h => (
+                        <option key={h._id} value={h._id}>{h.name}</option>
+                      ))}
+                    </select>
+                  )}
                 </div>
               </div>
               
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '12px' }}>
+                <div>
+                  <label style={{ display: 'block', fontSize: '12px', color: 'var(--text2)', marginBottom: '4px' }}>Plan Details</label>
+                  <input name="plan" value={formData.plan} style={{ ...inputStyle, background: 'var(--card)', color: 'var(--text3)', marginBottom: '0' }} placeholder="Auto-filled" readOnly />
+                </div>
+                <div>
+                  <label style={{ display: 'block', fontSize: '12px', color: 'var(--text2)', marginBottom: '4px' }}>Plan Status</label>
+                  <input name="planStatus" value={formData.planStatus} style={{ ...inputStyle, background: 'var(--card)', color: 'var(--text3)', marginBottom: '0' }} placeholder="Auto-filled" readOnly />
+                </div>
+              </div>
+
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
                 <div>
                   <label style={{ display: 'block', fontSize: '12px', color: 'var(--text2)', marginBottom: '4px' }}>Location</label>

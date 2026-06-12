@@ -2,6 +2,7 @@ const mongoose = require('mongoose');
 
 const BranchSchema = new mongoose.Schema({
   name: { type: String, required: true, trim: true },
+  hotelId: { type: mongoose.Schema.Types.ObjectId, ref: 'Hotel' },
   hotelName: { type: String, required: true, trim: true },
   location: { type: String, required: true, trim: true },
   managerName: { type: String, trim: true },
