@@ -127,7 +127,7 @@ const Sidebar = ({ role, active, onNav, onLogout, plan, isOpen, setIsOpen }) => 
           height: '100vh', position: 'sticky', top: 0,
           borderRight: '1px solid var(--sidebar-border)',
           zIndex: 9999,
-          transition: 'transform 0.3s ease',
+          transition: 'all 0.3s ease',
         }}
       >
       {/* Logo */}

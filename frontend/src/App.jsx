@@ -69,7 +69,7 @@ const AdminApp = ({ onLogout }) => {
   const location = useLocation();
   const pathParts = location.pathname.split('/');
   const page = pathParts[2] || 'dashboard';
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(() => window.innerWidth > 1024);
 
   const setPage = (newPage) => navigate(`/admin/${newPage}`);
 
@@ -98,7 +98,7 @@ const AdminApp = ({ onLogout }) => {
     <div style={{ display: 'flex', height: '100vh', background: 'var(--bg)' }}>
       <Sidebar role="admin" active={page} onNav={setPage} onLogout={onLogout} isOpen={isSidebarOpen} setIsOpen={setIsSidebarOpen} />
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
-        <Topbar title={titles[page] || 'Admin'} subtitle="StayOS Platform Administration" role="admin" onNav={setPage} toggleSidebar={() => setIsSidebarOpen(true)} />
+        <Topbar title={titles[page] || 'Admin'} subtitle="StayOS Platform Administration" role="admin" onNav={setPage} toggleSidebar={() => setIsSidebarOpen(p => !p)} />
         <div style={{ flex: 1, overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
           {pages[page] || pages.dashboard}
         </div>
@@ -114,7 +114,7 @@ const HotelApp = ({ onLogout, initialPlan = 'enterprise', role = 'manager', hote
   const location = useLocation();
   const pathParts = location.pathname.split('/');
   const page = pathParts[2] || 'dashboard';
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(() => window.innerWidth > 1024);
 
   const setPage = (newPage) => navigate(`/hotel/${newPage}`);
   const plan = initialPlan;
@@ -230,7 +230,7 @@ const HotelApp = ({ onLogout, initialPlan = 'enterprise', role = 'manager', hote
           role={role}
           onNav={setPage}
           hotelDetails={hotelDetails}
-          toggleSidebar={() => setIsSidebarOpen(true)}
+          toggleSidebar={() => setIsSidebarOpen(p => !p)}
         />
         <div style={{ flex: 1, overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
           {getPage()}

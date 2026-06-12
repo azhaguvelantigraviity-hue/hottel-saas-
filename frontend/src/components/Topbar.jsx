@@ -56,10 +56,8 @@ const Topbar = ({ title, subtitle, role, onNav, toggleSidebar }) => {
       <div style={{ display: 'flex', alignItems: 'center', gap: '10px', minWidth: 0, flex: 1 }}>
         {toggleSidebar && (
           <button 
-            className="mobile-block"
             onClick={toggleSidebar}
             style={{
-              display: 'none',
               background: 'transparent', border: 'none', cursor: 'pointer',
               padding: '4px', color: 'var(--text)',
             }}

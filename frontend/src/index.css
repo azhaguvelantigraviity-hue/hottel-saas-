@@ -299,9 +299,15 @@ table {
   
   .responsive-grid { grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); }
   
-  /* Sidebar is static */
-  .sidebar-closed, .sidebar-open {
-    position: sticky !important;
-    transform: none !important;
+  /* Sidebar toggle support */
+  .sidebar-closed {
+    margin-left: -220px;
+    opacity: 0;
+    visibility: hidden;
+  }
+  .sidebar-open {
+    margin-left: 0;
+    opacity: 1;
+    visibility: visible;
   }
 }
