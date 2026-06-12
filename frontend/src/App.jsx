@@ -98,7 +98,7 @@ const AdminApp = ({ onLogout }) => {
     <div style={{ display: 'flex', height: '100vh', background: 'var(--bg)' }}>
       <Sidebar role="admin" active={page} onNav={setPage} onLogout={onLogout} isOpen={isSidebarOpen} setIsOpen={setIsSidebarOpen} />
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
-        <Topbar title={titles[page] || 'Admin'} subtitle="StayOS Platform Administration" role="admin" onNav={setPage} toggleSidebar={() => setIsSidebarOpen(p => !p)} />
+        <Topbar title={titles[page] || 'Admin'} subtitle="StayOS Platform Administration" role="admin" onNav={setPage} toggleSidebar={() => setIsSidebarOpen(p => !p)} isSidebarOpen={isSidebarOpen} />
         <div style={{ flex: 1, overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
           {pages[page] || pages.dashboard}
         </div>
@@ -231,6 +231,7 @@ const HotelApp = ({ onLogout, initialPlan = 'enterprise', role = 'manager', hote
           onNav={setPage}
           hotelDetails={hotelDetails}
           toggleSidebar={() => setIsSidebarOpen(p => !p)}
+          isSidebarOpen={isSidebarOpen}
         />
         <div style={{ flex: 1, overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
           {getPage()}

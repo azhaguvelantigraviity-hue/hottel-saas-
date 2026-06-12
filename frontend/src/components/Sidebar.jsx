@@ -135,22 +135,31 @@ const Sidebar = ({ role, active, onNav, onLogout, plan, isOpen, setIsOpen }) => 
         padding: '20px 20px 16px',
         borderBottom: '1px solid var(--sidebar-border)',
         display: 'flex', alignItems: 'center', gap: '10px',
+        justifyContent: 'space-between'
       }}>
-        <div style={{
-          width: '34px', height: '34px',
-          background: 'linear-gradient(135deg, #6366F1, #4F46E5)',
-          borderRadius: '10px', display: 'flex', alignItems: 'center',
-          justifyContent: 'center', flexShrink: 0,
-          boxShadow: '0 4px 12px rgba(99,102,241,0.4)',
-        }}>
-          <span style={{ fontSize: '16px' }}>👑</span>
-        </div>
-        <div>
-          <div style={{ fontSize: '16px', fontWeight: '700', color: '#FFFFFF', letterSpacing: '-0.01em' }}>StayOS</div>
-          <div style={{ fontSize: '10px', color: 'var(--sidebar-text-muted)', letterSpacing: '0.08em', textTransform: 'uppercase' }}>
-            {role === 'admin' ? 'Platform Admin' : role === 'manager' ? 'Hotel Manager' : 'Reception Desk'}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+          <div style={{
+            width: '34px', height: '34px',
+            background: 'linear-gradient(135deg, #6366F1, #4F46E5)',
+            borderRadius: '10px', display: 'flex', alignItems: 'center',
+            justifyContent: 'center', flexShrink: 0,
+            boxShadow: '0 4px 12px rgba(99,102,241,0.4)',
+          }}>
+            <span style={{ fontSize: '16px' }}>👑</span>
+          </div>
+          <div>
+            <div style={{ fontSize: '16px', fontWeight: '700', color: '#FFFFFF', letterSpacing: '-0.01em' }}>StayOS</div>
+            <div style={{ fontSize: '10px', color: 'var(--sidebar-text-muted)', letterSpacing: '0.08em', textTransform: 'uppercase' }}>
+              {role === 'admin' ? 'Platform Admin' : role === 'manager' ? 'Hotel Manager' : 'Reception Desk'}
+            </div>
           </div>
         </div>
+        <button 
+          onClick={() => setIsOpen && setIsOpen(false)}
+          style={{ background: 'transparent', border: 'none', cursor: 'pointer', padding: '4px', color: '#C7D2FE', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+        >
+          <Icon name="menu" size={20} color="#C7D2FE" />
+        </button>
       </div>
 
       {/* Nav */}

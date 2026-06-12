@@ -6,7 +6,7 @@ import { getAllHotels } from '../services/adminService';
 import { getUser } from '../services/authService';
 import CheckoutAlertPopup from './CheckoutAlertPopup';
 
-const Topbar = ({ title, subtitle, role, onNav, toggleSidebar }) => {
+const Topbar = ({ title, subtitle, role, onNav, toggleSidebar, isSidebarOpen }) => {
   const [search, setSearch] = useState('');
   const [showNotifs, setShowNotifs] = useState(false);
   const [showUserMenu, setShowUserMenu] = useState(false);
@@ -54,7 +54,7 @@ const Topbar = ({ title, subtitle, role, onNav, toggleSidebar }) => {
     }}>
       {/* Left — Hamburger + Page title */}
       <div style={{ display: 'flex', alignItems: 'center', gap: '10px', minWidth: 0, flex: 1 }}>
-        {toggleSidebar && (
+        {toggleSidebar && !isSidebarOpen && (
           <button 
             onClick={toggleSidebar}
             style={{
