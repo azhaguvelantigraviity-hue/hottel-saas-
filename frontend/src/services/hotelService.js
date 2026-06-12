@@ -25,7 +25,7 @@ export const extendStay      = (id, data)    => post(`/hotel/bookings/${id}/exte
 export const changeRoom      = (id, data)    => post(`/hotel/bookings/${id}/change-room`, data);
 export const cancelBooking = (id, reason)  => post(`/hotel/bookings/${id}/cancel`, { reason });
 export const deleteBooking = (id)          => del('/hotel/bookings/' + id);
-export const lookupGuest   = (idNumber)    => get(`/hotel/bookings/guest-lookup?idNumber=${idNumber}`);
+export const lookupGuest   = (params)      => get(`/hotel/bookings/guest-lookup?${new URLSearchParams(params)}`);
 
 // ── Guests / CRM ──────────────────────────────────────────────
 export const getGuests   = (params = {}) => get(`/hotel/guests?${new URLSearchParams(params)}`);

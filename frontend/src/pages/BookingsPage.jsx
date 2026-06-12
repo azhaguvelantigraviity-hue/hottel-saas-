@@ -105,34 +105,27 @@ const NewBookingForm = ({ onClose, onSave }) => {
   const [availableRooms, setAvailableRooms] = useState([]);
   const [guestFound, setGuestFound] = useState(false);
 
-  useEffect(() => {
-    const fetchGuest = async () => {
-      if (form.idNumber && form.idNumber.length >= 5) {
-        try {
-          const res = await api.lookupGuest(form.idNumber);
-          if (res.data) {
-            setGuestFound(true);
-            setForm(f => ({
-              ...f,
-              guest: `${res.data.firstName || ''} ${res.data.lastName || ''}`.trim() || f.guest,
-              phone: res.data.phone || f.phone,
-              email: res.data.email || f.email,
-              address: res.data.address || f.address,
-              idType: res.data.idType || f.idType,
-            }));
-          } else {
-            setGuestFound(false);
-          }
-        } catch (e) {
-          setGuestFound(false);
-        }
+  const triggerLookup = async (params) => {
+    try {
+      const res = await api.lookupGuest(params);
+      if (res.data) {
+        setGuestFound(true);
+        setForm(f => ({
+          ...f,
+          guest: res.data.firstName ? `${res.data.firstName} ${res.data.lastName || ''}`.trim() : f.guest,
+          phone: res.data.phone || f.phone,
+          email: res.data.email || f.email,
+          address: res.data.address || f.address,
+          idType: res.data.idType || f.idType,
+          idNumber: res.data.idNumber || f.idNumber,
+        }));
       } else {
         setGuestFound(false);
       }
-    };
-    const timeout = setTimeout(fetchGuest, 500);
-    return () => clearTimeout(timeout);
-  }, [form.idNumber]);
+    } catch (e) {
+      setGuestFound(false);
+    }
+  };
 
   useEffect(() => {
     const loadRooms = async () => {
@@ -181,17 +174,24 @@ const NewBookingForm = ({ onClose, onSave }) => {
         </div>
         <div>
           <label style={labelStyle}>ID NUMBER (Auto-fill) {guestFound && <span style={{color: 'var(--green)', marginLeft: 4}}>✅ Found</span>}</label>
-          <input style={inputStyle} value={form.idNumber} onChange={e => set('idNumber', e.target.value)} placeholder="Enter ID to search..." />
+          <input style={inputStyle} value={form.idNumber} onChange={e => {
+            const val = e.target.value;
+            set('idNumber', val);
+            if (val.length >= 5) triggerLookup({ idNumber: val });
+            else setGuestFound(false);
+          }} placeholder="Enter ID to search..." />
         </div>
         <div>
           <label style={labelStyle}>GUEST NAME *</label>
           <input style={inputStyle} value={form.guest} onChange={e => set('guest', e.target.value)} placeholder="Full name" />
         </div>
         <div>
-          <label style={labelStyle}>PHONE</label>
+          <label style={labelStyle}>PHONE {guestFound && <span style={{color: 'var(--green)', marginLeft: 4}}>✅ Found</span>}</label>
           <input style={inputStyle} value={form.phone} onChange={e => {
             const val = e.target.value.replace(/\D/g, '').slice(0, 10);
             set('phone', val);
+            if (val.length === 10) triggerLookup({ phone: val });
+            else setGuestFound(false);
           }} placeholder="Mobile number (10 digits)" />
         </div>
         <div>

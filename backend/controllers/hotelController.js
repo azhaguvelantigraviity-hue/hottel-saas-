@@ -57,9 +57,14 @@ const findOrCreateGuest = async (body) => {
 };
 
 const searchGuestById = catchAsync(async (req, res) => {
-  const { idNumber } = req.query;
-  if (!idNumber) throw new AppError('idNumber query param is required', 400);
-  const guest = await Guest.findOne({ hotel: req.hotelId, idNumber });
+  const { idNumber, phone } = req.query;
+  if (!idNumber && !phone) throw new AppError('idNumber or phone query param is required', 400);
+  
+  let filter = { hotel: req.hotelId };
+  if (idNumber) filter.idNumber = idNumber;
+  else if (phone) filter.phone = phone;
+
+  const guest = await Guest.findOne(filter);
   sendSuccess(res, guest || null);
 });
 const resolveRoom = async (body) => {
