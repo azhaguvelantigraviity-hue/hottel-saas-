@@ -102,8 +102,8 @@ const Sidebar = ({ role, active, onNav, onLogout, plan, isOpen, setIsOpen }) => 
           </div>
         )}
         {locked && <span style={{ fontSize: '9px', opacity: 0.5 }}>🔒</span>}
-        {isActive && (
-          <div style={{ width: '4px', height: '4px', borderRadius: '50%', background: '#818CF8', flexShrink: 0 }} />
+        {!locked && (
+          <Icon name="chevron-right" size={14} color={isActive ? '#818CF8' : 'rgba(199,210,254,0.3)'} />
         )}
       </button>
     );
