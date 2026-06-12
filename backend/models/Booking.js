@@ -39,7 +39,8 @@ const BookingSchema = new mongoose.Schema({
   alertsSent: {
     nearCheckout: { type: Boolean, default: false },
     overdue:      { type: Boolean, default: false },
-    fifteenMinCheckout: { type: Boolean, default: false }
+    fifteenMinCheckout: { type: Boolean, default: false },
+    tenMinCheckout: { type: Boolean, default: false }
   },
 
   // ── Smart Check-In Process ─────────────────────────────────

@@ -157,9 +157,9 @@ const HotelApp = ({ onLogout, initialPlan = 'enterprise', role = 'manager', hote
     manager: Object.keys(titles), // Manager gets everything
     hotel_admin: Object.keys(titles),
     platform_admin: Object.keys(titles),
-    reception: ['dashboard', 'rooms', 'bookings', 'checkin', 'guests', 'billing', 'restaurant', 'laundry', 'attendance', 'complaints', 'settings', 'travel', 'travels'],
-    housekeeping: ['dashboard', 'housekeeping', 'maintenance', 'settings'],
-    hotel_staff: ['dashboard', 'settings']
+    reception: ['dashboard', 'notifications', 'rooms', 'bookings', 'checkin', 'guests', 'billing', 'restaurant', 'laundry', 'attendance', 'complaints', 'settings', 'travel', 'travels'],
+    housekeeping: ['dashboard', 'notifications', 'housekeeping', 'maintenance', 'settings'],
+    hotel_staff: ['dashboard', 'notifications', 'settings']
   };
 
   const currentRolePages = roleAllowedPages[role] || roleAllowedPages['hotel_staff'];

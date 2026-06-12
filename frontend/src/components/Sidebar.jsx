@@ -2,9 +2,15 @@ import React, { useState } from 'react';
 import Icon from './Icon';
 import Toast from './Toast';
 import { requestAdminHelp } from '../services/hotelService';
+import { useNotifications } from '../context/NotificationContext';
+import { useAdminNotifications } from '../context/AdminNotificationContext';
 
 const Sidebar = ({ role, active, onNav, onLogout, plan, isOpen, setIsOpen }) => {
   const [toast, setToast] = useState(null);
+
+  const hotelNotifs = useNotifications();
+  const adminNotifs = useAdminNotifications();
+  const { unreadCount } = role === 'admin' ? adminNotifs : hotelNotifs;
 
   const adminNav = [
     { id: 'dashboard', icon: 'dashboard', label: 'Dashboard' },
@@ -22,6 +28,7 @@ const Sidebar = ({ role, active, onNav, onLogout, plan, isOpen, setIsOpen }) => 
       label: 'MAIN MENU',
       items: [
         { id: 'dashboard', icon: 'dashboard', label: 'Dashboard',      plans: ['starter','professional','enterprise'] },
+        { id: 'notifications', icon: 'bell', label: 'Notifications',   plans: ['starter','professional','enterprise'] },
         { id: 'checkin',   icon: 'checkin',   label: 'Check-In/Out',   plans: ['starter','professional','enterprise'] },
         { id: 'rooms',     icon: 'bed',       label: 'Rooms',          plans: ['starter','professional','enterprise'] },
         { id: 'bookings',  icon: 'calendar',  label: 'Bookings',       plans: ['starter','professional','enterprise'] },
@@ -70,6 +77,7 @@ const Sidebar = ({ role, active, onNav, onLogout, plan, isOpen, setIsOpen }) => 
           transition: 'all 0.15s',
           background: isActive ? 'var(--sidebar-active-bg)' : 'transparent',
           color: isActive ? 'var(--sidebar-active-text)' : locked ? 'rgba(199,210,254,0.3)' : 'var(--sidebar-text)',
+          position: 'relative'
         }}
         onMouseEnter={e => { if (!isActive && !locked) e.currentTarget.style.background = 'rgba(255,255,255,0.06)'; }}
         onMouseLeave={e => { if (!isActive) e.currentTarget.style.background = 'transparent'; }}
@@ -80,6 +88,19 @@ const Sidebar = ({ role, active, onNav, onLogout, plan, isOpen, setIsOpen }) => 
           color={isActive ? '#FFFFFF' : locked ? 'rgba(199,210,254,0.3)' : '#A5B4FC'}
         />
         <span style={{ flex: 1, letterSpacing: '0.01em' }}>{item.label}</span>
+        {item.id === 'notifications' && unreadCount > 0 && (
+          <div style={{
+            background: 'var(--rose)',
+            color: '#fff',
+            fontSize: '10px',
+            fontWeight: 'bold',
+            padding: '2px 6px',
+            borderRadius: '10px',
+            marginLeft: 'auto'
+          }}>
+            {unreadCount > 99 ? '99+' : unreadCount}
+          </div>
+        )}
         {locked && <span style={{ fontSize: '9px', opacity: 0.5 }}>🔒</span>}
         {isActive && (
           <div style={{ width: '4px', height: '4px', borderRadius: '50%', background: '#818CF8', flexShrink: 0 }} />
@@ -141,7 +162,7 @@ const Sidebar = ({ role, active, onNav, onLogout, plan, isOpen, setIsOpen }) => 
             const isItemVisible = (itemId) => {
               if (role === 'manager') {
                 const managerPages = [
-                  'dashboard', 'checkin', 'rooms', 'bookings', 
+                  'dashboard', 'notifications', 'checkin', 'rooms', 'bookings', 
                   'housekeeping', 'attendance', 'restaurant', 
                   'maintenance', 'revenue', 
                   'employees', 'payroll', 'analytics', 'reports', 'settings'
@@ -149,15 +170,15 @@ const Sidebar = ({ role, active, onNav, onLogout, plan, isOpen, setIsOpen }) => 
                 return managerPages.includes(itemId);
               }
               if (role === 'staff') {
-                const staffPages = ['dashboard', 'settings'];
+                const staffPages = ['dashboard', 'notifications', 'settings'];
                 return staffPages.includes(itemId);
               }
               if (role === 'reception') {
-                const receptionPages = ['dashboard', 'rooms', 'bookings', 'checkin', 'guests', 'billing', 'restaurant', 'laundry', 'attendance', 'complaints', 'settings', 'travel', 'travels'];
+                const receptionPages = ['dashboard', 'notifications', 'rooms', 'bookings', 'checkin', 'guests', 'billing', 'restaurant', 'laundry', 'attendance', 'complaints', 'settings', 'travel', 'travels'];
                 return receptionPages.includes(itemId);
               }
               if (role === 'housekeeping') {
-                const hkPages = ['dashboard', 'housekeeping', 'maintenance', 'settings'];
+                const hkPages = ['dashboard', 'notifications', 'housekeeping', 'maintenance', 'settings'];
                 return hkPages.includes(itemId);
               }
               return true;

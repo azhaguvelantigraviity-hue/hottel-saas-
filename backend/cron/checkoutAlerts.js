@@ -66,6 +66,32 @@ const checkOutAlerts = async (app) => {
       await booking.save();
     }
 
+    // 1.8 10-Minute Checkout Reminder Notification
+    const tenMinFromNow = new Date(now.getTime() + 10 * 60 * 1000);
+    const tenMinCheckouts = await Booking.find({
+      status: 'checked_in',
+      checkOutDateTime: { $lte: tenMinFromNow, $gt: now },
+      'alertsSent.tenMinCheckout': false
+    }).populate('room guest');
+
+    for (const booking of tenMinCheckouts) {
+      if (booking.room && booking.guest) {
+        await emitNotification(reqMock, {
+          hotel: booking.hotel,
+          title: 'Checkout Reminder',
+          desc: `Guest ${booking.guest.name} in Room ${booking.room.roomNumber} is checking out in 10 minutes (${new Date(booking.checkOutDateTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })})`,
+          type: 'booking',
+          icon: 'clock',
+          color: 'var(--amber)',
+          targetRoles: ['hotel_admin', 'receptionist'],
+          relatedRoom: booking.room.roomNumber
+        });
+      }
+      booking.alertsSent = booking.alertsSent || {};
+      booking.alertsSent.tenMinCheckout = true;
+      await booking.save();
+    }
+
     // 2. Overdue Checkout Alerts (time passed)
     const overdueCheckouts = await Booking.find({
       status: 'checked_in',
