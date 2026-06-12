@@ -31,15 +31,37 @@ const findOrCreateGuest = async (body) => {
   let lastName  = parts.slice(1).join(' ').trim();
   if (!lastName) lastName = 'Guest'; // Provide default to pass validation
 
-  let guest = await Guest.findOne({ hotel: body.hotel, firstName, lastName });
+  // Try to find by idNumber first if provided
+  let guest;
+  if (body.idNumber) {
+    guest = await Guest.findOne({ hotel: body.hotel, idNumber: body.idNumber });
+  }
+  if (!guest) {
+    guest = await Guest.findOne({ hotel: body.hotel, firstName, lastName });
+  }
+  
   if (!guest) {
     guest = await Guest.create({
       hotel: body.hotel, firstName, lastName,
       phone: body.phone || '', email: body.email || '',
+      idType: body.idType || 'aadhaar', idNumber: body.idNumber || '', address: body.address || ''
     });
+  } else {
+    let needsUpdate = false;
+    if (body.idNumber && !guest.idNumber) { guest.idNumber = body.idNumber; guest.idType = body.idType || 'aadhaar'; needsUpdate = true; }
+    if (body.address && !guest.address) { guest.address = body.address; needsUpdate = true; }
+    if (body.phone && !guest.phone) { guest.phone = body.phone; needsUpdate = true; }
+    if (needsUpdate) await guest.save();
   }
   return guest._id;
 };
+
+const searchGuestById = catchAsync(async (req, res) => {
+  const { idNumber } = req.query;
+  if (!idNumber) throw new AppError('idNumber query param is required', 400);
+  const guest = await Guest.findOne({ hotel: req.hotelId, idNumber });
+  sendSuccess(res, guest || null);
+});
 const resolveRoom = async (body) => {
   if (!body.room) return null;
   if (typeof body.room === 'string' && /^[0-9a-fA-F]{24}$/.test(body.room)) return body.room;
@@ -1190,6 +1212,8 @@ module.exports = {
   uploadIdScan, submitFaceVerification, saveSignature,
   getCabBookings, getCabBooking, createCabBooking, updateCabBooking, deleteCabBooking,
   getTravelPackages,
+  getRevenueReport, getOccupancyReport, getBookingSourceReport, getRevenueAIInsights,
+  getChannelStatus, syncChannels, searchGuestById,
   getGuests, getGuest, createGuest, updateGuest, deleteGuest,
   getEmployees, getEmployee, createEmployee, updateEmployee, deleteEmployee,
   markAttendance, applyLeave, getAttendance,

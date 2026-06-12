@@ -53,6 +53,9 @@ const fromFlat = (f) => ({
   guestName: f.guest,
   phone: f.phone,
   email: f.email,
+  idType: f.idType,
+  idNumber: f.idNumber,
+  address: f.address,
   room: f.room,
   checkIn: f.checkIn,
   checkOut: f.checkOut,
@@ -97,8 +100,39 @@ const NewBookingForm = ({ onClose, onSave }) => {
   const [form, setForm] = useState({
     guest: '', phone: '', email: '', room: '', checkInDateTime: '', stayDays: 1, adults: 1, children: 0,
     source: 'direct', specialRequests: '', hasPet: false, petSize: 'small', petType: '',
+    idType: 'aadhaar', idNumber: '', address: ''
   });
   const [availableRooms, setAvailableRooms] = useState([]);
+  const [guestFound, setGuestFound] = useState(false);
+
+  useEffect(() => {
+    const fetchGuest = async () => {
+      if (form.idNumber && form.idNumber.length >= 5) {
+        try {
+          const res = await api.lookupGuest(form.idNumber);
+          if (res.data) {
+            setGuestFound(true);
+            setForm(f => ({
+              ...f,
+              guest: `${res.data.firstName || ''} ${res.data.lastName || ''}`.trim() || f.guest,
+              phone: res.data.phone || f.phone,
+              email: res.data.email || f.email,
+              address: res.data.address || f.address,
+              idType: res.data.idType || f.idType,
+            }));
+          } else {
+            setGuestFound(false);
+          }
+        } catch (e) {
+          setGuestFound(false);
+        }
+      } else {
+        setGuestFound(false);
+      }
+    };
+    const timeout = setTimeout(fetchGuest, 500);
+    return () => clearTimeout(timeout);
+  }, [form.idNumber]);
 
   useEffect(() => {
     const loadRooms = async () => {
@@ -137,6 +171,19 @@ const NewBookingForm = ({ onClose, onSave }) => {
     <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 300px), 1fr))', gap: '12px' }}>
         <div>
+          <label style={labelStyle}>ID TYPE</label>
+          <select style={inputStyle} value={form.idType} onChange={e => set('idType', e.target.value)}>
+            <option value="aadhaar">Aadhaar</option>
+            <option value="passport">Passport</option>
+            <option value="driving_license">Driving License</option>
+            <option value="voter_id">Voter ID</option>
+          </select>
+        </div>
+        <div>
+          <label style={labelStyle}>ID NUMBER (Auto-fill) {guestFound && <span style={{color: 'var(--green)', marginLeft: 4}}>✅ Found</span>}</label>
+          <input style={inputStyle} value={form.idNumber} onChange={e => set('idNumber', e.target.value)} placeholder="Enter ID to search..." />
+        </div>
+        <div>
           <label style={labelStyle}>GUEST NAME *</label>
           <input style={inputStyle} value={form.guest} onChange={e => set('guest', e.target.value)} placeholder="Full name" />
         </div>
@@ -150,6 +197,10 @@ const NewBookingForm = ({ onClose, onSave }) => {
         <div>
           <label style={labelStyle}>EMAIL</label>
           <input style={inputStyle} value={form.email} onChange={e => set('email', e.target.value)} placeholder="Email address" />
+        </div>
+        <div>
+          <label style={labelStyle}>ADDRESS</label>
+          <input style={inputStyle} value={form.address} onChange={e => set('address', e.target.value)} placeholder="Guest full address" />
         </div>
         <div>
           <label style={labelStyle}>ROOM *</label>
@@ -651,6 +702,9 @@ const BookingsPage = () => {
       guest: form.guest,
       phone: form.phone,
       email: form.email,
+      idType: form.idType,
+      idNumber: form.idNumber,
+      address: form.address,
       room: form.room,
       checkIn: form.checkIn,
       checkOut: form.checkOut,
