@@ -3,10 +3,19 @@ const { asyncHandler, sendSuccess } = require('../utils/helpers');
 
 exports.getNotifications = asyncHandler(async (req, res) => {
   const role = req.user.role === 'platform_admin' ? 'admin' : req.user.role;
-  const filter = { hotel: req.hotelId };
-  
+  let filter = {};
+
   if (role !== 'admin') {
-    filter.targetRoles = { $in: [role] };
+    filter = {
+      $or: [
+        { hotel: req.hotelId, targetRoles: { $in: [role] } },
+        { hotel: req.hotelId, targetRoles: { $size: 0 } }, // if no roles specified, everyone in hotel gets it
+        { isGlobal: true, targetRoles: { $in: [role] } },
+        { isGlobal: true, targetRoles: { $size: 0 } }
+      ]
+    };
+  } else {
+    filter = { hotel: req.hotelId };
   }
 
   const notifications = await Notification.find(filter).sort({ createdAt: -1 }).limit(100);
@@ -41,10 +50,19 @@ exports.markAsRead = asyncHandler(async (req, res) => {
 
 exports.markAllAsRead = asyncHandler(async (req, res) => {
   const role = req.user.role === 'platform_admin' ? 'admin' : req.user.role;
-  const filter = { hotel: req.hotelId };
+  let filter = {};
   
   if (role !== 'admin') {
-    filter.targetRoles = { $in: [role] };
+    filter = {
+      $or: [
+        { hotel: req.hotelId, targetRoles: { $in: [role] } },
+        { hotel: req.hotelId, targetRoles: { $size: 0 } },
+        { isGlobal: true, targetRoles: { $in: [role] } },
+        { isGlobal: true, targetRoles: { $size: 0 } }
+      ]
+    };
+  } else {
+    filter = { hotel: req.hotelId };
   }
 
   await Notification.updateMany(

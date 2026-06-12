@@ -29,13 +29,27 @@ const emitNotification = async (req, data) => {
       color: notif.color,
       icon: notif.icon,
       relatedRoom: notif.relatedRoom,
-      targetRoles: notif.targetRoles
+      targetRoles: notif.targetRoles,
+      isGlobal: notif.isGlobal
     };
 
-    // Emit to the hotel room
+    // Emit via Socket.IO
     const io = req.app.get('io');
     if (io) {
-      io.to(data.hotel.toString()).emit('newNotification', formatted);
+      if (data.isGlobal) {
+        if (data.targetRoles && data.targetRoles.length > 0) {
+          data.targetRoles.forEach(role => io.to(`global_${role}`).emit('newNotification', formatted));
+        } else {
+          io.emit('newNotification', formatted);
+        }
+      } else if (data.hotel) {
+        if (data.targetRoles && data.targetRoles.length > 0) {
+          data.targetRoles.forEach(role => io.to(`hotel_${data.hotel}_${role}`).emit('newNotification', formatted));
+          io.to(data.hotel.toString()).emit('newNotification', formatted); // Fallback for backwards compatibility
+        } else {
+          io.to(data.hotel.toString()).emit('newNotification', formatted);
+        }
+      }
     }
 
     // Also dispatch an AdminNotification if it targets platform_admin

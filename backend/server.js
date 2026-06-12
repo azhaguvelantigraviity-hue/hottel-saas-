@@ -51,9 +51,18 @@ const io = socketIO(server, {
 app.set('io', io);
 
 io.on('connection', (socket) => {
-  // Client should emit 'joinHotel' with their hotel ID
-  socket.on('joinHotel', (hotelId) => {
-    socket.join(hotelId);
+  // Client should emit 'joinHotel' with their hotel ID and role
+  socket.on('joinHotel', (data) => {
+    if (typeof data === 'string') {
+      // Backwards compatibility if only hotelId is sent
+      socket.join(data);
+    } else if (data && data.hotelId) {
+      socket.join(data.hotelId);
+      if (data.role) {
+        socket.join(`hotel_${data.hotelId}_${data.role}`);
+        socket.join(`global_${data.role}`);
+      }
+    }
   });
   
   // Platform admins should emit 'joinAdmin' to receive global notifications

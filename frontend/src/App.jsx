@@ -220,7 +220,7 @@ const HotelApp = ({ onLogout, initialPlan = 'enterprise', role = 'manager', hote
   };
 
   return (
-    <NotificationProvider hotelDetails={hotelDetails}>
+    <NotificationProvider hotelDetails={hotelDetails} role={role}>
     <div style={{ display: 'flex', height: '100vh', background: 'var(--bg)' }}>
       <Sidebar role={role} active={page} onNav={setPage} onLogout={onLogout} plan={plan} isOpen={isSidebarOpen} setIsOpen={setIsSidebarOpen} />
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>

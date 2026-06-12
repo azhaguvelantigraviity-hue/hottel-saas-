@@ -4,7 +4,7 @@ import * as api from '../services/api';
 
 const NotificationContext = createContext();
 
-export const NotificationProvider = ({ children, hotelDetails }) => {
+export const NotificationProvider = ({ children, hotelDetails, role }) => {
   const [notifications, setNotifications] = useState([]);
   const [socket, setSocket] = useState(null);
 
@@ -30,11 +30,15 @@ export const NotificationProvider = ({ children, hotelDetails }) => {
       });
 
       newSocket.on('connect', () => {
-        newSocket.emit('joinHotel', hotelDetails.id);
+        newSocket.emit('joinHotel', { hotelId: hotelDetails.id, role });
       });
 
       newSocket.on('newNotification', (notif) => {
-        setNotifications(prev => [notif, ...prev]);
+        setNotifications(prev => {
+          // Prevent duplicates
+          if (prev.some(n => n.id === notif.id)) return prev;
+          return [notif, ...prev];
+        });
       });
 
       setSocket(newSocket);
@@ -43,7 +47,7 @@ export const NotificationProvider = ({ children, hotelDetails }) => {
         newSocket.disconnect();
       };
     }
-  }, [hotelDetails]);
+  }, [hotelDetails, role]);
 
   const markRead = async (id) => {
     try {

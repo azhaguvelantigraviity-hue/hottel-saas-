@@ -8,6 +8,7 @@ const Role    = require('../models/Role');
 const SubscriptionPlan = require('../models/SubscriptionPlan');
 const SubscriptionPayment = require('../models/SubscriptionPayment');
 const { asyncHandler, sendSuccess } = require('../utils/helpers');
+const { emitNotification } = require('../utils/notificationHelper');
 
 // Helper to create an audit log
 const createAuditLog = async (req, action, target = '', details = '', status = 'success') => {
@@ -132,6 +133,19 @@ exports.createHotel = asyncHandler(async (req, res) => {
   }
 
   await createAuditLog(req, 'Created Hotel', hotel.name, `Plan: ${plan}`, 'success');
+
+  // Emit notification to global receptionists and hotel manager/receptionist
+  await emitNotification(req, {
+    hotel: hotel._id,
+    isGlobal: true, // Also broadcast globally
+    title: 'New Hotel Added',
+    desc: `New hotel added by Admin: ${hotel.name}`,
+    type: 'system',
+    icon: 'hotel',
+    color: 'var(--brand)',
+    targetRoles: ['receptionist', 'hotel_admin']
+  });
+
   sendSuccess(res, hotel, 201);
 });
 
@@ -603,6 +617,18 @@ exports.approveRegistration = asyncHandler(async (req, res, next) => {
 
   // TODO: Send email/notification to hotel owner with their new credentials
   console.log(`[EMAIL SIMULATION] Sent to: ${mEmail}. Subject: Welcome to StayOS! Your Manager Credentials. Body: Username: ${mUsername}, Password: ${mPassword}`);
+
+  // Emit notification
+  await emitNotification(req, {
+    hotel: hotel._id,
+    isGlobal: true,
+    title: 'New Hotel Added',
+    desc: `New hotel added via registration: ${hotel.name}`,
+    type: 'system',
+    icon: 'hotel',
+    color: 'var(--brand)',
+    targetRoles: ['receptionist', 'hotel_admin']
+  });
 
   sendSuccess(res, {
     message: 'Registration approved successfully. Manager credentials created.',
