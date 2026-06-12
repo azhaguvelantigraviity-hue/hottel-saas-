@@ -145,3 +145,35 @@ exports.forgotPassword = asyncHandler(async (req, res, next) => {
 exports.resetPassword = asyncHandler(async (req, res, next) => {
   sendSuccess(res, { message: 'Password reset successful' });
 });
+
+exports.getTrialHotels = asyncHandler(async (req, res, next) => {
+  const Hotel = require('../models/Hotel');
+  const hotels = await Hotel.find({ isActive: true })
+    .select('name address totalRooms plan logo')
+    .sort({ createdAt: -1 });
+  sendSuccess(res, hotels);
+});
+
+exports.demoLogin = asyncHandler(async (req, res, next) => {
+  const { hotelId } = req.body;
+  if (!hotelId) return next(new AppError('Hotel ID is required', 400));
+  
+  const Hotel = require('../models/Hotel');
+  const hotel = await Hotel.findOne({ _id: hotelId, isActive: true });
+  if (!hotel) return next(new AppError('Hotel not found or inactive', 404));
+
+  // Find a user for this hotel, preferably a hotel_admin
+  let user = await User.findOne({ hotel: hotel._id, role: 'hotel_admin', isActive: true });
+  
+  // If no hotel_admin is found, fallback to any active user for this hotel
+  if (!user) {
+    user = await User.findOne({ hotel: hotel._id, isActive: true });
+  }
+
+  if (!user) {
+    return next(new AppError('Demo environment not fully set up for this hotel (No active user found)', 404));
+  }
+
+  // Generate token and login
+  sendToken(user, 200, res);
+});

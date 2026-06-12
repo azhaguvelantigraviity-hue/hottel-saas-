@@ -1,6 +1,6 @@
 // src/routes/auth.js
 const router = require('express').Router();
-const { register, login, logout, getMe, updatePassword, forgotPassword, resetPassword, registerHotel } = require('../controllers/authController');
+const { register, login, logout, getMe, updatePassword, forgotPassword, resetPassword, registerHotel, getTrialHotels, demoLogin } = require('../controllers/authController');
 const { protect } = require('../middleware/auth');
 const upload = require('../utils/upload');
 
@@ -12,5 +12,8 @@ router.get ('/me',         protect,         getMe);
 router.put ('/updatepassword', protect,     updatePassword);
 router.post('/forgotpassword',              forgotPassword);
 router.put ('/resetpassword/:token',        resetPassword);
+
+router.get('/trial-hotels', getTrialHotels);
+router.post('/demo-login', demoLogin);
 
 module.exports = router;

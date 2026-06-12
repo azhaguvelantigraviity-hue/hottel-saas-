@@ -60,3 +60,20 @@ export async function registerHotel(data) {
 export async function registerHotelForm(formData) {
   return postForm('/auth/register-hotel', formData);
 }
+
+/** Get list of active trial hotels */
+export async function getTrialHotels() {
+  const data = await get('/auth/trial-hotels');
+  return data.data || data;
+}
+
+/** Login to a demo environment */
+export async function demoLogin(hotelId) {
+  const res = await post('/auth/demo-login', { hotelId });
+  const data = res.data || res;
+  if (data && data.token) {
+    setToken(data.token);
+    setUser(data.user);
+  }
+  return data;
+}

@@ -13,6 +13,7 @@ const PLANS = {
 const Landing = ({ onLogin, theme, setTheme }) => {
   const [hoveredPlan, setHoveredPlan] = useState('professional');
   const [showRegister, setShowRegister] = useState(false);
+  const [showTrialModal, setShowTrialModal] = useState(false);
   const [selectedFeature, setSelectedFeature] = useState(null);
 
   return (
@@ -190,7 +191,7 @@ const Landing = ({ onLogin, theme, setTheme }) => {
           From room bookings to revenue analytics — every tool your hotel needs, in one beautifully unified platform.
         </p>
         <button
-          onClick={() => setShowRegister(true)}
+          onClick={() => setShowTrialModal(true)}
           style={{
             padding: '16px 32px',
             background: 'linear-gradient(135deg,#C9A84C,#8A6F2E)',
@@ -333,7 +334,7 @@ const Landing = ({ onLogin, theme, setTheme }) => {
                   ))}
                 </div>
                 <button
-                  onClick={() => setShowRegister(true)}
+                  onClick={() => setShowTrialModal(true)}
                   style={{
                     width: '100%',
                     padding: '12px',
@@ -360,6 +361,10 @@ const Landing = ({ onLogin, theme, setTheme }) => {
         <RegistrationModal onClose={() => setShowRegister(false)} />
       )}
 
+      {showTrialModal && (
+        <TrialHotelSelectionModal onClose={() => setShowTrialModal(false)} />
+      )}
+
       {/* Feature Detail Modal */}
       {selectedFeature && (
         <FeatureDetailModal
@@ -367,10 +372,132 @@ const Landing = ({ onLogin, theme, setTheme }) => {
           onClose={() => setSelectedFeature(null)}
           onStartTrial={() => {
             setSelectedFeature(null);
-            setShowRegister(true);
+            setShowTrialModal(true);
           }}
         />
       )}
+    </div>
+  );
+};
+
+const TrialHotelSelectionModal = ({ onClose }) => {
+  const [hotels, setHotels] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+  const [search, setSearch] = useState('');
+  const [selectedHotel, setSelectedHotel] = useState(null);
+  const [loginLoading, setLoginLoading] = useState(false);
+
+  React.useEffect(() => {
+    const fetchHotels = async () => {
+      try {
+        const { getTrialHotels } = await import('../services/authService');
+        const data = await getTrialHotels();
+        setHotels(data);
+      } catch (err) {
+        setError('Failed to load demo hotels.');
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchHotels();
+  }, []);
+
+  const handleContinue = async () => {
+    if (!selectedHotel) return;
+    setLoginLoading(true);
+    setError('');
+    try {
+      const { demoLogin } = await import('../services/authService');
+      await demoLogin(selectedHotel._id);
+      window.location.href = '/hotel/dashboard';
+    } catch (err) {
+      setError(err.message || 'Failed to login to demo environment.');
+      setLoginLoading(false);
+    }
+  };
+
+  const filteredHotels = hotels.filter(h => 
+    h.name.toLowerCase().includes(search.toLowerCase()) || 
+    (h.address?.city && h.address.city.toLowerCase().includes(search.toLowerCase()))
+  );
+
+  return (
+    <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.8)', backdropFilter: 'blur(4px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 999 }}>
+      <div style={{ background: 'var(--card)', padding: '32px', borderRadius: '12px', width: '100%', maxWidth: '600px', maxHeight: '90vh', display: 'flex', flexDirection: 'column', border: '1px solid var(--border)' }}>
+        <h2 style={{ fontSize: '24px', fontFamily: 'Playfair Display,serif', marginBottom: '8px' }}>Select Demo Environment</h2>
+        <p style={{ color: 'var(--text2)', fontSize: '14px', marginBottom: '24px' }}>Choose an active hotel to explore its features during your free trial.</p>
+        
+        <input 
+          type="text" 
+          placeholder="Search by hotel name or city..." 
+          value={search} 
+          onChange={(e) => setSearch(e.target.value)}
+          style={{ width: '100%', padding: '12px 16px', background: 'var(--bg)', border: '1px solid var(--border)', borderRadius: '8px', color: 'var(--text)', marginBottom: '16px' }}
+        />
+
+        <div style={{ flex: 1, overflowY: 'auto', minHeight: '300px', marginBottom: '24px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+          {loading ? (
+            <div style={{ padding: '40px', textAlign: 'center', color: 'var(--text3)' }}>Loading demo hotels...</div>
+          ) : error ? (
+            <div style={{ padding: '20px', textAlign: 'center', color: '#EF4444', background: 'rgba(239, 68, 68, 0.1)', borderRadius: '8px' }}>{error}</div>
+          ) : filteredHotels.length === 0 ? (
+            <div style={{ padding: '40px', textAlign: 'center', color: 'var(--text3)' }}>No active demo hotels found.</div>
+          ) : (
+            filteredHotels.map(hotel => (
+              <div 
+                key={hotel._id} 
+                onClick={() => setSelectedHotel(hotel)}
+                style={{ 
+                  padding: '16px', 
+                  border: `2px solid ${selectedHotel?._id === hotel._id ? 'var(--gold)' : 'var(--border)'}`, 
+                  borderRadius: '8px', 
+                  cursor: 'pointer',
+                  background: selectedHotel?._id === hotel._id ? 'rgba(201,168,76,0.05)' : 'var(--surface)',
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                  transition: 'all 0.2s'
+                }}
+              >
+                <div>
+                  <div style={{ fontSize: '16px', fontWeight: '600', marginBottom: '4px' }}>{hotel.name}</div>
+                  <div style={{ fontSize: '13px', color: 'var(--text2)' }}>
+                    <Icon name="map-pin" size={12} style={{ verticalAlign: 'middle', marginRight: '4px' }} />
+                    {hotel.address?.city || 'Unknown City'}
+                  </div>
+                </div>
+                <div style={{ textAlign: 'right' }}>
+                  <div style={{ display: 'inline-block', padding: '4px 8px', background: 'var(--bg)', border: '1px solid var(--border)', borderRadius: '4px', fontSize: '12px', fontWeight: '600', color: 'var(--gold)', marginBottom: '4px', textTransform: 'uppercase' }}>
+                    {hotel.plan} Plan
+                  </div>
+                  <div style={{ fontSize: '12px', color: 'var(--text3)' }}>{hotel.totalRooms} Rooms</div>
+                </div>
+              </div>
+            ))
+          )}
+        </div>
+
+        <div style={{ display: 'flex', gap: '12px', marginTop: 'auto' }}>
+          <button onClick={onClose} style={{ flex: 1, padding: '12px', background: 'transparent', border: '1px solid var(--border)', color: 'var(--text)', borderRadius: '8px', cursor: 'pointer', fontWeight: '500' }}>Cancel</button>
+          <button 
+            onClick={handleContinue} 
+            disabled={!selectedHotel || loginLoading} 
+            style={{ 
+              flex: 1, 
+              padding: '12px', 
+              background: (!selectedHotel || loginLoading) ? 'var(--surface)' : 'linear-gradient(135deg,#C9A84C,#8A6F2E)', 
+              border: (!selectedHotel || loginLoading) ? '1px solid var(--border)' : 'none', 
+              color: (!selectedHotel || loginLoading) ? 'var(--text3)' : '#fff', 
+              borderRadius: '8px', 
+              cursor: (!selectedHotel || loginLoading) ? 'not-allowed' : 'pointer', 
+              fontWeight: '600' 
+            }}
+          >
+            {loginLoading ? 'Logging in...' : 'Continue to Demo'}
+          </button>
+        </div>
+      </div>
     </div>
   );
 };
