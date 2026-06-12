@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
 import Icon from './Icon';
 
-const StatCard = ({ icon, iconColor, label, value, sub, trend, onClick }) => {
+const StatCard = ({ icon, iconColor, color, label, title, value, sub, trend, onClick }) => {
+  const actualIconColor = iconColor || color || 'var(--text2)';
+  const actualLabel = label || title;
   const [isHovered, setIsHovered] = useState(false);
 
   return (
@@ -29,7 +31,7 @@ const StatCard = ({ icon, iconColor, label, value, sub, trend, onClick }) => {
         right: 0,
         width: '80px',
         height: '80px',
-        background: `radial-gradient(circle at 70% 30%, ${iconColor}18, transparent 70%)`,
+        background: `radial-gradient(circle at 70% 30%, ${actualIconColor}18, transparent 70%)`,
         pointerEvents: 'none',
       }}
     />
@@ -46,13 +48,13 @@ const StatCard = ({ icon, iconColor, label, value, sub, trend, onClick }) => {
           width: '40px',
           height: '40px',
           borderRadius: '10px',
-          background: `${iconColor}18`,
+          background: `${actualIconColor}18`,
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
         }}
       >
-        <Icon name={icon} size={18} color={iconColor} />
+        <Icon name={icon} size={18} color={actualIconColor} />
       </div>
       {trend !== undefined && (
         <div
@@ -84,7 +86,7 @@ const StatCard = ({ icon, iconColor, label, value, sub, trend, onClick }) => {
       {value}
     </div>
     <div style={{ fontSize: '13px', color: 'var(--text2)', fontWeight: '500' }}>
-      {label}
+      {actualLabel}
     </div>
     {sub && (
       <div style={{ fontSize: '11px', color: 'var(--text3)', marginTop: '4px' }}>
