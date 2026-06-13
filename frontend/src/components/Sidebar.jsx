@@ -57,6 +57,12 @@ const Sidebar = ({ role, active, onNav, onLogout, plan, isOpen, setIsOpen }) => 
         { id: 'payroll',      icon: 'dollar',      label: 'Payroll',      plans: ['professional','enterprise'] },
       ],
     },
+    {
+      label: 'SYSTEM',
+      items: [
+        { id: 'settings',     icon: 'settings',    label: 'Settings',     plans: ['starter','professional','enterprise'] },
+      ],
+    },
 
   ];
 
