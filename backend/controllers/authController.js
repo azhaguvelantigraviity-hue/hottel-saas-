@@ -24,7 +24,7 @@ exports.register = asyncHandler(async (req, res, next) => {
 exports.login = asyncHandler(async (req, res, next) => {
   const { email, password } = req.body;
   if (!email || !password) return next(new AppError('Email and password required', 400));
-  const user = await User.findOne({ email: email.toLowerCase() }).select('+password').populate('hotel', 'name plan planStatus trialEndDate');
+  const user = await User.findOne({ email: email.toLowerCase() }).select('+password').populate('hotel', 'name plan planStatus trialEndDate phone email website logo tagline address');
   if (!user || !(await user.matchPassword(password))) {
     return next(new AppError('Invalid credentials', 401));
   }
@@ -100,7 +100,7 @@ exports.registerHotel = asyncHandler(async (req, res, next) => {
 });
 
 exports.getMe = asyncHandler(async (req, res) => {
-  const user = await User.findById(req.user.id).populate('hotel', 'name plan planStatus address trialStartDate trialEndDate paymentStatus');
+  const user = await User.findById(req.user.id).populate('hotel', 'name plan planStatus address trialStartDate trialEndDate paymentStatus phone email website logo tagline');
   
   if (user && user.role === 'hotel_staff' && (!user.department || user.department === 'None')) {
     const { Employee } = require('../models/Operations');
