@@ -155,3 +155,26 @@ export const postForm = async (path, formData) => {
   }
   return data;
 };
+
+export const putForm = async (path, formData) => {
+  const token = getToken();
+  const headers = {};
+  if (token) headers['Authorization'] = `Bearer ${token}`;
+
+  const selectedHotelId = safeGetStorage('selectedHotelId');
+  if (selectedHotelId) headers['X-Hotel-Id'] = selectedHotelId;
+
+  const res = await fetch(`${BASE_URL}${path}`, {
+    method: 'PUT',
+    body: formData,
+    headers,
+  });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) {
+    const err = new Error(data.message || `HTTP ${res.status}`);
+    err.status = res.status;
+    err.data = data;
+    throw err;
+  }
+  return data;
+};

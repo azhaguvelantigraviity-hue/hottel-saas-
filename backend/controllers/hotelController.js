@@ -834,6 +834,20 @@ const updateProfile = catchAsync(async (req, res) => {
       updateData[key] = req.body[key];
     }
   }
+
+  // Handle nested address fields that might be passed individually via FormData
+  if (req.body.address || req.body.city || req.body.country) {
+    updateData.address = {
+      street: req.body.address,
+      city: req.body.city,
+      country: req.body.country
+    };
+  }
+
+  if (req.file) {
+    updateData.logo = `/uploads/documents/${req.file.filename}`;
+  }
+
   const hotel = await Hotel.findByIdAndUpdate(req.hotelId, updateData, { new: true });
   sendSuccess(res, hotel);
 });

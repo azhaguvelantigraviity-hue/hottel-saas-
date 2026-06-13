@@ -27,7 +27,7 @@ const { Employee } = require('../models/Operations');
 router.use(protect, scopeToHotel);
 
 // ── Property Profile ────────────────────────────────────────────────────────
-router.put   ('/profile',                 hotelAdmin, updateProfile);
+router.put   ('/profile',                 hotelAdmin, upload.single('logoFile'), updateProfile);
 
 // ── Rooms (all plans) ─────────────────────────────────────────────────────────
 router.get   ('/rooms/availability',              checkAvailability);

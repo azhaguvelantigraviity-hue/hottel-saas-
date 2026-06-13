@@ -19,6 +19,7 @@ const SettingsPage = ({ role, plan, onNav }) => {
   const [msg, setMsg] = useState(null); // { type: 'success'|'error', text }
   const [propMsg, setPropMsg] = useState(null);
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
+  const [logoFile, setLogoFile] = useState(null);
   const [profile, setProfile] = useState({
     name: '', address: '', city: '', country: '', phone: '', email: '', website: '', logo: '', tagline: ''
   });
@@ -47,15 +48,24 @@ const SettingsPage = ({ role, plan, onNav }) => {
     setLoading(true);
     try {
       const api = await import('../services/api').then(m => m.default || m);
-      await api.put('/hotel/profile', {
-        name: profile.name,
-        address: { street: profile.address, city: profile.city, country: profile.country },
-        phone: profile.phone,
-        email: profile.email,
-        website: profile.website,
-        logo: profile.logo,
-        tagline: profile.tagline
-      });
+      
+      const formData = new FormData();
+      formData.append('name', profile.name);
+      formData.append('address', profile.address);
+      formData.append('city', profile.city);
+      formData.append('country', profile.country);
+      formData.append('phone', profile.phone);
+      formData.append('email', profile.email);
+      formData.append('website', profile.website);
+      if (profile.tagline) formData.append('tagline', profile.tagline);
+      
+      if (logoFile) {
+        formData.append('logoFile', logoFile);
+      } else if (profile.logo) {
+        formData.append('logo', profile.logo);
+      }
+      
+      await api.putForm('/hotel/profile', formData);
       setPropMsg({ type: 'success', text: 'Property settings updated!' });
     } catch (e) {
       setPropMsg({ type: 'error', text: e.message || 'Failed to update profile' });
@@ -216,7 +226,18 @@ const SettingsPage = ({ role, plan, onNav }) => {
           <div style={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: 'var(--radius)', padding: 'clamp(12px, 3vw, 24px)' }}>
             <div style={{ fontSize: '15px', fontWeight: '700', marginBottom: '16px' }}>Invoice Settings</div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-              <div><label style={labelStyle}>HOTEL LOGO URL</label><input style={inputStyle} value={profile.logo} onChange={e => setProfile({...profile, logo: e.target.value})} placeholder="https://example.com/logo.png" /></div>
+              <div>
+                <label style={labelStyle}>HOTEL LOGO</label>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                  <input type="file" accept="image/*" onChange={e => {
+                    const file = e.target.files[0];
+                    if (file) {
+                      setLogoFile(file);
+                      setProfile({...profile, logo: URL.createObjectURL(file)});
+                    }
+                  }} style={{ fontSize: '12px' }} />
+                </div>
+              </div>
               <div><label style={labelStyle}>TAGLINE</label><input style={inputStyle} value={profile.tagline} onChange={e => setProfile({...profile, tagline: e.target.value})} placeholder="Where Luxury Meets Comfort" /></div>
               
               {profile.logo && (
