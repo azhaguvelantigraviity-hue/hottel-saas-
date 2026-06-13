@@ -1,4 +1,5 @@
 import React from 'react';
+import { BASE_URL } from '../services/api';
 
 const InvoiceDocument = React.forwardRef(({ hotel, booking, guest }, ref) => {
   // Safe defaults
@@ -7,7 +8,11 @@ const InvoiceDocument = React.forwardRef(({ hotel, booking, guest }, ref) => {
   const hAddress = hotel?.address ? `${hotel.address.street || ''}, ${hotel.address.city || ''}, ${hotel.address.country || ''}` : '123 Luxury Avenue, Metropolis, NY 10001';
   const hPhone = hotel?.phone || '+1 234 567 890';
   const hEmail = hotel?.email || 'contact@grandmeridian.com';
-  const hLogo = hotel?.logo || null;
+  
+  let hLogo = hotel?.logo || null;
+  if (hLogo && hLogo.startsWith('/')) {
+    hLogo = BASE_URL.replace('/api/v1', '') + hLogo;
+  }
 
   const guestObj = typeof guest === 'string' ? { firstName: guest, lastName: '' } : guest;
   const gName = guestObj ? `${guestObj.firstName || ''} ${guestObj.lastName || ''}`.trim() || 'Guest Name' : 'Guest Name';
@@ -30,8 +35,8 @@ const InvoiceDocument = React.forwardRef(({ hotel, booking, guest }, ref) => {
   
   const issueDate = formatDate(new Date());
 
-  const roomRate = booking?.roomRate || 0;
-  const nights = booking?.nights || 1;
+  const nights = booking?.nights || booking?.stayDays || 1;
+  const roomRate = booking?.roomRate || (booking?.amount && booking?.amount > 0 ? Math.round(booking.amount / nights) : 0);
   const roomTotal = roomRate * nights;
   
   const extraCharges = (booking?.foodCharges || 0) + (booking?.laundryCharges || 0) + (booking?.otherCharges || 0);

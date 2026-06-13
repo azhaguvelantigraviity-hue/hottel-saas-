@@ -3,7 +3,7 @@
 //  Base URL: http://localhost:5000/api/v1
 // ─────────────────────────────────────────────────────────────
 
-const getApiUrl = () => {
+export const getApiUrl = () => {
   if (import.meta.env.VITE_API_URL) return import.meta.env.VITE_API_URL;
   if (typeof window !== 'undefined' && (
     window.location.hostname.includes('vercel.app') || 
@@ -15,7 +15,7 @@ const getApiUrl = () => {
   return 'http://localhost:5000/api/v1';
 };
 
-const BASE_URL = getApiUrl();
+export const BASE_URL = getApiUrl();
 
 // ── Upload helper (multipart/form-data) ────────────────────────
 export async function uploadFile(path, formData, onProgress) {

@@ -65,7 +65,17 @@ const SettingsPage = ({ role, plan, onNav }) => {
         formData.append('logo', profile.logo);
       }
       
-      await api.putForm('/hotel/profile', formData);
+      const res = await api.putForm('/hotel/profile', formData);
+      
+      // Update local storage so the rest of the app sees the updated hotel data
+      if (res.data) {
+        const currentUser = api.getUser();
+        if (currentUser) {
+          currentUser.hotel = res.data;
+          api.setUser(currentUser);
+        }
+      }
+      
       setPropMsg({ type: 'success', text: 'Property settings updated!' });
     } catch (e) {
       setPropMsg({ type: 'error', text: e.message || 'Failed to update profile' });
