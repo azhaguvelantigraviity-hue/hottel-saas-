@@ -191,7 +191,7 @@ const RestaurantPOS = ({ role, hotelDetails }) => {
           </div>
 
           {/* Cart */}
-          <div style={{ borderLeft: '1px solid var(--border)', display: 'flex', flexDirection: 'column', background: 'var(--void)' }}>
+          <div style={{ borderLeft: '1px solid var(--border)', display: 'flex', flexDirection: 'column', background: 'var(--void)', overflow: 'hidden' }}>
             <div style={{ padding: '20px', borderBottom: '1px solid var(--border)' }}>
               <div style={{ fontSize: '15px', fontWeight: '700', marginBottom: '12px' }}>Current Order</div>
               <div style={{ display: 'flex', gap: '8px', marginBottom: '10px' }}>
