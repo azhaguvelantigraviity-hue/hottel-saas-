@@ -3,6 +3,9 @@ import Icon from '../components/Icon';
 import Badge from '../components/Badge';
 import Avatar from '../components/Avatar';
 import * as api from '../services/hotelService';
+import { getUser } from '../services/api';
+import html2pdf from 'html2pdf.js';
+import InvoiceDocument from '../components/InvoiceDocument';
 
 const PET_CHARGES = {
   small: { label: 'Small (up to 10kg)', perNight: 500 },
@@ -427,6 +430,34 @@ const BookingDetail = ({ booking, onClose, onAction, apiReady }) => {
   const balance = Math.max(0, (booking.amount || 0) - (booking.paid || 0));
   const [paymentAmount, setPaymentAmount] = useState(balance);
   const [paymentMethod, setPaymentMethod] = useState('cash');
+  
+  const [isPrinting, setIsPrinting] = useState(false);
+  const user = getUser();
+  const hotelDetails = user?.hotel || null;
+
+  const handlePrint = () => {
+    setIsPrinting(true);
+    setTimeout(async () => {
+      try {
+        const element = document.getElementById('booking-invoice-wrap');
+        if (element) {
+          const opt = {
+            margin:       0,
+            filename:     `${booking.id || 'Invoice'}.pdf`,
+            image:        { type: 'jpeg', quality: 0.98 },
+            html2canvas:  { scale: 2, useCORS: true },
+            jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' }
+          };
+          await html2pdf().from(element).set(opt).save();
+        }
+      } catch (err) {
+        console.error(err);
+        alert('Failed to generate invoice PDF.');
+      } finally {
+        setIsPrinting(false);
+      }
+    }, 800);
+  };
 
   useEffect(() => {
     if (booking._id) {
@@ -592,10 +623,27 @@ const BookingDetail = ({ booking, onClose, onAction, apiReady }) => {
         </button>
       )}
       {!showCheckout && (
-        <button onClick={() => { onAction(booking, 'deleted'); onClose(); }} style={{ padding: '10px 16px', background: 'transparent', border: '1px solid var(--rose)', borderRadius: '8px', color: 'var(--rose)', cursor: 'pointer', fontWeight: '600', fontSize: '13px', fontFamily: 'DM Sans,sans-serif' }}>
-          Delete
-        </button>
+        <>
+          <button onClick={() => { onAction(booking, 'deleted'); onClose(); }} style={{ padding: '10px 16px', background: 'transparent', border: '1px solid var(--rose)', borderRadius: '8px', color: 'var(--rose)', cursor: 'pointer', fontWeight: '600', fontSize: '13px', fontFamily: 'DM Sans,sans-serif' }}>
+            Delete
+          </button>
+          
+          <button onClick={handlePrint} disabled={isPrinting} style={{ marginLeft: 'auto', padding: '10px 16px', background: 'transparent', border: '1px solid var(--gold)', borderRadius: '8px', color: 'var(--gold)', cursor: isPrinting ? 'not-allowed' : 'pointer', fontWeight: '600', fontSize: '13px', fontFamily: 'DM Sans,sans-serif', opacity: isPrinting ? 0.7 : 1 }}>
+            {isPrinting ? 'Printing...' : '🖨️ Print Invoice'}
+          </button>
+        </>
       )}
+    </div>
+
+    {/* Hidden Invoice Component for PDF generation */}
+    <div style={{ position: 'absolute', left: '-9999px', top: '-9999px' }}>
+      <div id="booking-invoice-wrap">
+        <InvoiceDocument 
+          hotel={hotelDetails} 
+          booking={booking} 
+          guest={booking.guest} 
+        />
+      </div>
     </div>
   </div>
 );

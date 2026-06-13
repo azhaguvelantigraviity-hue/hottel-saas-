@@ -9,14 +9,15 @@ const InvoiceDocument = React.forwardRef(({ hotel, booking, guest }, ref) => {
   const hEmail = hotel?.email || 'contact@grandmeridian.com';
   const hLogo = hotel?.logo || null;
 
-  const gName = guest ? `${guest.firstName} ${guest.lastName}` : 'Guest Name';
-  const gAddress = guest?.address || 'N/A';
-  const gPhone = guest?.phone || 'N/A';
-  const gEmail = guest?.email || 'N/A';
+  const guestObj = typeof guest === 'string' ? { firstName: guest, lastName: '' } : guest;
+  const gName = guestObj ? `${guestObj.firstName || ''} ${guestObj.lastName || ''}`.trim() || 'Guest Name' : 'Guest Name';
+  const gAddress = guestObj?.address || 'N/A';
+  const gPhone = guestObj?.phone || booking?.phone || 'N/A';
+  const gEmail = guestObj?.email || booking?.email || 'N/A';
 
-  const bookingId = booking?.bookingId || 'INV-0000';
-  const roomNumber = booking?.room?.roomNumber || 'N/A';
-  const roomType = booking?.room?.type || 'Standard';
+  const bookingId = booking?.bookingId || booking?.id || 'INV-0000';
+  const roomNumber = typeof booking?.room === 'string' ? booking.room.split('–')[0]?.trim() : (booking?.room?.roomNumber || 'N/A');
+  const roomType = typeof booking?.room === 'string' ? booking.room.split('–')[1]?.trim() : (booking?.room?.type || 'Standard');
   
   // Format dates nicely
   const formatDate = (dateStr) => {
