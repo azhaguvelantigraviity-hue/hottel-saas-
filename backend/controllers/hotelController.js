@@ -7,8 +7,8 @@ const Guest   = require('../models/Guest');
 const CabBooking = require('../models/CabBooking');
 const TravelPackage = require('../models/TravelPackage');
 const multer = require('multer');
-const Groq = require('groq-sdk');
-const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
+const { GoogleGenerativeAI } = require('@google/generative-ai');
+const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 const Hotel = require('../models/Hotel');
 const Document = require('../models/Document');
 const SubscriptionPayment = require('../models/SubscriptionPayment');
@@ -1230,21 +1230,27 @@ const processAadhaarOcr = catchAsync(async (req, res) => {
   if (!image) throw new AppError('Image is required', 400);
 
   try {
-    const chatCompletion = await groq.chat.completions.create({
-      messages: [
-        {
-          role: 'user',
-          content: [
-            { type: 'text', text: 'You are an OCR assistant. Extract the following details from this Indian Aadhaar card image: Full Name, 12-digit Aadhaar Number, Phone Number (if visible), and Address. Return ONLY a pure JSON object without markdown formatting, with keys: "name", "idNumber", "phone", "address". If a field is not found, set its value to an empty string.' },
-            { type: 'image_url', image_url: { url: image } }
-          ]
-        }
-      ],
-      model: 'llama-3.2-11b-vision-preview',
-      temperature: 0,
-    });
+    const matches = image.match(/^data:([A-Za-z-+\/]+);base64,(.+)$/);
+    if (!matches || matches.length !== 3) {
+      throw new Error('Invalid base64 image format');
+    }
+    const mimeType = matches[1];
+    const base64Data = matches[2];
 
-    const responseText = chatCompletion.choices[0]?.message?.content || '{}';
+    const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
+    const prompt = 'You are an OCR assistant. Extract the following details from this Indian Aadhaar card image: Full Name, 12-digit Aadhaar Number, Phone Number (if visible), and Address. Return ONLY a pure JSON object without markdown formatting, with keys: "name", "idNumber", "phone", "address". If a field is not found, set its value to an empty string.';
+    
+    const result = await model.generateContent([
+      prompt,
+      {
+        inlineData: {
+          data: base64Data,
+          mimeType: mimeType
+        }
+      }
+    ]);
+
+    const responseText = result.response.text() || '{}';
     let extractedData = {};
     try {
       extractedData = JSON.parse(responseText.replace(/```json/g, '').replace(/```/g, '').trim());
