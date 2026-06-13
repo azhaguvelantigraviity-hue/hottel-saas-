@@ -59,9 +59,8 @@ const SettingsPage = ({ role, plan, onNav }) => {
       formData.append('website', profile.website);
       if (profile.tagline) formData.append('tagline', profile.tagline);
       
-      if (logoFile) {
-        formData.append('logoFile', logoFile);
-      } else if (profile.logo) {
+      // Save logo as base64 string instead of file upload to prevent Render ephemeral disk wipes
+      if (profile.logo) {
         formData.append('logo', profile.logo);
       }
       
