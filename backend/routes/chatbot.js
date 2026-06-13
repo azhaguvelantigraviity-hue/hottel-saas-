@@ -14,21 +14,31 @@ const upload = multer({ dest: 'uploads/' });
 
 router.post('/', protect, upload.single('audio'), async (req, res, next) => {
   try {
-    if (!req.file) {
-      return next(new AppError('No audio file provided', 400));
+    let userText = '';
+
+    if (req.file) {
+      const filePath = req.file.path;
+
+      // 1. Transcribe audio using Whisper
+      const transcription = await groq.audio.transcriptions.create({
+        file: fs.createReadStream(filePath),
+        model: 'whisper-large-v3',
+        temperature: 0,
+        response_format: 'verbose_json',
+      });
+
+      userText = transcription.text;
+
+      // Clean up temporary audio file
+      fs.unlink(filePath, (err) => {
+        if (err) console.error('Failed to delete temp audio file:', err);
+      });
+    } else if (req.body.text) {
+      // 1.b Use provided text directly
+      userText = req.body.text;
+    } else {
+      return next(new AppError('No audio file or text provided', 400));
     }
-
-    const filePath = req.file.path;
-
-    // 1. Transcribe audio using Whisper
-    const transcription = await groq.audio.transcriptions.create({
-      file: fs.createReadStream(filePath),
-      model: 'whisper-large-v3',
-      temperature: 0,
-      response_format: 'verbose_json',
-    });
-
-    const userText = transcription.text;
 
     // 2. Generate a response using an LLM
     const chatCompletion = await groq.chat.completions.create({
@@ -48,11 +58,6 @@ router.post('/', protect, upload.single('audio'), async (req, res, next) => {
     });
 
     const botResponse = chatCompletion.choices[0]?.message?.content || "I'm sorry, I couldn't process that request.";
-
-    // Clean up temporary audio file
-    fs.unlink(filePath, (err) => {
-      if (err) console.error('Failed to delete temp audio file:', err);
-    });
 
     res.json({
       success: true,

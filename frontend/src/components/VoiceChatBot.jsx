@@ -6,8 +6,9 @@ const VoiceChatBot = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [isRecording, setIsRecording] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
+  const [inputText, setInputText] = useState('');
   const [messages, setMessages] = useState([
-    { sender: 'bot', text: 'Hello! I am StayOS Assistant. Hold the microphone button and speak to ask me a question.' }
+    { sender: 'bot', text: 'Hello! I am StayOS Assistant. Type a message or hold the microphone to ask me a question.' }
   ]);
 
   const mediaRecorderRef = useRef(null);
@@ -78,6 +79,40 @@ const VoiceChatBot = () => {
     }
   };
 
+  const sendTextToBackend = async () => {
+    if (!inputText.trim() || isProcessing) return;
+    
+    const textToSend = inputText.trim();
+    setInputText('');
+    setMessages(prev => [...prev, { sender: 'user', text: textToSend }]);
+    setMessages(prev => [...prev, { sender: 'bot', text: '...' }]);
+    setIsProcessing(true);
+
+    try {
+      const formData = new FormData();
+      formData.append('text', textToSend);
+      
+      const response = await postForm('/chatbot', formData);
+      
+      setMessages(prev => {
+        const newMsgs = [...prev];
+        newMsgs.pop();
+        newMsgs.push({ sender: 'bot', text: response.response });
+        return newMsgs;
+      });
+    } catch (err) {
+      console.error('Chatbot API Error:', err);
+      setMessages(prev => {
+        const newMsgs = [...prev];
+        newMsgs.pop();
+        newMsgs.push({ sender: 'bot', text: 'Sorry, I encountered an error processing your request.' });
+        return newMsgs;
+      });
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
   return (
     <div style={{ position: 'fixed', bottom: '20px', right: '20px', zIndex: 9999 }}>
       {isOpen && (
@@ -119,26 +154,53 @@ const VoiceChatBot = () => {
           </div>
 
           {/* Controls */}
-          <div style={{ padding: '16px', background: 'var(--surface)', borderTop: '1px solid var(--border)', display: 'flex', justifyContent: 'center', alignItems: 'center', flexDirection: 'column', gap: '8px' }}>
-            <button 
-              onMouseDown={startRecording} 
-              onMouseUp={stopRecording} 
-              onTouchStart={startRecording}
-              onTouchEnd={stopRecording}
-              disabled={isProcessing}
-              style={{ 
-                width: '60px', height: '60px', borderRadius: '50%', 
-                background: isRecording ? 'var(--rose)' : (isProcessing ? 'var(--border2)' : 'var(--primary)'), 
-                border: 'none', color: '#fff', cursor: isProcessing ? 'not-allowed' : 'pointer', 
-                display: 'flex', justifyContent: 'center', alignItems: 'center',
-                boxShadow: isRecording ? '0 0 15px rgba(239,68,68,0.5)' : 'none',
-                transition: 'all 0.2s ease', transform: isRecording ? 'scale(1.05)' : 'scale(1)'
-              }}
-            >
-              {isProcessing ? '⏳' : '🎤'}
-            </button>
-            <div style={{ fontSize: '11px', color: 'var(--text3)' }}>
-              {isRecording ? 'Listening... Release to send.' : (isProcessing ? 'Thinking...' : 'Hold to speak')}
+          <div style={{ padding: '16px', background: 'var(--surface)', borderTop: '1px solid var(--border)', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+            <div style={{ display: 'flex', gap: '8px' }}>
+              <input 
+                type="text" 
+                value={inputText}
+                onChange={e => setInputText(e.target.value)}
+                onKeyDown={e => e.key === 'Enter' && !isProcessing && sendTextToBackend()}
+                placeholder="Type your message..."
+                disabled={isProcessing}
+                style={{ flex: 1, padding: '10px 14px', borderRadius: '20px', border: '1px solid var(--border)', background: 'var(--bg)', color: 'var(--text)', outline: 'none', fontSize: '13px' }}
+              />
+              <button 
+                onClick={sendTextToBackend}
+                disabled={isProcessing || !inputText.trim()}
+                style={{ width: '40px', height: '40px', borderRadius: '50%', background: inputText.trim() ? 'var(--primary)' : 'var(--border)', border: 'none', color: '#fff', cursor: inputText.trim() && !isProcessing ? 'pointer' : 'not-allowed', display: 'flex', justifyContent: 'center', alignItems: 'center' }}
+              >
+                ➤
+              </button>
+            </div>
+
+            <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '12px' }}>
+              <hr style={{ flex: 1, borderTop: '1px solid var(--border)', margin: 0 }} />
+              <span style={{ fontSize: '11px', color: 'var(--text3)', fontWeight: '600' }}>OR</span>
+              <hr style={{ flex: 1, borderTop: '1px solid var(--border)', margin: 0 }} />
+            </div>
+
+            <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', flexDirection: 'column', gap: '8px' }}>
+              <button 
+                onMouseDown={startRecording} 
+                onMouseUp={stopRecording} 
+                onTouchStart={startRecording}
+                onTouchEnd={stopRecording}
+                disabled={isProcessing}
+                style={{ 
+                  width: '50px', height: '50px', borderRadius: '50%', 
+                  background: isRecording ? 'var(--rose)' : (isProcessing ? 'var(--border2)' : 'var(--primary)'), 
+                  border: 'none', color: '#fff', cursor: isProcessing ? 'not-allowed' : 'pointer', 
+                  display: 'flex', justifyContent: 'center', alignItems: 'center',
+                  boxShadow: isRecording ? '0 0 15px rgba(239,68,68,0.5)' : 'none',
+                  transition: 'all 0.2s ease', transform: isRecording ? 'scale(1.05)' : 'scale(1)'
+                }}
+              >
+                {isProcessing ? '⏳' : '🎤'}
+              </button>
+              <div style={{ fontSize: '11px', color: 'var(--text3)' }}>
+                {isRecording ? 'Listening... Release to send.' : (isProcessing ? 'Thinking...' : 'Hold to speak')}
+              </div>
             </div>
           </div>
         </div>
