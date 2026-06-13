@@ -143,10 +143,10 @@ const HotelDashboard = ({ plan, onNav, hotelDetails }) => {
             50% { opacity: 0.5; }
           }
         `}</style>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 240px), 1fr))', gap: '16px', marginBottom: '28px' }}>
+        <div className="dashboard-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 240px), 1fr))', gap: '16px', marginBottom: '28px' }}>
           <SkeletonCard /><SkeletonCard /><SkeletonCard /><SkeletonCard />
         </div>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 280px), 1fr))', gap: '20px', marginBottom: '28px' }}>
+        <div className="dashboard-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 280px), 1fr))', gap: '20px', marginBottom: '28px' }}>
           <SkeletonTable /><SkeletonTable /><SkeletonTable />
         </div>
       </div>
@@ -192,14 +192,14 @@ const HotelDashboard = ({ plan, onNav, hotelDetails }) => {
       )}
 
       {/* Top Stat Cards */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 240px), 1fr))', gap: '16px', marginBottom: '28px' }}>
+      <div className="dashboard-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 240px), 1fr))', gap: '16px', marginBottom: '28px' }}>
         <StatCard icon="bed" iconColor="#2DD4BF" label="Total Rooms" value={rooms.length} sub={`${occupied} occupied`} trend={0} />
         <StatCard icon="calendar" iconColor="#A78BFA" label="Today's Check-ins" value={checkins.length} sub={`${checkouts.length} check-outs`} trend={0} />
         <StatCard icon="dollar" iconColor="#C9A84C" label="Today's Revenue" value={`₹${revenueData?.today?.revenue?.toLocaleString() || 0}`} sub={revenueData?.month?.revenue ? `₹${revenueData.month.revenue.toLocaleString()} this month` : '-'} trend={0} />
         <StatCard icon="users" iconColor="#34D399" label="Pending Payments" value={pendingPayments.length} sub="Requires attention" />
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 280px), 1fr))', gap: '20px', marginBottom: '28px' }}>
+      <div className="dashboard-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 280px), 1fr))', gap: '20px', marginBottom: '28px' }}>
         {/* Occupancy */}
         <div style={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: 'var(--radius)', padding: 'clamp(12px, 3vw, 24px)', gridColumn: 'span 1' }}>
           <div style={{ fontSize: '15px', fontWeight: '700', marginBottom: '20px' }}>Occupancy Rate</div>
@@ -242,7 +242,7 @@ const HotelDashboard = ({ plan, onNav, hotelDetails }) => {
         </div>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 300px), 1fr))', gap: '20px', marginBottom: '28px' }}>
+      <div className="dashboard-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 300px), 1fr))', gap: '20px', marginBottom: '28px' }}>
          {/* Today's Check-ins */}
         <div style={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: 'var(--radius)', padding: 'clamp(12px, 3vw, 24px)' }}>
           <div style={{ fontSize: '15px', fontWeight: '700', marginBottom: '16px' }}>Today's Check-ins</div>
@@ -302,7 +302,7 @@ const HotelDashboard = ({ plan, onNav, hotelDetails }) => {
         </div>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '20px' }}>
+      <div className="dashboard-grid" style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '20px' }}>
         {/* Room Maintenance */}
         {maintenance.length > 0 && (
           <div style={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: 'var(--radius)', padding: 'clamp(12px, 3vw, 24px)' }}>

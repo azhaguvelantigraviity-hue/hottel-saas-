@@ -71,6 +71,12 @@ const AdminApp = ({ onLogout }) => {
   const page = pathParts[2] || 'dashboard';
   const [isSidebarOpen, setIsSidebarOpen] = useState(() => window.innerWidth > 1024);
 
+  useEffect(() => {
+    const handleResize = () => setIsSidebarOpen(window.innerWidth > 1024);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
   const setPage = (newPage) => navigate(`/admin/${newPage}`);
 
   const pages = {
@@ -115,6 +121,12 @@ const HotelApp = ({ onLogout, initialPlan = 'enterprise', role = 'manager', hote
   const pathParts = location.pathname.split('/');
   const page = pathParts[2] || 'dashboard';
   const [isSidebarOpen, setIsSidebarOpen] = useState(() => window.innerWidth > 1024);
+
+  useEffect(() => {
+    const handleResize = () => setIsSidebarOpen(window.innerWidth > 1024);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   const setPage = (newPage) => navigate(`/hotel/${newPage}`);
   const plan = initialPlan;

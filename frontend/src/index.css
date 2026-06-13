@@ -178,6 +178,12 @@ table { border-collapse: collapse; }
   padding-bottom: 8px; /* space for scrollbar */
 }
 
+.table-responsive-wrapper table {
+  width: 100%;
+  min-width: max-content; /* Ensure table doesn't compress */
+  border-collapse: collapse;
+}
+
 table {
   width: 100%;
   border-collapse: collapse;
@@ -214,7 +220,7 @@ table {
   
   /* Generic mobile wrap for headers and toolbars */
   .mobile-wrap { flex-wrap: wrap !important; gap: 12px !important; }
-  .topbar-container { padding: 0 12px !important; gap: 8px !important; }
+  .topbar-container { padding: 0 16px !important; gap: 8px !important; }
   
   /* Typography */
   .mobile-text-sm { font-size: 16px !important; } /* reduced titles */
@@ -248,9 +254,7 @@ table {
   }
 
   /* Tables */
-  table {
-    display: block;
-    overflow-x: auto;
+  .table-responsive-wrapper table {
     white-space: nowrap;
   }
 
