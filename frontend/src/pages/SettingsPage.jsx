@@ -49,22 +49,19 @@ const SettingsPage = ({ role, plan, onNav }) => {
     try {
       const api = await import('../services/api').then(m => m.default || m);
       
-      const formData = new FormData();
-      formData.append('name', profile.name);
-      formData.append('address', profile.address);
-      formData.append('city', profile.city);
-      formData.append('country', profile.country);
-      formData.append('phone', profile.phone);
-      formData.append('email', profile.email);
-      formData.append('website', profile.website);
-      if (profile.tagline) formData.append('tagline', profile.tagline);
+      const payload = {
+        name: profile.name,
+        address: profile.address,
+        city: profile.city,
+        country: profile.country,
+        phone: profile.phone,
+        email: profile.email,
+        website: profile.website,
+        tagline: profile.tagline,
+        logo: profile.logo
+      };
       
-      // Save logo as base64 string instead of file upload to prevent Render ephemeral disk wipes
-      if (profile.logo) {
-        formData.append('logo', profile.logo);
-      }
-      
-      const res = await api.putForm('/hotel/profile', formData);
+      const res = await api.put('/hotel/profile', payload);
       
       // Update local storage so the rest of the app sees the updated hotel data
       if (res.data) {
@@ -241,8 +238,11 @@ const SettingsPage = ({ role, plan, onNav }) => {
                   <input type="file" accept="image/*" onChange={e => {
                     const file = e.target.files[0];
                     if (file) {
-                      setLogoFile(file);
-                      setProfile({...profile, logo: URL.createObjectURL(file)});
+                      const reader = new FileReader();
+                      reader.onload = (ev) => {
+                        setProfile({...profile, logo: ev.target.result});
+                      };
+                      reader.readAsDataURL(file);
                     }
                   }} style={{ fontSize: '12px' }} />
                 </div>
