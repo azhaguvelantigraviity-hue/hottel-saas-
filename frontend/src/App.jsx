@@ -48,6 +48,7 @@ import Sidebar from './components/Sidebar';
 import Topbar from './components/Topbar';
 import ProtectedRoute from './components/ProtectedRoute';
 import { NotificationProvider } from './context/NotificationContext';
+import VoiceChatBot from './components/VoiceChatBot';
 
 import * as authService from './services/authService';
 
@@ -109,6 +110,7 @@ const AdminApp = ({ onLogout }) => {
           {pages[page] || pages.dashboard}
         </div>
       </div>
+      <VoiceChatBot />
     </div>
     </AdminNotificationProvider>
   );
@@ -249,6 +251,7 @@ const HotelApp = ({ onLogout, initialPlan = 'enterprise', role = 'manager', hote
           {getPage()}
         </div>
       </div>
+      <VoiceChatBot />
     </div>
     </NotificationProvider>
   );

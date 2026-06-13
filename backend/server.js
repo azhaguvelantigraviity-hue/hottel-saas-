@@ -30,6 +30,7 @@ const bulkImportRoutes  = require('./routes/bulkImport');
 const complaintsRoutes  = require('./routes/complaints');
 const notificationRoutes = require('./routes/notificationRoutes');
 const travelRoutes       = require('./routes/travels');
+const chatbotRoutes      = require('./routes/chatbot');
 
 // ── Connect DB ────────────────────────────────────────────────────────────────
 connectDB();
@@ -168,6 +169,7 @@ app.use('/api/v1/bulk-import',  bulkImportRoutes);
 app.use('/api/v1/complaints',   complaintsRoutes);
 app.use('/api/v1/notifications', notificationRoutes);
 app.use('/api/v1/travels',      travelRoutes);
+app.use('/api/v1/chatbot',      chatbotRoutes);
 
 // ── API info ──────────────────────────────────────────────────────────────────
 app.get('/api/v1', (_req, res) => {
