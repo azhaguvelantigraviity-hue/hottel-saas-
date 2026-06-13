@@ -20,7 +20,7 @@ const SettingsPage = ({ role, plan, onNav }) => {
   const [propMsg, setPropMsg] = useState(null);
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
   const [profile, setProfile] = useState({
-    name: '', address: '', city: '', country: '', phone: '', email: '', website: ''
+    name: '', address: '', city: '', country: '', phone: '', email: '', website: '', logo: '', tagline: ''
   });
 
   React.useEffect(() => {
@@ -34,7 +34,9 @@ const SettingsPage = ({ role, plan, onNav }) => {
           country: user.hotel.address?.country || '',
           phone: user.hotel.phone || '',
           email: user.hotel.email || '',
-          website: user.hotel.website || ''
+          website: user.hotel.website || '',
+          logo: user.hotel.logo || '',
+          tagline: user.hotel.tagline || ''
         });
       }
     });
@@ -50,7 +52,9 @@ const SettingsPage = ({ role, plan, onNav }) => {
         address: { street: profile.address, city: profile.city, country: profile.country },
         phone: profile.phone,
         email: profile.email,
-        website: profile.website
+        website: profile.website,
+        logo: profile.logo,
+        tagline: profile.tagline
       });
       setPropMsg({ type: 'success', text: 'Property settings updated!' });
     } catch (e) {
@@ -202,6 +206,29 @@ const SettingsPage = ({ role, plan, onNav }) => {
               
               <button onClick={handleSaveProfile} disabled={loading} style={{ padding: '10px', background: 'linear-gradient(135deg,#C9A84C,#8A6F2E)', border: 'none', borderRadius: '7px', color: '#fff', cursor: loading ? 'not-allowed' : 'pointer', fontWeight: '600', fontSize: '13px', fontFamily: 'Inter, sans-serif', marginTop: '4px', opacity: loading ? 0.6 : 1 }}>
                 {loading ? 'Saving...' : 'Save Changes'}
+              </button>
+            </div>
+          </div>
+        )}
+        
+        {/* Invoice Settings (Only for Hotel role) */}
+        {role !== 'admin' && (
+          <div style={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: 'var(--radius)', padding: 'clamp(12px, 3vw, 24px)' }}>
+            <div style={{ fontSize: '15px', fontWeight: '700', marginBottom: '16px' }}>Invoice Settings</div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+              <div><label style={labelStyle}>HOTEL LOGO URL</label><input style={inputStyle} value={profile.logo} onChange={e => setProfile({...profile, logo: e.target.value})} placeholder="https://example.com/logo.png" /></div>
+              <div><label style={labelStyle}>TAGLINE</label><input style={inputStyle} value={profile.tagline} onChange={e => setProfile({...profile, tagline: e.target.value})} placeholder="Where Luxury Meets Comfort" /></div>
+              
+              {profile.logo && (
+                <div style={{ marginTop: '8px', padding: '12px', background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: '8px', display: 'flex', justifyContent: 'center' }}>
+                  <img src={profile.logo} alt="Hotel Logo Preview" style={{ maxHeight: '60px', objectFit: 'contain' }} onError={(e) => { e.target.style.display = 'none'; }} />
+                </div>
+              )}
+              <div style={{ fontSize: '12px', color: 'var(--text3)' }}>
+                These settings will be used to customize your PDF invoices generated during guest checkout. Make sure your Hotel Name and Address are also correct in the Property Settings.
+              </div>
+              <button onClick={handleSaveProfile} disabled={loading} style={{ padding: '10px', background: 'linear-gradient(135deg,#C9A84C,#8A6F2E)', border: 'none', borderRadius: '7px', color: '#fff', cursor: loading ? 'not-allowed' : 'pointer', fontWeight: '600', fontSize: '13px', fontFamily: 'Inter, sans-serif', marginTop: '4px', opacity: loading ? 0.6 : 1 }}>
+                {loading ? 'Saving...' : 'Save Invoice Settings'}
               </button>
             </div>
           </div>

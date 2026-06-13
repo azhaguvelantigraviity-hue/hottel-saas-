@@ -827,7 +827,7 @@ const verifySubscriptionPayment = catchAsync(async (req, res) => {
 });
 
 const updateProfile = catchAsync(async (req, res) => {
-  const allowedUpdates = ['name', 'address', 'phone', 'email', 'website'];
+  const allowedUpdates = ['name', 'address', 'phone', 'email', 'website', 'logo', 'tagline'];
   const updateData = {};
   for (let key of allowedUpdates) {
     if (req.body[key] !== undefined) {

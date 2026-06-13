@@ -37,6 +37,7 @@ const HotelSchema = new mongoose.Schema({
   nextPaymentAt:     Date,
   paymentStatus:     { type: String, enum: ['unpaid', 'paid'], default: 'unpaid' },
   logo:       String,
+  tagline:    String,
   timezone:   { type: String, default: 'Asia/Kolkata' },
   currency:   { type: String, default: 'INR' },
   gstNumber:  String,

@@ -2,6 +2,9 @@ import React, { useState, useEffect } from 'react';
 import Badge from '../components/Badge';
 import Icon from '../components/Icon';
 import * as api from '../services/hotelService';
+import { getUser } from '../services/api';
+import html2pdf from 'html2pdf.js';
+import InvoiceDocument from '../components/InvoiceDocument';
 
 const CheckInOutPage = () => {
   const [activeTab, setActiveTab] = useState('arrivals'); // 'arrivals' | 'departures'
@@ -9,6 +12,11 @@ const CheckInOutPage = () => {
   const [departures, setDepartures] = useState([]);
   const [loading, setLoading] = useState(true);
   const [checkInModalBooking, setCheckInModalBooking] = useState(null);
+  const [checkoutBooking, setCheckoutBooking] = useState(null);
+  const [isGeneratingInvoice, setIsGeneratingInvoice] = useState(false);
+
+  const user = getUser();
+  const hotelDetails = user?.hotel || null;
 
   const fetchData = async () => {
     setLoading(true);
@@ -40,15 +48,40 @@ const CheckInOutPage = () => {
     }
   };
 
-  const handleCheckOut = async (id) => {
-    if (!window.confirm("Confirm check-out for this guest?")) return;
-    try {
-      await api.checkOut(id);
-      fetchData(); // refresh lists
-    } catch (err) {
-      alert(err.message || 'Check-out failed');
-    }
+  const handleCheckOutClick = (id) => {
+    if (!window.confirm("Confirm check-out for this guest? An invoice PDF will be generated automatically.")) return;
+    const b = departures.find(d => d._id === id);
+    if (b) setCheckoutBooking(b);
   };
+
+  useEffect(() => {
+    const processCheckout = async () => {
+      if (checkoutBooking && !isGeneratingInvoice) {
+        setIsGeneratingInvoice(true);
+        try {
+          const element = document.getElementById('invoice-capture-wrap');
+          const opt = {
+            margin:       0,
+            filename:     `${checkoutBooking.bookingId || 'Invoice'}.pdf`,
+            image:        { type: 'jpeg', quality: 0.98 },
+            html2canvas:  { scale: 2 },
+            jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' }
+          };
+          
+          await html2pdf().from(element).set(opt).save();
+          
+          await api.checkOut(checkoutBooking._id);
+          fetchData(); // refresh lists
+        } catch (err) {
+          alert(err.message || 'Check-out failed');
+        } finally {
+          setIsGeneratingInvoice(false);
+          setCheckoutBooking(null);
+        }
+      }
+    };
+    processCheckout();
+  }, [checkoutBooking]);
 
   const pendingArrivals = arrivals.filter(a => a.status === 'confirmed' || a.status === 'pending');
   const checkedIn = arrivals.filter(a => a.status === 'checked_in');
@@ -149,9 +182,10 @@ const CheckInOutPage = () => {
                           <span style={{ fontSize: '13px', color: 'var(--teal)', fontWeight: 600 }}>Checked Out ✓</span>
                         ) : b.status === 'checked_in' ? (
                           <button 
-                            onClick={() => handleCheckOut(b._id)}
-                            style={{ background: 'var(--rose)', color: '#fff', border: 'none', padding: '8px 16px', borderRadius: '6px', cursor: 'pointer', fontWeight: 600, fontSize: '13px' }}>
-                            Check Out
+                            onClick={() => handleCheckOutClick(b._id)}
+                            disabled={isGeneratingInvoice && checkoutBooking?._id === b._id}
+                            style={{ background: 'var(--rose)', color: '#fff', border: 'none', padding: '8px 16px', borderRadius: '6px', cursor: (isGeneratingInvoice && checkoutBooking?._id === b._id) ? 'not-allowed' : 'pointer', fontWeight: 600, fontSize: '13px', opacity: (isGeneratingInvoice && checkoutBooking?._id === b._id) ? 0.7 : 1 }}>
+                            {(isGeneratingInvoice && checkoutBooking?._id === b._id) ? 'Generating...' : 'Check Out'}
                           </button>
                         ) : (
                           <span style={{ fontSize: '13px', color: 'var(--text3)' }}>Not Checked-In</span>
@@ -165,6 +199,18 @@ const CheckInOutPage = () => {
           </table>
         )}
       </div>
+
+      {checkoutBooking && (
+        <div style={{ position: 'absolute', left: '-9999px', top: '-9999px' }}>
+          <div id="invoice-capture-wrap">
+            <InvoiceDocument 
+              hotel={hotelDetails} 
+              booking={checkoutBooking} 
+              guest={checkoutBooking.guest} 
+            />
+          </div>
+        </div>
+      )}
     </div>
   );
 };
