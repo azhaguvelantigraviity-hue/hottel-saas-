@@ -58,26 +58,35 @@ const CheckInOutPage = () => {
     const processCheckout = async () => {
       if (checkoutBooking && !isGeneratingInvoice) {
         setIsGeneratingInvoice(true);
-        try {
-          const element = document.getElementById('invoice-capture-wrap');
-          const opt = {
-            margin:       0,
-            filename:     `${checkoutBooking.bookingId || 'Invoice'}.pdf`,
-            image:        { type: 'jpeg', quality: 0.98 },
-            html2canvas:  { scale: 2 },
-            jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' }
-          };
-          
-          await html2pdf().from(element).set(opt).save();
-          
-          await api.checkOut(checkoutBooking._id);
-          fetchData(); // refresh lists
-        } catch (err) {
-          alert(err.message || 'Check-out failed');
-        } finally {
-          setIsGeneratingInvoice(false);
-          setCheckoutBooking(null);
-        }
+        
+        // Give React time to render the hidden component and images to load
+        setTimeout(async () => {
+          try {
+            const element = document.getElementById('invoice-capture-wrap');
+            if (element) {
+              const opt = {
+                margin:       0,
+                filename:     `${checkoutBooking.bookingId || 'Invoice'}.pdf`,
+                image:        { type: 'jpeg', quality: 0.98 },
+                html2canvas:  { scale: 2, useCORS: true },
+                jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' }
+              };
+              
+              await html2pdf().from(element).set(opt).save();
+            } else {
+              console.error("Invoice element not found!");
+            }
+            
+            await api.checkOut(checkoutBooking._id);
+            fetchData(); // refresh lists
+          } catch (err) {
+            console.error("Checkout / PDF generation error:", err);
+            alert("Error during checkout: " + (err.message || 'Unknown error'));
+          } finally {
+            setIsGeneratingInvoice(false);
+            setCheckoutBooking(null);
+          }
+        }, 800);
       }
     };
     processCheckout();
