@@ -17,7 +17,7 @@ const {
   createSubscriptionOrder, verifySubscriptionPayment, getAttendance, updateProfile,
   getPayrollRecords, updatePayrollRecord, markPayrollPaid, processAllPendingPayroll,
   uploadDocument, getDocuments, getGuestDocuments, deleteDocument,
-  getHotelDashboard, extendStay, changeRoom, searchGuestById
+  getHotelDashboard, extendStay, changeRoom, searchGuestById, processAadhaarOcr
 } = require('../controllers/hotelController');
 const { protect, authorize, scopeToHotel, hotelAdmin } = require('../middleware/auth');
 const { requireFeature, enforceLimit } = require('../middleware/planGate');
@@ -66,6 +66,9 @@ router.put   ('/bookings/:id/guest-details',         updateGuestDetails);
 router.post  ('/bookings/:id/id-scan',               upload.single('documentImage'), uploadIdScan);
 router.post  ('/bookings/:id/face-verification',     submitFaceVerification);
 router.post  ('/bookings/:id/signature',             saveSignature);
+
+// ── AI OCR ────────────────────────────────────────────────────────────────────
+router.post  ('/ocr/aadhaar',                        processAadhaarOcr);
 
 // ── Documents ─────────────────────────────────────────────────────────────────
 router.post  ('/bookings/:id/documents',             upload.single('documentFile'), uploadDocument);

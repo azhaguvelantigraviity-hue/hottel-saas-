@@ -107,6 +107,43 @@ const NewBookingForm = ({ onClose, onSave }) => {
   });
   const [availableRooms, setAvailableRooms] = useState([]);
   const [guestFound, setGuestFound] = useState(false);
+  const [ocrLoading, setOcrLoading] = useState(false);
+
+  const handleAadhaarUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    setOcrLoading(true);
+    try {
+      const reader = new FileReader();
+      reader.onload = async (ev) => {
+        const base64Image = ev.target.result;
+        try {
+          const apiModule = await import('../services/api').then(m => m.default || m);
+          const res = await apiModule.post('/hotel/ocr/aadhaar', { image: base64Image });
+          if (res.data) {
+            setForm(f => ({
+              ...f,
+              guest: res.data.name || f.guest,
+              phone: res.data.phone || f.phone,
+              address: res.data.address || f.address,
+              idNumber: res.data.idNumber || f.idNumber,
+              idType: 'aadhaar'
+            }));
+          }
+        } catch (err) {
+          console.error('OCR failed:', err);
+          alert('Failed to extract details from Aadhaar. Please fill manually.');
+        } finally {
+          setOcrLoading(false);
+        }
+      };
+      reader.readAsDataURL(file);
+    } catch (err) {
+      console.error(err);
+      setOcrLoading(false);
+    }
+  };
 
   const triggerLookup = async (params) => {
     try {
@@ -166,6 +203,18 @@ const NewBookingForm = ({ onClose, onSave }) => {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 300px), 1fr))', gap: '12px' }}>
+        <div style={{ gridColumn: '1 / -1', background: 'rgba(201,168,76,0.1)', padding: '12px', borderRadius: '8px', border: '1px dashed var(--gold)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '10px' }}>
+          <div>
+            <div style={{ fontSize: '13px', fontWeight: 600, color: 'var(--gold)' }}>Auto-fill with Aadhaar OCR</div>
+            <div style={{ fontSize: '11px', color: 'var(--text3)' }}>Upload a picture of the guest's Aadhaar card to instantly extract Name, ID, Phone, and Address.</div>
+          </div>
+          <div>
+            <input type="file" id="aadhaar-upload" accept="image/*" style={{ display: 'none' }} onChange={handleAadhaarUpload} />
+            <label htmlFor="aadhaar-upload" style={{ background: 'var(--gold)', color: '#000', padding: '6px 12px', borderRadius: '4px', fontSize: '12px', fontWeight: 600, cursor: ocrLoading ? 'not-allowed' : 'pointer', opacity: ocrLoading ? 0.7 : 1, display: 'inline-flex', alignItems: 'center', gap: '6px', whiteSpace: 'nowrap' }}>
+              {ocrLoading ? 'Extracting...' : 'Upload Aadhaar'}
+            </label>
+          </div>
+        </div>
         <div>
           <label style={labelStyle}>ID TYPE</label>
           <select style={inputStyle} value={form.idType} onChange={e => set('idType', e.target.value)}>

@@ -6,6 +6,9 @@ const Booking = require('../models/Booking');
 const Guest   = require('../models/Guest');
 const CabBooking = require('../models/CabBooking');
 const TravelPackage = require('../models/TravelPackage');
+const multer = require('multer');
+const Groq = require('groq-sdk');
+const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
 const Hotel = require('../models/Hotel');
 const Document = require('../models/Document');
 const SubscriptionPayment = require('../models/SubscriptionPayment');
@@ -1222,6 +1225,40 @@ const changeRoom = catchAsync(async (req, res) => {
   sendSuccess(res, populated);
 });
 
+const processAadhaarOcr = catchAsync(async (req, res) => {
+  const { image } = req.body;
+  if (!image) throw new AppError('Image is required', 400);
+
+  try {
+    const chatCompletion = await groq.chat.completions.create({
+      messages: [
+        {
+          role: 'user',
+          content: [
+            { type: 'text', text: 'You are an OCR assistant. Extract the following details from this Indian Aadhaar card image: Full Name, 12-digit Aadhaar Number, Phone Number (if visible), and Address. Return ONLY a pure JSON object without markdown formatting, with keys: "name", "idNumber", "phone", "address". If a field is not found, set its value to an empty string.' },
+            { type: 'image_url', image_url: { url: image } }
+          ]
+        }
+      ],
+      model: 'llama-3.2-11b-vision-preview',
+      temperature: 0,
+    });
+
+    const responseText = chatCompletion.choices[0]?.message?.content || '{}';
+    let extractedData = {};
+    try {
+      extractedData = JSON.parse(responseText.replace(/```json/g, '').replace(/```/g, '').trim());
+    } catch (e) {
+      console.error('Failed to parse OCR response:', responseText);
+    }
+
+    sendSuccess(res, extractedData);
+  } catch (error) {
+    console.error('OCR Error:', error);
+    throw new AppError('Failed to process image for OCR', 500);
+  }
+});
+
 module.exports = {
   getRooms, getRoom, createRoom, updateRoom, deleteRoom,
   updateRoomHousekeeping, checkAvailability,
@@ -1238,5 +1275,5 @@ module.exports = {
   createSubscriptionOrder, verifySubscriptionPayment, updateProfile,
   getPayrollRecords, updatePayrollRecord, markPayrollPaid, processAllPendingPayroll,
   uploadDocument, getDocuments, getGuestDocuments, deleteDocument, requestAdminHelp,
-  getHotelDashboard
+  getHotelDashboard, processAadhaarOcr
 };
