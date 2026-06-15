@@ -69,15 +69,17 @@ const AssignDropdown = ({ employees, tickets, value, onChange }) => {
               <div 
                 key={s._id || s.id} 
                 onClick={() => { onChange(s.name || s.firstName); setIsOpen(false); setSearch(''); }}
-                style={{ padding: '8px 12px', cursor: 'pointer', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}
+                style={{ padding: '8px 12px', cursor: 'pointer', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '8px' }}
                 onMouseEnter={e => e.currentTarget.style.background = 'var(--surface)'}
                 onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
               >
-                <div style={{ display: 'flex', flexDirection: 'column' }}>
-                  <span style={{ fontSize: '13px', fontWeight: '500', color: 'var(--text)' }}>{s.name || s.firstName}</span>
-                  <span style={{ fontSize: '11px', color: 'var(--text3)' }}>{s.employeeId || s._id?.slice(-6) || 'ID N/A'}</span>
+                <div style={{ display: 'flex', flexDirection: 'column', flex: 1, minWidth: 0 }}>
+                  <span style={{ fontSize: '13px', fontWeight: '500', color: 'var(--text)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{s.name || s.firstName}</span>
+                  <span style={{ fontSize: '11px', color: 'var(--text3)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{s.employeeId || s._id?.slice(-6) || 'ID N/A'}</span>
                 </div>
-                <Badge color={s.calcStatus === 'Available' ? 'green' : s.calcStatus === 'Busy' ? 'amber' : 'rose'}>{s.calcStatus}</Badge>
+                <div style={{ flexShrink: 0 }}>
+                  <Badge color={s.calcStatus === 'Available' ? 'green' : s.calcStatus === 'Busy' ? 'amber' : 'rose'}>{s.calcStatus}</Badge>
+                </div>
               </div>
             ))}
           </div>
