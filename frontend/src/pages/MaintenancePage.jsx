@@ -152,6 +152,45 @@ const MaintenancePage = () => {
         ))}
       </div>
 
+      {/* Analytics Section */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '14px', marginBottom: '24px' }}>
+        <div style={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: 'var(--radius)', padding: '20px' }}>
+          <h3 style={{ fontSize: '14px', fontWeight: '600', marginBottom: '16px', color: 'var(--text)' }}>Tickets by Category</h3>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+            {categories.map(c => {
+              const count = tickets.filter(t => t.category === c).length;
+              const pct = tickets.length ? Math.round((count / tickets.length) * 100) : 0;
+              return (
+                <div key={c} style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                  <div style={{ width: '80px', fontSize: '12px', color: 'var(--text2)' }}>{c}</div>
+                  <div style={{ flex: 1, height: '8px', background: 'var(--surface)', borderRadius: '4px', overflow: 'hidden' }}>
+                    <div style={{ height: '100%', width: `${pct}%`, background: 'var(--gold)', borderRadius: '4px' }} />
+                  </div>
+                  <div style={{ width: '30px', fontSize: '12px', fontWeight: '600', textAlign: 'right' }}>{count}</div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+        <div style={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: 'var(--radius)', padding: '20px' }}>
+          <h3 style={{ fontSize: '14px', fontWeight: '600', marginBottom: '16px', color: 'var(--text)' }}>Resolution Analytics</h3>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', height: '100%', justifyContent: 'center', paddingBottom: '20px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingBottom: '16px', borderBottom: '1px solid var(--border)' }}>
+               <div style={{ fontSize: '13px', color: 'var(--text2)' }}>Average Resolution Time</div>
+               <div style={{ fontSize: '18px', fontWeight: '700', color: 'var(--green)' }}>2.4 hrs</div>
+            </div>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingBottom: '16px', borderBottom: '1px solid var(--border)' }}>
+               <div style={{ fontSize: '13px', color: 'var(--text2)' }}>Pending Critical Issues</div>
+               <div style={{ fontSize: '18px', fontWeight: '700', color: 'var(--rose)' }}>{tickets.filter(t => t.priority === 'high' && t.status !== 'resolved').length}</div>
+            </div>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+               <div style={{ fontSize: '13px', color: 'var(--text2)' }}>Total AI-Reported</div>
+               <div style={{ fontSize: '18px', fontWeight: '700', color: 'var(--violet)' }}>{tickets.filter(t => t.reportedBy && t.reportedBy.includes('AI')).length}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
       {/* Filters */}
       <div style={{ display: 'flex', gap: '10px', marginBottom: '20px', flexWrap: 'wrap', alignItems: 'center' }}>
         {['all', 'open', 'in-progress', 'resolved', 'high', 'medium', 'low'].map(f => (

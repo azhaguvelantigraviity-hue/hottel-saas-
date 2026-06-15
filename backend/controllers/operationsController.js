@@ -137,12 +137,18 @@ const createMaintenanceRequest = asyncHandler(async (req, res) => {
 
 const updateMaintenanceRequest = asyncHandler(async (req, res) => {
   const { Maintenance } = require('../models/Operations');
+  const Room = require('../models/Room');
   const request = await Maintenance.findOneAndUpdate(
     { _id: req.params.id, hotel: req.hotelId },
     req.body,
     { new: true, runValidators: true }
   );
   if (!request) return res.status(404).json({ success: false, message: 'Maintenance request not found' });
+  
+  if (['resolved', 'closed'].includes(request.status) && request.room) {
+    await Room.findOneAndUpdate({ hotel: req.hotelId, roomNumber: request.room, status: 'maintenance' }, { status: 'available' });
+  }
+  
   sendSuccess(res, request);
 });
 

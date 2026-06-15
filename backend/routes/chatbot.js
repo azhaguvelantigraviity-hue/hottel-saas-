@@ -10,7 +10,8 @@ const Room = require('../models/Room');
 const Booking = require('../models/Booking');
 const Guest = require('../models/Guest');
 const User = require('../models/User');
-const { Employee } = require('../models/Operations');
+const Notification = require('../models/Notification');
+const { Employee, Maintenance } = require('../models/Operations');
 
 const router = express.Router();
 const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
@@ -122,6 +123,8 @@ CRITICAL RULES:
 2. If the user asks for data that is zero, empty, or not present in the JSON, answer EXACTLY with: "No records found." Do not add extra text.
 3. Keep answers extremely concise and direct.
 4. If the user asks for restricted data, inform them it's restricted.
+5. If the user reports a room maintenance issue (e.g., AC broken, TV not working), reply normally but APPEND this EXACT text block at the end of your response: <CREATE_TICKET:RoomNumber:Issue:Category:Priority> 
+(Category must be one of: HVAC, Plumbing, Electronics, Elevator, Furniture, Electrical, Other. Priority must be: high, medium, or low).
 
 LIVE JSON DATA:
 ${JSON.stringify(context, null, 2)}`
@@ -136,7 +139,54 @@ ${JSON.stringify(context, null, 2)}`
       max_tokens: 150,
     });
 
-    const botResponse = chatCompletion.choices[0]?.message?.content || "I'm sorry, I couldn't process that request.";
+    let botResponse = chatCompletion.choices[0]?.message?.content || "I'm sorry, I couldn't process that request.";
+
+    // Intercept Auto-Repair triggers
+    const ticketMatch = botResponse.match(/<CREATE_TICKET:([^:]+):([^:]+):([^:]+):([^>]+)>/);
+    if (ticketMatch) {
+      const [_, roomNum, issue, category, priority] = ticketMatch;
+      botResponse = botResponse.replace(ticketMatch[0], '').trim();
+
+      const maintenanceStaff = await Employee.findOne({ hotel: hotelId, status: 'active', department: 'Maintenance' }) 
+         || await Employee.findOne({ hotel: hotelId, status: 'active', role: 'housekeeping' });
+      
+      const reqCount = await Maintenance.countDocuments({ hotel: hotelId });
+      const ticketId = `MNT-${String(reqCount + 1001).padStart(4, '0')}`;
+      
+      await Maintenance.create({
+        hotel: hotelId,
+        ticketId,
+        room: roomNum.trim(),
+        issue: issue.trim(),
+        category: category.trim(),
+        priority: priority.trim().toLowerCase(),
+        status: 'open',
+        assignedTo: maintenanceStaff ? maintenanceStaff.name : null,
+        reportedBy: 'StayOS Assistant'
+      });
+
+      if (priority.trim().toLowerCase() === 'high') {
+        await Room.findOneAndUpdate({ hotel: hotelId, roomNumber: roomNum.trim() }, { status: 'maintenance' });
+      }
+
+      const io = req.app.get('io');
+      const notif = await Notification.create({
+        hotel: hotelId,
+        title: 'New AI Maintenance Ticket',
+        desc: `Room ${roomNum.trim()}: ${issue.trim()} (Assigned to ${maintenanceStaff ? maintenanceStaff.name : 'Unassigned'})`,
+        type: 'maintenance',
+        icon: 'tool',
+        color: 'var(--rose)',
+        targetRoles: ['platform_admin', 'hotel_admin', 'manager', 'receptionist', 'housekeeping', 'hotel_staff'],
+        relatedRoom: roomNum.trim()
+      });
+
+      if (io) {
+        notif.targetRoles.forEach(r => {
+           io.to(`hotel_${hotelId}_${r}`).emit('newNotification', notif);
+        });
+      }
+    }
 
     res.json({
       success: true,
