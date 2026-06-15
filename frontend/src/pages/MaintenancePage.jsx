@@ -129,8 +129,8 @@ const MaintenancePage = () => {
   const addTicket = async () => {
     if (!form.room || !form.issue) return;
     const payload = {
-      roomNumber: form.room,
-      maintenanceIssue: form.issue,
+      room: form.room,
+      issue: form.issue,
       category: form.category,
       priority: form.priority,
       notes: form.notes,
