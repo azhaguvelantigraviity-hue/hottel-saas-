@@ -290,6 +290,35 @@ const NewBookingForm = ({ onClose, onSave }) => {
           <label style={labelStyle}>ADDRESS</label>
           <input style={inputStyle} value={form.address} onChange={e => set('address', e.target.value)} placeholder="Guest full address" />
         </div>
+        <div>
+          <label style={labelStyle}>CHECK-IN DATE & TIME *</label>
+          <input type="datetime-local" style={inputStyle} value={form.checkInDateTime} onChange={e => set('checkInDateTime', e.target.value)} />
+        </div>
+        <div>
+          <label style={labelStyle}>STAY DURATION (DAYS) *</label>
+          <input type="number" min="1" style={inputStyle} value={form.stayDays} onChange={e => set('stayDays', +e.target.value)} />
+        </div>
+        <div>
+          <label style={labelStyle}>CHECK-OUT DATE & TIME</label>
+          <div style={{ ...inputStyle, background: 'var(--bg)', color: 'var(--text3)' }}>
+            {computedCheckOut || 'Select check-in time'}
+          </div>
+        </div>
+        <div>
+          <label style={labelStyle}>ADULTS</label>
+          <input type="number" min="1" max="6" style={inputStyle} value={form.adults} onChange={e => set('adults', +e.target.value)} />
+        </div>
+        <div>
+          <label style={labelStyle}>CHILDREN</label>
+          <input type="number" min="0" max="4" style={inputStyle} value={form.children} onChange={e => set('children', +e.target.value)} />
+        </div>
+        <div>
+          <label style={labelStyle}>BOOKING SOURCE</label>
+          <select style={inputStyle} value={form.source} onChange={e => set('source', e.target.value)}>
+            {['direct', 'booking.com', 'expedia', 'agoda'].map(s => <option key={s} value={s}>{s}</option>)}
+          </select>
+        </div>
+
         <div style={{ gridColumn: '1 / -1', background: 'var(--bg)', padding: '12px', borderRadius: '8px', border: '1px solid var(--border)', marginTop: '10px' }}>
           <div style={{ fontSize: '13px', fontWeight: 600, marginBottom: '8px', color: 'var(--primary)' }}>✨ AI Smart Room Allocation Preferences</div>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(120px, 1fr))', gap: '10px', marginBottom: '12px' }}>
@@ -368,34 +397,6 @@ const NewBookingForm = ({ onClose, onSave }) => {
               </div>
             </div>
           )}
-        </div>
-        <div>
-          <label style={labelStyle}>CHECK-IN DATE & TIME *</label>
-          <input type="datetime-local" style={inputStyle} value={form.checkInDateTime} onChange={e => set('checkInDateTime', e.target.value)} />
-        </div>
-        <div>
-          <label style={labelStyle}>STAY DURATION (DAYS) *</label>
-          <input type="number" min="1" style={inputStyle} value={form.stayDays} onChange={e => set('stayDays', +e.target.value)} />
-        </div>
-        <div>
-          <label style={labelStyle}>CHECK-OUT DATE & TIME</label>
-          <div style={{ ...inputStyle, background: 'var(--bg)', color: 'var(--text3)' }}>
-            {computedCheckOut || 'Select check-in time'}
-          </div>
-        </div>
-        <div>
-          <label style={labelStyle}>ADULTS</label>
-          <input type="number" min="1" max="6" style={inputStyle} value={form.adults} onChange={e => set('adults', +e.target.value)} />
-        </div>
-        <div>
-          <label style={labelStyle}>CHILDREN</label>
-          <input type="number" min="0" max="4" style={inputStyle} value={form.children} onChange={e => set('children', +e.target.value)} />
-        </div>
-        <div>
-          <label style={labelStyle}>BOOKING SOURCE</label>
-          <select style={inputStyle} value={form.source} onChange={e => set('source', e.target.value)}>
-            {['direct', 'booking.com', 'expedia', 'agoda'].map(s => <option key={s} value={s}>{s}</option>)}
-          </select>
         </div>
       </div>
 
