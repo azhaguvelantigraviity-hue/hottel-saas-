@@ -8,7 +8,7 @@ import { useNotifications } from '../context/NotificationContext';
 const statusColor = { pending: 'amber', preparing: 'violet', delivered: 'green', cancelled: 'rose' };
 const categories = ['All', 'Breakfast', 'Starters', 'Main Course', 'Breads', 'Desserts', 'Beverages', 'Snacks', 'Custom'];
 
-const RestaurantPOS = ({ role, hotelDetails }) => {
+const RestaurantPOS = ({ role, hotelDetails, searchQuery = '' }) => {
   const [cart, setCart] = useState([]);
   const [tableNo, setTableNo] = useState('');
   const [orderType, setOrderType] = useState('dine-in');
@@ -55,7 +55,10 @@ const RestaurantPOS = ({ role, hotelDetails }) => {
 
   const menuItems = localMenu.length > 0 ? localMenu : [];
   const orders = Array.isArray(apiOrders) ? apiOrders : localOrders;
-  const menuFiltered = catFilter === 'All' ? menuItems.filter(m => m.available !== false) : menuItems.filter(m => m.category === catFilter && m.available !== false);
+  
+  const searchFilter = searchQuery.toLowerCase().trim();
+  const menuFiltered = (catFilter === 'All' ? menuItems.filter(m => m.available !== false) : menuItems.filter(m => m.category === catFilter && m.available !== false))
+    .filter(m => !searchFilter || (m.name && m.name.toLowerCase().includes(searchFilter)) || (m.category && m.category.toLowerCase().includes(searchFilter)));
 
   const addToCart = (item) => {
     if (item.stock > 0 && item.stock - (cart.find(c => (c._id || c.id) === (item._id || item.id))?.qty || 0) <= 0) return;

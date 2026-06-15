@@ -123,6 +123,11 @@ const HotelApp = ({ onLogout, initialPlan = 'enterprise', role = 'manager', hote
   const pathParts = location.pathname.split('/');
   const page = pathParts[2] || 'dashboard';
   const [isSidebarOpen, setIsSidebarOpen] = useState(() => window.innerWidth > 1024);
+  const [searchQuery, setSearchQuery] = useState('');
+
+  useEffect(() => {
+    setSearchQuery('');
+  }, [page]);
 
   useEffect(() => {
     const handleResize = () => setIsSidebarOpen(window.innerWidth > 1024);
@@ -206,7 +211,7 @@ const HotelApp = ({ onLogout, initialPlan = 'enterprise', role = 'manager', hote
       case 'billing': return <BillingPage />;
       case 'guests': return <GuestCRMPage />;
       case 'loyalty': return <LoyaltyPage />;
-      case 'restaurant': return <RestaurantPOS role={role} hotelDetails={hotelDetails} />;
+      case 'restaurant': return <RestaurantPOS role={role} hotelDetails={hotelDetails} searchQuery={searchQuery} />;
       case 'laundry': return <LaundryPage />;
       case 'travel': return <TravelDeskPage />;
       case 'travels': return <TravelsManagementPage />;
@@ -246,6 +251,8 @@ const HotelApp = ({ onLogout, initialPlan = 'enterprise', role = 'manager', hote
           hotelDetails={hotelDetails}
           toggleSidebar={() => setIsSidebarOpen(p => !p)}
           isSidebarOpen={isSidebarOpen}
+          searchQuery={searchQuery}
+          onSearchChange={setSearchQuery}
         />
         <div style={{ flex: 1, overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
           {getPage()}

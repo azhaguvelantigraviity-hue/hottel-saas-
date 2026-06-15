@@ -6,8 +6,10 @@ import { getAllHotels } from '../services/adminService';
 import { getUser } from '../services/authService';
 import CheckoutAlertPopup from './CheckoutAlertPopup';
 
-const Topbar = ({ title, subtitle, role, onNav, toggleSidebar, isSidebarOpen }) => {
-  const [search, setSearch] = useState('');
+const Topbar = ({ title, subtitle, role, onNav, toggleSidebar, isSidebarOpen, searchQuery, onSearchChange }) => {
+  const [internalSearch, setInternalSearch] = useState('');
+  const search = searchQuery !== undefined ? searchQuery : internalSearch;
+  const setSearch = onSearchChange || setInternalSearch;
   const [showNotifs, setShowNotifs] = useState(false);
   const [showUserMenu, setShowUserMenu] = useState(false);
   const hotelNotifs = useNotifications();
