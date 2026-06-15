@@ -42,14 +42,29 @@ const RoomFormModal = ({ title, room, onClose, onSave }) => {
 
   const set = (k, v) => setForm(p => ({ ...p, [k]: v }));
 
-  const handleSave = () => {
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isSuccess, setIsSuccess] = useState(false);
+
+  const handleSave = async () => {
     const id = form.id.toString().trim();
     if (!id) { setError('Please enter a room number.'); return; }
     if (!/^\d+[A-Za-z]?$/.test(id)) { setError('Room number must be a number or number + letter.'); return; }
     const rate = Number(form.rate);
     if (!rate || rate <= 0) { setError('Please enter a valid nightly rate.'); return; }
     setError('');
-    onSave({ ...form, id, rate });
+    
+    setIsSubmitting(true);
+    try {
+      await onSave({ ...form, id, rate });
+      setIsSuccess(true);
+      setTimeout(() => {
+        onClose();
+      }, 1000);
+    } catch (err) {
+      setError(err.message || 'Failed to save room.');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleImageUpload = (e) => {
@@ -64,8 +79,15 @@ const RoomFormModal = ({ title, room, onClose, onSave }) => {
   };
 
   return (
-    <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.7)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
-      <div style={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: 'var(--radius-lg)', width: '100%', maxWidth: '500px', maxHeight: '90vh', display: 'flex', flexDirection: 'column' }}>
+    <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.7)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px', transition: 'opacity 0.3s', opacity: isSuccess ? 0 : 1 }}>
+      <style>{`
+        @keyframes successBlink {
+          0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); border-color: var(--green); }
+          50% { box-shadow: 0 0 0 10px rgba(16, 185, 129, 0); border-color: var(--green); background-color: rgba(16, 185, 129, 0.05); }
+          100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); border-color: var(--border); }
+        }
+      `}</style>
+      <div style={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: 'var(--radius-lg)', width: '100%', maxWidth: '500px', maxHeight: '90vh', display: 'flex', flexDirection: 'column', animation: isSuccess ? 'successBlink 1s ease-out' : 'none' }}>
         <div style={{ padding: '20px 24px', borderBottom: '1px solid var(--border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexShrink: 0 }}>
           <h2 style={{ fontFamily: 'Poppins,sans-serif', fontSize: '18px', margin: 0 }}>{title}</h2>
           <button onClick={onClose} style={{ background: 'none', border: 'none', cursor: 'pointer' }}><Icon name="x" size={20} color="var(--text3)" /></button>
@@ -184,8 +206,11 @@ const RoomFormModal = ({ title, room, onClose, onSave }) => {
           </div>
         </div>
         <div style={{ padding: '16px 24px', borderTop: '1px solid var(--border)', display: 'flex', gap: '10px', justifyContent: 'flex-end', flexShrink: 0 }}>
-          <button onClick={onClose} style={{ padding: '9px 18px', background: 'transparent', border: '1px solid var(--border)', borderRadius: '8px', color: 'var(--text2)', cursor: 'pointer', fontSize: '13px', fontFamily: 'Inter, sans-serif' }}>Cancel</button>
-          <button onClick={handleSave} style={{ padding: '9px 20px', background: 'linear-gradient(135deg,#C9A84C,#8A6F2E)', border: 'none', borderRadius: '8px', color: '#fff', cursor: 'pointer', fontWeight: '600', fontSize: '13px', fontFamily: 'Inter, sans-serif' }}>Save</button>
+          <button onClick={onClose} disabled={isSubmitting || isSuccess} style={{ padding: '9px 18px', background: 'transparent', border: '1px solid var(--border)', borderRadius: '8px', color: 'var(--text2)', cursor: (isSubmitting || isSuccess) ? 'not-allowed' : 'pointer', fontSize: '13px', fontFamily: 'Inter, sans-serif' }}>Cancel</button>
+          <button onClick={handleSave} disabled={isSubmitting || isSuccess} style={{ padding: '9px 20px', background: isSuccess ? 'var(--green)' : 'linear-gradient(135deg,#C9A84C,#8A6F2E)', border: 'none', borderRadius: '8px', color: '#fff', cursor: (isSubmitting || isSuccess) ? 'not-allowed' : 'pointer', fontWeight: '600', fontSize: '13px', fontFamily: 'Inter, sans-serif', opacity: (isSubmitting && !isSuccess) ? 0.7 : 1, display: 'flex', alignItems: 'center', gap: '6px' }}>
+            {isSubmitting && !isSuccess && <Icon name="loader" size={14} className="spin" color="#fff" />}
+            {isSuccess ? 'Saved ✓' : isSubmitting ? 'Saving...' : 'Save'}
+          </button>
         </div>
       </div>
     </div>
@@ -268,8 +293,7 @@ const RoomsPage = ({ onNav, role, hotelDetails }) => {
   });
 
   const handleAddRoom = async (newRoom) => {
-    if (rooms.some(r => r.id === newRoom.id)) { showToast(`Room ${newRoom.id} already exists!`, 'error'); return; }
-    setSaving(true);
+    if (rooms.some(r => r.id === newRoom.id)) { throw new Error(`Room ${newRoom.id} already exists!`); }
     try {
       const res = await api.createRoom(toApi(newRoom));
       const created = fromApi(res.data);
@@ -278,17 +302,14 @@ const RoomsPage = ({ onNav, role, hotelDetails }) => {
     } catch (err) {
       const msg = err.data?.message || err.message || 'Failed to add room';
       if (msg.includes('duplicate') || msg.includes('E11000') || msg.includes('already exists')) {
-        showToast(`Room ${newRoom.id} already exists in the database.`, 'error');
+        throw new Error(`Room ${newRoom.id} already exists in the database.`);
       } else {
-        showToast(msg, 'error');
+        throw new Error(msg);
       }
-    } finally {
-      setSaving(false);
     }
   };
 
   const handleEditRoom = async (updatedRoom) => {
-    setSaving(true);
     try {
       const res = await api.updateRoom(updatedRoom._id, toApi(updatedRoom));
       const updated = fromApi(res.data);
@@ -297,12 +318,10 @@ const RoomsPage = ({ onNav, role, hotelDetails }) => {
     } catch (err) {
       const msg = err.data?.message || err.message || 'Failed to update room';
       if (msg.includes('duplicate') || msg.includes('E11000') || msg.includes('already exists')) {
-        showToast('Another room with this number already exists.', 'error');
+        throw new Error('Another room with this number already exists.');
       } else {
-        showToast(msg, 'error');
+        throw new Error(msg);
       }
-    } finally {
-      setSaving(false);
     }
   };
 

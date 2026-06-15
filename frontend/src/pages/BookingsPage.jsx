@@ -80,9 +80,29 @@ const fromFlat = (f) => ({
   specialRequests: f.specialRequests,
 });
 
-const Modal = ({ title, onClose, children }) => (
-  <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.7)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
-    <div style={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: 'var(--radius-lg)', width: '100%', maxWidth: '640px', maxHeight: '90vh', overflow: 'auto' }}>
+const Toast = ({ message, type, onClose }) => {
+  useEffect(() => { const t = setTimeout(onClose, 4000); return () => clearTimeout(t); }, [onClose]);
+  const bg = type === 'success' ? 'rgba(16,185,129,0.15)' : type === 'error' ? 'rgba(239,68,68,0.15)' : 'rgba(59,130,246,0.15)';
+  const border = type === 'success' ? '1px solid rgba(16,185,129,0.3)' : type === 'error' ? '1px solid rgba(239,68,68,0.3)' : '1px solid rgba(59,130,246,0.3)';
+  const color = type === 'success' ? 'var(--green)' : type === 'error' ? 'var(--rose)' : 'var(--blue)';
+  return (
+    <div style={{ position: 'fixed', bottom: '24px', right: '24px', zIndex: 2000, padding: '14px 20px', background: bg, border, borderRadius: '10px', color, fontSize: '13px', fontWeight: '600', fontFamily: 'Inter, sans-serif', maxWidth: '360px', boxShadow: '0 8px 24px rgba(0,0,0,0.15)', display: 'flex', alignItems: 'center', gap: '10px', animation: 'toastIn 0.3s ease' }}>
+      <span>{message}</span>
+      <button onClick={onClose} style={{ background: 'none', border: 'none', cursor: 'pointer', color, fontSize: '16px', lineHeight: 1, padding: '0 0 0 4px' }}>×</button>
+    </div>
+  );
+};
+
+const Modal = ({ title, onClose, children, isSuccess }) => (
+  <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.7)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px', transition: 'opacity 0.3s', opacity: isSuccess ? 0 : 1 }}>
+    <style>{`
+      @keyframes successBlink {
+        0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); border-color: var(--green); }
+        50% { box-shadow: 0 0 0 10px rgba(16, 185, 129, 0); border-color: var(--green); background-color: rgba(16, 185, 129, 0.05); }
+        100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); border-color: var(--border); }
+      }
+    `}</style>
+    <div style={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: 'var(--radius-lg)', width: '100%', maxWidth: '640px', maxHeight: '90vh', overflow: 'auto', animation: isSuccess ? 'successBlink 1s ease-out' : 'none' }}>
       <div style={{ padding: 'clamp(12px, 3vw, 24px)', borderBottom: '1px solid var(--border)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <h2 style={{ fontFamily: 'Playfair Display,serif', fontSize: '20px' }}>{title}</h2>
         <button onClick={onClose} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text3)', padding: '4px' }}>
@@ -114,6 +134,9 @@ const NewBookingForm = ({ onClose, onSave }) => {
   const [isAiLoading, setIsAiLoading] = useState(false);
   const [manualOverride, setManualOverride] = useState(false);
   const [allocationDetails, setAllocationDetails] = useState({ assignedBy: 'Manual' });
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isSuccess, setIsSuccess] = useState(false);
+  const [error, setError] = useState('');
 
   const handleAadhaarUpload = async (e) => {
     const file = e.target.files[0];
@@ -238,6 +261,7 @@ const NewBookingForm = ({ onClose, onSave }) => {
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+      {error && <div style={{ padding: '10px 14px', background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.2)', borderRadius: '8px', color: 'var(--rose)', fontSize: '13px', fontWeight: '500' }}>{error}</div>}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 300px), 1fr))', gap: '12px' }}>
         <div style={{ gridColumn: '1 / -1', background: 'rgba(201,168,76,0.1)', padding: '12px', borderRadius: '8px', border: '1px dashed var(--gold)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '10px' }}>
           <div>
@@ -482,14 +506,32 @@ const NewBookingForm = ({ onClose, onSave }) => {
       )}
 
       <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end', marginTop: '4px' }}>
-        <button onClick={onClose} style={{ padding: '10px 20px', background: 'transparent', border: '1px solid var(--border)', borderRadius: '8px', color: 'var(--text2)', cursor: 'pointer', fontFamily: 'DM Sans,sans-serif', fontSize: '13px' }}>
+        <button onClick={onClose} disabled={isSubmitting || isSuccess} style={{ padding: '10px 20px', background: 'transparent', border: '1px solid var(--border)', borderRadius: '8px', color: 'var(--text2)', cursor: (isSubmitting || isSuccess) ? 'not-allowed' : 'pointer', fontFamily: 'DM Sans,sans-serif', fontSize: '13px' }}>
           Cancel
         </button>
         <button
-          onClick={() => { if (form.guest && form.room && form.checkInDateTime && form.stayDays > 0) { onSave({ ...form, checkIn: form.checkInDateTime, checkOut: checkOutDateObj.toISOString(), checkOutDateTime: checkOutDateObj.toISOString(), allocationDetails, preferences: { ac: form.ac, smoking: form.smoking, nearLift: form.nearLift, view: form.view, floor: form.floor, budgetMin: form.budgetMin, budgetMax: form.budgetMax } }, totalAmount, nights, petCharge); onClose(); } }}
-          style={{ padding: '10px 24px', background: 'linear-gradient(135deg,#C9A84C,#8A6F2E)', border: 'none', borderRadius: '8px', color: '#fff', cursor: 'pointer', fontWeight: '600', fontSize: '13px', fontFamily: 'DM Sans,sans-serif' }}
+          disabled={isSubmitting || isSuccess}
+          onClick={async () => {
+            if (form.guest && form.room && form.checkInDateTime && form.stayDays > 0) {
+              setIsSubmitting(true);
+              setError('');
+              try {
+                await onSave({ ...form, checkIn: form.checkInDateTime, checkOut: checkOutDateObj.toISOString(), checkOutDateTime: checkOutDateObj.toISOString(), allocationDetails, preferences: { ac: form.ac, smoking: form.smoking, nearLift: form.nearLift, view: form.view, floor: form.floor, budgetMin: form.budgetMin, budgetMax: form.budgetMax } }, totalAmount, nights, petCharge);
+                setIsSuccess(true);
+                // Parent handles the auto-close
+              } catch (err) {
+                setError(err.message || 'Failed to create booking.');
+              } finally {
+                setIsSubmitting(false);
+              }
+            } else {
+              setError("Please fill out all required fields.");
+            }
+          }}
+          style={{ padding: '10px 24px', background: isSuccess ? 'var(--green)' : 'linear-gradient(135deg,#C9A84C,#8A6F2E)', border: 'none', borderRadius: '8px', color: '#fff', cursor: (isSubmitting || isSuccess) ? 'not-allowed' : 'pointer', fontWeight: '600', fontSize: '13px', fontFamily: 'DM Sans,sans-serif', opacity: (isSubmitting && !isSuccess) ? 0.7 : 1, display: 'flex', alignItems: 'center', gap: '6px' }}
         >
-          Create Booking
+          {isSubmitting && !isSuccess && <Icon name="loader" size={14} className="spin" color="#fff" />}
+          {isSuccess ? 'Booked ✓' : isSubmitting ? 'Creating...' : 'Create Booking'}
         </button>
       </div>
     </div>
@@ -810,8 +852,12 @@ const BookingsPage = () => {
   const [filter, setFilter] = useState('all');
   const [search, setSearch] = useState('');
   const [showNew, setShowNew] = useState(false);
+  const [newBookingSuccess, setNewBookingSuccess] = useState(false);
   const [selected, setSelected] = useState(null);
   const [apiReady, setApiReady] = useState(false);
+  const [toast, setToast] = useState(null);
+
+  const showToast = (message, type = 'info') => setToast({ message, type, key: Date.now() });
 
   useEffect(() => {
     const loadFromApi = async () => {
@@ -901,7 +947,7 @@ const BookingsPage = () => {
   }, [apiReady]);
 
   const handleSave = useCallback(async (form, totalAmount, nights, petCharge) => {
-    if (form.phone && form.phone.length !== 10) return alert('Phone number must be exactly 10 digits.');
+    if (form.phone && form.phone.length !== 10) throw new Error('Phone number must be exactly 10 digits.');
     const newBooking = {
       guest: form.guest,
       phone: form.phone,
@@ -934,9 +980,17 @@ const BookingsPage = () => {
         if (res.data) {
           const flat = toFlat(res.data);
           setBookings(prev => [...prev, flat]);
+          setNewBookingSuccess(true);
+          showToast('Room Booked Successfully', 'success');
+          setTimeout(() => {
+            setShowNew(false);
+            setNewBookingSuccess(false);
+          }, 1000);
         }
       } catch (err) {
         console.error("createBooking failed:", err);
+        const msg = err.data?.message || err.message || 'Failed to create booking';
+        throw new Error(msg);
       }
     }
   }, [apiReady]);
@@ -951,7 +1005,8 @@ const BookingsPage = () => {
 
   return (
     <div style={{ padding: 'clamp(16px, 4vw, 32px)', overflowY: 'auto', flex: 1 }}>
-      {showNew && <Modal title="New Booking" onClose={() => setShowNew(false)}><NewBookingForm onClose={() => setShowNew(false)} onSave={handleSave} /></Modal>}
+      {toast && <Toast key={toast.key} message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
+      {showNew && <Modal title="New Booking" isSuccess={newBookingSuccess} onClose={() => setShowNew(false)}><NewBookingForm onClose={() => setShowNew(false)} onSave={handleSave} /></Modal>}
       {selected && <Modal title={`Booking ${selected.id}`} onClose={() => setSelected(null)}><BookingDetail booking={selected} onClose={() => setSelected(null)} onAction={handleAction} /></Modal>}
 
       {/* Stats + New Booking button */}
