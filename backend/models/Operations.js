@@ -56,7 +56,7 @@ const MaintenanceSchema = new mongoose.Schema({
   issue:      { type: String, required: true },
   category:   { type: String, enum: ['HVAC','Plumbing','Electronics','Elevator','Furniture','Electrical','Other'], default: 'Other' },
   priority:   { type: String, enum: ['high','medium','low'], default: 'medium' },
-  status:     { type: String, enum: ['open','in-progress','resolved','closed'], default: 'open' },
+  status:     { type: String, enum: ['open','assigned','in-progress','resolved','closed'], default: 'open' },
   assignedTo: String,
   reportedBy: String,
   notes:      String,

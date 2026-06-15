@@ -129,21 +129,72 @@ const getMaintenanceRequests = asyncHandler(async (req, res) => {
 
 const createMaintenanceRequest = asyncHandler(async (req, res) => {
   const { Maintenance } = require('../models/Operations');
+  const Notification = require('../models/Notification');
   const reqCount = await Maintenance.countDocuments({ hotel: req.hotelId });
   const ticketId = `MNT-${String(reqCount + 1001).padStart(4, '0')}`;
+  
+  if (req.body.assignedTo && (!req.body.status || req.body.status === 'open')) {
+    req.body.status = 'assigned';
+  }
+
   const request = await Maintenance.create({ ...req.body, ticketId, hotel: req.hotelId });
+  
+  if (request.assignedTo) {
+    const io = req.app.get('io');
+    const notif = await Notification.create({
+      hotel: req.hotelId,
+      title: 'New Assignment',
+      desc: `You've been assigned ticket ${ticketId} (Room ${request.room || request.roomNumber}): ${request.issue || request.maintenanceIssue}`,
+      type: 'maintenance',
+      icon: 'tool',
+      color: 'var(--violet)',
+      targetRoles: ['housekeeping', 'hotel_staff'],
+      relatedRoom: request.room || request.roomNumber
+    });
+    if (io) {
+      io.to(`hotel_${req.hotelId}_housekeeping`).emit('newNotification', notif);
+      io.to(`hotel_${req.hotelId}_hotel_staff`).emit('newNotification', notif);
+    }
+  }
+
   sendSuccess(res, request, 201);
 });
 
 const updateMaintenanceRequest = asyncHandler(async (req, res) => {
   const { Maintenance } = require('../models/Operations');
+  const Notification = require('../models/Notification');
   const Room = require('../models/Room');
+  
+  const oldRequest = await Maintenance.findOne({ _id: req.params.id, hotel: req.hotelId });
+  if (!oldRequest) return res.status(404).json({ success: false, message: 'Maintenance request not found' });
+
+  if (req.body.assignedTo && !oldRequest.assignedTo && oldRequest.status === 'open') {
+    req.body.status = 'assigned';
+  }
+
   const request = await Maintenance.findOneAndUpdate(
     { _id: req.params.id, hotel: req.hotelId },
     req.body,
     { new: true, runValidators: true }
   );
-  if (!request) return res.status(404).json({ success: false, message: 'Maintenance request not found' });
+
+  if (request.assignedTo && request.assignedTo !== oldRequest.assignedTo) {
+    const io = req.app.get('io');
+    const notif = await Notification.create({
+      hotel: req.hotelId,
+      title: 'Ticket Assigned',
+      desc: `You've been assigned ticket ${request.ticketId || request._id} (Room ${request.room || request.roomNumber}): ${request.issue || request.maintenanceIssue}`,
+      type: 'maintenance',
+      icon: 'tool',
+      color: 'var(--violet)',
+      targetRoles: ['housekeeping', 'hotel_staff'],
+      relatedRoom: request.room || request.roomNumber
+    });
+    if (io) {
+      io.to(`hotel_${req.hotelId}_housekeeping`).emit('newNotification', notif);
+      io.to(`hotel_${req.hotelId}_hotel_staff`).emit('newNotification', notif);
+    }
+  }
   
   if (['resolved', 'closed'].includes(request.status) && request.room) {
     await Room.findOneAndUpdate({ hotel: req.hotelId, roomNumber: request.room, status: 'maintenance' }, { status: 'available' });

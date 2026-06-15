@@ -5,11 +5,87 @@ import * as opApi from '../services/operationsService';
 import * as hotelApi from '../services/hotelService';
 
 const priorityColor = { high: 'rose', medium: 'amber', low: 'teal' };
-const statusColor = { open: 'rose', 'in-progress': 'violet', resolved: 'green' };
+const statusColor = { open: 'rose', assigned: 'blue', 'in-progress': 'violet', resolved: 'green' };
 const categories = ['HVAC', 'Plumbing', 'Electronics', 'Elevator', 'Furniture', 'Electrical', 'Other'];
 
 const inputStyle = { width: '100%', padding: '10px 12px', background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: '8px', color: 'var(--text)', fontSize: '13px', outline: 'none', fontFamily: 'Inter, sans-serif' };
 const labelStyle = { fontSize: '11px', color: 'var(--text3)', fontWeight: '600', letterSpacing: '0.06em', display: 'block', marginBottom: '5px' };
+
+const AssignDropdown = ({ employees, tickets, value, onChange }) => {
+  const [isOpen, setIsOpen] = useState(false);
+  const [search, setSearch] = useState('');
+
+  const mStaff = employees.filter(e => ['Maintenance', 'Housekeeping'].includes(e.department) || ['Maintenance', 'Housekeeping'].includes(e.dept) || e.role === 'housekeeping');
+  
+  const activeTickets = tickets.filter(t => ['open', 'in-progress', 'assigned'].includes(t.status));
+  const getBusyCount = (name) => activeTickets.filter(t => t.assignedTo === name || (t.assignedTo && t.assignedTo.name === name)).length;
+
+  const staffStats = mStaff.map(s => {
+    const busy = getBusyCount(s.name || s.firstName);
+    let st = 'Available';
+    if (s.status === 'on-leave' || s.status === 'leave') st = 'On Leave';
+    else if (busy > 0) st = 'Busy';
+    return { ...s, busyCount: busy, calcStatus: st };
+  }).sort((a, b) => {
+    if (a.calcStatus === 'Available' && b.calcStatus !== 'Available') return -1;
+    if (a.calcStatus !== 'Available' && b.calcStatus === 'Available') return 1;
+    return a.busyCount - b.busyCount;
+  });
+
+  const filtered = staffStats.filter(s => (s.name || s.firstName || '').toLowerCase().includes(search.toLowerCase()) || (s.employeeId || '').toLowerCase().includes(search.toLowerCase()));
+
+  React.useEffect(() => {
+    if (!value && staffStats.length > 0 && staffStats[0].calcStatus === 'Available') {
+      onChange(staffStats[0].name || staffStats[0].firstName);
+    }
+  }, [value, staffStats, onChange]);
+
+  return (
+    <div style={{ position: 'relative' }}>
+      <div 
+        onClick={() => setIsOpen(!isOpen)}
+        style={{ ...inputStyle, display: 'flex', justifyContent: 'space-between', alignItems: 'center', cursor: 'pointer', background: 'var(--surface)' }}
+      >
+        <span>{value || 'Unassigned'}</span>
+        <Icon name="chevron-down" size={16} color="var(--text3)" />
+      </div>
+      {isOpen && (
+        <div style={{ position: 'absolute', top: '100%', left: 0, right: 0, background: 'var(--card)', border: '1px solid var(--border)', borderRadius: '8px', marginTop: '4px', zIndex: 10, boxShadow: '0 4px 12px rgba(0,0,0,0.1)', maxHeight: '250px', display: 'flex', flexDirection: 'column' }}>
+          <div style={{ padding: '8px', borderBottom: '1px solid var(--border)' }}>
+            <input 
+              autoFocus 
+              placeholder="Search staff..." 
+              value={search} 
+              onChange={e => setSearch(e.target.value)} 
+              style={{ width: '100%', padding: '6px 10px', background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: '4px', color: 'var(--text)', fontSize: '12px', outline: 'none' }} 
+            />
+          </div>
+          <div style={{ overflowY: 'auto', flex: 1, padding: '4px 0' }}>
+            {mStaff.length === 0 ? (
+              <div style={{ padding: '10px', fontSize: '12px', color: 'var(--text3)', textAlign: 'center' }}>No Maintenance Staff Available</div>
+            ) : filtered.length === 0 ? (
+               <div style={{ padding: '10px', fontSize: '12px', color: 'var(--text3)', textAlign: 'center' }}>No matches found</div>
+            ) : filtered.map(s => (
+              <div 
+                key={s._id || s.id} 
+                onClick={() => { onChange(s.name || s.firstName); setIsOpen(false); setSearch(''); }}
+                style={{ padding: '8px 12px', cursor: 'pointer', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}
+                onMouseEnter={e => e.currentTarget.style.background = 'var(--surface)'}
+                onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
+              >
+                <div style={{ display: 'flex', flexDirection: 'column' }}>
+                  <span style={{ fontSize: '13px', fontWeight: '500', color: 'var(--text)' }}>{s.name || s.firstName}</span>
+                  <span style={{ fontSize: '11px', color: 'var(--text3)' }}>{s.employeeId || s._id?.slice(-6) || 'ID N/A'}</span>
+                </div>
+                <Badge color={s.calcStatus === 'Available' ? 'green' : s.calcStatus === 'Busy' ? 'amber' : 'rose'}>{s.calcStatus}</Badge>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
 
 const MaintenancePage = () => {
   const [tickets, setTickets] = useState([]);
@@ -123,10 +199,7 @@ const MaintenancePage = () => {
                 </div>
                 <div>
                   <label style={labelStyle}>ASSIGN TO</label>
-                  <select style={inputStyle} value={form.assignedTo} onChange={e => setForm(p => ({ ...p, assignedTo: e.target.value }))}>
-                    <option value="">Unassigned</option>
-                    {staff.map(s => <option key={s.id} value={s.name}>{s.name} ({s.dept})</option>)}
-                  </select>
+                  <AssignDropdown employees={employees} tickets={tickets} value={form.assignedTo} onChange={val => setForm(p => ({ ...p, assignedTo: val }))} />
                 </div>
               </div>
               <div>
@@ -193,7 +266,7 @@ const MaintenancePage = () => {
 
       {/* Filters */}
       <div style={{ display: 'flex', gap: '10px', marginBottom: '20px', flexWrap: 'wrap', alignItems: 'center' }}>
-        {['all', 'open', 'in-progress', 'resolved', 'high', 'medium', 'low'].map(f => (
+        {['all', 'open', 'assigned', 'in-progress', 'resolved', 'high', 'medium', 'low'].map(f => (
           <button key={f} onClick={() => setFilter(f)} style={{ padding: '6px 14px', borderRadius: '20px', border: '1px solid', fontSize: '12px', fontWeight: '600', cursor: 'pointer', fontFamily: 'Inter, sans-serif', textTransform: 'capitalize', background: filter === f ? 'var(--gold)' : 'transparent', borderColor: filter === f ? 'var(--gold)' : 'var(--border)', color: filter === f ? '#000' : 'var(--text2)' }}>
             {f === 'all' ? 'All' : f.replace('-', ' ')}
           </button>
@@ -226,11 +299,11 @@ const MaintenancePage = () => {
               </div>
             </div>
             <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-              {(!ticket.status || ticket.status === 'open') && (
+              {(!ticket.status || ticket.status === 'open' || ticket.status === 'assigned') && (
                 <>
                   <select onChange={e => { if (e.target.value) updateTicket(ticket._id || ticket.id, { assignedTo: e.target.value }); }} defaultValue="" style={{ ...inputStyle, width: 'auto', fontSize: '12px', padding: '6px 10px' }}>
                     <option value="">Assign to…</option>
-                    {staff.map(s => <option key={s._id || s.id} value={s._id || s.name}>{s.firstName || s.name}</option>)}
+                    {employees.filter(e => ['Maintenance', 'Housekeeping'].includes(e.department) || e.role === 'housekeeping').map(s => <option key={s._id || s.id} value={s.name || s.firstName}>{s.name || s.firstName}</option>)}
                   </select>
                   <button onClick={() => updateTicket(ticket._id || ticket.id, { status: 'in-progress' })} style={{ padding: '6px 12px', background: 'rgba(167,139,250,0.15)', border: '1px solid rgba(167,139,250,0.3)', borderRadius: '6px', color: 'var(--violet)', cursor: 'pointer', fontSize: '12px', fontWeight: '600', fontFamily: 'Inter, sans-serif' }}>Start Work</button>
                 </>
