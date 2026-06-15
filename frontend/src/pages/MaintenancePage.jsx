@@ -87,7 +87,7 @@ const AssignDropdown = ({ employees, tickets, value, onChange }) => {
   );
 };
 
-const MaintenancePage = () => {
+const MaintenancePage = ({ role }) => {
   const [tickets, setTickets] = useState([]);
   const [employees, setEmployees] = useState([]);
 
@@ -108,7 +108,8 @@ const MaintenancePage = () => {
   }, []);
   const [filter, setFilter] = useState('all');
   const [showNew, setShowNew] = useState(false);
-  const [form, setForm] = useState({ room: '', issue: '', category: 'HVAC', priority: 'medium', notes: '', assignedTo: '' });
+  const [editingId, setEditingId] = useState(null);
+  const [form, setForm] = useState({ room: '', issue: '', category: 'HVAC', priority: 'medium', notes: '', assignedTo: '', status: 'open' });
 
   const filtered = filter === 'all' ? tickets : tickets.filter(t => t.status === filter || t.priority === filter);
   const staff = employees.filter(e => ['Security', 'Housekeeping', 'Front Office', 'Management', 'Admin', 'Manager'].includes(e.dept) || e.role === 'admin' || e.role === 'manager');
@@ -126,7 +127,33 @@ const MaintenancePage = () => {
     }
   };
 
-  const addTicket = async () => {
+  const deleteTicket = async (id) => {
+    if (!window.confirm('Are you sure you want to delete this ticket?')) return;
+    try {
+      await opApi.deleteMaintenanceRequest(id);
+      setTickets(prev => prev.filter(t => t._id !== id && t.id !== id));
+      alert('Ticket Deleted Successfully');
+    } catch (err) {
+      console.error(err);
+      alert('Failed to delete ticket');
+    }
+  };
+
+  const openEdit = (ticket) => {
+    setEditingId(ticket._id || ticket.id);
+    setForm({
+      room: ticket.room || ticket.roomNumber || '',
+      issue: ticket.issue || ticket.maintenanceIssue || '',
+      category: ticket.category || 'HVAC',
+      priority: ticket.priority || 'medium',
+      notes: ticket.notes || '',
+      assignedTo: ticket.assignedTo?.name || ticket.assignedTo || '',
+      status: ticket.status || 'open'
+    });
+    setShowNew(true);
+  };
+
+  const saveTicket = async () => {
     if (!form.room || !form.issue) return;
     const payload = {
       room: form.room,
@@ -135,28 +162,23 @@ const MaintenancePage = () => {
       priority: form.priority,
       notes: form.notes,
       assignedTo: form.assignedTo || null,
-      status: 'open',
+      status: form.status || 'open',
     };
     try {
-      const res = await opApi.createMaintenanceRequest(payload);
-      if (res.data) {
-        setTickets(prev => [...prev, res.data]);
+      if (editingId) {
+        const res = await opApi.updateMaintenanceRequest(editingId, payload);
+        if (res.data) setTickets(prev => prev.map(t => (t._id || t.id) === editingId ? res.data : t));
+        alert('Ticket Updated Successfully');
+      } else {
+        const res = await opApi.createMaintenanceRequest(payload);
+        if (res.data) setTickets(prev => [...prev, res.data]);
       }
     } catch (err) {
-      console.error('Failed to add ticket', err);
-      // Fallback for UI if API fails
-      setTickets(prev => [...prev, {
-        ...form,
-        _id: `MT-${String(prev.length + 1).padStart(3, '0')}`,
-        id: `MT-${String(prev.length + 1).padStart(3, '0')}`,
-        roomNumber: form.room,
-        maintenanceIssue: form.issue,
-        status: 'open',
-        reported: new Date().toISOString().slice(0, 10),
-      }]);
+      console.error('Failed to save ticket', err);
     }
-    setForm({ room: '', issue: '', category: 'HVAC', priority: 'medium', notes: '', assignedTo: '' });
+    setForm({ room: '', issue: '', category: 'HVAC', priority: 'medium', notes: '', assignedTo: '', status: 'open' });
     setShowNew(false);
+    setEditingId(null);
   };
 
   const stats = [
@@ -172,8 +194,8 @@ const MaintenancePage = () => {
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.7)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
           <div style={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: 'var(--radius-lg)', width: '100%', maxWidth: '480px' }}>
             <div style={{ padding: 'clamp(12px, 3vw, 24px)', borderBottom: '1px solid var(--border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <h2 style={{ fontFamily: 'Poppins,sans-serif', fontSize: '20px' }}>New Maintenance Ticket</h2>
-              <button onClick={() => setShowNew(false)} style={{ background: 'none', border: 'none', cursor: 'pointer' }}><Icon name="x" size={20} color="var(--text3)" /></button>
+              <h2 style={{ fontFamily: 'Poppins,sans-serif', fontSize: '20px' }}>{editingId ? 'Edit Maintenance Ticket' : 'New Maintenance Ticket'}</h2>
+              <button onClick={() => { setShowNew(false); setEditingId(null); }} style={{ background: 'none', border: 'none', cursor: 'pointer' }}><Icon name="x" size={20} color="var(--text3)" /></button>
             </div>
             <div style={{ padding: 'clamp(12px, 3vw, 24px)', display: 'flex', flexDirection: 'column', gap: '12px' }}>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 300px), 1fr))', gap: '12px' }}>
@@ -201,14 +223,22 @@ const MaintenancePage = () => {
                   <label style={labelStyle}>ASSIGN TO</label>
                   <AssignDropdown employees={employees} tickets={tickets} value={form.assignedTo} onChange={val => setForm(p => ({ ...p, assignedTo: val }))} />
                 </div>
+                {editingId && (
+                  <div>
+                    <label style={labelStyle}>STATUS</label>
+                    <select style={inputStyle} value={form.status || 'open'} onChange={e => setForm(p => ({ ...p, status: e.target.value }))}>
+                      {['open', 'assigned', 'in-progress', 'resolved', 'closed'].map(st => <option key={st} value={st}>{st.charAt(0).toUpperCase() + st.slice(1).replace('-',' ')}</option>)}
+                    </select>
+                  </div>
+                )}
               </div>
               <div>
                 <label style={labelStyle}>NOTES</label>
                 <textarea style={{ ...inputStyle, resize: 'vertical', minHeight: '60px' }} value={form.notes} onChange={e => setForm(p => ({ ...p, notes: e.target.value }))} />
               </div>
               <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end' }}>
-                <button onClick={() => setShowNew(false)} style={{ padding: '10px 20px', background: 'transparent', border: '1px solid var(--border)', borderRadius: '8px', color: 'var(--text2)', cursor: 'pointer', fontFamily: 'Inter, sans-serif', fontSize: '13px' }}>Cancel</button>
-                <button onClick={addTicket} style={{ padding: '10px 24px', background: 'linear-gradient(135deg,#C9A84C,#8A6F2E)', border: 'none', borderRadius: '8px', color: '#fff', cursor: 'pointer', fontWeight: '600', fontSize: '13px', fontFamily: 'Inter, sans-serif' }}>Submit Ticket</button>
+                <button onClick={() => { setShowNew(false); setEditingId(null); }} style={{ padding: '10px 20px', background: 'transparent', border: '1px solid var(--border)', borderRadius: '8px', color: 'var(--text2)', cursor: 'pointer', fontFamily: 'Inter, sans-serif', fontSize: '13px' }}>Cancel</button>
+                <button onClick={saveTicket} style={{ padding: '10px 24px', background: 'linear-gradient(135deg,#C9A84C,#8A6F2E)', border: 'none', borderRadius: '8px', color: '#fff', cursor: 'pointer', fontWeight: '600', fontSize: '13px', fontFamily: 'Inter, sans-serif' }}>{editingId ? 'Save Changes' : 'Submit Ticket'}</button>
               </div>
             </div>
           </div>
@@ -272,7 +302,7 @@ const MaintenancePage = () => {
           </button>
         ))}
         <div style={{ marginLeft: 'auto' }}>
-          <button onClick={() => setShowNew(true)} style={{ padding: '9px 18px', background: 'linear-gradient(135deg,#C9A84C,#8A6F2E)', border: 'none', borderRadius: '8px', color: '#fff', cursor: 'pointer', fontWeight: '600', fontSize: '13px', display: 'flex', alignItems: 'center', gap: '6px', fontFamily: 'Inter, sans-serif' }}>
+          <button onClick={() => { setEditingId(null); setForm({ room: '', issue: '', category: 'HVAC', priority: 'medium', notes: '', assignedTo: '', status: 'open' }); setShowNew(true); }} style={{ padding: '9px 18px', background: 'linear-gradient(135deg,#C9A84C,#8A6F2E)', border: 'none', borderRadius: '8px', color: '#fff', cursor: 'pointer', fontWeight: '600', fontSize: '13px', display: 'flex', alignItems: 'center', gap: '6px', fontFamily: 'Inter, sans-serif' }}>
             <Icon name="plus" size={14} color="#fff" /> New Ticket
           </button>
         </div>
@@ -294,7 +324,15 @@ const MaintenancePage = () => {
                 {ticket.notes && <div style={{ fontSize: '12px', color: 'var(--text2)', marginTop: '4px' }}>📝 {ticket.notes}</div>}
               </div>
               <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '8px' }}>
-                <Badge color={statusColor[ticket.status] || 'rose'}>{(ticket.status || 'open').replace('-', ' ')}</Badge>
+                <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                  <Badge color={statusColor[ticket.status] || 'rose'}>{(ticket.status || 'open').replace('-', ' ')}</Badge>
+                  {['admin', 'manager'].includes(role) && (
+                    <>
+                      <button onClick={() => openEdit(ticket)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text3)' }} title="Edit"><Icon name="edit-2" size={14} /></button>
+                      <button onClick={() => deleteTicket(ticket._id || ticket.id)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--rose)' }} title="Delete"><Icon name="trash-2" size={14} /></button>
+                    </>
+                  )}
+                </div>
                 {ticket.assignedTo && <span style={{ fontSize: '12px', color: 'var(--text3)' }}>👤 {ticket.assignedTo?.firstName || ticket.assignedTo}</span>}
               </div>
             </div>

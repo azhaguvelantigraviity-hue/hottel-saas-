@@ -203,6 +203,13 @@ const updateMaintenanceRequest = asyncHandler(async (req, res) => {
   sendSuccess(res, request);
 });
 
+const deleteMaintenanceRequest = asyncHandler(async (req, res) => {
+  const { Maintenance } = require('../models/Operations');
+  const request = await Maintenance.findOneAndDelete({ _id: req.params.id, hotel: req.hotelId });
+  if (!request) return res.status(404).json({ success: false, message: 'Maintenance request not found' });
+  sendSuccess(res, { message: 'Deleted successfully' });
+});
+
 // ── Restaurant POS – Menu Items ──────────────────────────────
 
 const getMenuItems = asyncHandler(async (req, res) => {
@@ -555,7 +562,7 @@ const syncChannels = asyncHandler(async (req, res) => {
 module.exports = {
   getHousekeepingTasks, createHousekeepingTask, updateHousekeepingTask,
   verifyHousekeepingTask, getHousekeepingDashboard,
-  getMaintenanceRequests, createMaintenanceRequest, updateMaintenanceRequest,
+  getMaintenanceRequests, createMaintenanceRequest, updateMaintenanceRequest, deleteMaintenanceRequest,
   getMenuItems, createMenuItem, updateMenuItem, deleteMenuItem,
   getPOSOrders, createPOSOrder, updatePOSOrder, getPOSSummary,
   getHalls, createHall, updateHall, deleteHall,

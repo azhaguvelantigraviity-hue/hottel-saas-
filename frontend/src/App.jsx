@@ -219,7 +219,7 @@ const HotelApp = ({ onLogout, initialPlan = 'enterprise', role = 'manager', hote
       case 'employees': return <EmployeesPage role={role} hotelDetails={hotelDetails} plan={plan} />;
       case 'attendance': return <AttendancePage />;
       case 'housekeeping': return <HousekeepingPage />;
-      case 'maintenance': return <MaintenancePage />;
+      case 'maintenance': return <MaintenancePage role={role} />;
       case 'payroll': return <PayrollPage />;
       case 'channel': return <ChannelManagerPage />;
       case 'revenue': return <DailyRevenueReportPage />;

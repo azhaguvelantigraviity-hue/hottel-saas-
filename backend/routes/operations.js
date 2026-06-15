@@ -3,7 +3,7 @@ const router = require('express').Router();
 const {
   getHousekeepingTasks, createHousekeepingTask, updateHousekeepingTask,
   verifyHousekeepingTask, getHousekeepingDashboard,
-  getMaintenanceRequests, createMaintenanceRequest, updateMaintenanceRequest,
+  getMaintenanceRequests, createMaintenanceRequest, updateMaintenanceRequest, deleteMaintenanceRequest,
   getMenuItems, createMenuItem, updateMenuItem, deleteMenuItem,
   getPOSOrders, createPOSOrder, updatePOSOrder, getPOSSummary,
   getHalls, createHall, updateHall, deleteHall,
@@ -34,6 +34,7 @@ router.use('/maintenance', requireFeature('maintenance'));
 router.get  ('/maintenance',      getMaintenanceRequests);
 router.post ('/maintenance',      createMaintenanceRequest);
 router.put  ('/maintenance/:id',  updateMaintenanceRequest);
+router.delete('/maintenance/:id', deleteMaintenanceRequest);
 
 // ── Restaurant POS (Professional+) ───────────────────────────────────────────
 router.use('/pos', requireFeature('restaurant'));

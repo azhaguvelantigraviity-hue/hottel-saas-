@@ -14,6 +14,7 @@ export const verifyHousekeepingTask   = (id)        => post(`/operations/houseke
 export const getMaintenanceRequests  = ()          => get('/operations/maintenance');
 export const createMaintenanceRequest= (body)      => post('/operations/maintenance', body);
 export const updateMaintenanceRequest= (id, body)  => put(`/operations/maintenance/${id}`, body);
+export const deleteMaintenanceRequest= (id)        => del(`/operations/maintenance/${id}`);
 
 // ── Restaurant POS ────────────────────────────────────────────
 export const getMenuItems      = (params = {}) => get(`/operations/pos/menu?${new URLSearchParams(params)}`);
