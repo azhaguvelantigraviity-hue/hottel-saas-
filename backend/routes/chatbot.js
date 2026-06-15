@@ -100,11 +100,12 @@ router.post('/', protect, upload.single('audio'), async (req, res, next) => {
       }
     };
 
-    if (role === 'admin' || role === 'manager' || role === 'receptionist') {
+    const allowedRoles = ['platform_admin', 'hotel_admin', 'manager', 'receptionist', 'hotel_staff'];
+    if (allowedRoles.includes(role)) {
       context.metrics.totalRevenue = revenue;
       context.metrics.totalPaymentsReceived = paidAmount;
       context.metrics.totalEmployees = employees.length;
-      context.lists.employees = employees.map(e => `${e.name} - ${e.department} - ${e.shift} Shift - ${e.status === 'active' ? 'On Duty' : 'Off Duty'} - ₹${e.salary.toLocaleString('en-IN')}`);
+      context.lists.employees = employees.map(e => `${e.name} - ${e.department} - ${e.shift} Shift - ${e.status === 'active' ? 'On Duty' : 'Off Duty'} - ₹${(e.salary || 0).toLocaleString('en-IN')}`);
     } else {
       context.accessNote = "Revenue and employee data is restricted for this role.";
     }
