@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import Icon from './Icon';
 import { postForm } from '../services/api';
 
@@ -7,9 +7,21 @@ const VoiceChatBot = () => {
   const [isRecording, setIsRecording] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
   const [inputText, setInputText] = useState('');
-  const [messages, setMessages] = useState([
-    { sender: 'bot', text: 'Hello! I am StayOS Assistant. Type a message or hold the microphone to ask me a question.' }
-  ]);
+  const [messages, setMessages] = useState(() => {
+    const saved = localStorage.getItem('stayos_chat_messages');
+    if (saved) {
+      try {
+        return JSON.parse(saved);
+      } catch (e) {
+        console.error('Error parsing saved messages', e);
+      }
+    }
+    return [{ sender: 'bot', text: 'Hello! I am StayOS Assistant. Type a message or hold the microphone to ask me a question.' }];
+  });
+
+  useEffect(() => {
+    localStorage.setItem('stayos_chat_messages', JSON.stringify(messages));
+  }, [messages]);
 
   const mediaRecorderRef = useRef(null);
   const audioChunksRef = useRef([]);

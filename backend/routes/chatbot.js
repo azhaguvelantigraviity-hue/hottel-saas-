@@ -10,6 +10,7 @@ const Room = require('../models/Room');
 const Booking = require('../models/Booking');
 const Guest = require('../models/Guest');
 const User = require('../models/User');
+const { Employee } = require('../models/Operations');
 
 const router = express.Router();
 const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
@@ -49,12 +50,12 @@ router.post('/', protect, upload.single('audio'), async (req, res, next) => {
     const hotelId = req.hotelId || req.user.hotel;
     const role = req.user.role;
 
-    const [rooms, activeBookings, allBookings, guestsCount, users] = await Promise.all([
+    const [rooms, activeBookings, allBookings, guestsCount, employees] = await Promise.all([
       Room.find({ hotel: hotelId }),
       Booking.find({ hotel: hotelId, status: { $in: ['confirmed', 'checked_in'] } }).populate('guest room'),
       Booking.find({ hotel: hotelId }),
       Guest.countDocuments({ hotel: hotelId }),
-      User.find({ hotel: hotelId }).select('-password')
+      Employee.find({ hotel: hotelId })
     ]);
 
     const today = new Date();
@@ -99,11 +100,11 @@ router.post('/', protect, upload.single('audio'), async (req, res, next) => {
       }
     };
 
-    if (role === 'admin' || role === 'manager') {
+    if (role === 'admin' || role === 'manager' || role === 'receptionist') {
       context.metrics.totalRevenue = revenue;
       context.metrics.totalPaymentsReceived = paidAmount;
-      context.metrics.totalEmployees = users.length;
-      context.lists.employees = users.map(u => ({ name: u.name, role: u.role }));
+      context.metrics.totalEmployees = employees.length;
+      context.lists.employees = employees.map(e => `${e.name} - ${e.department} - ${e.shift} Shift - ${e.status === 'active' ? 'On Duty' : 'Off Duty'} - ₹${e.salary.toLocaleString('en-IN')}`);
     } else {
       context.accessNote = "Revenue and employee data is restricted for this role.";
     }

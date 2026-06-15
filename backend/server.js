@@ -171,6 +171,27 @@ app.use('/api/v1/notifications', notificationRoutes);
 app.use('/api/v1/travels',      travelRoutes);
 app.use('/api/v1/chatbot',      chatbotRoutes);
 
+// StayOS Assistant extra API route
+app.get('/api/assistant/employees', require('./middleware/auth').protect, async (req, res, next) => {
+  try {
+    const hotelId = req.query.hotelId || req.hotelId || req.user.hotel;
+    if (!hotelId) return res.status(400).json({ success: false, message: 'Hotel ID is required' });
+    
+    const { Employee } = require('./models/Operations');
+    const employees = await Employee.find({ hotel: hotelId });
+    
+    const list = employees.map((e, index) => `${index + 1}. ${e.name} - ${e.department} - ${e.shift} Shift - ${e.status === 'active' ? 'On Duty' : 'Off Duty'} - ₹${e.salary.toLocaleString('en-IN')}`);
+    
+    res.json({
+      success: true,
+      data: list,
+      text: employees.length ? `Employee List:\n${list.join('\n')}` : 'No records found.'
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+
 // ── API info ──────────────────────────────────────────────────────────────────
 app.get('/api/v1', (_req, res) => {
   res.json({
