@@ -12,6 +12,7 @@ const PET_CHARGES = {
   small: { label: 'Small (up to 10kg)', perNight: 500 },
   medium: { label: 'Medium (10kg - 25kg)', perNight: 800 },
   large: { label: 'Large (over 25kg)', perNight: 1200 },
+  manual: { label: 'Custom / Manual Rate', perNight: 0 },
   deposit: 2000
 };
 
@@ -76,6 +77,10 @@ const fromFlat = (f) => ({
   status: (f.status || 'confirmed').replace(/-/g, '_'),
   hasPet: f.hasPet,
   petType: f.petType,
+  petSize: f.petSize,
+  petManualRate: f.petManualRate,
+  petDiscountType: f.petDiscountType,
+  petManualDiscountAmount: f.petManualDiscountAmount,
   petCharge: f.petCharge,
   specialRequests: f.specialRequests,
 });
@@ -125,7 +130,8 @@ const NewBookingForm = ({ onClose, onSave }) => {
     guest: '', phone: '', email: '', room: '', checkInDateTime: '', stayDays: 1, adults: 1, children: 0,
     source: 'direct', specialRequests: '', hasPet: false, petSize: 'small', petType: '',
     idType: 'aadhaar', idNumber: '', address: '',
-    ac: true, smoking: false, nearLift: false, view: 'None', floor: '', budgetMin: '', budgetMax: ''
+    ac: true, smoking: false, nearLift: false, view: 'None', floor: '', budgetMin: '', budgetMax: '',
+    petSize: 'small', petManualRate: 0, petDiscountType: 'none', petManualDiscountAmount: 0
   });
   const [availableRooms, setAvailableRooms] = useState([]);
   const [guestFound, setGuestFound] = useState(false);
@@ -254,7 +260,21 @@ const NewBookingForm = ({ onClose, onSave }) => {
 
   const selectedRoom = availableRooms.find(r => String(r.id) === String(form.room));
   const roomRate = selectedRoom ? selectedRoom.rate : 0;
-  const petCharge = form.hasPet ? PET_CHARGES[form.petSize].perNight * nights + PET_CHARGES.deposit : 0;
+  
+  let petBaseRate = form.petSize === 'manual' ? Number(form.petManualRate || 0) : PET_CHARGES[form.petSize].perNight;
+  let computedPetCharge = form.hasPet ? petBaseRate * nights : 0;
+  
+  if (form.hasPet) {
+    if (form.petDiscountType === 'free') {
+      computedPetCharge = 0;
+    } else if (form.petDiscountType === 'manual_discount') {
+      computedPetCharge = Math.max(0, computedPetCharge - Number(form.petManualDiscountAmount || 0));
+    } else if (form.petDiscountType === 'low_budget') {
+      computedPetCharge = Math.max(0, computedPetCharge * 0.5); // 50% discount for low budget
+    }
+  }
+  
+  const petCharge = form.hasPet ? computedPetCharge + PET_CHARGES.deposit : 0;
   const totalAmount = roomRate * nights + petCharge;
 
   const set = (k, v) => setForm(f => ({ ...f, [k]: v }));
@@ -458,19 +478,46 @@ const NewBookingForm = ({ onClose, onSave }) => {
               <label style={labelStyle}>PET SIZE</label>
               <select style={inputStyle} value={form.petSize} onChange={e => set('petSize', e.target.value)}>
                 {Object.entries(PET_CHARGES).filter(([k]) => k !== 'deposit').map(([k, v]) => (
-                  <option key={k} value={k}>{v.label} — ₹{v.perNight}/night</option>
+                  <option key={k} value={k}>{v.label} {k !== 'manual' ? `— ₹${v.perNight}/night` : ''}</option>
                 ))}
               </select>
             </div>
+            {form.petSize === 'manual' && (
+              <div>
+                <label style={labelStyle}>ENTER PET CHARGE PER NIGHT *</label>
+                <input type="number" min="0" style={inputStyle} value={form.petManualRate} onChange={e => set('petManualRate', Math.max(0, Number(e.target.value)))} placeholder="e.g. 200" />
+              </div>
+            )}
             <div>
               <label style={labelStyle}>PET TYPE / BREED</label>
               <input style={inputStyle} value={form.petType} onChange={e => set('petType', e.target.value)} placeholder="e.g. Golden Retriever" />
             </div>
+            <div>
+              <label style={labelStyle}>DISCOUNT OPTION</label>
+              <select style={inputStyle} value={form.petDiscountType} onChange={e => set('petDiscountType', e.target.value)}>
+                <option value="none">No Discount</option>
+                <option value="low_budget">Low Budget Pet Rate</option>
+                <option value="manual_discount">Manual Discount</option>
+                <option value="free">Free Pet Stay</option>
+              </select>
+            </div>
+            {form.petDiscountType === 'manual_discount' && (
+              <div>
+                <label style={labelStyle}>MANUAL DISCOUNT AMOUNT</label>
+                <input type="number" min="0" style={inputStyle} value={form.petManualDiscountAmount} onChange={e => set('petManualDiscountAmount', Math.max(0, Number(e.target.value)))} placeholder="e.g. 150" />
+              </div>
+            )}
             <div style={{ gridColumn: 'span 2', background: 'rgba(201,168,76,0.08)', border: '1px solid rgba(201,168,76,0.2)', borderRadius: '8px', padding: '12px' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px', color: 'var(--text2)', marginBottom: '4px' }}>
-                <span>Pet charge ({nights} nights × ₹{PET_CHARGES[form.petSize].perNight})</span>
-                <span>₹{(PET_CHARGES[form.petSize].perNight * nights).toLocaleString()}</span>
+                <span>Pet charge ({nights} nights × ₹{form.petSize === 'manual' ? form.petManualRate : PET_CHARGES[form.petSize].perNight})</span>
+                <span>₹{( (form.petSize === 'manual' ? form.petManualRate : PET_CHARGES[form.petSize].perNight) * nights ).toLocaleString()}</span>
               </div>
+              {form.petDiscountType !== 'none' && (
+                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px', color: 'var(--rose)', marginBottom: '4px' }}>
+                  <span>Discount ({form.petDiscountType.replace('_', ' ')})</span>
+                  <span>- ₹{( (form.petSize === 'manual' ? form.petManualRate : PET_CHARGES[form.petSize].perNight) * nights - computedPetCharge ).toLocaleString()}</span>
+                </div>
+              )}
               <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px', color: 'var(--text2)', marginBottom: '8px' }}>
                 <span>Refundable pet deposit</span>
                 <span>₹{PET_CHARGES.deposit.toLocaleString()}</span>
@@ -970,6 +1017,10 @@ const BookingsPage = () => {
       specialRequests: form.specialRequests,
       hasPet: form.hasPet,
       petType: form.petType,
+      petSize: form.petSize,
+      petManualRate: form.petManualRate,
+      petDiscountType: form.petDiscountType,
+      petManualDiscountAmount: form.petManualDiscountAmount,
       status: 'confirmed',
     };
 
