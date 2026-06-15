@@ -618,7 +618,9 @@ const getEmployee = catchAsync(async (req, res) => {
 const createEmployee = catchAsync(async (req, res) => {
   const body = { ...req.body, hotel: req.hotelId || req.body.hotel };
 
-  if (req.user && ['hotel_staff', 'receptionist'].includes(req.user.role)) {
+  const uRole = req.user ? req.user.role : '';
+
+  if (uRole === 'receptionist' || uRole === 'hotel_staff') {
     const allowedDepts = ['Housekeeping', 'Security', 'Cleaning'];
     if (!allowedDepts.includes(body.department)) {
       throw new AppError(`Receptionists can only add employees to ${allowedDepts.join(', ')} departments`, 403);
@@ -626,6 +628,11 @@ const createEmployee = catchAsync(async (req, res) => {
     const rStr = (body.role || '').toLowerCase();
     if (rStr.includes('manager') || rStr.includes('admin') || rStr.includes('reception') || rStr.includes('front')) {
       throw new AppError('Receptionists are not allowed to create Manager/Admin/Reception roles', 403);
+    }
+  } else if (uRole === 'manager') {
+    const allowedDepts = ['Front Office', 'Housekeeping', 'Security', 'Cleaning', 'Maintenance'];
+    if (!allowedDepts.includes(body.department)) {
+      throw new AppError(`Managers can only add employees to ${allowedDepts.join(', ')} departments`, 403);
     }
   }
 

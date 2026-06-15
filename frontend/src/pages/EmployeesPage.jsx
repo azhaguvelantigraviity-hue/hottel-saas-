@@ -66,13 +66,18 @@ const EmployeeModal = ({ employee, onClose }) => (
 );
 
 const AddEmployeeModal = ({ onClose, onAdd, userRole }) => {
-  const [form, setForm] = useState({ name: '', role: '', dept: userRole === 'staff' ? 'Housekeeping' : 'Front Office', shift: 'Morning', salary: '', phone: '', email: '', avatar: '', loginEmail: '', loginPassword: '' });
+  const getDepts = () => {
+    if (userRole === 'admin' || userRole === 'hotel_admin') return ['Front Office', 'Housekeeping', 'F&B', 'Security', 'Wellness', 'Maintenance', 'Cleaning'];
+    if (userRole === 'manager') return ['Front Office', 'Housekeeping', 'Security', 'Cleaning', 'Maintenance'];
+    return ['Housekeeping', 'Security', 'Cleaning'];
+  };
+  const availableDepts = getDepts();
+
+  const [form, setForm] = useState({ name: '', role: '', dept: availableDepts[0], shift: 'Morning', salary: '', phone: '', email: '', avatar: '', loginEmail: '', loginPassword: '' });
   const [showPassword, setShowPassword] = useState(false);
   const set = (k, v) => setForm(p => ({ ...p, [k]: v }));
   
-  const availableDepts = userRole === 'staff' 
-    ? ['Housekeeping', 'Security', 'Cleaning']
-    : ['Front Office', 'Housekeeping', 'F&B', 'Security', 'Wellness', 'Maintenance', 'Cleaning'];
+
   return (
     <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.7)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
       <div style={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: 'var(--radius-lg)', width: '100%', maxWidth: '520px' }}>
