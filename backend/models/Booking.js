@@ -43,6 +43,24 @@ const BookingSchema = new mongoose.Schema({
     tenMinCheckout: { type: Boolean, default: false }
   },
 
+  // ── Smart Room Allocation Details ──────────────────────────
+  preferences: {
+    ac: { type: Boolean },
+    smoking: { type: Boolean },
+    nearLift: { type: Boolean },
+    view: { type: String },
+    floor: { type: Number },
+    customerType: { type: String, enum: ['Family', 'Couple', 'Business', 'VIP'] },
+    budgetMin: { type: Number },
+    budgetMax: { type: Number }
+  },
+  allocationDetails: {
+    assignedBy: { type: String, enum: ['AI', 'Manual'], default: 'Manual' },
+    score: { type: Number },
+    reason: [String],
+    timestamp: { type: Date }
+  },
+
   // ── Smart Check-In Process ─────────────────────────────────
   checkInProcess: {
     qrCode:      { type: String, default: '' },

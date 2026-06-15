@@ -6,6 +6,7 @@ import * as api from '../services/hotelService';
 import { getUser } from '../services/api';
 import html2pdf from 'html2pdf.js';
 import InvoiceDocument from '../components/InvoiceDocument';
+import RoomRecommendationCard from '../components/RoomRecommendationCard';
 
 const PET_CHARGES = {
   small: { label: 'Small (up to 10kg)', perNight: 500 },
@@ -103,11 +104,16 @@ const NewBookingForm = ({ onClose, onSave }) => {
   const [form, setForm] = useState({
     guest: '', phone: '', email: '', room: '', checkInDateTime: '', stayDays: 1, adults: 1, children: 0,
     source: 'direct', specialRequests: '', hasPet: false, petSize: 'small', petType: '',
-    idType: 'aadhaar', idNumber: '', address: ''
+    idType: 'aadhaar', idNumber: '', address: '',
+    ac: true, smoking: false, nearLift: false, view: 'None', floor: '', budgetMin: '', budgetMax: ''
   });
   const [availableRooms, setAvailableRooms] = useState([]);
   const [guestFound, setGuestFound] = useState(false);
   const [ocrLoading, setOcrLoading] = useState(false);
+  const [aiRecommendations, setAiRecommendations] = useState(null);
+  const [isAiLoading, setIsAiLoading] = useState(false);
+  const [manualOverride, setManualOverride] = useState(false);
+  const [allocationDetails, setAllocationDetails] = useState({ assignedBy: 'Manual' });
 
   const handleAadhaarUpload = async (e) => {
     const file = e.target.files[0];
@@ -164,6 +170,36 @@ const NewBookingForm = ({ onClose, onSave }) => {
       }
     } catch (e) {
       setGuestFound(false);
+    }
+  };
+
+  const fetchAiRecommendations = async () => {
+    if (!form.checkInDateTime || !form.stayDays) return alert('Please select check-in date and stay duration first.');
+    setIsAiLoading(true);
+    setManualOverride(false);
+    try {
+      const apiModule = await import('../services/api').then(m => m.default || m);
+      
+      const payload = {
+        checkIn: form.checkInDateTime,
+        checkOut: new Date(new Date(form.checkInDateTime).getTime() + (form.stayDays || 1) * 24 * 60 * 60 * 1000).toISOString(),
+        guestCount: (form.adults || 1) + (form.children || 0),
+        ac: form.ac,
+        smoking: form.smoking,
+        nearLift: form.nearLift,
+        view: form.view !== 'None' ? form.view : undefined,
+      };
+      if (form.floor) payload.floor = Number(form.floor);
+      if (form.budgetMin) payload.budgetMin = Number(form.budgetMin);
+      if (form.budgetMax) payload.budgetMax = Number(form.budgetMax);
+
+      const res = await apiModule.post(`/hotel/allocations/recommend`, payload);
+      if (res.data) setAiRecommendations(res.data);
+    } catch (err) {
+      console.error('AI Allocation Failed:', err);
+      alert('Failed to get AI recommendations.');
+    } finally {
+      setIsAiLoading(false);
     }
   };
 
@@ -254,14 +290,84 @@ const NewBookingForm = ({ onClose, onSave }) => {
           <label style={labelStyle}>ADDRESS</label>
           <input style={inputStyle} value={form.address} onChange={e => set('address', e.target.value)} placeholder="Guest full address" />
         </div>
-        <div>
-          <label style={labelStyle}>ROOM *</label>
-          <select style={inputStyle} value={form.room} onChange={e => set('room', e.target.value)}>
-            <option value="">Select room</option>
-            {availableRooms.filter(r => r.status === 'available').map(r => (
-              <option key={r.id} value={r.id}>{r.id} – {r.type} (Max {r.maxGuests}, {r.bedType}) (₹{r.rate}/night)</option>
-            ))}
-          </select>
+        <div style={{ gridColumn: '1 / -1', background: 'var(--bg)', padding: '12px', borderRadius: '8px', border: '1px solid var(--border)', marginTop: '10px' }}>
+          <div style={{ fontSize: '13px', fontWeight: 600, marginBottom: '8px', color: 'var(--primary)' }}>✨ AI Smart Room Allocation Preferences</div>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(120px, 1fr))', gap: '10px', marginBottom: '12px' }}>
+            <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', cursor: 'pointer' }}>
+              <input type="checkbox" checked={form.ac} onChange={e => set('ac', e.target.checked)} /> AC Room
+            </label>
+            <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', cursor: 'pointer' }}>
+              <input type="checkbox" checked={form.smoking} onChange={e => set('smoking', e.target.checked)} /> Smoking Allowed
+            </label>
+            <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', cursor: 'pointer' }}>
+              <input type="checkbox" checked={form.nearLift} onChange={e => set('nearLift', e.target.checked)} /> Near Lift
+            </label>
+            <div>
+              <label style={labelStyle}>View</label>
+              <select style={{...inputStyle, padding: '4px'}} value={form.view} onChange={e => set('view', e.target.value)}>
+                <option value="None">No Preference</option>
+                <option value="Sea">Sea View</option>
+                <option value="City">City View</option>
+                <option value="Garden">Garden View</option>
+              </select>
+            </div>
+            <div>
+              <label style={labelStyle}>Floor</label>
+              <input type="number" style={{...inputStyle, padding: '4px'}} value={form.floor} onChange={e => set('floor', e.target.value)} placeholder="e.g. 2" />
+            </div>
+            <div>
+              <label style={labelStyle}>Budget Min-Max</label>
+              <div style={{ display: 'flex', gap: '4px' }}>
+                <input type="number" style={{...inputStyle, padding: '4px'}} value={form.budgetMin} onChange={e => set('budgetMin', e.target.value)} placeholder="Min" />
+                <input type="number" style={{...inputStyle, padding: '4px'}} value={form.budgetMax} onChange={e => set('budgetMax', e.target.value)} placeholder="Max" />
+              </div>
+            </div>
+          </div>
+          
+          {!aiRecommendations && !manualOverride ? (
+            <button type="button" onClick={fetchAiRecommendations} disabled={isAiLoading} style={{ width: '100%', padding: '10px', background: 'var(--primary)', color: 'white', border: 'none', borderRadius: '6px', fontWeight: 600, cursor: isAiLoading ? 'wait' : 'pointer' }}>
+              {isAiLoading ? 'Analyzing Options...' : '✨ Find Best Room Match'}
+            </button>
+          ) : aiRecommendations ? (
+            <RoomRecommendationCard 
+              recommendations={aiRecommendations}
+              onAutoAssign={(rec) => {
+                set('room', String(rec.room.roomNumber || rec.room._id));
+                setAllocationDetails({ assignedBy: 'AI', score: rec.score, reason: rec.reasons });
+                setAiRecommendations(null);
+                setManualOverride(true);
+              }}
+              onSelectAlternative={(rec) => {
+                set('room', String(rec.room.roomNumber || rec.room._id));
+                setAllocationDetails({ assignedBy: 'AI', score: rec.score, reason: rec.reasons });
+                setAiRecommendations(null);
+                setManualOverride(true);
+              }}
+              onManualOverride={() => {
+                setAiRecommendations(null);
+                setManualOverride(true);
+                setAllocationDetails({ assignedBy: 'Manual', score: null, reason: [] });
+              }}
+            />
+          ) : (
+            <div>
+              <label style={labelStyle}>MANUAL ROOM SELECTION *</label>
+              <div style={{display: 'flex', gap: '10px'}}>
+                <select style={inputStyle} value={form.room} onChange={e => {
+                  set('room', e.target.value);
+                  setAllocationDetails({ assignedBy: 'Manual', score: null, reason: [] });
+                }}>
+                  <option value="">Select room</option>
+                  {availableRooms.filter(r => r.status === 'available').map(r => (
+                    <option key={r.id} value={r.id}>{r.id} – {r.type} (Max {r.maxGuests}, {r.bedType}) (₹{r.rate}/night)</option>
+                  ))}
+                </select>
+                <button type="button" onClick={() => setManualOverride(false)} className="btn-secondary" style={{whiteSpace: 'nowrap'}}>
+                  Retry AI
+                </button>
+              </div>
+            </div>
+          )}
         </div>
         <div>
           <label style={labelStyle}>CHECK-IN DATE & TIME *</label>
@@ -379,7 +485,7 @@ const NewBookingForm = ({ onClose, onSave }) => {
           Cancel
         </button>
         <button
-          onClick={() => { if (form.guest && form.room && form.checkInDateTime && form.stayDays > 0) { onSave({ ...form, checkIn: form.checkInDateTime, checkOut: checkOutDateObj.toISOString(), checkOutDateTime: checkOutDateObj.toISOString() }, totalAmount, nights, petCharge); onClose(); } }}
+          onClick={() => { if (form.guest && form.room && form.checkInDateTime && form.stayDays > 0) { onSave({ ...form, checkIn: form.checkInDateTime, checkOut: checkOutDateObj.toISOString(), checkOutDateTime: checkOutDateObj.toISOString(), allocationDetails, preferences: { ac: form.ac, smoking: form.smoking, nearLift: form.nearLift, view: form.view, floor: form.floor, budgetMin: form.budgetMin, budgetMax: form.budgetMax } }, totalAmount, nights, petCharge); onClose(); } }}
           style={{ padding: '10px 24px', background: 'linear-gradient(135deg,#C9A84C,#8A6F2E)', border: 'none', borderRadius: '8px', color: '#fff', cursor: 'pointer', fontWeight: '600', fontSize: '13px', fontFamily: 'DM Sans,sans-serif' }}
         >
           Create Booking

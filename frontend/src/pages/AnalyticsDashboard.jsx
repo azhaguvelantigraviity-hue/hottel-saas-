@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import StatCard from '../components/StatCard';
 import Icon from '../components/Icon';
 
@@ -96,7 +96,21 @@ const HeatmapChart = () => {
 
 const AnalyticsDashboard = () => {
   const [tab, setTab] = useState(0);
-  const TABS = ['Revenue', 'Occupancy', 'Customer Growth', 'Profit Margin', 'Peak Times'];
+  const [aiStats, setAiStats] = useState(null);
+  const TABS = ['Revenue', 'Occupancy', 'Customer Growth', 'Profit Margin', 'Peak Times', 'AI Allocations'];
+
+  useEffect(() => {
+    const fetchStats = async () => {
+      try {
+        const apiModule = await import('../services/api').then(m => m.default || m);
+        const res = await apiModule.get('/hotel/allocations/analytics');
+        if (res.data) setAiStats(res.data);
+      } catch (err) {
+        console.error('Failed to load AI stats:', err);
+      }
+    };
+    fetchStats();
+  }, []);
 
   return (
     <div style={{ flex:1, overflowY:'auto', padding:24 }}>
@@ -209,6 +223,40 @@ const AnalyticsDashboard = () => {
             <span style={{ fontSize:11, color:'var(--text3)' }}>Low</span>
             {[0.1,0.3,0.5,0.7,0.9].map(o => <div key={o} style={{ width:20, height:12, borderRadius:2, background:`rgba(201,168,76,${o})` }} />)}
             <span style={{ fontSize:11, color:'var(--text3)' }}>High</span>
+          </div>
+        </div>
+      )}
+      {tab === 5 && (
+        <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fit, minmax(min(100%, 300px), 1fr))', gap:16 }}>
+          <div style={{ background:'var(--card)', border:'1px solid var(--border)', borderRadius:'var(--radius-lg)', padding:20 }}>
+            <div style={{ fontSize:14, fontWeight:700, color:'var(--text)', marginBottom:16 }}>Smart Room Allocation Today</div>
+            <div style={{ display:'flex', flexDirection:'column', gap:12 }}>
+              <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center' }}>
+                <span style={{ fontSize:13, color:'var(--text2)' }}>AI Assigned Rooms</span>
+                <span style={{ fontFamily:'DM Mono,monospace', fontSize:18, color:'var(--gold)', fontWeight:700 }}>{aiStats?.aiAllocationsToday || 0}</span>
+              </div>
+              <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center' }}>
+                <span style={{ fontSize:13, color:'var(--text2)' }}>Manually Assigned</span>
+                <span style={{ fontFamily:'DM Mono,monospace', fontSize:18, color:'var(--text)', fontWeight:700 }}>{aiStats?.manualAllocationsToday || 0}</span>
+              </div>
+              <div style={{ width:'100%', height:8, background:'var(--surface)', borderRadius:4, overflow:'hidden', marginTop:8 }}>
+                {aiStats && (aiStats.aiAllocationsToday + aiStats.manualAllocationsToday > 0) && (
+                  <div style={{ height:'100%', width:`${(aiStats.aiAllocationsToday / (aiStats.aiAllocationsToday + aiStats.manualAllocationsToday)) * 100}%`, background:'var(--gold)' }} />
+                )}
+              </div>
+            </div>
+          </div>
+          <div style={{ background:'var(--card)', border:'1px solid var(--border)', borderRadius:'var(--radius-lg)', padding:20, display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center' }}>
+            <div style={{ fontSize:14, fontWeight:700, color:'var(--text)', marginBottom:16 }}>AI Recommendation Accuracy</div>
+            <div style={{ position:'relative', width:120, height:120 }}>
+              <svg viewBox="0 0 100 100" width="100%" height="100%">
+                <circle cx="50" cy="50" r="40" fill="none" stroke="var(--surface)" strokeWidth="10" />
+                <circle cx="50" cy="50" r="40" fill="none" stroke="var(--green)" strokeWidth="10" strokeDasharray={`${((aiStats?.aiRecommendationAccuracy || 0)/100) * 251.2} 251.2`} strokeLinecap="round" style={{ transform:'rotate(-90deg)', transformOrigin:'50px 50px', transition:'stroke-dasharray 1s' }} />
+              </svg>
+              <div style={{ position:'absolute', inset:0, display:'flex', alignItems:'center', justifyContent:'center', flexDirection:'column' }}>
+                <span style={{ fontSize:24, fontWeight:700, color:'var(--text)' }}>{aiStats?.aiRecommendationAccuracy || 0}%</span>
+              </div>
+            </div>
           </div>
         </div>
       )}

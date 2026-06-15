@@ -19,6 +19,7 @@ const {
   uploadDocument, getDocuments, getGuestDocuments, deleteDocument,
   getHotelDashboard, extendStay, changeRoom, searchGuestById, processAadhaarOcr
 } = require('../controllers/hotelController');
+const { getRecommendations, getAllocationAnalytics } = require('../controllers/allocationController');
 const { protect, authorize, scopeToHotel, hotelAdmin } = require('../middleware/auth');
 const { requireFeature, enforceLimit } = require('../middleware/planGate');
 const Room     = require('../models/Room');
@@ -54,6 +55,10 @@ router.post ('/bookings/:id/extend',               extendStay);
 router.post ('/bookings/:id/change-room',          changeRoom);
 router.post ('/bookings/:id/cancel',               cancelBooking);
 router.delete('/bookings/:id',                     deleteBooking);
+
+// ── Smart Room Allocation ─────────────────────────────────────────────────────
+router.post ('/allocations/recommend',                 getRecommendations);
+router.get  ('/allocations/analytics',                 getAllocationAnalytics);
 
 // ── Dashboard / Payments ──────────────────────────────────────────────────────
 router.get  ('/dashboard',                         getHotelDashboard);
