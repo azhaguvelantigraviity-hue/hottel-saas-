@@ -79,11 +79,11 @@ const VoiceChatBot = () => {
     }
   };
 
-  const sendTextToBackend = async () => {
-    if (!inputText.trim() || isProcessing) return;
+  const sendTextToBackend = async (overrideText) => {
+    const textToSend = (typeof overrideText === 'string' ? overrideText : inputText).trim();
+    if (!textToSend || isProcessing) return;
     
-    const textToSend = inputText.trim();
-    setInputText('');
+    if (typeof overrideText !== 'string') setInputText('');
     setMessages(prev => [...prev, { sender: 'user', text: textToSend }]);
     setMessages(prev => [...prev, { sender: 'bot', text: '...' }]);
     setIsProcessing(true);
@@ -150,6 +150,24 @@ const VoiceChatBot = () => {
               }}>
                 {msg.text}
               </div>
+            ))}
+          </div>
+
+          {/* Quick Actions */}
+          <div style={{ padding: '8px 16px', background: 'var(--bg)', display: 'flex', gap: '8px', overflowX: 'auto', whiteSpace: 'nowrap', borderTop: '1px solid var(--border)' }}>
+            <style>{`
+              .quick-action-btn:hover { background: var(--primary) !important; color: #fff !important; border-color: var(--primary) !important; }
+            `}</style>
+            {['Available Rooms', "Today's Check-ins", 'Maintenance', 'Revenue'].map(action => (
+              <button 
+                key={action} 
+                className="quick-action-btn"
+                onClick={() => sendTextToBackend(action)}
+                disabled={isProcessing}
+                style={{ padding: '6px 12px', background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: '16px', fontSize: '11px', color: 'var(--text2)', cursor: isProcessing ? 'not-allowed' : 'pointer', transition: 'all 0.2s' }}
+              >
+                {action}
+              </button>
             ))}
           </div>
 
