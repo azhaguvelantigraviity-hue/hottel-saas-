@@ -50,7 +50,7 @@ const AssignDropdown = ({ employees, tickets, value, onChange }) => {
         <Icon name="chevron-down" size={16} color="var(--text3)" />
       </div>
       {isOpen && (
-        <div style={{ position: 'absolute', top: '100%', left: 0, right: 0, background: 'var(--card)', border: '1px solid var(--border)', borderRadius: '8px', marginTop: '4px', zIndex: 10, boxShadow: '0 4px 12px rgba(0,0,0,0.1)', maxHeight: '250px', display: 'flex', flexDirection: 'column' }}>
+        <div style={{ position: 'absolute', top: '100%', left: 0, minWidth: '240px', background: 'var(--card)', border: '1px solid var(--border)', borderRadius: '8px', marginTop: '4px', zIndex: 10, boxShadow: '0 4px 12px rgba(0,0,0,0.1)', maxHeight: '250px', display: 'flex', flexDirection: 'column' }}>
           <div style={{ padding: '8px', borderBottom: '1px solid var(--border)' }}>
             <input 
               autoFocus 
