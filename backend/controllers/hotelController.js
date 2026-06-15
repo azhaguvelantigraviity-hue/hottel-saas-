@@ -1244,7 +1244,7 @@ const processAadhaarOcr = catchAsync(async (req, res) => {
     const mimeType = matches[1];
     const base64Data = matches[2];
 
-    const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
+    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
     const prompt = 'You are an OCR assistant. Extract the following details from this Indian Aadhaar card image: Full Name, 12-digit Aadhaar Number, Phone Number (if visible), and Address. Return ONLY a pure JSON object without markdown formatting, with keys: "name", "idNumber", "phone", "address". If a field is not found, set its value to an empty string.';
     
     const result = await model.generateContent([
