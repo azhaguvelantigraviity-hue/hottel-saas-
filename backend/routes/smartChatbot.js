@@ -14,6 +14,10 @@ router.post('/payments', protect, chatbotController.getPaymentsData);
 router.post('/food-orders', protect, chatbotController.getFoodOrdersData);
 router.post('/attendance', protect, chatbotController.getAttendanceData);
 router.post('/reports', protect, chatbotController.getReportsData);
+router.post('/notifications', protect, chatbotController.getNotificationsData);
+router.post('/travel-desk', protect, chatbotController.getTravelDeskData);
+router.post('/branches', protect, chatbotController.getBranchesData);
+router.post('/analytics', protect, chatbotController.getAnalyticsData);
 router.post('/summary', protect, chatbotController.getSummaryData);
 
 module.exports = router;

@@ -50,6 +50,11 @@ exports.detectIntent = async (req, res, next) => {
 - housekeeping
 - employees
 - reports
+- notifications
+- food-orders
+- travel-desk
+- branches
+- analytics
 - summary (if general or unknown)
 
 User query: "${query}"
@@ -58,13 +63,11 @@ Return ONLY the exact category name. Nothing else.`;
     const result = await model.generateContent(prompt);
     const intent = result.response.text().trim().toLowerCase();
     
-    const validIntents = ['maintenance', 'rooms', 'bookings', 'payments', 'housekeeping', 'employees', 'reports', 'summary'];
+    const validIntents = ['maintenance', 'rooms', 'bookings', 'payments', 'housekeeping', 'employees', 'reports', 'notifications', 'food-orders', 'travel-desk', 'branches', 'analytics', 'summary'];
     const finalIntent = validIntents.includes(intent) ? intent : 'summary';
 
     res.json({ success: true, intent: finalIntent });
   } catch (err) { next(err); }
-};
-
 exports.getMaintenanceData = async (req, res, next) => {
   try {
     if (!checkRole(req.user.role, ['housekeeping', 'hotel_staff'])) {
@@ -239,7 +242,16 @@ exports.getHousekeepingData = async (req, res, next) => {
   } catch (err) { next(err); }
 };
 
-exports.getFoodOrdersData = exports.getHousekeepingData; // Redirect food to housekeeping logic for now or build specific POS logic.
+exports.getFoodOrdersData = async (req, res, next) => {
+  res.json({
+    success: true,
+    text: "Food Orders module is currently offline. Please use the POS dashboard.",
+    stats: { "Pending Orders": 0 },
+    buttons: [{ label: "Open POS", url: "/hotel/pos" }],
+    suggestedActions: [],
+    tableData: []
+  });
+};
 
 exports.getAttendanceData = async (req, res, next) => {
   try {
@@ -278,6 +290,50 @@ exports.getReportsData = async (req, res, next) => {
     stats: { "Reports Ready": 3 },
     buttons: [{ label: "View Reports", url: "/hotel/revenue" }],
     suggestedActions: ["Generate daily summary", "Export monthly P&L"],
+    tableData: []
+  });
+};
+
+exports.getNotificationsData = async (req, res, next) => {
+  res.json({
+    success: true,
+    text: "You have new unread notifications regarding recent bookings and system alerts.",
+    stats: { "Unread": 5, "Total": 12 },
+    buttons: [{ label: "View Alerts", url: "/hotel/dashboard" }],
+    suggestedActions: ["Mark all as read"],
+    tableData: []
+  });
+};
+
+exports.getTravelDeskData = async (req, res, next) => {
+  res.json({
+    success: true,
+    text: "Travel Desk module. Manage guest transportation and tours.",
+    stats: { "Pending Requests": 2, "Active Trips": 1 },
+    buttons: [{ label: "Open Travel Desk", url: "/hotel/travel" }],
+    suggestedActions: ["Book airport transfer"],
+    tableData: []
+  });
+};
+
+exports.getBranchesData = async (req, res, next) => {
+  res.json({
+    success: true,
+    text: "Multi-branch management is only available for Enterprise plans.",
+    stats: { "Active Branches": 1 },
+    buttons: [{ label: "View Settings", url: "/hotel/settings" }],
+    suggestedActions: [],
+    tableData: []
+  });
+};
+
+exports.getAnalyticsData = async (req, res, next) => {
+  res.json({
+    success: true,
+    text: "Advanced analytics and revenue forecasting tools are available in your dashboard.",
+    stats: { "Occupancy Rate": "78%", "RevPAR": "₹2,400" },
+    buttons: [{ label: "View Analytics", url: "/hotel/revenue" }],
+    suggestedActions: ["Show RevPAR history"],
     tableData: []
   });
 };
