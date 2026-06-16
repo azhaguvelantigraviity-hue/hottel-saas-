@@ -103,8 +103,8 @@ exports.getMaintenanceData = async (req, res, next) => {
       text: aiResponse.text,
       stats: aiResponse.stats,
       buttons: [
-        { label: "View Details", url: "/hotel/operations?tab=maintenance" },
-        { label: "Assign Staff", url: "/hotel/operations?tab=staff" }
+        { label: "View Details", url: "/hotel/maintenance" },
+        { label: "Assign Staff", url: "/hotel/employees" }
       ],
       suggestedActions: ["Show unassigned tickets", "Show completed tickets today"],
       tableData: aiResponse.tableData
@@ -200,7 +200,7 @@ exports.getHousekeepingData = async (req, res, next) => {
       success: true,
       text: aiResponse.text,
       stats: aiResponse.stats,
-      buttons: [{ label: "Housekeeping Dashboard", url: "/hotel/operations?tab=housekeeping" }],
+      buttons: [{ label: "Housekeeping Dashboard", url: "/hotel/housekeeping" }],
       suggestedActions: ["Assign available maids", "Show VIP room cleaning status"],
       tableData: aiResponse.tableData
     });
@@ -232,7 +232,7 @@ exports.getAttendanceData = async (req, res, next) => {
       success: true,
       text: aiResponse.text,
       stats: aiResponse.stats,
-      buttons: [{ label: "Manage Staff", url: "/hotel/operations?tab=staff" }],
+      buttons: [{ label: "Manage Staff", url: "/hotel/employees" }],
       suggestedActions: ["Show staff arriving next shift"],
       tableData: aiResponse.tableData
     });
