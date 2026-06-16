@@ -143,7 +143,7 @@ exports.createHotel = asyncHandler(async (req, res) => {
     type: 'system',
     icon: 'hotel',
     color: 'var(--brand)',
-    targetRoles: ['receptionist', 'hotel_admin']
+    targetRoles: ['platform_admin']
   });
 
   sendSuccess(res, hotel, 201);
@@ -627,7 +627,7 @@ exports.approveRegistration = asyncHandler(async (req, res, next) => {
     type: 'system',
     icon: 'hotel',
     color: 'var(--brand)',
-    targetRoles: ['receptionist', 'hotel_admin']
+    targetRoles: ['platform_admin']
   });
 
   sendSuccess(res, {
