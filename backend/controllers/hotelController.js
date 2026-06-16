@@ -1268,7 +1268,7 @@ const processAadhaarOcr = catchAsync(async (req, res) => {
     sendSuccess(res, extractedData);
   } catch (error) {
     console.error('OCR Error:', error);
-    throw new AppError('Failed to process image for OCR', 500);
+    throw new AppError(`Failed to process image for OCR: ${error.message}`, 500);
   }
 });
 
