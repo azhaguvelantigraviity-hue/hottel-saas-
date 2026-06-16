@@ -9,8 +9,13 @@ const QUICK_ACTIONS = [
   { label: 'Maintenance', icon: '🔧', intent: 'maintenance' },
   { label: 'Housekeeping', icon: '🧹', intent: 'housekeeping' },
   { label: 'Employees', icon: '👥', intent: 'employees' },
-  { label: 'Payments', icon: '💳', intent: 'payments' },
-  { label: 'Reports', icon: '📊', intent: 'reports' }
+  { label: 'Payments', icon: '💰', intent: 'payments' },
+  { label: 'Reports', icon: '📊', intent: 'reports' },
+  { label: 'Notifications', icon: '🔔', intent: 'notifications' },
+  { label: 'Food Orders', icon: '🍽', intent: 'food-orders' },
+  { label: 'Travel Desk', icon: '🚗', intent: 'travel-desk' },
+  { label: 'Branches', icon: '🏢', intent: 'branches' },
+  { label: 'Analytics', icon: '📈', intent: 'analytics' }
 ];
 
 const SmartChatBot = () => {
