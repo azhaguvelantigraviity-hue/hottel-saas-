@@ -155,11 +155,7 @@ const NewBookingForm = ({ onClose, onSave }) => {
 
       const apiModule = await import('../services/api').then(m => m.default || m);
       
-      // Use standard fetch or axios through apiModule if it supports FormData. 
-      // Assuming apiModule.post handles FormData correctly (if it uses axios, it will set Content-Type: multipart/form-data automatically).
-      const res = await apiModule.post('/hotel/ocr/aadhaar', formData, {
-        headers: { 'Content-Type': 'multipart/form-data' }
-      });
+      const res = await apiModule.postForm('/hotel/ocr/aadhaar', formData);
       
       if (res.data) {
         setForm(f => ({
