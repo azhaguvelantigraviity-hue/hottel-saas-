@@ -249,7 +249,7 @@ exports.getFoodOrdersData = async (req, res, next) => {
     success: true,
     text: "Food Orders module is currently offline. Please use the POS dashboard.",
     stats: { "Pending Orders": 0 },
-    buttons: [{ label: "Open POS", url: "/hotel/pos" }],
+    buttons: [{ label: "Open POS", url: "/hotel/restaurant" }],
     suggestedActions: [],
     tableData: []
   });
