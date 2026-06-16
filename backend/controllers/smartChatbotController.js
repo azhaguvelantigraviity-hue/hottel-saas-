@@ -68,6 +68,8 @@ Return ONLY the exact category name. Nothing else.`;
 
     res.json({ success: true, intent: finalIntent });
   } catch (err) { next(err); }
+};
+
 exports.getMaintenanceData = async (req, res, next) => {
   try {
     if (!checkRole(req.user.role, ['housekeeping', 'hotel_staff'])) {
