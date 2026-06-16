@@ -170,6 +170,8 @@ app.use('/api/v1/complaints',   complaintsRoutes);
 app.use('/api/v1/notifications', notificationRoutes);
 app.use('/api/v1/travels',      travelRoutes);
 app.use('/api/v1/chatbot',      chatbotRoutes);
+const smartChatbotRoutes = require('./routes/smartChatbot');
+app.use('/api/v1/chatbot/smart', smartChatbotRoutes);
 
 // StayOS Assistant extra API route
 app.get('/api/assistant/employees', require('./middleware/auth').protect, async (req, res, next) => {

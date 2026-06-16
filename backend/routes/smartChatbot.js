@@ -1,0 +1,19 @@
+const express = require('express');
+const router = express.Router();
+const { protect } = require('../middleware/auth');
+const chatbotController = require('../controllers/smartChatbotController');
+
+// Main intent detection
+router.post('/query', protect, chatbotController.detectIntent);
+
+// Specific module data endpoints (called by frontend based on intent)
+router.post('/maintenance', protect, chatbotController.getMaintenanceData);
+router.post('/rooms', protect, chatbotController.getRoomsData);
+router.post('/bookings', protect, chatbotController.getBookingsData);
+router.post('/payments', protect, chatbotController.getPaymentsData);
+router.post('/food-orders', protect, chatbotController.getFoodOrdersData);
+router.post('/attendance', protect, chatbotController.getAttendanceData);
+router.post('/reports', protect, chatbotController.getReportsData);
+router.post('/summary', protect, chatbotController.getSummaryData);
+
+module.exports = router;
