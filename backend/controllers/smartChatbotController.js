@@ -4,7 +4,6 @@ const Booking = require('../models/Booking');
 const Guest = require('../models/Guest');
 const User = require('../models/User');
 const { Employee, Maintenance } = require('../models/Operations');
-const Order = require('../models/Order'); // Food Orders (Assuming it exists, need to verify model name)
 const { AppError } = require('../utils/helpers');
 
 // Initialize Gemini
