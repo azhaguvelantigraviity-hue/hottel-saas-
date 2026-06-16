@@ -1233,16 +1233,19 @@ const changeRoom = catchAsync(async (req, res) => {
 });
 
 const processAadhaarOcr = catchAsync(async (req, res) => {
-  const { image } = req.body;
-  if (!image) throw new AppError('Image is required', 400);
+  if (!req.file) {
+    throw new AppError('No image uploaded. Please upload a valid image or PDF file.', 400);
+  }
 
   try {
-    const matches = image.match(/^data:([A-Za-z-+\/]+);base64,(.+)$/);
-    if (!matches || matches.length !== 3) {
-      throw new Error('Invalid base64 image format');
+    const fs = require('fs');
+    const fileBuffer = fs.readFileSync(req.file.path);
+    if (!fileBuffer || fileBuffer.length === 0) {
+      throw new Error('Image buffer is empty or invalid.');
     }
-    const mimeType = matches[1];
-    const base64Data = matches[2];
+
+    const mimeType = req.file.mimetype;
+    const base64Data = fileBuffer.toString('base64');
 
     const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
     const prompt = 'You are an OCR assistant. Extract the following details from this Indian Aadhaar card image: Full Name, 12-digit Aadhaar Number, Phone Number (if visible), and Address. Return ONLY a pure JSON object without markdown formatting, with keys: "name", "idNumber", "phone", "address". If a field is not found, set its value to an empty string.';
@@ -1263,11 +1266,18 @@ const processAadhaarOcr = catchAsync(async (req, res) => {
       extractedData = JSON.parse(responseText.replace(/```json/g, '').replace(/```/g, '').trim());
     } catch (e) {
       console.error('Failed to parse OCR response:', responseText);
+      throw new Error('Could not parse extracted data.');
     }
+
+    // Clean up uploaded file
+    fs.unlinkSync(req.file.path);
 
     sendSuccess(res, extractedData);
   } catch (error) {
     console.error('OCR Error:', error);
+    if (req.file && req.file.path) {
+      try { require('fs').unlinkSync(req.file.path); } catch (e) {}
+    }
     throw new AppError(`Failed to process image for OCR: ${error.message}`, 500);
   }
 });

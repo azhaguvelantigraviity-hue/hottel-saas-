@@ -73,7 +73,7 @@ router.post  ('/bookings/:id/face-verification',     submitFaceVerification);
 router.post  ('/bookings/:id/signature',             saveSignature);
 
 // ── AI OCR ────────────────────────────────────────────────────────────────────
-router.post  ('/ocr/aadhaar',                        processAadhaarOcr);
+router.post  ('/ocr/aadhaar',                        upload.single('aadhaarImage'), processAadhaarOcr);
 
 // ── Documents ─────────────────────────────────────────────────────────────────
 router.post  ('/bookings/:id/documents',             upload.single('documentFile'), uploadDocument);

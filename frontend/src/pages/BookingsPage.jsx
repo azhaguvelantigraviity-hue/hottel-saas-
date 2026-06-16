@@ -150,33 +150,34 @@ const NewBookingForm = ({ onClose, onSave }) => {
 
     setOcrLoading(true);
     try {
-      const reader = new FileReader();
-      reader.onload = async (ev) => {
-        const base64Image = ev.target.result;
-        try {
-          const apiModule = await import('../services/api').then(m => m.default || m);
-          const res = await apiModule.post('/hotel/ocr/aadhaar', { image: base64Image });
-          if (res.data) {
-            setForm(f => ({
-              ...f,
-              guest: res.data.name || f.guest,
-              phone: res.data.phone || f.phone,
-              address: res.data.address || f.address,
-              idNumber: res.data.idNumber || f.idNumber,
-              idType: 'aadhaar'
-            }));
-          }
-        } catch (err) {
-          console.error('OCR failed:', err);
-          alert('Failed to extract details from Aadhaar. Please fill manually.');
-        } finally {
-          setOcrLoading(false);
-        }
-      };
-      reader.readAsDataURL(file);
+      const formData = new FormData();
+      formData.append("aadhaarImage", file);
+
+      const apiModule = await import('../services/api').then(m => m.default || m);
+      
+      // Use standard fetch or axios through apiModule if it supports FormData. 
+      // Assuming apiModule.post handles FormData correctly (if it uses axios, it will set Content-Type: multipart/form-data automatically).
+      const res = await apiModule.post('/hotel/ocr/aadhaar', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' }
+      });
+      
+      if (res.data) {
+        setForm(f => ({
+          ...f,
+          guest: res.data.name || f.guest,
+          phone: res.data.phone || f.phone,
+          address: res.data.address || f.address,
+          idNumber: res.data.idNumber || f.idNumber,
+          idType: 'aadhaar'
+        }));
+      }
     } catch (err) {
-      console.error(err);
+      console.error('OCR failed:', err);
+      alert('OCR failed, please enter Aadhaar details manually');
+    } finally {
       setOcrLoading(false);
+      // Reset input so the same file can be uploaded again if needed
+      e.target.value = '';
     }
   };
 
