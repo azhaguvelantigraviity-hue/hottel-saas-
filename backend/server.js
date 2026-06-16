@@ -222,7 +222,7 @@ startCheckoutCron(app);
 
 // ── Server Startup ──────────────────────────────────────────────────────────────
 const PORT = process.env.PORT || 5000;
-server.listen(PORT, () => {
+server.listen(PORT, '0.0.0.0', () => {
   logger.info(`StayOS API running on port ${PORT} [${process.env.NODE_ENV}]`);
   logger.info(`Health: http://localhost:${PORT}/health`);
   logger.info(`API:    http://localhost:${PORT}/api/v1`);
