@@ -16,21 +16,36 @@ const checkRole = (userRole, requiredRoles) => {
   return requiredRoles.includes(userRole);
 };
 
-const generateAssistantSummary = async (contextData, userQuery, moduleName) => {
-  if (!genAI) return "AI services are not configured. Please set GEMINI_API_KEY.";
+const generateSmartAssistantResponse = async (contextData, userQuery, moduleName) => {
+  if (!genAI) return { text: "AI services are not configured. Please set GEMINI_API_KEY.", stats: {}, tableData: [] };
+  
   try {
-    const model = genAI.getGenerativeModel({ model: "gemini-flash-latest" });
-    const prompt = `You are StayOS, a highly professional and analytical Hotel Operations Assistant. 
-The user asked: "${userQuery}". You are answering for the module: ${moduleName}.
-Here is the JSON data from the database: ${JSON.stringify(contextData)}
+    const model = genAI.getGenerativeModel({ model: "gemini-flash-latest", generationConfig: { responseMimeType: "application/json" } });
+    
+    const prompt = `You are StayOS, a highly professional Hotel Operations Assistant.
+The user's query: "${userQuery}"
+Module context: ${moduleName}
+Raw Database Data: ${JSON.stringify(contextData).substring(0, 15000)}
 
-Write a professional, concise summary of this data in exactly one paragraph. Do not use markdown. If there is no data, say exactly "There are no records available for this module at this time."`;
+Analyze the user's query against the raw data.
+Return a valid JSON object matching this exact structure:
+{
+  "text": "Your direct, specific answer to the user's question. Translate to Tamil if requested.",
+  "stats": { "Stat Name": "Value" }, 
+  "tableData": [ { "Col1": "Val1", "Col2": "Val2" } ]
+}
+Rules for JSON fields:
+- "text": Should be conversational and directly answer the question based ONLY on the data. Max 2 paragraphs.
+- "stats": Provide max 4 relevant key-value metrics derived from the data. E.g., {"Pending": 5}. Empty object if none.
+- "tableData": Provide an array of filtered, relevant rows as objects with nice keys. Max 5 items. Empty array if none.
+If no relevant data exists, state it in the "text" field and return empty stats/tableData.`;
 
     const result = await model.generateContent(prompt);
-    return result.response.text();
+    const jsonStr = result.response.text();
+    return JSON.parse(jsonStr);
   } catch (error) {
     console.error('Gemini error:', error);
-    return `Data retrieved successfully.`;
+    return { text: "Data retrieved successfully, but AI analysis failed.", stats: {}, tableData: [] };
   }
 };
 
@@ -77,34 +92,22 @@ exports.getMaintenanceData = async (req, res, next) => {
     }
 
     const hotelId = req.hotelId || req.user.hotel;
-    const tickets = await Maintenance.find({ hotel: hotelId });
+    // Limit to recent tickets to avoid overflowing context
+    const tickets = await Maintenance.find({ hotel: hotelId }).sort('-createdAt').limit(100).lean();
     
-    const stats = {
-      "Pending": tickets.filter(t => t.status === 'open').length,
-      "In Progress": tickets.filter(t => t.status === 'in-progress' || t.status === 'assigned').length,
-      "Completed": tickets.filter(t => t.status === 'resolved' || t.status === 'closed').length
-    };
-
     const query = req.query.q || 'What is the maintenance status?';
-    const textResponse = await generateAssistantSummary(stats, query, 'Maintenance');
-
-    const tableData = tickets.filter(t => t.status !== 'resolved' && t.status !== 'closed').slice(0, 5).map(t => ({
-      "Room": t.room,
-      "Issue": t.issue,
-      "Assigned To": t.assignedTo || 'Unassigned',
-      "Status": t.status.toUpperCase()
-    }));
+    const aiResponse = await generateSmartAssistantResponse(tickets, query, 'Maintenance');
 
     res.json({
       success: true,
-      text: textResponse,
-      stats,
+      text: aiResponse.text,
+      stats: aiResponse.stats,
       buttons: [
         { label: "View Details", url: "/hotel/operations?tab=maintenance" },
         { label: "Assign Staff", url: "/hotel/operations?tab=staff" }
       ],
       suggestedActions: ["Show unassigned tickets", "Show completed tickets today"],
-      tableData
+      tableData: aiResponse.tableData
     });
   } catch (err) { next(err); }
 };
@@ -116,33 +119,21 @@ exports.getRoomsData = async (req, res, next) => {
     }
 
     const hotelId = req.hotelId || req.user.hotel;
-    const rooms = await Room.find({ hotel: hotelId });
+    const rooms = await Room.find({ hotel: hotelId }).lean();
     
-    const stats = {
-      "Available": rooms.filter(r => r.status === 'available').length,
-      "Occupied": rooms.filter(r => r.status === 'occupied').length,
-      "Under Maintenance": rooms.filter(r => r.status === 'maintenance').length
-    };
-
-    const textResponse = await generateAssistantSummary(stats, req.query.q || 'Show rooms status', 'Rooms');
-
-    const tableData = rooms.filter(r => r.status === 'available').slice(0, 5).map(r => ({
-      "Room No": r.roomNumber,
-      "Type": r.type,
-      "Status": r.status.toUpperCase(),
-      "Price": `₹${r.price}`
-    }));
+    const query = req.query.q || 'Show rooms status';
+    const aiResponse = await generateSmartAssistantResponse(rooms, query, 'Rooms');
 
     res.json({
       success: true,
-      text: textResponse,
-      stats,
+      text: aiResponse.text,
+      stats: aiResponse.stats,
       buttons: [
         { label: "Book Room", url: "/hotel/bookings" },
         { label: "Manage Inventory", url: "/hotel/inventory" }
       ],
       suggestedActions: ["Find cheapest available room", "Show maintenance rooms"],
-      tableData
+      tableData: aiResponse.tableData
     });
   } catch (err) { next(err); }
 };
@@ -152,33 +143,21 @@ exports.getBookingsData = async (req, res, next) => {
     if (!checkRole(req.user.role, ['receptionist'])) return res.status(403).json({ success: false, text: 'Access denied.' });
 
     const hotelId = req.hotelId || req.user.hotel;
-    const bookings = await Booking.find({ hotel: hotelId }).populate('guest');
+    const bookings = await Booking.find({ hotel: hotelId }).sort('-createdAt').limit(100).populate('guest', 'firstName lastName email phone').lean();
     
-    const today = new Date().toISOString().split('T')[0];
-    const stats = {
-      "Active Stays": bookings.filter(b => b.status === 'checked_in').length,
-      "Upcoming": bookings.filter(b => b.status === 'confirmed').length,
-      "Today's Checkouts": bookings.filter(b => b.checkOut && new Date(b.checkOut).toISOString().split('T')[0] === today).length
-    };
-
-    const textResponse = await generateAssistantSummary(stats, req.query.q || 'Show active bookings', 'Bookings');
-
-    const tableData = bookings.filter(b => b.status === 'checked_in').slice(0, 5).map(b => ({
-      "Guest": b.guest ? b.guest.firstName : 'Walk-in',
-      "Room": b.room || 'Pending',
-      "Checkout": new Date(b.checkOut).toLocaleDateString()
-    }));
+    const query = req.query.q || 'Show active bookings';
+    const aiResponse = await generateSmartAssistantResponse(bookings, query, 'Bookings');
 
     res.json({
       success: true,
-      text: textResponse,
-      stats,
+      text: aiResponse.text,
+      stats: aiResponse.stats,
       buttons: [
         { label: "View All Bookings", url: "/hotel/bookings" },
         { label: "New Booking", url: "/hotel/bookings" }
       ],
       suggestedActions: ["Show today's arrivals", "Show pending payments"],
-      tableData
+      tableData: aiResponse.tableData
     });
   } catch (err) { next(err); }
 };
@@ -188,31 +167,20 @@ exports.getPaymentsData = async (req, res, next) => {
     if (!checkRole(req.user.role, ['receptionist'])) return res.status(403).json({ success: false, text: 'Access denied.' });
 
     const hotelId = req.hotelId || req.user.hotel;
-    const bookings = await Booking.find({ hotel: hotelId, status: { $in: ['confirmed', 'checked_in', 'checked_out'] } });
+    const bookings = await Booking.find({ hotel: hotelId, status: { $in: ['confirmed', 'checked_in', 'checked_out'] } }).sort('-createdAt').limit(200).lean();
     
-    let collected = 0;
-    let pending = 0;
-    bookings.forEach(b => {
-      collected += (b.paidAmount || 0);
-      pending += ((b.totalAmount || 0) - (b.paidAmount || 0));
-    });
-
-    const stats = {
-      "Total Collected": `₹${collected}`,
-      "Total Pending": `₹${pending}`
-    };
-
-    const textResponse = await generateAssistantSummary(stats, req.query.q || 'Show payments', 'Payments');
+    const query = req.query.q || 'Show payments';
+    const aiResponse = await generateSmartAssistantResponse(bookings, query, 'Payments & Revenue');
 
     res.json({
       success: true,
-      text: textResponse,
-      stats,
+      text: aiResponse.text,
+      stats: aiResponse.stats,
       buttons: [
         { label: "Open Billing", url: "/hotel/billing" }
       ],
       suggestedActions: ["Generate revenue report", "Show highest outstanding bill"],
-      tableData: []
+      tableData: aiResponse.tableData
     });
   } catch (err) { next(err); }
 };
@@ -223,23 +191,18 @@ exports.getHousekeepingData = async (req, res, next) => {
     if (!checkRole(req.user.role, ['housekeeping'])) return res.status(403).json({ success: false, text: 'Access denied.' });
 
     const hotelId = req.hotelId || req.user.hotel;
-    const tasks = await Housekeeping.find({ hotel: hotelId });
+    const tasks = await Housekeeping.find({ hotel: hotelId }).sort('-createdAt').limit(100).lean();
     
-    const stats = {
-      "Pending": tasks.filter(t => t.status === 'pending').length,
-      "In Progress": tasks.filter(t => t.status === 'in-progress').length,
-      "Completed": tasks.filter(t => t.status === 'completed' || t.status === 'verified').length
-    };
-
-    const textResponse = await generateAssistantSummary(stats, req.query.q || 'Show housekeeping', 'Housekeeping');
+    const query = req.query.q || 'Show housekeeping';
+    const aiResponse = await generateSmartAssistantResponse(tasks, query, 'Housekeeping');
 
     res.json({
       success: true,
-      text: textResponse,
-      stats,
+      text: aiResponse.text,
+      stats: aiResponse.stats,
       buttons: [{ label: "Housekeeping Dashboard", url: "/hotel/operations?tab=housekeeping" }],
       suggestedActions: ["Assign available maids", "Show VIP room cleaning status"],
-      tableData: []
+      tableData: aiResponse.tableData
     });
   } catch (err) { next(err); }
 };
@@ -260,27 +223,18 @@ exports.getAttendanceData = async (req, res, next) => {
     if (!checkRole(req.user.role, [])) return res.status(403).json({ success: false, text: 'Access denied. Managers only.' });
 
     const hotelId = req.hotelId || req.user.hotel;
-    const employees = await Employee.find({ hotel: hotelId });
+    const employees = await Employee.find({ hotel: hotelId }).sort('-createdAt').limit(100).lean();
     
-    const stats = {
-      "Total Staff": employees.length,
-      "On Duty": employees.filter(e => e.status === 'active').length,
-      "On Leave": employees.filter(e => e.status === 'on_leave').length
-    };
-
-    const textResponse = await generateAssistantSummary(stats, req.query.q || 'Show employees', 'Employees');
+    const query = req.query.q || 'Show employees';
+    const aiResponse = await generateSmartAssistantResponse(employees, query, 'Employees');
 
     res.json({
       success: true,
-      text: textResponse,
-      stats,
+      text: aiResponse.text,
+      stats: aiResponse.stats,
       buttons: [{ label: "Manage Staff", url: "/hotel/operations?tab=staff" }],
       suggestedActions: ["Show staff arriving next shift"],
-      tableData: employees.slice(0, 5).map(e => ({
-        "Name": e.name,
-        "Department": e.department,
-        "Status": e.status === 'active' ? 'On Duty' : 'Off Duty'
-      }))
+      tableData: aiResponse.tableData
     });
   } catch (err) { next(err); }
 };
