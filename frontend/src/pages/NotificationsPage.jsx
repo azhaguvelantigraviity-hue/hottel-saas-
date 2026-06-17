@@ -15,10 +15,13 @@ const TABS = ['Live Feed', 'Settings', 'Subscription Alerts'];
 
 const NotificationsPage = ({ plan }) => {
   const [tab, setTab] = useState(0);
-  const { notifications: notifs, unreadCount: unread, markRead, markAllRead } = useNotifications();
+  const { notifications: notifs, unreadCount: unread, markRead, markAllRead, removeNotification, editNotification } = useNotifications();
   const [settings, setSettings] = useState(NOTIF_SETTINGS);
   const [filter, setFilter] = useState('all');
   const [loading, setLoading] = useState(false);
+  
+  const [editingNotif, setEditingNotif] = useState(null);
+  const [editForm, setEditForm] = useState({ title: '', desc: '', type: '' });
 
   const toggleSetting = (id, channel) => setSettings(prev => prev.map(s => s.id === id ? { ...s, [channel]: !s[channel] } : s));
 
@@ -113,18 +116,24 @@ const NotificationsPage = ({ plan }) => {
             </div>
             <div style={{ display:'flex', flexDirection:'column', gap:6 }}>
               {filtered.map(n => (
-                <div key={n.id} onClick={() => markRead(n.id)} style={{ display:'flex', alignItems:'flex-start', gap:14, padding:14, background:n.read?'transparent':'rgba(201,168,76,0.04)', border:`1px solid ${n.read?'var(--border)':'rgba(201,168,76,0.2)'}`, borderRadius:'var(--radius)', cursor:'pointer', transition:'all 0.15s' }} onMouseEnter={e=>e.currentTarget.style.background='var(--surface)'} onMouseLeave={e=>e.currentTarget.style.background=n.read?'transparent':'rgba(201,168,76,0.04)'}>
+                <div key={n.id} style={{ display:'flex', alignItems:'flex-start', gap:14, padding:14, background:n.read?'transparent':'rgba(201,168,76,0.04)', border:`1px solid ${n.read?'var(--border)':'rgba(201,168,76,0.2)'}`, borderRadius:'var(--radius)', transition:'all 0.15s' }} onMouseEnter={e=>e.currentTarget.style.background='var(--surface)'} onMouseLeave={e=>e.currentTarget.style.background=n.read?'transparent':'rgba(201,168,76,0.04)'}>
                   <div style={{ width:36, height:36, borderRadius:8, background:`${n.color}18`, display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0 }}>
                     <Icon name={n.icon} size={16} color={n.color} />
                   </div>
-                  <div style={{ flex:1 }}>
+                  <div style={{ flex:1, cursor:'pointer' }} onClick={() => markRead(n.id)}>
                     <div style={{ display:'flex', alignItems:'center', gap:8, marginBottom:3 }}>
                       <span style={{ fontSize:14, fontWeight:n.read?500:700, color:'var(--text)' }}>{n.title}</span>
                       {!n.read && <div style={{ width:6, height:6, borderRadius:'50%', background:'var(--gold)', flexShrink:0 }} />}
                     </div>
                     <div style={{ fontSize:12, color:'var(--text3)' }}>{n.desc}</div>
                   </div>
-                  <div style={{ fontSize:11, color:'var(--text3)', flexShrink:0 }}>{new Date(n.time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</div>
+                  <div style={{ display:'flex', flexDirection:'column', alignItems:'flex-end', gap:8 }}>
+                    <div style={{ fontSize:11, color:'var(--text3)', flexShrink:0 }}>{new Date(n.time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</div>
+                    <div style={{ display:'flex', gap:6 }}>
+                      <button onClick={(e) => { e.stopPropagation(); setEditingNotif(n); setEditForm({ title: n.title, desc: n.desc, type: n.type }); }} style={{ padding:'4px', background:'transparent', border:'none', color:'var(--text2)', cursor:'pointer' }} title="Edit"><Icon name="edit" size={14} /></button>
+                      <button onClick={(e) => { e.stopPropagation(); removeNotification(n.id); }} style={{ padding:'4px', background:'transparent', border:'none', color:'var(--rose)', cursor:'pointer' }} title="Remove"><Icon name="trash" size={14} /></button>
+                    </div>
+                  </div>
                 </div>
               ))}
               {filtered.length === 0 && <div style={{ textAlign:'center', padding:40, color:'var(--text3)' }}>No notifications in this category</div>}
@@ -195,6 +204,28 @@ const NotificationsPage = ({ plan }) => {
           </div>
         )}
       </div>
+
+      {editingNotif && (
+        <div style={{ position:'fixed', top:0, left:0, right:0, bottom:0, background:'rgba(0,0,0,0.5)', zIndex:1000, display:'flex', alignItems:'center', justifyContent:'center' }}>
+          <div style={{ background:'var(--card)', width:400, borderRadius:'var(--radius-lg)', padding:24 }}>
+            <h2 style={{ fontSize:18, fontWeight:600, marginBottom:16, color:'var(--text)' }}>Edit Notification</h2>
+            <div style={{ display:'flex', flexDirection:'column', gap:12 }}>
+              <div>
+                <label style={{ display:'block', fontSize:13, color:'var(--text2)', marginBottom:6 }}>Title</label>
+                <input value={editForm.title} onChange={e=>setEditForm({...editForm, title: e.target.value})} style={{ width:'100%', padding:10, borderRadius:8, border:'1px solid var(--border)', background:'var(--surface)', color:'var(--text)' }} />
+              </div>
+              <div>
+                <label style={{ display:'block', fontSize:13, color:'var(--text2)', marginBottom:6 }}>Description</label>
+                <textarea value={editForm.desc} onChange={e=>setEditForm({...editForm, desc: e.target.value})} style={{ width:'100%', padding:10, borderRadius:8, border:'1px solid var(--border)', background:'var(--surface)', color:'var(--text)', minHeight:80 }} />
+              </div>
+            </div>
+            <div style={{ display:'flex', gap:12, marginTop:24 }}>
+              <button onClick={() => setEditingNotif(null)} style={{ flex:1, padding:'10px', background:'transparent', border:'1px solid var(--border)', borderRadius:8, color:'var(--text2)', cursor:'pointer' }}>Cancel</button>
+              <button onClick={() => { editNotification(editingNotif.id, editForm); setEditingNotif(null); }} style={{ flex:1, padding:'10px', background:'var(--gold)', border:'none', borderRadius:8, color:'#000', fontWeight:600, cursor:'pointer' }}>Save Changes</button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

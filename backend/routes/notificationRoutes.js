@@ -8,5 +8,7 @@ router.use(protect);
 router.get('/', notificationController.getNotifications);
 router.post('/mark-all-read', notificationController.markAllAsRead);
 router.post('/:id/read', notificationController.markAsRead);
+router.put('/:id', notificationController.updateNotification);
+router.delete('/:id', notificationController.deleteNotification);
 
 module.exports = router;

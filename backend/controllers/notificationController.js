@@ -72,3 +72,34 @@ exports.markAllAsRead = asyncHandler(async (req, res) => {
 
   sendSuccess(res, { message: 'All notifications marked as read' });
 });
+
+exports.updateNotification = asyncHandler(async (req, res) => {
+  const { title, desc, type } = req.body;
+  const notif = await Notification.findOneAndUpdate(
+    { _id: req.params.id, hotel: req.hotelId },
+    { title, desc, type },
+    { new: true }
+  );
+  if (!notif) {
+    return res.status(404).json({ success: false, message: 'Notification not found' });
+  }
+  sendSuccess(res, {
+    id: notif._id,
+    type: notif.type,
+    title: notif.title,
+    desc: notif.desc,
+    time: notif.createdAt,
+    read: notif.readBy.includes(req.user._id),
+    color: notif.color,
+    icon: notif.icon,
+    relatedRoom: notif.relatedRoom
+  });
+});
+
+exports.deleteNotification = asyncHandler(async (req, res) => {
+  const notif = await Notification.findOneAndDelete({ _id: req.params.id, hotel: req.hotelId });
+  if (!notif) {
+    return res.status(404).json({ success: false, message: 'Notification not found' });
+  }
+  sendSuccess(res, { message: 'Notification deleted successfully' });
+});

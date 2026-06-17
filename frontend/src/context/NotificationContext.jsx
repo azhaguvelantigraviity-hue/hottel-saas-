@@ -67,8 +67,28 @@ export const NotificationProvider = ({ children, hotelDetails, role }) => {
     }
   };
 
+  const removeNotification = async (id) => {
+    try {
+      await api.deleteReq(`/notifications/${id}`);
+      setNotifications(prev => prev.filter(n => n.id !== id));
+    } catch (err) {
+      console.error('Failed to remove notification', err);
+    }
+  };
+
+  const editNotification = async (id, data) => {
+    try {
+      const res = await api.put(`/notifications/${id}`, data);
+      if (res && res.data) {
+        setNotifications(prev => prev.map(n => n.id === id ? res.data : n));
+      }
+    } catch (err) {
+      console.error('Failed to edit notification', err);
+    }
+  };
+
   return (
-    <NotificationContext.Provider value={{ notifications, unreadCount, markRead, markAllRead, socket }}>
+    <NotificationContext.Provider value={{ notifications, unreadCount, markRead, markAllRead, removeNotification, editNotification, socket }}>
       {children}
     </NotificationContext.Provider>
   );
@@ -76,5 +96,5 @@ export const NotificationProvider = ({ children, hotelDetails, role }) => {
 
 export const useNotifications = () => {
   const context = useContext(NotificationContext);
-  return context || { notifications: [], unreadCount: 0, markRead: () => {}, markAllRead: () => {} };
+  return context || { notifications: [], unreadCount: 0, markRead: () => {}, markAllRead: () => {}, removeNotification: () => {}, editNotification: () => {} };
 };
