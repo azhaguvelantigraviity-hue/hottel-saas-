@@ -3,7 +3,7 @@ const Room = require('../models/Room');
 const Booking = require('../models/Booking');
 const Guest = require('../models/Guest');
 const User = require('../models/User');
-const { Employee, Maintenance, Housekeeping } = require('../models/Operations');
+const { Employee, Attendance, Maintenance, Housekeeping } = require('../models/Operations');
 const Invoice = require('../models/Invoice');
 const Notification = require('../models/Notification');
 const CabBooking = require('../models/CabBooking');
@@ -23,7 +23,7 @@ const checkRole = (userRole, requiredRoles) => {
 };
 
 const generateSmartAssistantResponse = async (contextData, userQuery, moduleName) => {
-  if (!genAI) return { text: "AI services are not configured. Please set GEMINI_API_KEY.", stats: {}, tableData: [] };
+  if (!genAI) return { text: "AI services are not configured. Please set GEMINI_API_KEY.", stats: {}, tableData: [], error: true };
   
   try {
     const model = genAI.getGenerativeModel({ model: "gemini-flash-latest", generationConfig: { responseMimeType: "application/json" } });
@@ -47,11 +47,13 @@ Rules for JSON fields:
 If no relevant data exists, state it in the "text" field and return empty stats/tableData.`;
 
     const result = await model.generateContent(prompt);
-    const jsonStr = result.response.text();
+    let jsonStr = result.response.text().trim();
+    // Strip markdown code blocks if AI wrapped the response
+    jsonStr = jsonStr.replace(/^```(json)?/i, '').replace(/```$/i, '').trim();
     return JSON.parse(jsonStr);
   } catch (error) {
     console.error('Gemini error:', error);
-    return { text: "Data retrieved successfully, but AI analysis failed.", stats: {}, tableData: [] };
+    return { text: "Data retrieved successfully, but AI analysis failed.", stats: {}, tableData: [], error: true };
   }
 };
 
@@ -246,15 +248,46 @@ exports.getAttendanceData = async (req, res, next) => {
     const hotelId = req.hotelId || req.user.hotel;
     const employees = await Employee.find({ hotel: hotelId }).sort('-createdAt').limit(100).lean();
     
+    const startOfDay = new Date();
+    startOfDay.setHours(0, 0, 0, 0);
+    const attendance = await Attendance.find({ 
+       hotel: hotelId, 
+       date: { $gte: startOfDay } 
+    }).lean();
+    
     const query = req.query.q || 'Show employees';
-    const aiResponse = await generateSmartAssistantResponse(employees, query, 'Employees');
+    const aiResponse = await generateSmartAssistantResponse({ employees, attendance }, query, 'Employees & Attendance');
+
+    if (aiResponse.error) {
+      const total = employees.length;
+      const active = employees.filter(e => e.status === 'active').length;
+      const inactive = total - active;
+      
+      const roleCounts = {};
+      employees.forEach(e => {
+        roleCounts[e.role] = (roleCounts[e.role] || 0) + 1;
+      });
+
+      const presentToday = attendance.filter(a => a.status === 'present').length;
+      const nextShiftCount = employees.filter(e => e.shift === 'Evening' || e.shift === 'Night').length;
+
+      aiResponse.text = "Here is the summary of your staff roster and attendance today.";
+      aiResponse.stats = {
+        "Total Staff": total,
+        "Active": active,
+        "Present Today": presentToday,
+        "Arriving Next Shift": nextShiftCount
+      };
+      aiResponse.tableData = Object.entries(roleCounts).map(([role, count]) => ({ Role: role, Count: count })).slice(0, 5);
+      delete aiResponse.error;
+    }
 
     res.json({
       success: true,
       text: aiResponse.text,
       stats: aiResponse.stats,
       buttons: [{ label: "Manage Staff", url: "/hotel/employees" }],
-      suggestedActions: ["Show staff arriving next shift"],
+      suggestedActions: ["Show staff arriving next shift", "Who is absent today?"],
       tableData: aiResponse.tableData
     });
   } catch (err) { next(err); }
