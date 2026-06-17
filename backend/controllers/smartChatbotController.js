@@ -4,6 +4,12 @@ const Booking = require('../models/Booking');
 const Guest = require('../models/Guest');
 const User = require('../models/User');
 const { Employee, Maintenance, Housekeeping } = require('../models/Operations');
+const Invoice = require('../models/Invoice');
+const Notification = require('../models/Notification');
+const CabBooking = require('../models/CabBooking');
+const TravelAgency = require('../models/TravelAgency');
+const Branch = require('../models/Branch');
+const ManualItem = require('../models/ManualItem');
 const { AppError } = require('../utils/helpers');
 
 let genAI;
@@ -208,19 +214,34 @@ exports.getHousekeepingData = async (req, res, next) => {
 };
 
 exports.getFoodOrdersData = async (req, res, next) => {
-  res.json({
-    success: true,
-    text: "Food Orders module is currently offline. Please use the POS dashboard.",
-    stats: { "Pending Orders": 0 },
-    buttons: [{ label: "Open POS", url: "/hotel/restaurant" }],
-    suggestedActions: [],
-    tableData: []
-  });
+  try {
+    if (!checkRole(req.user.role, ['receptionist', 'hotel_admin', 'manager', 'platform_admin', 'restaurant_staff'])) {
+      return res.status(403).json({ success: false, text: 'Access denied.' });
+    }
+
+    const hotelId = req.hotelId || req.user.hotel;
+    const menuItems = await ManualItem.find({ hotel: hotelId }).lean();
+    const recentInvoices = await Invoice.find({ hotel: hotelId }).sort('-createdAt').limit(50).select('posCharges invoiceNo status').lean();
+    
+    const query = req.query.q || 'Show food orders';
+    const aiResponse = await generateSmartAssistantResponse({ menuItems, recentInvoices }, query, 'Food Orders & POS');
+
+    res.json({
+      success: true,
+      text: aiResponse.text,
+      stats: aiResponse.stats,
+      buttons: [{ label: "Open POS", url: "/hotel/restaurant" }, { label: "Manage Menu", url: "/hotel/inventory" }],
+      suggestedActions: ["Show out of stock items", "Show recent POS revenue"],
+      tableData: aiResponse.tableData
+    });
+  } catch (err) { next(err); }
 };
 
 exports.getAttendanceData = async (req, res, next) => {
   try {
-    if (!checkRole(req.user.role, [])) return res.status(403).json({ success: false, text: 'Access denied. Managers only.' });
+    if (!checkRole(req.user.role, ['manager', 'admin', 'hotel_admin', 'platform_admin'])) {
+      return res.status(403).json({ success: false, text: 'Access denied. Managers only.' });
+    }
 
     const hotelId = req.hotelId || req.user.hotel;
     const employees = await Employee.find({ hotel: hotelId }).sort('-createdAt').limit(100).lean();
@@ -240,58 +261,135 @@ exports.getAttendanceData = async (req, res, next) => {
 };
 
 exports.getReportsData = async (req, res, next) => {
-  res.json({
-    success: true,
-    text: "Your hotel analytics and revenue reports are ready to be viewed. Please open the Reports module.",
-    stats: { "Reports Ready": 3 },
-    buttons: [{ label: "View Reports", url: "/hotel/revenue" }],
-    suggestedActions: ["Generate daily summary", "Export monthly P&L"],
-    tableData: []
-  });
+  try {
+    if (!checkRole(req.user.role, ['manager', 'admin', 'hotel_admin', 'platform_admin'])) {
+      return res.status(403).json({ success: false, text: 'Access denied. Management only.' });
+    }
+
+    const hotelId = req.hotelId || req.user.hotel;
+    // Basic aggregation or recent fetches
+    const invoices = await Invoice.find({ hotel: hotelId }).sort('-createdAt').limit(200).select('totalAmount status type createdAt').lean();
+    const bookings = await Booking.find({ hotel: hotelId }).sort('-createdAt').limit(200).select('status totalAmount checkIn checkOut').lean();
+    
+    const query = req.query.q || 'Show reports and analytics';
+    const aiResponse = await generateSmartAssistantResponse({ invoices, bookings }, query, 'Reports & Analytics');
+
+    res.json({
+      success: true,
+      text: aiResponse.text,
+      stats: aiResponse.stats,
+      buttons: [{ label: "View Detailed Reports", url: "/hotel/revenue" }],
+      suggestedActions: ["Generate daily summary", "Show highest revenue source"],
+      tableData: aiResponse.tableData
+    });
+  } catch (err) { next(err); }
 };
 
 exports.getNotificationsData = async (req, res, next) => {
-  res.json({
-    success: true,
-    text: "You have new unread notifications regarding recent bookings and system alerts.",
-    stats: { "Unread": 5, "Total": 12 },
-    buttons: [{ label: "View Alerts", url: "/hotel/dashboard" }],
-    suggestedActions: ["Mark all as read"],
-    tableData: []
-  });
+  try {
+    const hotelId = req.hotelId || req.user.hotel;
+    const role = req.user.role === 'platform_admin' ? 'admin' : req.user.role;
+    
+    let filter = {};
+    if (role !== 'admin') {
+      filter = {
+        $or: [
+          { hotel: hotelId, targetRoles: { $in: [role] } },
+          { hotel: hotelId, targetRoles: { $size: 0 } },
+          { isGlobal: true, targetRoles: { $in: [role] } },
+          { isGlobal: true, targetRoles: { $size: 0 } }
+        ]
+      };
+    } else {
+      filter = { hotel: hotelId };
+    }
+
+    const notifications = await Notification.find(filter).sort('-createdAt').limit(50).lean();
+    
+    const query = req.query.q || 'Show notifications';
+    const aiResponse = await generateSmartAssistantResponse(notifications, query, 'Notifications');
+
+    res.json({
+      success: true,
+      text: aiResponse.text,
+      stats: aiResponse.stats,
+      buttons: [{ label: "View Alerts", url: "/hotel/notifications" }],
+      suggestedActions: ["Show unread notifications"],
+      tableData: aiResponse.tableData
+    });
+  } catch (err) { next(err); }
 };
 
 exports.getTravelDeskData = async (req, res, next) => {
-  res.json({
-    success: true,
-    text: "Travel Desk module. Manage guest transportation and tours.",
-    stats: { "Pending Requests": 2, "Active Trips": 1 },
-    buttons: [{ label: "Open Travel Desk", url: "/hotel/travel" }],
-    suggestedActions: ["Book airport transfer"],
-    tableData: []
-  });
+  try {
+    if (!checkRole(req.user.role, ['receptionist', 'manager', 'hotel_admin', 'platform_admin'])) {
+      return res.status(403).json({ success: false, text: 'Access denied.' });
+    }
+
+    const hotelId = req.hotelId || req.user.hotel;
+    const cabs = await CabBooking.find({ hotel: hotelId }).sort('-createdAt').limit(50).populate('guest', 'firstName lastName').lean();
+    const agencies = await TravelAgency.find({ hotel: hotelId }).lean();
+    
+    const query = req.query.q || 'Show travel desk';
+    const aiResponse = await generateSmartAssistantResponse({ cabs, agencies }, query, 'Travel Desk');
+
+    res.json({
+      success: true,
+      text: aiResponse.text,
+      stats: aiResponse.stats,
+      buttons: [{ label: "Open Travel Desk", url: "/hotel/travel" }],
+      suggestedActions: ["Show pending cab bookings"],
+      tableData: aiResponse.tableData
+    });
+  } catch (err) { next(err); }
 };
 
 exports.getBranchesData = async (req, res, next) => {
-  res.json({
-    success: true,
-    text: "Multi-branch management is only available for Enterprise plans.",
-    stats: { "Active Branches": 1 },
-    buttons: [{ label: "View Settings", url: "/hotel/settings" }],
-    suggestedActions: [],
-    tableData: []
-  });
+  try {
+    if (!checkRole(req.user.role, ['manager', 'admin', 'hotel_admin', 'platform_admin'])) {
+      return res.status(403).json({ success: false, text: 'Access denied.' });
+    }
+
+    const hotelId = req.hotelId || req.user.hotel;
+    const branches = await Branch.find({ hotel: hotelId }).lean();
+    
+    const query = req.query.q || 'Show branches';
+    const aiResponse = await generateSmartAssistantResponse(branches, query, 'Branches');
+
+    res.json({
+      success: true,
+      text: aiResponse.text,
+      stats: aiResponse.stats,
+      buttons: [{ label: "View Branches", url: "/hotel/settings" }],
+      suggestedActions: ["Show all active branches"],
+      tableData: aiResponse.tableData
+    });
+  } catch (err) { next(err); }
 };
 
 exports.getAnalyticsData = async (req, res, next) => {
-  res.json({
-    success: true,
-    text: "Advanced analytics and revenue forecasting tools are available in your dashboard.",
-    stats: { "Occupancy Rate": "78%", "RevPAR": "₹2,400" },
-    buttons: [{ label: "View Analytics", url: "/hotel/revenue" }],
-    suggestedActions: ["Show RevPAR history"],
-    tableData: []
-  });
+  try {
+    if (!checkRole(req.user.role, ['manager', 'admin', 'hotel_admin', 'platform_admin'])) {
+      return res.status(403).json({ success: false, text: 'Access denied.' });
+    }
+
+    const hotelId = req.hotelId || req.user.hotel;
+    // We reuse reports data for simplicity, Gemini will handle the formatting differently
+    const invoices = await Invoice.find({ hotel: hotelId }).sort('-createdAt').limit(200).select('totalAmount status type createdAt').lean();
+    const rooms = await Room.find({ hotel: hotelId }).select('status').lean();
+    
+    const query = req.query.q || 'Show analytics';
+    const aiResponse = await generateSmartAssistantResponse({ invoices, rooms }, query, 'Analytics');
+
+    res.json({
+      success: true,
+      text: aiResponse.text,
+      stats: aiResponse.stats,
+      buttons: [{ label: "View Analytics", url: "/hotel/revenue" }],
+      suggestedActions: ["What is the current occupancy rate?", "Show total revenue"],
+      tableData: aiResponse.tableData
+    });
+  } catch (err) { next(err); }
 };
 
 exports.getSummaryData = async (req, res, next) => {

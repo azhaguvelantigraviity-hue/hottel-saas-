@@ -20,12 +20,13 @@ const QUICK_ACTIONS = [
 
 const SmartChatBot = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const [messages, setMessages] = useState([{
+  const initialMessages = JSON.parse(localStorage.getItem('smartChatHistory')) || [{
     id: 1,
     sender: 'bot',
     text: "Hello! I am your StayOS Hotel Management Assistant. Select a quick action below or ask me a question to begin.",
     isGreeting: true
-  }]);
+  }];
+  const [messages, setMessages] = useState(initialMessages);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   
@@ -34,7 +35,19 @@ const SmartChatBot = () => {
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    localStorage.setItem('smartChatHistory', JSON.stringify(messages));
   }, [messages]);
+
+  const clearChat = () => {
+    const initial = [{
+      id: 1,
+      sender: 'bot',
+      text: "Hello! I am your StayOS Hotel Management Assistant. Select a quick action below or ask me a question to begin.",
+      isGreeting: true
+    }];
+    setMessages(initial);
+    localStorage.removeItem('smartChatHistory');
+  };
 
   const handleSend = async (text, overrideIntent = null) => {
     if (!text.trim()) return;
@@ -67,7 +80,8 @@ const SmartChatBot = () => {
       setMessages(prev => [...prev, {
         id: Date.now() + 1,
         sender: 'bot',
-        text: "I encountered an error accessing that module. You may not have sufficient permissions."
+        text: "I encountered an error accessing that module. You may not have sufficient permissions or the server is unreachable.",
+        error: true
       }]);
     } finally {
       setIsLoading(false);
@@ -86,7 +100,10 @@ const SmartChatBot = () => {
         <div className="smart-chatbot-window">
           <div className="smart-chatbot-header">
             <h3>StayOS AI Assistant</h3>
-            <button onClick={() => setIsOpen(false)}>×</button>
+            <div style={{ display: 'flex', gap: '8px' }}>
+              <button onClick={clearChat} title="Clear Chat" style={{ background: 'transparent', border: 'none', color: 'var(--text2)', cursor: 'pointer', fontSize: '16px' }}>🗑️</button>
+              <button onClick={() => setIsOpen(false)}>×</button>
+            </div>
           </div>
           
           <div className="smart-chatbot-messages">
