@@ -7,6 +7,7 @@ const ManualItemForm = ({ item, onClose, onSave }) => {
   const [form, setForm] = useState({
     name: '',
     price: '',
+    stock: '',
     category: 'Main Course',
     description: '',
     available: true,
@@ -17,6 +18,7 @@ const ManualItemForm = ({ item, onClose, onSave }) => {
       setForm({
         name: item.name || '',
         price: item.price || '',
+        stock: item.stock || '',
         category: item.category || 'Main Course',
         description: item.description || '',
         available: item.available !== false,
@@ -27,7 +29,7 @@ const ManualItemForm = ({ item, onClose, onSave }) => {
   const handleSubmit = (e) => {
     e.preventDefault();
     if (!form.name || !form.price) return;
-    onSave({ ...form, price: Number(form.price) });
+    onSave({ ...form, price: Number(form.price), stock: Number(form.stock) || 0 });
   };
 
   const inpStyle = { width: '100%', padding: '10px 12px', background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: '8px', color: 'var(--text)', fontSize: '13px', outline: 'none', fontFamily: 'Inter, sans-serif' };
@@ -53,6 +55,10 @@ const ManualItemForm = ({ item, onClose, onSave }) => {
             <div style={{ flex: 1 }}>
               <label style={lblStyle}>PRICE (₹)</label>
               <input required type="number" min="0" style={inpStyle} value={form.price} onChange={e => setForm({...form, price: e.target.value})} placeholder="0" />
+            </div>
+            <div style={{ flex: 1 }}>
+              <label style={lblStyle}>STOCK</label>
+              <input type="number" min="0" style={inpStyle} value={form.stock} onChange={e => setForm({...form, stock: e.target.value})} placeholder="Stock (0=∞)" />
             </div>
             <div style={{ flex: 1 }}>
               <label style={lblStyle}>CATEGORY</label>

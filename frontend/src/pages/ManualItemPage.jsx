@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import io from 'socket.io-client';
 import { useApi, useMutation } from '../hooks/useApi';
-import { getManualItems, createManualItem, updateManualItem, deleteManualItem } from '../services/manualItemService';
+import { getMenuItems, createMenuItem, updateMenuItem, deleteMenuItem } from '../services/operationsService';
 import ManualItemList from '../components/ManualItemList';
 import ManualItemForm from '../components/ManualItemForm';
 import BulkImportModal from '../components/BulkImportModal';
@@ -11,15 +11,15 @@ import * as XLSX from 'xlsx';
 const CATEGORIES = ['All', 'Breakfast', 'Starters', 'Main Course', 'Breads', 'Desserts', 'Beverages', 'Snacks', 'Custom'];
 
 const ManualItemPage = ({ role, hotelDetails }) => {
-  const { data: initialItems, refetch, loading } = useApi(getManualItems);
+  const { data: initialItems, refetch, loading } = useApi(getMenuItems);
   const [items, setItems] = useState([]);
   const [showForm, setShowForm] = useState(false);
   const [showBulkImport, setShowBulkImport] = useState(false);
   const [editItem, setEditItem] = useState(null);
 
-  const { mutate: createApi } = useMutation(createManualItem);
-  const { mutate: updateApi } = useMutation(updateManualItem);
-  const { mutate: deleteApi } = useMutation(deleteManualItem);
+  const { mutate: createApi } = useMutation(createMenuItem);
+  const { mutate: updateApi } = useMutation(updateMenuItem);
+  const { mutate: deleteApi } = useMutation(deleteMenuItem);
 
   useEffect(() => {
     if (initialItems) setItems(initialItems);

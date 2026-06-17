@@ -273,17 +273,17 @@ exports.getFoodOrdersData = async (req, res, next) => {
     }
 
     const hotelId = req.hotelId || req.user.hotel;
-    const menuItems = await ManualItem.find({ hotel: hotelId }).lean();
+    const menuItems = await require('../models/MenuItem').find({ hotel: hotelId }).lean();
     const recentInvoices = await Invoice.find({ hotel: hotelId }).sort('-createdAt').limit(50).select('posCharges invoiceNo status').lean();
     
     const query = req.query.q || 'Show food orders';
     const aiResponse = await generateSmartAssistantResponse({ menuItems, recentInvoices }, query, 'Food Orders & POS');
 
     if (aiResponse.error) {
-      const activeMenu = menuItems.filter(m => m.stockStatus !== 'out-of-stock').length;
+      const activeMenu = menuItems.filter(m => m.available !== false).length;
       aiResponse.text = "Here is the summary of your menu and recent POS orders.";
       aiResponse.stats = { "Menu Items": menuItems.length, "Available": activeMenu, "Recent POS Orders": recentInvoices.length };
-      aiResponse.tableData = menuItems.slice(0, 5).map(m => ({ Item: m.name, Price: m.price, Stock: m.stockStatus || 'Available' }));
+      aiResponse.tableData = menuItems.slice(0, 5).map(m => ({ Item: m.name, Price: m.price, Stock: m.stock > 0 ? m.stock : 'Available' }));
       delete aiResponse.error;
     }
 

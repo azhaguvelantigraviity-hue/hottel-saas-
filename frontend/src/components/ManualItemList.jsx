@@ -64,8 +64,8 @@ const ManualItemList = ({ items, categories, onEdit, onDelete, role }) => {
                     <div style={{ fontSize: '15px', fontWeight: '700', marginBottom: '4px' }}>{item.name}</div>
                     <div style={{ fontSize: '12px', color: 'var(--text3)' }}>{item.category}</div>
                   </div>
-                  <Badge color={item.available ? 'green' : 'gray'}>
-                    {item.available ? 'Available' : 'Out of Stock'}
+                  <Badge color={item.available && item.stock > 0 ? 'green' : 'gray'}>
+                    {item.available && item.stock > 0 ? `Available (${item.stock})` : 'Out of Stock'}
                   </Badge>
                 </div>
                 
