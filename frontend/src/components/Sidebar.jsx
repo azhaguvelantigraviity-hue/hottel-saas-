@@ -17,7 +17,6 @@ const Sidebar = ({ role, active, onNav, onLogout, plan, isOpen, setIsOpen }) => 
     { id: 'hotels',    icon: 'hotel',     label: 'Hotels' },
     { id: 'subscriptions', icon: 'crown', label: 'Subscriptions' },
     { id: 'revenue',   icon: 'dollar',    label: 'Revenue' },
-    { id: 'analytics', icon: 'chart',     label: 'Analytics' },
     { id: 'multibranch', icon: 'branch',  label: 'Multi-Branch' },
     { id: 'notifications', icon: 'bell', label: 'Notifications' },
     { id: 'settings',  icon: 'settings',  label: 'Settings' },
