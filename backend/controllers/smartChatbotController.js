@@ -95,7 +95,7 @@ Return ONLY the exact category name. Nothing else.`;
 
 exports.getMaintenanceData = async (req, res, next) => {
   try {
-    if (!checkRole(req.user.role, ['housekeeping', 'hotel_staff'])) {
+    if (!checkRole(req.user.role, ['housekeeping', 'hotel_staff', 'manager', 'admin', 'hotel_admin', 'platform_admin'])) {
       return res.status(403).json({ success: false, text: 'Access denied. Administrator or maintenance staff permissions required.' });
     }
 
@@ -105,6 +105,16 @@ exports.getMaintenanceData = async (req, res, next) => {
     
     const query = req.query.q || 'What is the maintenance status?';
     const aiResponse = await generateSmartAssistantResponse(tickets, query, 'Maintenance');
+
+    if (aiResponse.error) {
+      const open = tickets.filter(t => t.status === 'open').length;
+      const inProgress = tickets.filter(t => t.status === 'in-progress').length;
+      const resolved = tickets.filter(t => t.status === 'resolved' || t.status === 'closed').length;
+      aiResponse.text = "Here is the maintenance summary.";
+      aiResponse.stats = { "Total": tickets.length, "Open": open, "In Progress": inProgress, "Resolved": resolved };
+      aiResponse.tableData = tickets.slice(0, 5).map(t => ({ Ticket: t.ticketId || t._id, Issue: t.issue, Status: t.status }));
+      delete aiResponse.error;
+    }
 
     res.json({
       success: true,
@@ -122,7 +132,7 @@ exports.getMaintenanceData = async (req, res, next) => {
 
 exports.getRoomsData = async (req, res, next) => {
   try {
-    if (!checkRole(req.user.role, ['receptionist', 'housekeeping', 'hotel_staff'])) {
+    if (!checkRole(req.user.role, ['receptionist', 'housekeeping', 'hotel_staff', 'manager', 'admin', 'hotel_admin', 'platform_admin'])) {
       return res.status(403).json({ success: false, text: 'Access denied.' });
     }
 
@@ -131,6 +141,16 @@ exports.getRoomsData = async (req, res, next) => {
     
     const query = req.query.q || 'Show rooms status';
     const aiResponse = await generateSmartAssistantResponse(rooms, query, 'Rooms');
+
+    if (aiResponse.error) {
+      const available = rooms.filter(r => r.status === 'available').length;
+      const occupied = rooms.filter(r => r.status === 'occupied').length;
+      const maintenance = rooms.filter(r => r.status === 'maintenance').length;
+      aiResponse.text = "Here is the room availability summary.";
+      aiResponse.stats = { "Total Rooms": rooms.length, "Available": available, "Occupied": occupied, "Maintenance": maintenance };
+      aiResponse.tableData = rooms.slice(0, 5).map(r => ({ Room: r.roomNumber, Type: r.type, Status: r.status }));
+      delete aiResponse.error;
+    }
 
     res.json({
       success: true,
@@ -148,13 +168,22 @@ exports.getRoomsData = async (req, res, next) => {
 
 exports.getBookingsData = async (req, res, next) => {
   try {
-    if (!checkRole(req.user.role, ['receptionist'])) return res.status(403).json({ success: false, text: 'Access denied.' });
+    if (!checkRole(req.user.role, ['receptionist', 'manager', 'admin', 'hotel_admin', 'platform_admin'])) return res.status(403).json({ success: false, text: 'Access denied.' });
 
     const hotelId = req.hotelId || req.user.hotel;
     const bookings = await Booking.find({ hotel: hotelId }).sort('-createdAt').limit(100).populate('guest', 'firstName lastName email phone').lean();
     
     const query = req.query.q || 'Show active bookings';
     const aiResponse = await generateSmartAssistantResponse(bookings, query, 'Bookings');
+
+    if (aiResponse.error) {
+      const active = bookings.filter(b => ['confirmed', 'checked_in'].includes(b.status)).length;
+      const cancelled = bookings.filter(b => b.status === 'cancelled').length;
+      aiResponse.text = "Here is the summary of recent bookings.";
+      aiResponse.stats = { "Recent Bookings": bookings.length, "Active": active, "Cancelled": cancelled };
+      aiResponse.tableData = bookings.slice(0, 5).map(b => ({ Guest: b.guest ? b.guest.firstName : 'Unknown', Status: b.status, Amount: b.totalAmount }));
+      delete aiResponse.error;
+    }
 
     res.json({
       success: true,
@@ -172,13 +201,26 @@ exports.getBookingsData = async (req, res, next) => {
 
 exports.getPaymentsData = async (req, res, next) => {
   try {
-    if (!checkRole(req.user.role, ['receptionist'])) return res.status(403).json({ success: false, text: 'Access denied.' });
+    if (!checkRole(req.user.role, ['receptionist', 'manager', 'admin', 'hotel_admin', 'platform_admin'])) return res.status(403).json({ success: false, text: 'Access denied.' });
 
     const hotelId = req.hotelId || req.user.hotel;
-    const bookings = await Booking.find({ hotel: hotelId, status: { $in: ['confirmed', 'checked_in', 'checked_out'] } }).sort('-createdAt').limit(200).lean();
+    const invoices = await Invoice.find({ hotel: hotelId }).sort('-createdAt').limit(200).lean();
     
     const query = req.query.q || 'Show payments';
-    const aiResponse = await generateSmartAssistantResponse(bookings, query, 'Payments & Revenue');
+    const aiResponse = await generateSmartAssistantResponse(invoices, query, 'Payments & Revenue');
+
+    if (aiResponse.error) {
+      let totalRevenue = 0;
+      let pendingAmount = 0;
+      invoices.forEach(i => {
+        totalRevenue += i.paidAmount || 0;
+        pendingAmount += i.dueAmount || 0;
+      });
+      aiResponse.text = "Here is the summary of recent payments and invoices.";
+      aiResponse.stats = { "Total Invoices": invoices.length, "Collected": `₹${totalRevenue}`, "Pending": `₹${pendingAmount}` };
+      aiResponse.tableData = invoices.slice(0, 5).map(i => ({ Invoice: i.invoiceNo, Amount: i.totalAmount, Status: i.paymentStatus }));
+      delete aiResponse.error;
+    }
 
     res.json({
       success: true,
@@ -196,13 +238,22 @@ exports.getPaymentsData = async (req, res, next) => {
 // Re-using old route name "food-orders" but mapping to housekeeping if requested, or keep separate
 exports.getHousekeepingData = async (req, res, next) => {
   try {
-    if (!checkRole(req.user.role, ['housekeeping'])) return res.status(403).json({ success: false, text: 'Access denied.' });
+    if (!checkRole(req.user.role, ['housekeeping', 'manager', 'admin', 'hotel_admin', 'platform_admin'])) return res.status(403).json({ success: false, text: 'Access denied.' });
 
     const hotelId = req.hotelId || req.user.hotel;
     const tasks = await Housekeeping.find({ hotel: hotelId }).sort('-createdAt').limit(100).lean();
     
     const query = req.query.q || 'Show housekeeping';
     const aiResponse = await generateSmartAssistantResponse(tasks, query, 'Housekeeping');
+
+    if (aiResponse.error) {
+      const pending = tasks.filter(t => t.status === 'pending').length;
+      const completed = tasks.filter(t => t.status === 'completed' || t.status === 'verified').length;
+      aiResponse.text = "Here is the summary of housekeeping tasks.";
+      aiResponse.stats = { "Total Tasks": tasks.length, "Pending": pending, "Completed": completed };
+      aiResponse.tableData = tasks.slice(0, 5).map(t => ({ Room: t.roomNumber, Type: t.type, Status: t.status }));
+      delete aiResponse.error;
+    }
 
     res.json({
       success: true,
@@ -227,6 +278,14 @@ exports.getFoodOrdersData = async (req, res, next) => {
     
     const query = req.query.q || 'Show food orders';
     const aiResponse = await generateSmartAssistantResponse({ menuItems, recentInvoices }, query, 'Food Orders & POS');
+
+    if (aiResponse.error) {
+      const activeMenu = menuItems.filter(m => m.stockStatus !== 'out-of-stock').length;
+      aiResponse.text = "Here is the summary of your menu and recent POS orders.";
+      aiResponse.stats = { "Menu Items": menuItems.length, "Available": activeMenu, "Recent POS Orders": recentInvoices.length };
+      aiResponse.tableData = menuItems.slice(0, 5).map(m => ({ Item: m.name, Price: m.price, Stock: m.stockStatus || 'Available' }));
+      delete aiResponse.error;
+    }
 
     res.json({
       success: true,
@@ -300,12 +359,18 @@ exports.getReportsData = async (req, res, next) => {
     }
 
     const hotelId = req.hotelId || req.user.hotel;
-    // Basic aggregation or recent fetches
     const invoices = await Invoice.find({ hotel: hotelId }).sort('-createdAt').limit(200).select('totalAmount status type createdAt').lean();
     const bookings = await Booking.find({ hotel: hotelId }).sort('-createdAt').limit(200).select('status totalAmount checkIn checkOut').lean();
     
     const query = req.query.q || 'Show reports and analytics';
     const aiResponse = await generateSmartAssistantResponse({ invoices, bookings }, query, 'Reports & Analytics');
+
+    if (aiResponse.error) {
+      aiResponse.text = "Here is the summary of recent reports.";
+      aiResponse.stats = { "Invoices Processed": invoices.length, "Bookings Logged": bookings.length };
+      aiResponse.tableData = invoices.slice(0, 5).map(i => ({ Date: new Date(i.createdAt).toLocaleDateString(), Type: i.type, Amount: i.totalAmount, Status: i.status }));
+      delete aiResponse.error;
+    }
 
     res.json({
       success: true,
@@ -342,6 +407,14 @@ exports.getNotificationsData = async (req, res, next) => {
     const query = req.query.q || 'Show notifications';
     const aiResponse = await generateSmartAssistantResponse(notifications, query, 'Notifications');
 
+    if (aiResponse.error) {
+      const unread = notifications.filter(n => !n.readBy?.includes(req.user.id)).length;
+      aiResponse.text = "Here is the summary of your notifications.";
+      aiResponse.stats = { "Total Alerts": notifications.length, "Unread": unread };
+      aiResponse.tableData = notifications.slice(0, 5).map(n => ({ Title: n.title, Type: n.type, Date: new Date(n.createdAt).toLocaleDateString() }));
+      delete aiResponse.error;
+    }
+
     res.json({
       success: true,
       text: aiResponse.text,
@@ -366,6 +439,14 @@ exports.getTravelDeskData = async (req, res, next) => {
     const query = req.query.q || 'Show travel desk';
     const aiResponse = await generateSmartAssistantResponse({ cabs, agencies }, query, 'Travel Desk');
 
+    if (aiResponse.error) {
+      const pendingCabs = cabs.filter(c => c.status === 'pending').length;
+      aiResponse.text = "Here is the summary of travel desk requests.";
+      aiResponse.stats = { "Total Cab Bookings": cabs.length, "Pending Requests": pendingCabs, "Partner Agencies": agencies.length };
+      aiResponse.tableData = cabs.slice(0, 5).map(c => ({ Guest: c.guest ? c.guest.firstName : 'Unknown', Destination: c.dropoff, Status: c.status }));
+      delete aiResponse.error;
+    }
+
     res.json({
       success: true,
       text: aiResponse.text,
@@ -389,6 +470,13 @@ exports.getBranchesData = async (req, res, next) => {
     const query = req.query.q || 'Show branches';
     const aiResponse = await generateSmartAssistantResponse(branches, query, 'Branches');
 
+    if (aiResponse.error) {
+      aiResponse.text = "Here is the summary of your hotel branches.";
+      aiResponse.stats = { "Total Branches": branches.length };
+      aiResponse.tableData = branches.slice(0, 5).map(b => ({ Name: b.name, Location: b.location, Status: b.status || 'Active' }));
+      delete aiResponse.error;
+    }
+
     res.json({
       success: true,
       text: aiResponse.text,
@@ -407,12 +495,23 @@ exports.getAnalyticsData = async (req, res, next) => {
     }
 
     const hotelId = req.hotelId || req.user.hotel;
-    // We reuse reports data for simplicity, Gemini will handle the formatting differently
     const invoices = await Invoice.find({ hotel: hotelId }).sort('-createdAt').limit(200).select('totalAmount status type createdAt').lean();
     const rooms = await Room.find({ hotel: hotelId }).select('status').lean();
     
     const query = req.query.q || 'Show analytics';
     const aiResponse = await generateSmartAssistantResponse({ invoices, rooms }, query, 'Analytics');
+
+    if (aiResponse.error) {
+      const occupied = rooms.filter(r => r.status === 'occupied').length;
+      const occRate = rooms.length ? Math.round((occupied / rooms.length) * 100) : 0;
+      let rev = 0;
+      invoices.forEach(i => rev += i.totalAmount || 0);
+
+      aiResponse.text = "Here is the quick analytics summary.";
+      aiResponse.stats = { "Occupancy Rate": `${occRate}%`, "Recent Revenue": `₹${rev}` };
+      aiResponse.tableData = [];
+      delete aiResponse.error;
+    }
 
     res.json({
       success: true,
