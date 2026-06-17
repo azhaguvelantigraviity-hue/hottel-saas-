@@ -4,6 +4,7 @@ import { post } from '../services/api';
 import './SmartChatBot.css';
 
 const QUICK_ACTIONS = [
+  { label: 'Hotels', icon: '🏩', intent: 'hotels' },
   { label: 'Rooms', icon: '🏨', intent: 'rooms' },
   { label: 'Bookings', icon: '📅', intent: 'bookings' },
   { label: 'Maintenance', icon: '🔧', intent: 'maintenance' },

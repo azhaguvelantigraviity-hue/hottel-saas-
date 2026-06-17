@@ -524,6 +524,34 @@ exports.getAnalyticsData = async (req, res, next) => {
   } catch (err) { next(err); }
 };
 
+exports.getHotelsData = async (req, res, next) => {
+  try {
+    const Hotel = require('../models/Hotel');
+    const hotels = await Hotel.find({}).lean();
+    const query = req.query.q || 'Show hotels';
+    const aiResponse = await generateSmartAssistantResponse({ hotels }, query, 'Hotels');
+
+    if (aiResponse.error) {
+      const active = hotels.filter(h => h.planStatus === 'active').length;
+      const plans = {};
+      hotels.forEach(h => { plans[h.plan || 'starter'] = (plans[h.plan || 'starter'] || 0) + 1; });
+      aiResponse.text = "Here is the summary of registered hotels.";
+      aiResponse.stats = { "Total Hotels": hotels.length, "Active": active, "Inactive": hotels.length - active };
+      aiResponse.tableData = hotels.slice(0, 10).map(h => ({ Name: h.name, Plan: h.plan || 'starter', Status: h.planStatus || 'active', City: h.address?.city || '-' }));
+      delete aiResponse.error;
+    }
+
+    res.json({
+      success: true,
+      text: aiResponse.text,
+      stats: aiResponse.stats,
+      buttons: [{ label: "Manage Hotels", url: "/admin/hotels" }],
+      suggestedActions: ["Show active hotels", "Show enterprise hotels"],
+      tableData: aiResponse.tableData
+    });
+  } catch (err) { next(err); }
+};
+
 exports.getSummaryData = async (req, res, next) => {
   res.json({
     success: true,
