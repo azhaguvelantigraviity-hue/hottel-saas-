@@ -86,6 +86,7 @@ const AdminApp = ({ onLogout }) => {
     multibranch: <MultiBranchPage />,
     accounts: <AdminAccounts />,
     subscriptions: <AdminSubscriptions />,
+    revenue: <AdminRevenue />,
     analytics: <AnalyticsDashboard />,
     alerts: <AdminAlerts />,
     audit: <AuditLogs />,
@@ -96,7 +97,7 @@ const AdminApp = ({ onLogout }) => {
 
   const titles = {
     dashboard: 'Platform Overview', hotels: 'Registered Hotels', multibranch: 'Multi-Branch Management', accounts: 'Account Management',
-    subscriptions: 'Subscriptions & Payments', analytics: 'Analytics Dashboard', alerts: 'Trial & Renewal Alerts',
+    subscriptions: 'Subscriptions & Payments', revenue: 'Revenue Management', analytics: 'Analytics Dashboard', alerts: 'Trial & Renewal Alerts',
     audit: 'Audit Logs', roles: 'Roles & Permissions', notifications: 'Platform Notifications', settings: 'Settings',
   };
 
