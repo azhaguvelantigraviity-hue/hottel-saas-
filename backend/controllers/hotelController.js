@@ -636,6 +636,16 @@ const createEmployee = catchAsync(async (req, res) => {
     }
   }
 
+  if (req.body.loginEmail) {
+    if (!req.body.loginPassword || req.body.loginPassword.length < 6) {
+      throw new AppError('Login password must be at least 6 characters long.', 400);
+    }
+    const existingUser = await User.findOne({ email: req.body.loginEmail.toLowerCase() });
+    if (existingUser) {
+      throw new AppError('This email is already registered as a login. Please use a different email.', 400);
+    }
+  }
+
   const employee = await Employee.create(body);
 
   if (req.body.loginEmail && req.body.loginPassword) {
@@ -646,18 +656,15 @@ const createEmployee = catchAsync(async (req, res) => {
     if (isReceptionist) assignRole = 'receptionist';
     else if (isHousekeeping) assignRole = 'housekeeping';
 
-    const existingUser = await User.findOne({ email: req.body.loginEmail });
-    if (!existingUser) {
-      await User.create({
-        name: body.name,
-        email: req.body.loginEmail,
-        password: req.body.loginPassword,
-        role: assignRole,
-        hotel: body.hotel,
-        department: body.department === 'Front Office' ? 'Front Desk' : body.department,
-        isActive: true
-      });
-    }
+    await User.create({
+      name: body.name,
+      email: req.body.loginEmail.toLowerCase(),
+      password: req.body.loginPassword,
+      role: assignRole,
+      hotel: body.hotel,
+      department: body.department === 'Front Office' ? 'Front Desk' : body.department,
+      isActive: true
+    });
   }
 
   res.status(201).json({ success: true, data: employee });
