@@ -31,36 +31,36 @@ const Login = ({ type, onSuccess, onBack }) => {
       setLoading(false);
       
       if (role === 'platform_admin') {
-        onSuccess('enterprise', 'admin', null, user.isTrialExpired);
+        onSuccess('starter', 'admin', null, user.isTrialExpired);
       } else if (role === 'hotel_admin') {
         const hotelDetails = hotel ? {
           id: hotel._id || hotel.id,
           name: hotel.name,
-          plan: hotel.plan || 'enterprise',
+          plan: hotel.plan || 'starter',
           ...hotel
         } : null;
-        onSuccess(hotel?.plan || 'enterprise', 'manager', hotelDetails, user.isTrialExpired);
+        onSuccess(hotel?.plan || 'starter', 'manager', hotelDetails, user.isTrialExpired);
       } else if (role === 'receptionist') {
         const hotelDetails = hotel ? {
           id: hotel._id || hotel.id,
           name: hotel.name,
-          plan: hotel.plan || 'enterprise',
+          plan: hotel.plan || 'starter',
           ...hotel
         } : null;
-        onSuccess(hotel?.plan || 'enterprise', 'reception', hotelDetails, user.isTrialExpired);
+        onSuccess(hotel?.plan || 'starter', 'reception', hotelDetails, user.isTrialExpired);
       } else if (role === 'housekeeping') {
         const hotelDetails = hotel ? {
           id: hotel._id || hotel.id,
           name: hotel.name,
-          plan: hotel.plan || 'enterprise',
+          plan: hotel.plan || 'starter',
           ...hotel
         } : null;
-        onSuccess(hotel?.plan || 'enterprise', 'housekeeping', hotelDetails, user.isTrialExpired);
+        onSuccess(hotel?.plan || 'starter', 'housekeeping', hotelDetails, user.isTrialExpired);
       } else if (role === 'hotel_staff') {
         const hotelDetails = hotel ? {
           id: hotel._id || hotel.id,
           name: hotel.name,
-          plan: hotel.plan || 'enterprise',
+          plan: hotel.plan || 'starter',
           ...hotel
         } : null;
         let uiRole = 'staff';
@@ -68,7 +68,7 @@ const Login = ({ type, onSuccess, onBack }) => {
         else if (user.department === 'Housekeeping') uiRole = 'housekeeping';
         else if (user.department === 'Manager') uiRole = 'manager';
         
-        onSuccess(hotel?.plan || 'enterprise', uiRole, hotelDetails, user.isTrialExpired);
+        onSuccess(hotel?.plan || 'starter', uiRole, hotelDetails, user.isTrialExpired);
       } else {
         alert('Unknown user role');
       }

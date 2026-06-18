@@ -118,7 +118,7 @@ const AdminApp = ({ onLogout }) => {
 };
 
 // ── HOTEL APP ─────────────────────────────────────────────────────────────────
-const HotelApp = ({ onLogout, initialPlan = 'enterprise', role = 'manager', hotelDetails = null }) => {
+const HotelApp = ({ onLogout, initialPlan = 'starter', role = 'manager', hotelDetails = null }) => {
   const navigate = useNavigate();
   const location = useLocation();
   const pathParts = location.pathname.split('/');
@@ -336,12 +336,12 @@ const App = () => {
           if (user.role === 'platform_admin') {
             setLoginType('admin');
             setHotelRole('manager');
-            setHotelPlan('enterprise');
+            setHotelPlan('starter');
             setIsTrialExpired(false);
           } else {
             setLoginType('hotel');
             setHotelRole(getUIRole(user));
-            setHotelPlan(user.hotel?.plan || 'enterprise');
+            setHotelPlan(user.hotel?.plan || 'starter');
             setCurrentHotel(user.hotel);
             setIsTrialExpired(!!user.isTrialExpired);
           }
@@ -366,7 +366,7 @@ const App = () => {
 
   const handleHotelSuccess = (plan, role, hotelDetails, isTrialExpired) => {
     setLoginType('hotel');
-    setHotelPlan(plan || 'enterprise');
+    setHotelPlan(plan || 'starter');
     setHotelRole(role || 'manager');
     setCurrentHotel(hotelDetails || null);
     setIsTrialExpired(!!isTrialExpired);
@@ -378,7 +378,7 @@ const App = () => {
     authService.logout().catch(() => { });
     setLoginType(null);
     setIsAuthenticated(false);
-    setHotelPlan('enterprise');
+    setHotelPlan('starter');
     setHotelRole('manager');
     setCurrentHotel(null);
     navigate('/');

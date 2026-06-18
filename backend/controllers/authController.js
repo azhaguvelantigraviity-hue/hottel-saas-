@@ -163,11 +163,11 @@ exports.demoLogin = asyncHandler(async (req, res, next) => {
   if (!hotel) return next(new AppError('Hotel not found or inactive', 404));
 
   // Find a user for this hotel, preferably a hotel_admin
-  let user = await User.findOne({ hotel: hotel._id, role: 'hotel_admin', isActive: true });
+  let user = await User.findOne({ hotel: hotel._id, role: 'hotel_admin', isActive: true }).populate('hotel', 'name plan planStatus trialEndDate phone email website logo tagline address');
   
   // If no hotel_admin is found, fallback to any active user for this hotel
   if (!user) {
-    user = await User.findOne({ hotel: hotel._id, isActive: true });
+    user = await User.findOne({ hotel: hotel._id, isActive: true }).populate('hotel', 'name plan planStatus trialEndDate phone email website logo tagline address');
   }
 
   if (!user) {
