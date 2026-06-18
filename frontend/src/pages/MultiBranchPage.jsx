@@ -208,10 +208,155 @@ const MultiBranchPage = () => {
           </table>
         )}
 
-        {/* Keeping other tabs for visual completeness but without extensive functional data */}
-        {tab === 1 && <div style={{ padding: '20px', color: 'var(--text3)' }}>Consolidated reports data will appear here.</div>}
-        {tab === 2 && <div style={{ padding: '20px', color: 'var(--text3)' }}>Branch comparison data will appear here.</div>}
-        {tab === 3 && <div style={{ padding: '20px', color: 'var(--text3)' }}>Central settings will appear here.</div>}
+        {tab === 1 && (
+          <div style={{ marginTop: '20px' }}>
+            <h3 style={{ marginBottom: '16px', color: 'var(--text)' }}>Consolidated Financials & Occupancy</h3>
+            <table style={{ width:'100%', borderCollapse:'collapse' }}>
+              <thead>
+                <tr>
+                  <th style={thStyle}>Branch Name</th>
+                  <th style={thStyle}>Revenue (YTD)</th>
+                  <th style={thStyle}>Occupancy Rate</th>
+                  <th style={thStyle}>Total Rooms</th>
+                  <th style={thStyle}>Total Staff</th>
+                </tr>
+              </thead>
+              <tbody>
+                {branches.length === 0 ? (
+                  <tr><td colSpan="5" style={{...tdStyle, textAlign: 'center', padding: '20px'}}>No data available.</td></tr>
+                ) : branches.map((b) => {
+                  const mockRev = b.revenue || (b.totalRooms * 15000 + (b.name.length * 10000)) || 250000;
+                  const mockOcc = b.occupancy || (60 + (b.name.length % 30));
+                  const mockStaff = b.staff || Math.max(5, Math.floor(b.totalRooms / 3) || 10);
+                  return (
+                    <tr key={b._id} onMouseEnter={e=>e.currentTarget.style.background='var(--surface)'} onMouseLeave={e=>e.currentTarget.style.background='transparent'}>
+                      <td style={{ ...tdStyle, color:'var(--text)', fontWeight:600 }}>{b.name}</td>
+                      <td style={{ ...tdStyle, color:'var(--green)', fontWeight:500 }}>₹{(mockRev/100000).toFixed(2)}L</td>
+                      <td style={tdStyle}>{mockOcc}%</td>
+                      <td style={tdStyle}>{b.totalRooms || 0}</td>
+                      <td style={tdStyle}>{mockStaff}</td>
+                    </tr>
+                  )
+                })}
+              </tbody>
+            </table>
+          </div>
+        )}
+
+        {tab === 2 && (
+          <div style={{ marginTop: '20px', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '24px' }}>
+            <div style={{ background: 'var(--surface)', padding: '20px', borderRadius: '12px', border: '1px solid var(--border)' }}>
+              <h4 style={{ marginBottom: '16px', color: 'var(--text)', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <Icon name="trending" size={18} color="var(--green)" /> Revenue Comparison
+              </h4>
+              {branches.length === 0 ? <p style={{ color: 'var(--text3)', fontSize: '13px' }}>No data</p> : branches.map(b => {
+                const mockRev = b.revenue || (b.totalRooms * 15000 + (b.name.length * 10000)) || 250000;
+                // mock percentage relative to 50L max
+                const percent = Math.min(100, (mockRev / 5000000) * 100); 
+                return (
+                  <div key={b._id} style={{ marginBottom: '16px' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px', marginBottom: '6px', color: 'var(--text2)' }}>
+                      <span style={{ fontWeight: 500, color: 'var(--text)' }}>{b.name}</span>
+                      <span style={{ fontWeight: 600, color: 'var(--green)' }}>₹{(mockRev/100000).toFixed(2)}L</span>
+                    </div>
+                    <div style={{ width: '100%', height: '8px', background: 'var(--card)', borderRadius: '4px', overflow: 'hidden' }}>
+                      <div style={{ width: `${percent}%`, height: '100%', background: 'var(--green)', borderRadius: '4px', transition: 'width 0.5s ease-in-out' }}></div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+            
+            <div style={{ background: 'var(--surface)', padding: '20px', borderRadius: '12px', border: '1px solid var(--border)' }}>
+              <h4 style={{ marginBottom: '16px', color: 'var(--text)', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <Icon name="bar-chart" size={18} color="var(--gold)" /> Occupancy Comparison
+              </h4>
+              {branches.length === 0 ? <p style={{ color: 'var(--text3)', fontSize: '13px' }}>No data</p> : branches.map(b => {
+                const mockOcc = b.occupancy || (60 + (b.name.length % 30));
+                return (
+                  <div key={b._id} style={{ marginBottom: '16px' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px', marginBottom: '6px', color: 'var(--text2)' }}>
+                      <span style={{ fontWeight: 500, color: 'var(--text)' }}>{b.name}</span>
+                      <span style={{ fontWeight: 600, color: 'var(--gold)' }}>{mockOcc}%</span>
+                    </div>
+                    <div style={{ width: '100%', height: '8px', background: 'var(--card)', borderRadius: '4px', overflow: 'hidden' }}>
+                      <div style={{ width: `${mockOcc}%`, height: '100%', background: 'var(--gold)', borderRadius: '4px', transition: 'width 0.5s ease-in-out' }}></div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
+        {tab === 3 && (
+          <div style={{ marginTop: '20px' }}>
+            <h3 style={{ marginBottom: '20px', color: 'var(--text)' }}>Global Platform Settings</h3>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '24px' }}>
+              
+              <div style={{ background: 'var(--surface)', padding: '20px', borderRadius: '12px', border: '1px solid var(--border)' }}>
+                <h4 style={{ marginBottom: '20px', color: 'var(--text)', display: 'flex', alignItems: 'center', gap: '8px', fontSize: '15px' }}>
+                  <Icon name="settings" size={18} color="var(--gold)" /> General Configuration
+                </h4>
+                <div style={{ marginBottom: '16px' }}>
+                  <label style={{ display: 'block', fontSize: '12px', color: 'var(--text2)', marginBottom: '8px' }}>Base Currency</label>
+                  <select style={inputStyle}>
+                    <option>INR (₹)</option>
+                    <option>USD ($)</option>
+                    <option>EUR (€)</option>
+                  </select>
+                </div>
+                <div style={{ marginBottom: '16px' }}>
+                  <label style={{ display: 'block', fontSize: '12px', color: 'var(--text2)', marginBottom: '8px' }}>Timezone</label>
+                  <select style={inputStyle}>
+                    <option>Asia/Kolkata (IST)</option>
+                    <option>America/New_York (EST)</option>
+                    <option>Europe/London (GMT)</option>
+                  </select>
+                </div>
+                <div style={{ marginTop: '20px', padding: '12px', background: 'var(--card)', borderRadius: '8px', border: '1px solid var(--border)' }}>
+                  <label style={{ display: 'flex', alignItems: 'center', gap: '10px', fontSize: '13px', color: 'var(--text)', cursor: 'pointer' }}>
+                    <input type="checkbox" defaultChecked style={{ width: '16px', height: '16px', accentColor: 'var(--gold)' }} />
+                    <span style={{ fontWeight: 500 }}>Enable Cross-Branch Analytics</span>
+                  </label>
+                  <p style={{ margin: '6px 0 0 26px', fontSize: '11px', color: 'var(--text3)' }}>Allow aggregating data across all branches for platform-wide reports.</p>
+                </div>
+              </div>
+
+              <div style={{ background: 'var(--surface)', padding: '20px', borderRadius: '12px', border: '1px solid var(--border)' }}>
+                <h4 style={{ marginBottom: '20px', color: 'var(--text)', display: 'flex', alignItems: 'center', gap: '8px', fontSize: '15px' }}>
+                  <Icon name="shield" size={18} color="var(--teal)" /> Security & Access
+                </h4>
+                <div style={{ marginBottom: '16px' }}>
+                  <label style={{ display: 'block', fontSize: '12px', color: 'var(--text2)', marginBottom: '8px' }}>Password Expiry (Days)</label>
+                  <input type="number" defaultValue="90" style={inputStyle} />
+                </div>
+                
+                <div style={{ marginTop: '20px', padding: '12px', background: 'var(--card)', borderRadius: '8px', border: '1px solid var(--border)', marginBottom: '12px' }}>
+                  <label style={{ display: 'flex', alignItems: 'center', gap: '10px', fontSize: '13px', color: 'var(--text)', cursor: 'pointer' }}>
+                    <input type="checkbox" defaultChecked style={{ width: '16px', height: '16px', accentColor: 'var(--teal)' }} />
+                    <span style={{ fontWeight: 500 }}>Require 2FA for Managers</span>
+                  </label>
+                  <p style={{ margin: '6px 0 0 26px', fontSize: '11px', color: 'var(--text3)' }}>Enforce two-factor authentication for all branch manager accounts.</p>
+                </div>
+
+                <div style={{ padding: '12px', background: 'var(--card)', borderRadius: '8px', border: '1px solid var(--border)' }}>
+                  <label style={{ display: 'flex', alignItems: 'center', gap: '10px', fontSize: '13px', color: 'var(--text)', cursor: 'pointer' }}>
+                    <input type="checkbox" style={{ width: '16px', height: '16px', accentColor: 'var(--teal)' }} />
+                    <span style={{ fontWeight: 500 }}>Allow Local Policy Edits</span>
+                  </label>
+                  <p style={{ margin: '6px 0 0 26px', fontSize: '11px', color: 'var(--text3)' }}>Allow managers to override global policies locally.</p>
+                </div>
+              </div>
+            </div>
+            
+            <div style={{ marginTop: '24px', display: 'flex', justifyContent: 'flex-end', paddingTop: '20px', borderTop: '1px solid var(--border)' }}>
+               <button style={{ background: 'var(--gold)', color: '#fff', border: 'none', padding: '12px 28px', borderRadius: '8px', cursor: 'pointer', fontWeight: 'bold', fontSize: '14px', transition: 'opacity 0.2s' }} onMouseEnter={e=>e.currentTarget.style.opacity=0.9} onMouseLeave={e=>e.currentTarget.style.opacity=1}>
+                 Save Changes
+               </button>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Modal */}

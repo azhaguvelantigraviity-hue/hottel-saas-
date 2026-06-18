@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 
 import { updatePassword } from '../services/authService';
+import Icon from '../components/Icon';
 
 const inputStyle = {
   width: '100%', padding: '10px 12px', background: 'var(--surface)',
@@ -15,6 +16,7 @@ const SettingsPage = ({ role, plan, onNav }) => {
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [msg, setMsg] = useState(null); // { type: 'success'|'error', text }
   const [propMsg, setPropMsg] = useState(null);
@@ -268,15 +270,30 @@ const SettingsPage = ({ role, plan, onNav }) => {
           <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
             <div>
               <label style={labelStyle}>CURRENT PASSWORD</label>
-              <input type="password" placeholder="Current Password" value={currentPassword} onChange={e => { setCurrentPassword(e.target.value); setMsg(null); }} style={inputStyle} />
+              <div style={{ position: 'relative' }}>
+                <input type={showPassword ? "text" : "password"} placeholder="Current Password" value={currentPassword} onChange={e => { setCurrentPassword(e.target.value); setMsg(null); }} style={{ ...inputStyle, paddingRight: '40px' }} />
+                <button type="button" onClick={() => setShowPassword(!showPassword)} style={{ position: 'absolute', right: '10px', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text3)', display: 'flex', alignItems: 'center' }}>
+                  <Icon name={showPassword ? "eye-off" : "eye"} size={16} />
+                </button>
+              </div>
             </div>
             <div>
               <label style={labelStyle}>NEW PASSWORD</label>
-              <input type="password" placeholder="New Password" value={newPassword} onChange={e => { setNewPassword(e.target.value); setMsg(null); }} style={inputStyle} />
+              <div style={{ position: 'relative' }}>
+                <input type={showPassword ? "text" : "password"} placeholder="New Password" value={newPassword} onChange={e => { setNewPassword(e.target.value); setMsg(null); }} style={{ ...inputStyle, paddingRight: '40px' }} />
+                <button type="button" onClick={() => setShowPassword(!showPassword)} style={{ position: 'absolute', right: '10px', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text3)', display: 'flex', alignItems: 'center' }}>
+                  <Icon name={showPassword ? "eye-off" : "eye"} size={16} />
+                </button>
+              </div>
             </div>
             <div>
               <label style={labelStyle}>CONFIRM NEW PASSWORD</label>
-              <input type="password" placeholder="Confirm New Password" value={confirmPassword} onChange={e => { setConfirmPassword(e.target.value); setMsg(null); }} style={inputStyle} />
+              <div style={{ position: 'relative' }}>
+                <input type={showPassword ? "text" : "password"} placeholder="Confirm New Password" value={confirmPassword} onChange={e => { setConfirmPassword(e.target.value); setMsg(null); }} style={{ ...inputStyle, paddingRight: '40px' }} />
+                <button type="button" onClick={() => setShowPassword(!showPassword)} style={{ position: 'absolute', right: '10px', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text3)', display: 'flex', alignItems: 'center' }}>
+                  <Icon name={showPassword ? "eye-off" : "eye"} size={16} />
+                </button>
+              </div>
             </div>
             {msg && (
               <div style={{ padding: '8px 12px', borderRadius: '6px', fontSize: '12px', fontWeight: 500, background: msg.type === 'success' ? 'rgba(52,211,153,0.12)' : 'rgba(239,68,68,0.12)', color: msg.type === 'success' ? 'var(--green)' : 'var(--rose)', border: `1px solid ${msg.type === 'success' ? 'rgba(52,211,153,0.3)' : 'rgba(239,68,68,0.3)'}` }}>

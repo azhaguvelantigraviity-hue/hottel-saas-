@@ -169,37 +169,43 @@ const CheckInOutPage = () => {
                       <StatusBadge status={b.status} />
                     </td>
                     <td style={{ padding: '16px', textAlign: 'right' }}>
-                      {activeTab === 'arrivals' ? (
-                        b.status === 'checked_in' ? (
-                          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: '8px' }}>
-                            <span style={{ fontSize: '13px', color: 'var(--green)', fontWeight: 600 }}>Checked In ✓</span>
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: '16px' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                          <button title="View Booking" onClick={() => window.location.href='/hotel/bookings'} style={{ background: 'transparent', border: '1px solid var(--border)', cursor: 'pointer', color: 'var(--text2)', padding: '6px', borderRadius: '6px', display: 'flex', alignItems: 'center', justifyContent: 'center' }} onMouseEnter={e=>e.currentTarget.style.background='var(--surface)'} onMouseLeave={e=>e.currentTarget.style.background='transparent'}><Icon name="eye" size={14} /></button>
+                          <button title="Edit Booking" onClick={() => window.location.href='/hotel/bookings'} style={{ background: 'transparent', border: '1px solid var(--border)', cursor: 'pointer', color: 'var(--text2)', padding: '6px', borderRadius: '6px', display: 'flex', alignItems: 'center', justifyContent: 'center' }} onMouseEnter={e=>e.currentTarget.style.background='var(--surface)'} onMouseLeave={e=>e.currentTarget.style.background='transparent'}><Icon name="edit" size={14} /></button>
+                        </div>
+                        {activeTab === 'arrivals' ? (
+                          b.status === 'checked_in' ? (
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                              <span style={{ fontSize: '13px', color: 'var(--green)', fontWeight: 600 }}>Checked In ✓</span>
+                              <button 
+                                onClick={() => setCheckInModalBooking(b)}
+                                style={{ background: 'var(--surface)', color: 'var(--text)', border: '1px solid var(--border)', padding: '6px 10px', borderRadius: '6px', cursor: 'pointer', fontWeight: 600, fontSize: '12px', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                                <Icon name="file" size={14} color="var(--gold)" /> Docs
+                              </button>
+                            </div>
+                          ) : (
                             <button 
                               onClick={() => setCheckInModalBooking(b)}
-                              style={{ background: 'var(--surface)', color: 'var(--text)', border: '1px solid var(--border)', padding: '6px 10px', borderRadius: '6px', cursor: 'pointer', fontWeight: 600, fontSize: '12px', display: 'flex', alignItems: 'center', gap: '4px' }}>
-                              <Icon name="file" size={14} color="var(--gold)" /> Docs
+                              style={{ background: 'var(--green)', color: '#fff', border: 'none', padding: '8px 16px', borderRadius: '6px', cursor: 'pointer', fontWeight: 600, fontSize: '13px' }}>
+                              Check In
                             </button>
-                          </div>
+                          )
                         ) : (
-                          <button 
-                            onClick={() => setCheckInModalBooking(b)}
-                            style={{ background: 'var(--green)', color: '#fff', border: 'none', padding: '8px 16px', borderRadius: '6px', cursor: 'pointer', fontWeight: 600, fontSize: '13px' }}>
-                            Check In
-                          </button>
-                        )
-                      ) : (
-                        b.status === 'checked_out' ? (
-                          <span style={{ fontSize: '13px', color: 'var(--teal)', fontWeight: 600 }}>Checked Out ✓</span>
-                        ) : b.status === 'checked_in' ? (
-                          <button 
-                            onClick={() => handleCheckOutClick(b._id)}
-                            disabled={isGeneratingInvoice && checkoutBooking?._id === b._id}
-                            style={{ background: 'var(--rose)', color: '#fff', border: 'none', padding: '8px 16px', borderRadius: '6px', cursor: (isGeneratingInvoice && checkoutBooking?._id === b._id) ? 'not-allowed' : 'pointer', fontWeight: 600, fontSize: '13px', opacity: (isGeneratingInvoice && checkoutBooking?._id === b._id) ? 0.7 : 1 }}>
-                            {(isGeneratingInvoice && checkoutBooking?._id === b._id) ? 'Generating...' : 'Check Out'}
-                          </button>
-                        ) : (
-                          <span style={{ fontSize: '13px', color: 'var(--text3)' }}>Not Checked-In</span>
-                        )
-                      )}
+                          b.status === 'checked_out' ? (
+                            <span style={{ fontSize: '13px', color: 'var(--teal)', fontWeight: 600 }}>Checked Out ✓</span>
+                          ) : b.status === 'checked_in' ? (
+                            <button 
+                              onClick={() => handleCheckOutClick(b._id)}
+                              disabled={isGeneratingInvoice && checkoutBooking?._id === b._id}
+                              style={{ background: 'var(--rose)', color: '#fff', border: 'none', padding: '8px 16px', borderRadius: '6px', cursor: (isGeneratingInvoice && checkoutBooking?._id === b._id) ? 'not-allowed' : 'pointer', fontWeight: 600, fontSize: '13px', opacity: (isGeneratingInvoice && checkoutBooking?._id === b._id) ? 0.7 : 1 }}>
+                              {(isGeneratingInvoice && checkoutBooking?._id === b._id) ? 'Generating...' : 'Check Out'}
+                            </button>
+                          ) : (
+                            <span style={{ fontSize: '13px', color: 'var(--text3)' }}>Not Checked-In</span>
+                          )
+                        )}
+                      </div>
                     </td>
                   </tr>
                 ))
